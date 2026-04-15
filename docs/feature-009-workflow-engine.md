@@ -173,16 +173,14 @@ NodeType = "task" | "condition" | "parallel" | "loop" | "subworkflow"
 
 ## 验收条件
 
-| 序号 | 验收项 | 验收标准 |
-|------|--------|----------|
-| 1 | 工作流定义 | 支持DSL定义工作流，包含节点、边、条件、循环等元素 |
-| 2 | 串行执行 | 节点按拓扑顺序依次执行，前置节点完成后触发后续节点 |
-| 3 | 并行执行 | 支持多节点同时执行，提供同步屏障等待所有分支完成 |
-| 4 | 条件分支 | 根据执行结果或条件表达式选择执行路径，支持多分支判断 |
-| 5 | 循环执行 | 支持指定条件的循环执行，提供循环次数限制保护 |
-| 6 | 执行监控 | 实时追踪任务执行状态，提供进度可视化和状态通知 |
-| 7 | 错误恢复 | 支持节点级别重试策略，提供断点续传和状态回滚 |
-| 8 | API接口 | 提供创建、启动、暂停、查询等完整的RESTful API |
+1. **工作流定义**：支持DSL定义工作流，包含节点、边、条件、循环等元素
+2. **串行执行**：节点按拓扑顺序依次执行，前置节点完成后触发后续节点
+3. **并行执行**：支持多节点同时执行，提供同步屏障等待所有分支完成
+4. **条件分支**：根据执行结果或条件表达式选择执行路径，支持多分支判断
+5. **循环执行**：支持指定条件的循环执行，提供循环次数限制保护
+6. **执行监控**：实时追踪任务执行状态，提供进度可视化和状态通知
+7. **错误恢复**：支持节点级别重试策略，提供断点续传和状态回滚
+8. **API接口**：提供创建、启动、暂停、查询等完整的RESTful API
 
 ---
 
@@ -228,87 +226,75 @@ NodeExecutor:
 
 ### Workflow模型
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| workflow_id | string | 工作流唯一标识 |
-| name | string | 工作流名称 |
-| description | string | 工作流描述 |
-| version | string | 版本号 |
-| status | enum | draft/published/archived |
-| nodes | array | 节点定义列表 |
-| edges | array | 边定义列表 |
-| config | object | 工作流配置 |
-| created_at | datetime | 创建时间 |
-| updated_at | datetime | 更新时间 |
+- **workflow_id** (string): 工作流唯一标识
+- **name** (string): 工作流名称
+- **description** (string): 工作流描述
+- **version** (string): 版本号
+- **status** (enum): draft/published/archived
+- **nodes** (array): 节点定义列表
+- **edges** (array): 边定义列表
+- **config** (object): 工作流配置
+- **created_at** (datetime): 创建时间
+- **updated_at** (datetime): 更新时间
 
 ### Node模型
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| node_id | string | 节点唯一标识 |
-| workflow_id | string | 所属工作流ID |
-| type | enum | task/condition/parallel/loop/subworkflow |
-| name | string | 节点名称 |
-| config | object | 节点配置 |
-| retry_policy | object | 重试策略 |
-| timeout | number | 超时时间（秒） |
-| position | object | 可视化位置坐标 |
+- **node_id** (string): 节点唯一标识
+- **workflow_id** (string): 所属工作流ID
+- **type** (enum): task/condition/parallel/loop/subworkflow
+- **name** (string): 节点名称
+- **config** (object): 节点配置
+- **retry_policy** (object): 重试策略
+- **timeout** (number): 超时时间（秒）
+- **position** (object): 可视化位置坐标
 
 ### Execution模型
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| execution_id | string | 执行实例唯一标识 |
-| workflow_id | string | 关联工作流ID |
-| status | enum | pending/running/paused/completed/failed/cancelled |
-| params | object | 执行参数 |
-| current_nodes | array | 当前执行节点列表 |
-| started_at | datetime | 开始时间 |
-| finished_at | datetime | 结束时间 |
-| error | object | 错误信息 |
+- **execution_id** (string): 执行实例唯一标识
+- **workflow_id** (string): 关联工作流ID
+- **status** (enum): pending/running/paused/completed/failed/cancelled
+- **params** (object): 执行参数
+- **current_nodes** (array): 当前执行节点列表
+- **started_at** (datetime): 开始时间
+- **finished_at** (datetime): 结束时间
+- **error** (object): 错误信息
 
 ### NodeExecution模型
 
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| node_execution_id | string | 节点执行唯一标识 |
-| execution_id | string | 所属执行实例ID |
-| node_id | string | 节点ID |
-| status | enum | pending/running/completed/failed/skipped |
-| input | object | 输入参数 |
-| output | object | 输出结果 |
-| started_at | datetime | 开始时间 |
-| finished_at | datetime | 结束时间 |
-| retry_count | number | 重试次数 |
-| error | object | 错误信息 |
+- **node_execution_id** (string): 节点执行唯一标识
+- **execution_id** (string): 所属执行实例ID
+- **node_id** (string): 节点ID
+- **status** (enum): pending/running/completed/failed/skipped
+- **input** (object): 输入参数
+- **output** (object): 输出结果
+- **started_at** (datetime): 开始时间
+- **finished_at** (datetime): 结束时间
+- **retry_count** (number): 重试次数
+- **error** (object): 错误信息
 
 ---
 
 ## 配置项
 
-| 配置项 | 默认值 | 说明 |
-|--------|--------|------|
-| max_workflow_depth | 10 | 最大工作流嵌套深度 |
-| max_parallel_nodes | 20 | 最大并行执行节点数 |
-| default_timeout | 3600 | 默认节点超时时间（秒） |
-| max_retry_count | 3 | 默认最大重试次数 |
-| retry_interval | 5000 | 重试间隔时间（毫秒） |
-| execution_retention_days | 30 | 执行记录保留天数 |
+- **max_workflow_depth**: 10（最大工作流嵌套深度）
+- **max_parallel_nodes**: 20（最大并行执行节点数）
+- **default_timeout**: 3600（默认节点超时时间，单位：秒）
+- **max_retry_count**: 3（默认最大重试次数）
+- **retry_interval**: 5000（重试间隔时间，单位：毫秒）
+- **execution_retention_days**: 30（执行记录保留天数）
 
 ---
 
 ## 错误处理
 
-| 错误码 | 说明 | 处理策略 |
-|--------|------|----------|
-| WF_001 | 工作流定义无效 | 返回验证错误详情 |
-| WF_002 | 节点执行超时 | 根据超时配置终止或重试 |
-| WF_003 | 节点执行失败 | 根据重试策略重试或标记失败 |
-| WF_004 | 循环次数超限 | 终止循环并报错 |
-| WF_005 | 依赖节点未完成 | 等待依赖节点完成后继续 |
-| WF_006 | 工作流不存在 | 返回404错误 |
-| WF_007 | 执行状态不允许操作 | 返回当前状态和允许的操作 |
-| WF_008 | 资源配额超限 | 排队等待或拒绝执行 |
+- **WF_001**（工作流定义无效）：返回验证错误详情
+- **WF_002**（节点执行超时）：根据超时配置终止或重试
+- **WF_003**（节点执行失败）：根据重试策略重试或标记失败
+- **WF_004**（循环次数超限）：终止循环并报错
+- **WF_005**（依赖节点未完成）：等待依赖节点完成后继续
+- **WF_006**（工作流不存在）：返回404错误
+- **WF_007**（执行状态不允许操作）：返回当前状态和允许的操作
+- **WF_008**（资源配额超限）：排队等待或拒绝执行
 
 ---
 
