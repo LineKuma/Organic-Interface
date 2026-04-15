@@ -1,37 +1,71 @@
-# Task: organic项目重试仓库ssh链接
+# Task: Organic-Interface需求文档创建
 
-## 基本信息
-
-- **任务ID**: task-P1-521-fix-ssh-url.md
-- **优先级**: P1
-- **项目**: Organic-Interface
-- **创建时间**: 2026-04-15 11:05:46
-- **状态**: completed
+**项目上下文**：projects/Organic-Interface  
+**任务ID**：task-P1-521-fix-ssh-url  
+**任务类型**：新建需求文档
 
 ## 任务描述
 
-将Organic-Interface仓库的远程URL从HTTPS改为SSH格式，解决SSH连接问题。
+为Organic-Interface AI助手项目创建完整的需求文档，包含以下核心功能特性的详细设计：
 
-## 当前状态
+### 1. 并行多层Agent架构
+- 上级Agent调度下级Agent实现任务分解
+- 支持层级式、协作式、混合式多种模式
+- Agent间通信和状态同步机制
 
-- **当前remote URL**: https://github.com/LineCatOvO/Organic-Interface.git
-- **目标remote URL**: git@github.com:LineCatOvO/Organic-Interface.git
+### 2. 交互界面作为工具
+- 界面本身可被AI调用执行操作
+- 支持自动化工作流编排
+- 供AI自主分析改进的能力
+
+### 3. 高度自定义提示词系统
+- 方便修改的提示词模板
+- 支持动态变量和条件逻辑
+- 提示词版本管理和回滚
+
+### 4. 文件引用功能
+- 支持在对话中引用代码文件
+- 上下文感知和智能解析
+- 支持多语言代码理解
+
+### 5. 项目定位
+- 专攻代码方面的AI助手
+- 高度灵活的设计
+- 丰富的运行逻辑
+
+## 操作文件
+
+**输出文件**：`/workspaces/agent-workspace/projects/Organic-Interface/docs/requirements.md`
 
 ## 执行步骤
 
-1. 进入项目目录 `/workspaces/agent-workspace/projects/Organic-Interface`
-2. 执行 `git remote set-url origin git@github.com:LineCatOvO/Organic-Interface.git`
-3. 验证修改结果，执行 `git remote -v` 确认URL已变更
+### 步骤1：创建目录结构
+创建docs目录用于存放文档文件
+
+### 步骤2：编写需求文档主文件
+包含以下章节：
+- 项目概述与目标
+- 功能需求详细说明（按上述5个核心特性）
+- 非功能需求（性能、安全、可扩展性）
+- 技术选型建议
+- 用户故事和用例
+- 里程碑规划
 
 ## 验收标准
 
-- git remote -v 显示 origin 的fetch和push URL均为 `git@github.com:LineCatOvO/Organic-Interface.git`
-- URL格式必须是SSH格式（git@github.com:开头），不是HTTPS格式
+1. 文档结构完整，包含所有5个核心功能特性的详细描述
+2. 每个功能特性包含：功能描述、用户价值、技术实现要点、验收条件
+3. 文档语言清晰简洁，使用中文
+4. 包含技术选型建议章节
 
 ## 回滚方案
 
-如需回滚，执行：`git remote set-url origin https://github.com/LineCatOvO/Organic-Interface.git`
+如需回滚，删除docs目录或相关文档文件即可
 
 ## 依赖关系
 
-无
+无依赖，可独立执行
+
+## 状态
+
+**PENDING**
