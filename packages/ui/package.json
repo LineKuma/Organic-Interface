@@ -24,11 +24,6 @@
     "@organic/plugins": "workspace:*",
     "@organic/tools": "workspace:*",
     "@organic/agent": "workspace:*"
-  },",
-    "@organic/kernel": "workspace:*",
-    "@organic/plugins": "workspace:*",
-    "@organic/tools": "workspace:*",
-    "@organic/agent": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.4.0"
