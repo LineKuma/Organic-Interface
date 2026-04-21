@@ -1,418 +1,339 @@
 /**
- * FileTool - Built-in file operation tools
+ * FileTool - Built-in tool for file operations
  */
 
 import { promises as fs } from 'fs';
 import path from 'path';
-import type {
-  ToolDefinition,
-  ToolResult,
-  ToolExecutionContext,
-  ToolType,
-  ToolCallLevel,
-  ToolParameterDefinition,
-} from '@organic/utils';
-import { ToolErrorCode as ErrorCode } from '@organic/utils';
+import {
+  type Tool,
+  type ToolDefinition,
+  type ToolResult,
+  type ToolExecutionContext,
+  type ToolValidationError,
+} from '../types/index.js';
 
 /**
- * File tool handler functions
+ * FileTool input schema
  */
-export const fileToolHandlers = {
-  /**
-   * file_read - Read file contents
-   */
-  async file_read(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
-    const startTime = Date.now();
-    const filePath = String(params.path);
-    const encoding = String(params.encoding ?? 'utf-8');
+interface FileToolInput {
+  /** Operation to perform */
+  operation: 'read' | 'write' | 'delete' | 'exists' | 'list' | 'stat' | 'mkdir' | 'copy' | 'move';
 
-    try {
-      context.logger.debug(`Reading file: ${filePath}`);
-      
-      const content = await fs.readFile(filePath, { encoding });
-      
-      return {
-        success: true,
-        data: {
-          path: filePath,
-          content,
-          size: content.length,
-          encoding,
-        },
-        metadata: {
-          tool_name: 'file_read',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    } catch (error) {
-      context.logger.error(`Failed to read file: ${filePath}`, error);
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: `Failed to read file: ${error instanceof Error ? error.message : String(error)}`,
-        },
-        metadata: {
-          tool_name: 'file_read',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    }
-  },
+  /** File path */
+  path?: string;
 
-  /**
-   * file_write - Write content to file
-   */
-  async file_write(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
-    const startTime = Date.now();
-    const filePath = String(params.path);
-    const content = String(params.content);
-    const encoding = String(params.encoding ?? 'utf-8');
+  /** Source path (for copy/move) */
+  source?: string;
 
-    try {
-      context.logger.debug(`Writing file: ${filePath}`);
-      
-      // Ensure directory exists
-      const dir = path.dirname(filePath);
-      await fs.mkdir(dir, { recursive: true });
-      
-      await fs.writeFile(filePath, content, { encoding });
-      
-      return {
-        success: true,
-        data: {
-          path: filePath,
-          bytesWritten: content.length,
-          encoding,
-        },
-        metadata: {
-          tool_name: 'file_write',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    } catch (error) {
-      context.logger.error(`Failed to write file: ${filePath}`, error);
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: `Failed to write file: ${error instanceof Error ? error.message : String(error)}`,
-        },
-        metadata: {
-          tool_name: 'file_write',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    }
-  },
+  /** Destination path (for copy/move) */
+  destination?: string;
 
-  /**
-   * file_list - List directory contents
-   */
-  async file_list(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
-    const startTime = Date.now();
-    const dirPath = String(params.path);
-    const recursive = Boolean(params.recursive ?? false);
+  /** Content to write (for write operation) */
+  content?: string;
 
-    try {
-      context.logger.debug(`Listing directory: ${dirPath}`);
-      
-      const entries = await listDirectory(dirPath, recursive);
-      
-      return {
-        success: true,
-        data: {
-          path: dirPath,
-          entries,
-          count: entries.length,
-          recursive,
-        },
-        metadata: {
-          tool_name: 'file_list',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    } catch (error) {
-      context.logger.error(`Failed to list directory: ${dirPath}`, error);
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: `Failed to list directory: ${error instanceof Error ? error.message : String(error)}`,
-        },
-        metadata: {
-          tool_name: 'file_list',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    }
-  },
+  /** Whether to create directories (for write operation) */
+  createDirectories?: boolean;
 
-  /**
-   * file_exists - Check if file or directory exists
-   */
-  async file_exists(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
-    const startTime = Date.now();
-    const targetPath = String(params.path);
+  /** Recursive flag (for list/delete operations) */
+  recursive?: boolean;
 
-    try {
-      context.logger.debug(`Checking existence: ${targetPath}`);
-      
-      await fs.access(targetPath);
-      
-      const stats = await fs.stat(targetPath);
-      
-      return {
-        success: true,
-        data: {
-          path: targetPath,
-          exists: true,
-          isFile: stats.isFile(),
-          isDirectory: stats.isDirectory(),
-        },
-        metadata: {
-          tool_name: 'file_exists',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    } catch {
-      return {
-        success: true,
-        data: {
-          path: targetPath,
-          exists: false,
-          isFile: false,
-          isDirectory: false,
-        },
-        metadata: {
-          tool_name: 'file_exists',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    }
-  },
-};
-
-/**
- * List directory contents
- */
-async function listDirectory(
-  dirPath: string,
-  recursive: boolean
-): Promise<Array<{
-  name: string;
-  path: string;
-  type: 'file' | 'directory';
-  size?: number;
-}>> {
-  const entries: Array<{
-    name: string;
-    path: string;
-    type: 'file' | 'directory';
-    size?: number;
-  }> = [];
-
-  const items = await fs.readdir(dirPath, { withFileTypes: true });
-
-  for (const item of items) {
-    const fullPath = path.join(dirPath, item.name);
-    const entry: {
-      name: string;
-      path: string;
-      type: 'file' | 'directory';
-      size?: number;
-    } = {
-      name: item.name,
-      path: fullPath,
-      type: item.isDirectory() ? 'directory' : 'file',
-    };
-
-    if (item.isFile()) {
-      const stats = await fs.stat(fullPath);
-      entry.size = stats.size;
-    }
-
-    entries.push(entry);
-
-    if (recursive && item.isDirectory()) {
-      try {
-        const subEntries = await listDirectory(fullPath, true);
-        entries.push(...subEntries);
-      } catch {
-        // Skip inaccessible directories
-      }
-    }
-  }
-
-  return entries;
+  /** Pattern for filtering (for list operation) */
+  pattern?: string;
 }
 
 /**
- * Get file tool definitions
+ * FileTool - Built-in file operation tool
  */
-export function getFileToolDefinitions(): Array<{
-  definition: ToolDefinition;
-  handler: (params: Record<string, unknown>, context: ToolExecutionContext) => Promise<ToolResult>;
-}> {
-  return [
-    {
-      definition: {
-        name: 'file_read',
-        version: '1.0.0',
-        description: 'Read file contents from the file system',
-        type: ToolType.FILE_OPERATION,
-        call_level: ToolCallLevel.NORMAL,
-        parameters: {
-          type: 'object',
-          properties: {
-            path: {
-              name: 'path',
-              type: 'string',
-              description: 'File path to read',
-              required: true,
-            },
-            encoding: {
-              name: 'encoding',
-              type: 'string',
-              description: 'File encoding (default: utf-8)',
-              required: false,
-              default: 'utf-8',
-            },
+export class FileTool implements Tool {
+  private definition: ToolDefinition;
+
+  constructor() {
+    this.definition = {
+      id: 'builtin:file',
+      name: 'FileTool',
+      description: 'Built-in tool for file system operations including read, write, delete, and list',
+      category: 'file',
+      inputSchema: {
+        type: 'object',
+        required: ['operation'],
+        properties: {
+          operation: {
+            type: 'string',
+            enum: ['read', 'write', 'delete', 'exists', 'list', 'stat', 'mkdir', 'copy', 'move'],
+            description: 'File operation to perform',
           },
-          required: ['path'],
-          additionalProperties: false,
-        },
-        max_execution_time: 10000,
-      },
-      handler: fileToolHandlers.file_read,
-    },
-    {
-      definition: {
-        name: 'file_write',
-        version: '1.0.0',
-        description: 'Write content to a file',
-        type: ToolType.FILE_OPERATION,
-        call_level: ToolCallLevel.RESTRICTED,
-        parameters: {
-          type: 'object',
-          properties: {
-            path: {
-              name: 'path',
-              type: 'string',
-              description: 'File path to write',
-              required: true,
-            },
-            content: {
-              name: 'content',
-              type: 'string',
-              description: 'Content to write to file',
-              required: true,
-            },
-            encoding: {
-              name: 'encoding',
-              type: 'string',
-              description: 'File encoding (default: utf-8)',
-              required: false,
-              default: 'utf-8',
-            },
+          path: {
+            type: 'string',
+            description: 'File or directory path',
           },
-          required: ['path', 'content'],
-          additionalProperties: false,
-        },
-        max_execution_time: 15000,
-      },
-      handler: fileToolHandlers.file_write,
-    },
-    {
-      definition: {
-        name: 'file_list',
-        version: '1.0.0',
-        description: 'List files in a directory',
-        type: ToolType.FILE_OPERATION,
-        call_level: ToolCallLevel.NORMAL,
-        parameters: {
-          type: 'object',
-          properties: {
-            path: {
-              name: 'path',
-              type: 'string',
-              description: 'Directory path to list',
-              required: true,
-            },
-            recursive: {
-              name: 'recursive',
-              type: 'boolean',
-              description: 'Whether to list recursively',
-              required: false,
-              default: false,
-            },
+          source: {
+            type: 'string',
+            description: 'Source path for copy/move operations',
           },
-          required: ['path'],
-          additionalProperties: false,
-        },
-        max_execution_time: 5000,
-      },
-      handler: fileToolHandlers.file_list,
-    },
-    {
-      definition: {
-        name: 'file_exists',
-        version: '1.0.0',
-        description: 'Check if a file or directory exists',
-        type: ToolType.FILE_OPERATION,
-        call_level: ToolCallLevel.NORMAL,
-        parameters: {
-          type: 'object',
-          properties: {
-            path: {
-              name: 'path',
-              type: 'string',
-              description: 'Path to check',
-              required: true,
-            },
+          destination: {
+            type: 'string',
+            description: 'Destination path for copy/move operations',
           },
-          required: ['path'],
-          additionalProperties: false,
+          content: {
+            type: 'string',
+            description: 'Content to write (for write operation)',
+          },
+          createDirectories: {
+            type: 'boolean',
+            description: 'Create parent directories if they do not exist',
+          },
+          recursive: {
+            type: 'boolean',
+            description: 'Perform operation recursively',
+          },
+          pattern: {
+            type: 'string',
+            description: 'Pattern for filtering files (glob pattern)',
+          },
         },
-        max_execution_time: 1000,
       },
-      handler: fileToolHandlers.file_exists,
-    },
-  ];
+      outputSchema: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          data: { type: 'any' },
+          error: { type: 'string' },
+        },
+      },
+      enabled: true,
+      timeout: 10000,
+      permissions: [
+        { type: 'filesystem', scope: 'read', granted: true },
+        { type: 'filesystem', scope: 'write', granted: true },
+      ],
+    };
+  }
+
+  getDefinition(): ToolDefinition {
+    return this.definition;
+  }
+
+  validate(input: unknown): ToolValidationError[] {
+    const errors: ToolValidationError[] = [];
+    const data = input as Partial<FileToolInput>;
+
+    if (!data.operation) {
+      errors.push({
+        path: 'operation',
+        message: 'Operation is required',
+        expected: 'string',
+        actual: data.operation,
+      });
+    } else if (!['read', 'write', 'delete', 'exists', 'list', 'stat', 'mkdir', 'copy', 'move'].includes(data.operation)) {
+      errors.push({
+        path: 'operation',
+        message: 'Invalid operation',
+        expected: 'read|write|delete|exists|list|stat|mkdir|copy|move',
+        actual: data.operation,
+      });
+    }
+
+    // Validate operation-specific requirements
+    if (['read', 'write', 'delete', 'exists', 'stat', 'mkdir'].includes(data.operation) && !data.path) {
+      errors.push({
+        path: 'path',
+        message: 'Path is required for this operation',
+        expected: 'string',
+        actual: data.path,
+      });
+    }
+
+    if (['copy', 'move'].includes(data.operation)) {
+      if (!data.source) {
+        errors.push({
+          path: 'source',
+          message: 'Source path is required for copy/move operations',
+          expected: 'string',
+          actual: data.source,
+        });
+      }
+      if (!data.destination) {
+        errors.push({
+          path: 'destination',
+          message: 'Destination path is required for copy/move operations',
+          expected: 'string',
+          actual: data.destination,
+        });
+      }
+    }
+
+    if (data.operation === 'write' && data.content === undefined) {
+      errors.push({
+        path: 'content',
+        message: 'Content is required for write operation',
+        expected: 'string',
+        actual: data.content,
+      });
+    }
+
+    return errors;
+  }
+
+  async execute(input: unknown, context: ToolExecutionContext): Promise<ToolResult> {
+    const data = input as FileToolInput;
+    const startTime = Date.now();
+
+    try {
+      let result: unknown;
+
+      switch (data.operation) {
+        case 'read':
+          result = await this.readFile(data.path!);
+          break;
+
+        case 'write':
+          result = await this.writeFile(data.path!, data.content!, data.createDirectories);
+          break;
+
+        case 'delete':
+          result = await this.deleteFile(data.path!, data.recursive);
+          break;
+
+        case 'exists':
+          result = await this.exists(data.path!);
+          break;
+
+        case 'list':
+          result = await this.listDirectory(data.path!, data.recursive, data.pattern);
+          break;
+
+        case 'stat':
+          result = await this.getStat(data.path!);
+          break;
+
+        case 'mkdir':
+          result = await this.makeDirectory(data.path!, data.createDirectories);
+          break;
+
+        case 'copy':
+          result = await this.copyFile(data.source!, data.destination!);
+          break;
+
+        case 'move':
+          result = await this.moveFile(data.source!, data.destination!);
+          break;
+
+        default:
+          throw new Error(`Unknown operation: ${data.operation}`);
+      }
+
+      return {
+        success: true,
+        data: result,
+        executionTime: Date.now() - startTime,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+        executionTime: Date.now() - startTime,
+      };
+    }
+  }
+
+  private async readFile(filePath: string): Promise<string> {
+    return fs.readFile(filePath, 'utf-8');
+  }
+
+  private async writeFile(filePath: string, content: string, createDirs?: boolean): Promise<{ path: string; bytes: number }> {
+    if (createDirs) {
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+    }
+    await fs.writeFile(filePath, content, 'utf-8');
+    return { path: filePath, bytes: Buffer.byteLength(content, 'utf-8') };
+  }
+
+  private async deleteFile(filePath: string, recursive?: boolean): Promise<{ deleted: boolean; path: string }> {
+    const stat = await fs.stat(filePath);
+    if (stat.isDirectory()) {
+      await fs.rm(filePath, { recursive: recursive ?? false });
+    } else {
+      await fs.unlink(filePath);
+    }
+    return { deleted: true, path: filePath };
+  }
+
+  private async exists(filePath: string): Promise<boolean> {
+    try {
+      await fs.access(filePath);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  private async listDirectory(dirPath: string, recursive?: boolean, pattern?: string): Promise<string[]> {
+    const entries = await fs.readdir(dirPath, { withFileTypes: true });
+    const results: string[] = [];
+
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry.name);
+
+      if (entry.isDirectory() && recursive) {
+        const subResults = await this.listDirectory(fullPath, true, pattern);
+        results.push(...subResults);
+      } else if (entry.isFile()) {
+        if (pattern) {
+          const regex = new RegExp(pattern.replace(/\*/g, '.*').replace(/\?/g, '.'));
+          if (regex.test(entry.name)) {
+            results.push(fullPath);
+          }
+        } else {
+          results.push(fullPath);
+        }
+      }
+    }
+
+    return results;
+  }
+
+  private async getStat(filePath: string): Promise<{
+    size: number;
+    isFile: boolean;
+    isDirectory: boolean;
+    created: string;
+    modified: string;
+    accessed: string;
+  }> {
+    const stat = await fs.stat(filePath);
+    return {
+      size: stat.size,
+      isFile: stat.isFile(),
+      isDirectory: stat.isDirectory(),
+      created: stat.birthtime.toISOString(),
+      modified: stat.mtime.toISOString(),
+      accessed: stat.atime.toISOString(),
+    };
+  }
+
+  private async makeDirectory(dirPath: string, createParents?: boolean): Promise<{ path: string; created: boolean }> {
+    await fs.mkdir(dirPath, { recursive: createParents ?? true });
+    return { path: dirPath, created: true };
+  }
+
+  private async copyFile(source: string, destination: string): Promise<{ source: string; destination: string }> {
+    const destDir = path.dirname(destination);
+    await fs.mkdir(destDir, { recursive: true });
+    await fs.copyFile(source, destination);
+    return { source, destination };
+  }
+
+  private async moveFile(source: string, destination: string): Promise<{ source: string; destination: string }> {
+    const destDir = path.dirname(destination);
+    await fs.mkdir(destDir, { recursive: true });
+    await fs.rename(source, destination);
+    return { source, destination };
+  }
+}
+
+/**
+ * Create a FileTool instance
+ */
+export function createFileTool(): FileTool {
+  return new FileTool();
 }

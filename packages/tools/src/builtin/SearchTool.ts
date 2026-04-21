@@ -1,670 +1,533 @@
 /**
- * SearchTool - Built-in search tools
+ * SearchTool - Built-in tool for search operations
  */
 
-import { promises as fs } from 'fs';
-import path from 'path';
-import type {
-  ToolDefinition,
-  ToolResult,
-  ToolExecutionContext,
-  ToolType,
-  ToolCallLevel,
-} from '@organic/utils';
-import { ToolErrorCode as ErrorCode } from '@organic/utils';
+import { createLogger, type Logger } from '@organic/utils';
+import {
+  type Tool,
+  type ToolDefinition,
+  type ToolResult,
+  type ToolExecutionContext,
+  type ToolValidationError,
+} from '../types/index.js';
+
+/**
+ * SearchTool input schema
+ */
+interface SearchToolInput {
+  /** Search operation type */
+  operation: 'grep' | 'find' | 'query' | 'index' | 'suggest';
+
+  /** Search pattern or query */
+  pattern?: string;
+
+  /** Query text (for query operation) */
+  query?: string;
+
+  /** File paths to search */
+  paths?: string[];
+
+  /** Search options */
+  options?: SearchOptions;
+
+  /** Index name (for index/suggest operations) */
+  index?: string;
+
+  /** Document content (for index operation) */
+  document?: Record<string, unknown>;
+
+  /** Document ID (for index operation) */
+  documentId?: string;
+}
+
+/**
+ * Search options
+ */
+interface SearchOptions {
+  /** Case sensitive search */
+  caseSensitive?: boolean;
+
+  /** Use regex pattern */
+  regex?: boolean;
+
+  /** Include file names in results */
+  includeFilenames?: boolean;
+
+  /** Include line numbers in results */
+  includeLineNumbers?: boolean;
+
+  /** Maximum number of results */
+  limit?: number;
+
+  /** File extensions to include */
+  extensions?: string[];
+
+  /** Directories to exclude */
+  excludeDirs?: string[];
+
+  /** Search context lines */
+  context?: number;
+}
 
 /**
  * Search result entry
  */
 interface SearchResult {
+  /** File path */
   file: string;
-  line: number;
-  content: string;
-  match: string;
+
+  /** Line number */
+  line?: number;
+
+  /** Matched content */
+  content?: string;
+
+  /** Context lines before match */
+  before?: string[];
+
+  /** Context lines after match */
+  after?: string[];
 }
 
 /**
- * Glob match result
+ * SearchTool - Built-in search operation tool
  */
-interface GlobResult {
-  path: string;
-  name: string;
-  isDirectory: boolean;
-}
+export class SearchTool implements Tool {
+  private definition: ToolDefinition;
+  private logger: Logger;
 
-/**
- * Search tool handler functions
- */
-export const searchToolHandlers = {
-  /**
-   * file_search - Search file contents using patterns
-   */
-  async file_search(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
-    const startTime = Date.now();
-    const pattern = String(params.pattern);
-    const searchPath = params.path ? String(params.path) : process.cwd();
-    const caseSensitive = Boolean(params.caseSensitive ?? false);
-    const maxResults = Number(params.maxResults ?? 100);
+  // Simple in-memory index for demonstration
+  private index: Map<string, Map<string, Set<string>>> = new Map(); // indexName -> file -> lines
 
-    try {
-      context.logger.debug(`Searching pattern: ${pattern}`, { searchPath, caseSensitive });
+  constructor() {
+    this.logger = createLogger({ prefix: 'search-tool' });
 
-      const results = await searchFiles(searchPath, pattern, {
-        caseSensitive,
-        maxResults,
-        fileExtensions: null, // Search all files
-      });
-
-      return {
-        success: true,
-        data: {
-          pattern,
-          searchPath,
-          caseSensitive,
-          results,
-          totalMatches: results.length,
+    this.definition = {
+      id: 'builtin:search',
+      name: 'SearchTool',
+      description: 'Built-in tool for searching files, text patterns, and maintaining search indices',
+      category: 'search',
+      inputSchema: {
+        type: 'object',
+        required: ['operation'],
+        properties: {
+          operation: {
+            type: 'string',
+            enum: ['grep', 'find', 'query', 'index', 'suggest'],
+            description: 'Search operation to perform',
+          },
+          pattern: {
+            type: 'string',
+            description: 'Search pattern (for grep/find operations)',
+          },
+          query: {
+            type: 'string',
+            description: 'Query text (for query operation)',
+          },
+          paths: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'File paths or directories to search',
+          },
+          options: {
+            type: 'object',
+            description: 'Search options',
+            properties: {
+              caseSensitive: { type: 'boolean' },
+              regex: { type: 'boolean' },
+              includeFilenames: { type: 'boolean' },
+              includeLineNumbers: { type: 'boolean' },
+              limit: { type: 'number' },
+              extensions: { type: 'array', items: { type: 'string' } },
+              excludeDirs: { type: 'array', items: { type: 'string' } },
+              context: { type: 'number' },
+            },
+          },
+          index: {
+            type: 'string',
+            description: 'Index name (for index/suggest operations)',
+          },
+          document: {
+            type: 'object',
+            description: 'Document content (for index operation)',
+          },
+          documentId: {
+            type: 'string',
+            description: 'Document ID (for index operation)',
+          },
         },
-        metadata: {
-          tool_name: 'file_search',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
+      },
+      outputSchema: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          data: { type: 'any' },
+          error: { type: 'string' },
         },
-      };
-    } catch (error) {
-      context.logger.error(`Search failed: ${pattern}`, error);
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: `Search failed: ${error instanceof Error ? error.message : String(error)}`,
-        },
-        metadata: {
-          tool_name: 'file_search',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    }
-  },
-
-  /**
-   * code_search - Search code patterns in files
-   */
-  async code_search(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
-    const startTime = Date.now();
-    const pattern = String(params.pattern);
-    const searchPath = params.path ? String(params.path) : process.cwd();
-    const fileTypes = params.fileTypes as string[] | undefined;
-    const maxResults = Number(params.maxResults ?? 50);
-
-    try {
-      context.logger.debug(`Searching code: ${pattern}`, { searchPath, fileTypes });
-
-      const results = await searchFiles(searchPath, pattern, {
-        caseSensitive: true,
-        maxResults,
-        fileExtensions: fileTypes?.map(ext => ext.startsWith('.') ? ext : `.${ext}`) ?? null,
-      });
-
-      return {
-        success: true,
-        data: {
-          pattern,
-          searchPath,
-          fileTypes,
-          results,
-          totalMatches: results.length,
-        },
-        metadata: {
-          tool_name: 'code_search',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    } catch (error) {
-      context.logger.error(`Code search failed: ${pattern}`, error);
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: `Code search failed: ${error instanceof Error ? error.message : String(error)}`,
-        },
-        metadata: {
-          tool_name: 'code_search',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    }
-  },
-
-  /**
-   * glob_search - Search files by glob pattern
-   */
-  async glob_search(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
-    const startTime = Date.now();
-    const pattern = String(params.pattern);
-    const basePath = params.path ? String(params.path) : process.cwd();
-
-    try {
-      context.logger.debug(`Glob pattern: ${pattern}`, { basePath });
-
-      const results = await globMatch(basePath, pattern);
-
-      return {
-        success: true,
-        data: {
-          pattern,
-          basePath,
-          results,
-          totalMatches: results.length,
-        },
-        metadata: {
-          tool_name: 'glob_search',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    } catch (error) {
-      context.logger.error(`Glob search failed: ${pattern}`, error);
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: `Glob search failed: ${error instanceof Error ? error.message : String(error)}`,
-        },
-        metadata: {
-          tool_name: 'glob_search',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    }
-  },
-
-  /**
-   * path_resolve - Resolve and normalize file paths
-   */
-  async path_resolve(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
-    const startTime = Date.now();
-    const targetPath = String(params.path);
-    const basePath = params.basePath ? String(params.basePath) : process.cwd();
-
-    try {
-      const resolved = path.resolve(basePath, targetPath);
-      const normalized = path.normalize(resolved);
-      const relative = path.relative(basePath, resolved);
-
-      return {
-        success: true,
-        data: {
-          original: targetPath,
-          base: basePath,
-          resolved,
-          normalized,
-          relative,
-          isAbsolute: path.isAbsolute(targetPath),
-          ext: path.extname(targetPath),
-          basename: path.basename(targetPath),
-          dirname: path.dirname(targetPath),
-        },
-        metadata: {
-          tool_name: 'path_resolve',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    } catch (error) {
-      context.logger.error(`Path resolve failed: ${targetPath}`, error);
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: `Path resolve failed: ${error instanceof Error ? error.message : String(error)}`,
-        },
-        metadata: {
-          tool_name: 'path_resolve',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    }
-  },
-
-  /**
-   * path_join - Join path segments
-   */
-  async path_join(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
-    const startTime = Date.now();
-    const segments = params.segments as string[];
-
-    if (!Array.isArray(segments) || segments.length === 0) {
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.INVALID_ARGUMENTS,
-          message: 'segments must be a non-empty array of strings',
-        },
-        metadata: {
-          tool_name: 'path_join',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    }
-
-    try {
-      const joined = path.join(...segments);
-      const normalized = path.normalize(joined);
-      const resolved = path.resolve(joined);
-
-      return {
-        success: true,
-        data: {
-          segments,
-          joined,
-          normalized,
-          resolved,
-        },
-        metadata: {
-          tool_name: 'path_join',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    } catch (error) {
-      context.logger.error(`Path join failed`, error);
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: `Path join failed: ${error instanceof Error ? error.message : String(error)}`,
-        },
-        metadata: {
-          tool_name: 'path_join',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    }
-  },
-};
-
-/**
- * Search files for pattern
- */
-async function searchFiles(
-  searchPath: string,
-  pattern: string,
-  options: {
-    caseSensitive: boolean;
-    maxResults: number;
-    fileExtensions: string[] | null;
+      },
+      enabled: true,
+      timeout: 30000,
+      permissions: [
+        { type: 'read', scope: 'filesystem', granted: true },
+      ],
+    };
   }
-): Promise<SearchResult[]> {
-  const results: SearchResult[] = [];
-  const regex = new RegExp(
-    pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'),
-    options.caseSensitive ? 'g' : 'gi'
-  );
 
-  const searchDir = async (dir: string, depth: number = 0): Promise<void> => {
-    if (depth > 10 || results.length >= options.maxResults) return; // Prevent infinite recursion
+  getDefinition(): ToolDefinition {
+    return this.definition;
+  }
+
+  validate(input: unknown): ToolValidationError[] {
+    const errors: ToolValidationError[] = [];
+    const data = input as Partial<SearchToolInput>;
+
+    if (!data.operation) {
+      errors.push({
+        path: 'operation',
+        message: 'Operation is required',
+        expected: 'string',
+        actual: data.operation,
+      });
+    }
+
+    if (['grep', 'find'].includes(data.operation) && !data.pattern) {
+      errors.push({
+        path: 'pattern',
+        message: 'Pattern is required for grep/find operations',
+        expected: 'string',
+        actual: data.pattern,
+      });
+    }
+
+    if (data.operation === 'query' && !data.query) {
+      errors.push({
+        path: 'query',
+        message: 'Query is required for query operation',
+        expected: 'string',
+        actual: data.query,
+      });
+    }
+
+    if (['grep', 'find', 'query'].includes(data.operation) && !data.paths?.length) {
+      errors.push({
+        path: 'paths',
+        message: 'At least one path is required for this operation',
+        expected: 'array of strings',
+        actual: data.paths,
+      });
+    }
+
+    return errors;
+  }
+
+  async execute(input: unknown, context: ToolExecutionContext): Promise<ToolResult> {
+    const data = input as SearchToolInput;
+    const startTime = Date.now();
 
     try {
-      const entries = await fs.readdir(dir, { withFileTypes: true });
+      let result: unknown;
 
-      for (const entry of entries) {
-        if (results.length >= options.maxResults) break;
+      switch (data.operation) {
+        case 'grep':
+          result = await this.grep(data.pattern!, data.paths!, data.options);
+          break;
 
-        const fullPath = path.join(dir, entry.name);
+        case 'find':
+          result = await this.find(data.pattern!, data.paths!, data.options);
+          break;
 
-        // Skip node_modules and hidden directories
-        if (entry.isDirectory()) {
-          if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
-          await searchDir(fullPath, depth + 1);
-        } else if (entry.isFile()) {
-          // Filter by extension if specified
-          if (options.fileExtensions) {
-            const ext = path.extname(entry.name);
-            if (!options.fileExtensions.includes(ext)) continue;
-          }
+        case 'query':
+          result = await this.query(data.query!, data.index!, data.options);
+          break;
 
-          // Skip binary files
-          if (isBinaryFile(entry.name)) continue;
+        case 'index':
+          result = await this.indexDocument(
+            data.index!,
+            data.documentId!,
+            data.document!
+          );
+          break;
+
+        case 'suggest':
+          result = await this.suggest(data.query!, data.index!);
+          break;
+
+        default:
+          throw new Error(`Unknown operation: ${data.operation}`);
+      }
+
+      return {
+        success: true,
+        data: result,
+        executionTime: Date.now() - startTime,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+        executionTime: Date.now() - startTime,
+      };
+    }
+  }
+
+  /**
+   * Grep: Search for pattern in files
+   */
+  private async grep(
+    pattern: string,
+    paths: string[],
+    options?: SearchOptions
+  ): Promise<{ results: SearchResult[]; count: number }> {
+    const { readFile } = await import('fs/promises');
+    const pathModule = await import('path');
+
+    const results: SearchResult[] = [];
+    const regex = this.createRegex(pattern, options?.regex, options?.caseSensitive);
+    const limit = options?.limit ?? 1000;
+
+    for (const searchPath of paths) {
+      if (results.length >= limit) break;
+
+      try {
+        const files = await this.getFiles(searchPath, options);
+
+        for (const file of files) {
+          if (results.length >= limit) break;
 
           try {
-            const content = await fs.readFile(fullPath, 'utf-8');
+            const content = await readFile(file, 'utf-8');
             const lines = content.split('\n');
 
             for (let i = 0; i < lines.length; i++) {
-              if (regex.test(lines[i])) {
-                results.push({
-                  file: fullPath,
-                  line: i + 1,
-                  content: lines[i].trim(),
-                  match: lines[i].match(regex)?.[0] ?? '',
-                });
+              if (results.length >= limit) break;
 
-                if (results.length >= options.maxResults) break;
+              const line = lines[i];
+              if (regex.test(line)) {
+                const result: SearchResult = {
+                  file,
+                  line: i + 1,
+                  content: line.trim(),
+                };
+
+                if (options?.context) {
+                  result.before = lines.slice(Math.max(0, i - options.context), i);
+                  result.after = lines.slice(i + 1, Math.min(lines.length, i + options.context + 1));
+                }
+
+                results.push(result);
+                regex.lastIndex = 0; // Reset regex state
               }
             }
-          } catch {
-            // Skip unreadable files
+          } catch (err) {
+            // Skip files that can't be read
+            this.logger.debug(`Could not read file: ${file}`);
+          }
+        }
+      } catch (err) {
+        this.logger.debug(`Could not access path: ${searchPath}`);
+      }
+    }
+
+    return { results, count: results.length };
+  }
+
+  /**
+   * Find: Find files by name pattern
+   */
+  private async find(
+    pattern: string,
+    paths: string[],
+    options?: SearchOptions
+  ): Promise<{ files: string[]; count: number }> {
+    const pathModule = await import('path');
+
+    const files: string[] = [];
+    const regex = this.createRegex(pattern, true, options?.caseSensitive);
+    const limit = options?.limit ?? 1000;
+
+    for (const searchPath of paths) {
+      if (files.length >= limit) break;
+
+      try {
+        const matchedFiles = await this.getFiles(searchPath, options);
+
+        for (const file of matchedFiles) {
+          if (files.length >= limit) break;
+
+          const filename = pathModule.basename(file);
+          if (regex.test(filename)) {
+            files.push(file);
+            regex.lastIndex = 0;
+          }
+        }
+      } catch (err) {
+        this.logger.debug(`Could not access path: ${searchPath}`);
+      }
+    }
+
+    return { files, count: files.length };
+  }
+
+  /**
+   * Query: Search indexed documents
+   */
+  private query(query: string, indexName: string, options?: SearchOptions): {
+    results: Array<{ id: string; score: number; content: string }>;
+    count: number;
+  } {
+    const index = this.index.get(indexName);
+    if (!index) {
+      return { results: [], count: 0 };
+    }
+
+    const results: Array<{ id: string; score: number; content: string }> = [];
+    const queryLower = query.toLowerCase();
+    const limit = options?.limit ?? 100;
+
+    for (const [docId, content] of index) {
+      if (results.length >= limit) break;
+
+      const contentStr = typeof content === 'string' ? content : JSON.stringify(content);
+      const contentLower = contentStr.toLowerCase();
+
+      // Simple relevance scoring
+      let score = 0;
+      const queryWords = queryLower.split(/\s+/);
+
+      for (const word of queryWords) {
+        if (contentLower.includes(word)) {
+          score += 1;
+          // Bonus for exact match
+          if (contentLower.includes(queryLower)) {
+            score += 2;
           }
         }
       }
-    } catch {
-      // Skip inaccessible directories
+
+      if (score > 0) {
+        results.push({ id: docId, score, content: contentStr.substring(0, 200) });
+      }
     }
-  };
 
-  await searchDir(searchPath);
-  return results;
-}
+    // Sort by score descending
+    results.sort((a, b) => b.score - a.score);
 
-/**
- * Match glob pattern
- */
-async function globMatch(basePath: string, pattern: string): Promise<GlobResult[]> {
-  const results: GlobResult[] = [];
-  
-  // Parse glob pattern
-  const parts = pattern.split('/');
-  let currentPattern = parts[0];
-  let currentPath = basePath;
-  let isRecursive = false;
-
-  // Handle ** pattern
-  if (pattern.startsWith('**/')) {
-    isRecursive = true;
-    currentPattern = parts.slice(1).join('/');
-  } else if (pattern.includes('**')) {
-    isRecursive = true;
+    return { results, count: results.length };
   }
 
-  const matchGlob = async (dir: string, globPattern: string, recursive: boolean, depth: number = 0): Promise<void> => {
-    if (depth > 20) return; // Prevent infinite recursion
+  /**
+   * Index: Add document to index
+   */
+  private indexDocument(
+    indexName: string,
+    documentId: string,
+    document: Record<string, unknown>
+  ): { index: string; documentId: string; indexed: boolean } {
+    let index = this.index.get(indexName);
+    if (!index) {
+      index = new Map();
+      this.index.set(indexName, index);
+    }
 
-    try {
-      const entries = await fs.readdir(dir, { withFileTypes: true });
+    const content = JSON.stringify(document);
+    index.set(documentId, content);
 
-      for (const entry of entries) {
-        const fullPath = path.join(dir, entry.name);
+    return { index: indexName, documentId, indexed: true };
+  }
 
-        // Match pattern
-        if (matchPattern(entry.name, globPattern)) {
-          results.push({
-            path: fullPath,
-            name: entry.name,
-            isDirectory: entry.isDirectory(),
-          });
-        }
+  /**
+   * Suggest: Provide search suggestions
+   */
+  private suggest(query: string, indexName: string): { suggestions: string[] } {
+    const index = this.index.get(indexName);
+    if (!index) {
+      return { suggestions: [] };
+    }
 
-        // Recurse into directories
-        if (recursive && entry.isDirectory() && entry.name !== 'node_modules' && !entry.name.startsWith('.')) {
-          await matchGlob(fullPath, globPattern, recursive, depth + 1);
+    const suggestions = new Set<string>();
+    const queryLower = query.toLowerCase();
+
+    for (const [docId, content] of index) {
+      const contentStr = typeof content === 'string' ? content : '';
+
+      // Extract words that start with query
+      const words = contentStr.match(/\b\w{3,}\b/g) || [];
+      for (const word of words) {
+        if (word.toLowerCase().startsWith(queryLower)) {
+          suggestions.add(word);
+          if (suggestions.size >= 10) break;
         }
       }
-    } catch {
-      // Skip inaccessible directories
+
+      if (suggestions.size >= 10) break;
     }
-  };
 
-  await matchGlob(currentPath, currentPattern, isRecursive);
-  return results;
+    return { suggestions: Array.from(suggestions) };
+  }
+
+  /**
+   * Create regex from pattern
+   */
+  private createRegex(pattern: string, useRegex?: boolean, caseSensitive?: boolean): RegExp {
+    if (useRegex) {
+      return new RegExp(pattern, caseSensitive ? '' : 'i');
+    }
+
+    // Escape special regex characters for literal search
+    const escaped = pattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    return new RegExp(escaped, caseSensitive ? '' : 'i');
+  }
+
+  /**
+   * Get files from path
+   */
+  private async getFiles(
+    searchPath: string,
+    options?: SearchOptions
+  ): Promise<string[]> {
+    const { readdir, stat } = await import('fs/promises');
+    const pathModule = await import('path');
+
+    const files: string[] = [];
+    const extensions = options?.extensions?.map((ext) => ext.toLowerCase()) ?? [];
+    const excludeDirs = options?.excludeDirs ?? ['node_modules', '.git', 'dist', 'build'];
+
+    const walk = async (dir: string): Promise<void> => {
+      let entries;
+      try {
+        entries = await readdir(dir, { withFileTypes: true });
+      } catch {
+        return;
+      }
+
+      for (const entry of entries) {
+        const fullPath = pathModule.join(dir, entry.name);
+
+        if (entry.isDirectory()) {
+          if (!excludeDirs.includes(entry.name)) {
+            await walk(fullPath);
+          }
+        } else if (entry.isFile()) {
+          if (extensions.length === 0) {
+            files.push(fullPath);
+          } else {
+            const ext = pathModule.extname(entry.name).toLowerCase().slice(1);
+            if (extensions.includes(ext)) {
+              files.push(fullPath);
+            }
+          }
+        }
+      }
+    };
+
+    await walk(searchPath);
+    return files;
+  }
 }
 
 /**
- * Match a name against a glob pattern
+ * Create a SearchTool instance
  */
-function matchPattern(name: string, pattern: string): boolean {
-  if (pattern === '*') return !name.includes('/') && !name.includes('\\');
-  if (pattern === '**') return true;
-  
-  // Convert glob to regex
-  const regexPattern = pattern
-    .replace(/\./g, '\\.')
-    .replace(/\*/g, '[^/]*')
-    .replace(/\?/g, '.');
-  
-  return new RegExp(`^${regexPattern}$`).test(name);
-}
-
-/**
- * Check if file is likely binary
- */
-function isBinaryFile(filename: string): boolean {
-  const binaryExtensions = [
-    '.exe', '.dll', '.so', '.dylib', '.bin', '.dat',
-    '.png', '.jpg', '.jpeg', '.gif', '.bmp', '.ico', '.webp', '.svg',
-    '.pdf', '.doc', '.docx', '.xls', '.xlsx', '.ppt', '.pptx',
-    '.zip', '.tar', '.gz', '.rar', '.7z',
-    '.mp3', '.mp4', '.wav', '.avi', '.mov', '.wmv',
-    '.woff', '.woff2', '.ttf', '.eot', '.otf',
-  ];
-  
-  const ext = path.extname(filename).toLowerCase();
-  return binaryExtensions.includes(ext);
-}
-
-/**
- * Get search tool definitions
- */
-export function getSearchToolDefinitions(): Array<{
-  definition: ToolDefinition;
-  handler: (params: Record<string, unknown>, context: ToolExecutionContext) => Promise<ToolResult>;
-}> {
-  return [
-    {
-      definition: {
-        name: 'file_search',
-        version: '1.0.0',
-        description: 'Search file contents using patterns',
-        type: ToolType.SEARCH,
-        call_level: ToolCallLevel.NORMAL,
-        parameters: {
-          type: 'object',
-          properties: {
-            pattern: {
-              name: 'pattern',
-              type: 'string',
-              description: 'Search pattern or regex',
-              required: true,
-            },
-            path: {
-              name: 'path',
-              type: 'string',
-              description: 'Directory to search in',
-              required: false,
-            },
-            caseSensitive: {
-              name: 'caseSensitive',
-              type: 'boolean',
-              description: 'Case sensitive search',
-              required: false,
-              default: false,
-            },
-            maxResults: {
-              name: 'maxResults',
-              type: 'number',
-              description: 'Maximum number of results',
-              required: false,
-              default: 100,
-              maximum: 1000,
-            },
-          },
-          required: ['pattern'],
-          additionalProperties: false,
-        },
-        max_execution_time: 30000,
-      },
-      handler: searchToolHandlers.file_search,
-    },
-    {
-      definition: {
-        name: 'code_search',
-        version: '1.0.0',
-        description: 'Search code patterns in files',
-        type: ToolType.SEARCH,
-        call_level: ToolCallLevel.NORMAL,
-        parameters: {
-          type: 'object',
-          properties: {
-            pattern: {
-              name: 'pattern',
-              type: 'string',
-              description: 'Code pattern to search',
-              required: true,
-            },
-            path: {
-              name: 'path',
-              type: 'string',
-              description: 'Directory to search in',
-              required: false,
-            },
-            fileTypes: {
-              name: 'fileTypes',
-              type: 'array',
-              description: 'File extensions to search (e.g., [".ts", ".js"])',
-              required: false,
-            },
-            maxResults: {
-              name: 'maxResults',
-              type: 'number',
-              description: 'Maximum number of results',
-              required: false,
-              default: 50,
-              maximum: 500,
-            },
-          },
-          required: ['pattern'],
-          additionalProperties: false,
-        },
-        max_execution_time: 30000,
-      },
-      handler: searchToolHandlers.code_search,
-    },
-    {
-      definition: {
-        name: 'glob_search',
-        version: '1.0.0',
-        description: 'Search files by glob pattern',
-        type: ToolType.SEARCH,
-        call_level: ToolCallLevel.NORMAL,
-        parameters: {
-          type: 'object',
-          properties: {
-            pattern: {
-              name: 'pattern',
-              type: 'string',
-              description: 'Glob pattern (e.g., "**/*.ts")',
-              required: true,
-            },
-            path: {
-              name: 'path',
-              type: 'string',
-              description: 'Base directory for pattern matching',
-              required: false,
-            },
-          },
-          required: ['pattern'],
-          additionalProperties: false,
-        },
-        max_execution_time: 10000,
-      },
-      handler: searchToolHandlers.glob_search,
-    },
-    {
-      definition: {
-        name: 'path_resolve',
-        version: '1.0.0',
-        description: 'Resolve and normalize file paths',
-        type: ToolType.SYSTEM,
-        call_level: ToolCallLevel.NORMAL,
-        parameters: {
-          type: 'object',
-          properties: {
-            path: {
-              name: 'path',
-              type: 'string',
-              description: 'Path to resolve',
-              required: true,
-            },
-            basePath: {
-              name: 'basePath',
-              type: 'string',
-              description: 'Base path for relative resolution',
-              required: false,
-            },
-          },
-          required: ['path'],
-          additionalProperties: false,
-        },
-        max_execution_time: 1000,
-      },
-      handler: searchToolHandlers.path_resolve,
-    },
-    {
-      definition: {
-        name: 'path_join',
-        version: '1.0.0',
-        description: 'Join path segments',
-        type: ToolType.SYSTEM,
-        call_level: ToolCallLevel.NORMAL,
-        parameters: {
-          type: 'object',
-          properties: {
-            segments: {
-              name: 'segments',
-              type: 'array',
-              description: 'Path segments to join',
-              required: true,
-            },
-          },
-          required: ['segments'],
-          additionalProperties: false,
-        },
-        max_execution_time: 1000,
-      },
-      handler: searchToolHandlers.path_join,
-    },
-  ];
+export function createSearchTool(): SearchTool {
+  return new SearchTool();
 }

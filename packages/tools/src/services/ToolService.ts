@@ -1,363 +1,397 @@
 /**
- * Tool Service - Core tool registration, discovery, and invocation management
+ * ToolService - Manages tool registration, discovery, and execution
+ *
+ * Provides a unified interface for tool management in the Organic system.
  */
 
-import type {
-  ToolDefinition,
-  ToolResult,
-  ToolError,
-  ToolErrorCode,
-  ToolType,
-  ToolCallLevel,
+import { createLogger, type Logger } from '@organic/utils';
+import { EventEmitter } from 'events';
+import {
+  type Tool,
+  type ToolDefinition,
+  type ToolResult,
+  type ToolExecutionContext,
+  type ToolRegistryEntry,
+  type ToolStats,
+  type ToolServiceConfig,
+  type ToolValidationError,
+  type ToolExecutionOptions,
   ToolExecutionContext,
-  Logger,
-} from '@organic/utils';
-import { ToolErrorCode as ErrorCode } from '@organic/utils';
+  SandboxConfig,
+} from '../types/index.js';
 
 /**
- * Tool service options
+ * Default tool service configuration
  */
-export interface ToolServiceOptions {
+export const DEFAULT_TOOL_SERVICE_CONFIG: ToolServiceConfig = {
+  defaultTimeout: 30000,
+  maxConcurrentExecutions: 10,
+  enableValidation: true,
+  enableLogging: true,
+  enableMetrics: true,
+};
+
+/**
+ * ToolService events
+ */
+export interface ToolServiceEvents {
+  'tool:registered': { toolId: string; timestamp: number };
+  'tool:unregistered': { toolId: string; timestamp: number };
+  'tool:enabled': { toolId: string; timestamp: number };
+  'tool:disabled': { toolId: string; timestamp: number };
+  'execution:start': { toolId: string; executionId: string; timestamp: number };
+  'execution:complete': { toolId: string; executionId: string; result: ToolResult; timestamp: number };
+  'execution:error': { toolId: string; executionId: string; error: Error; timestamp: number };
+}
+
+/**
+ * ToolService - Manages tool registration and execution
+ */
+export class ToolService extends EventEmitter {
+  /** Service configuration */
+  private config: ToolServiceConfig;
+
+  /** Tool registry */
+  private tools: Map<string, ToolRegistryEntry> = new Map();
+
   /** Logger instance */
-  logger?: Logger;
-  /** Default tool execution timeout in milliseconds */
-  defaultTimeout?: number;
-  /** Enable tool execution */
-  enabled?: boolean;
-}
-
-/**
- * Tool registry entry with metadata
- */
-interface ToolRegistryEntry {
-  /** Tool definition */
-  definition: ToolDefinition;
-  /** Handler function */
-  handler: (params: Record<string, unknown>, context: ToolExecutionContext) => Promise<ToolResult>;
-  /** Plugin that registered this tool */
-  pluginId?: string;
-  /** When the tool was registered */
-  registeredAt: number;
-  /** Tool enabled status */
-  enabled: boolean;
-}
-
-/**
- * Permission entry for tool access control
- */
-interface PermissionEntry {
-  /** Allowed plugin IDs */
-  pluginIds: Set<string>;
-  /** Permission granted at timestamp */
-  grantedAt: number;
-  /** Permission expires at (0 = never expires) */
-  expiresAt: number;
-}
-
-/**
- * KernelToolService - Core tool management service
- */
-export class ToolService {
   private logger: Logger;
-  private defaultTimeout: number;
-  private enabled: boolean;
-  private tools: Map<string, ToolRegistryEntry>;
-  private permissions: Map<string, PermissionEntry>;
-  private requestCounter: number = 0;
 
-  constructor(options: ToolServiceOptions = {}) {
-    const { logger, defaultTimeout = 30000, enabled = true } = options;
-    
-    // Use logger from utils
-    const { createLogger } = require('@organic/utils');
-    this.logger = logger ?? createLogger({ prefix: 'tool-service' });
-    this.defaultTimeout = defaultTimeout;
-    this.enabled = enabled;
-    this.tools = new Map();
-    this.permissions = new Map();
-  }
+  /** Active executions */
+  private activeExecutions: Map<string, { toolId: string; startTime: number }> = new Map();
 
-  // ==================== Tool Invocation ====================
+  /** Execution counter */
+  private executionCounter: number = 0;
 
   /**
-   * Call a tool and return execution result
+   * Create a new ToolService instance
    */
-  async call_tool(
-    toolName: string,
-    args: Record<string, unknown>
-  ): Promise<ToolResult> {
-    const requestId = this.generateRequestId();
-    const startTime = Date.now();
-
-    this.logger.info(`Calling tool: ${toolName}`, { requestId });
-
-    const tool = this.tools.get(toolName);
-    if (!tool) {
-      return this.createToolResult(toolName, requestId, startTime, false, undefined, {
-        code: ErrorCode.TOOL_NOT_FOUND,
-        message: `Tool '${toolName}' not found`,
-      });
-    }
-
-    if (!tool.enabled) {
-      return this.createToolResult(toolName, requestId, startTime, false, undefined, {
-        code: ErrorCode.TOOL_DISABLED,
-        message: `Tool '${toolName}' is disabled`,
-      });
-    }
-
-    // Create execution context
-    const context: ToolExecutionContext = {
-      request_id: requestId,
-      caller_plugin_id: 'kernel',
-      caller_plugin_name: 'kernel',
-      timestamp: startTime,
-      logger: this.logger,
-    };
-
-    try {
-      // Execute with timeout
-      const timeout = tool.definition.max_execution_time ?? this.defaultTimeout;
-      const result = await this.executeWithTimeout(
-        tool.handler(args, context),
-        timeout,
-        toolName
-      );
-
-      return {
-        ...result,
-        metadata: {
-          ...result.metadata,
-          request_id: requestId,
-          start_time: startTime,
-          end_time: Date.now(),
-        },
-      };
-    } catch (error) {
-      this.logger.error(`Tool execution error: ${toolName}`, error);
-      return this.createToolResult(toolName, requestId, startTime, false, undefined, {
-        code: ErrorCode.EXECUTION_ERROR,
-        message: error instanceof Error ? error.message : String(error),
-      });
-    }
-  }
-
-  /**
-   * Asynchronously call a tool
-   */
-  async call_tool_async(
-    toolName: string,
-    args: Record<string, unknown>
-  ): Promise<ToolResult> {
-    return this.call_tool(toolName, args);
+  constructor(config: Partial<ToolServiceConfig> = {}) {
+    super();
+    this.config = { ...DEFAULT_TOOL_SERVICE_CONFIG, ...config };
+    this.logger = createLogger({ prefix: 'tool-service' });
   }
 
   // ==================== Tool Registration ====================
 
   /**
-   * Register a new tool
+   * Register a tool
    */
-  register_tool(tool: ToolDefinition, handler: ToolRegistryEntry['handler']): void {
-    // Validate tool definition
-    if (!tool.name || typeof tool.name !== 'string') {
-      throw new Error('Invalid tool name');
+  registerTool(tool: Tool): void {
+    const definition = tool.getDefinition();
+
+    if (this.tools.has(definition.id)) {
+      this.logger.warn(`Tool already registered: ${definition.id}`);
+      return;
     }
 
-    if (this.tools.has(tool.name)) {
-      this.logger.warn(`Tool '${tool.name}' already registered, replacing`);
-    }
-
-    this.tools.set(tool.name, {
-      definition: tool,
-      handler,
+    const entry: ToolRegistryEntry = {
+      definition,
+      instance: tool,
       registeredAt: Date.now(),
-      enabled: true,
-    });
+      stats: {
+        totalExecutions: 0,
+        successfulExecutions: 0,
+        failedExecutions: 0,
+        totalExecutionTime: 0,
+        avgExecutionTime: 0,
+      },
+    };
 
-    // Initialize permission entry for this tool
-    if (!this.permissions.has(tool.name)) {
-      this.permissions.set(tool.name, {
-        pluginIds: new Set(),
-        grantedAt: Date.now(),
-        expiresAt: 0,
-      });
-    }
-
-    this.logger.info(`Tool registered: ${tool.name}`, {
-      type: tool.type,
-      call_level: tool.call_level,
-    });
-  }
-
-  /**
-   * Batch register multiple tools
-   */
-  register_tools(
-    tools: Array<{
-      definition: ToolDefinition;
-      handler: ToolRegistryEntry['handler'];
-    }>
-  ): void {
-    for (const { definition, handler } of tools) {
-      this.register_tool(definition, handler);
-    }
+    this.tools.set(definition.id, entry);
+    this.logger.info(`Registered tool: ${definition.name} (${definition.id})`);
+    this.emit('tool:registered', { toolId: definition.id, timestamp: Date.now() });
   }
 
   /**
    * Unregister a tool
    */
-  unregister_tool(toolName: string): boolean {
-    const existed = this.tools.has(toolName);
-    this.tools.delete(toolName);
-    this.permissions.delete(toolName);
-    
-    if (existed) {
-      this.logger.info(`Tool unregistered: ${toolName}`);
-    }
-    
-    return existed;
-  }
-
-  // ==================== Tool Query ====================
-
-  /**
-   * Get list of all registered tools
-   */
-  list_tools(): ToolDefinition[] {
-    return Array.from(this.tools.values()).map(entry => entry.definition);
-  }
-
-  /**
-   * Get tool definition by name
-   */
-  get_tool(toolName: string): ToolDefinition | null {
-    const entry = this.tools.get(toolName);
-    return entry?.definition ?? null;
-  }
-
-  /**
-   * List tools by type
-   */
-  list_tools_by_type(type: ToolType): ToolDefinition[] {
-    return Array.from(this.tools.values())
-      .filter(entry => entry.definition.type === type)
-      .map(entry => entry.definition);
-  }
-
-  /**
-   * Get enabled status of a tool
-   */
-  is_tool_enabled(toolName: string): boolean {
-    const entry = this.tools.get(toolName);
-    return entry?.enabled ?? false;
-  }
-
-  /**
-   * Enable or disable a tool
-   */
-  set_tool_enabled(toolName: string, enabled: boolean): boolean {
-    const entry = this.tools.get(toolName);
+  unregisterTool(toolId: string): boolean {
+    const entry = this.tools.get(toolId);
     if (!entry) {
+      this.logger.warn(`Tool not found: ${toolId}`);
       return false;
     }
-    entry.enabled = enabled;
-    this.logger.info(`Tool ${toolName} ${enabled ? 'enabled' : 'disabled'}`);
+
+    // Check if tool is currently executing
+    for (const [executionId, execution] of this.activeExecutions) {
+      if (execution.toolId === toolId) {
+        this.logger.warn(`Cannot unregister tool while executing: ${toolId}`);
+        return false;
+      }
+    }
+
+    this.tools.delete(toolId);
+    this.logger.info(`Unregistered tool: ${toolId}`);
+    this.emit('tool:unregistered', { toolId, timestamp: Date.now() });
     return true;
   }
 
-  // ==================== Permission Management ====================
+  /**
+   * Get a tool by ID
+   */
+  getTool(toolId: string): Tool | undefined {
+    return this.tools.get(toolId)?.instance;
+  }
 
   /**
-   * Check if plugin has permission to call tool
+   * Get tool definition by ID
    */
-  check_permission(pluginId: string, toolName: string): boolean {
-    const permission = this.permissions.get(toolName);
-    
-    // If no permission entry exists, check if tool allows any caller
-    if (!permission) {
-      // Default: allow calls without explicit permissions
-      return true;
-    }
+  getToolDefinition(toolId: string): ToolDefinition | undefined {
+    return this.tools.get(toolId)?.definition;
+  }
 
-    // Check if permission has expired
-    if (permission.expiresAt > 0 && permission.expiresAt < Date.now()) {
+  /**
+   * Get all registered tools
+   */
+  getAllTools(): ToolDefinition[] {
+    return Array.from(this.tools.values()).map((entry) => entry.definition);
+  }
+
+  /**
+   * Get tools by category
+   */
+  getToolsByCategory(category: string): ToolDefinition[] {
+    return this.getAllTools().filter((tool) => tool.category === category);
+  }
+
+  /**
+   * Enable a tool
+   */
+  enableTool(toolId: string): boolean {
+    const entry = this.tools.get(toolId);
+    if (!entry) {
+      this.logger.warn(`Tool not found: ${toolId}`);
       return false;
     }
 
-    return permission.pluginIds.has(pluginId);
+    entry.definition.enabled = true;
+    this.logger.info(`Enabled tool: ${toolId}`);
+    this.emit('tool:enabled', { toolId, timestamp: Date.now() });
+    return true;
   }
 
   /**
-   * Grant permission to plugin for tool
+   * Disable a tool
    */
-  grant_permission(pluginId: string, toolName: string): void {
-    if (!this.tools.has(toolName)) {
-      throw new Error(`Tool '${toolName}' not found`);
+  disableTool(toolId: string): boolean {
+    const entry = this.tools.get(toolId);
+    if (!entry) {
+      this.logger.warn(`Tool not found: ${toolId}`);
+      return false;
     }
 
-    let permission = this.permissions.get(toolName);
-    if (!permission) {
-      permission = {
-        pluginIds: new Set(),
-        grantedAt: Date.now(),
-        expiresAt: 0,
+    entry.definition.enabled = false;
+    this.logger.info(`Disabled tool: ${toolId}`);
+    this.emit('tool:disabled', { toolId, timestamp: Date.now() });
+    return true;
+  }
+
+  // ==================== Tool Execution ====================
+
+  /**
+   * Execute a tool by ID
+   */
+  async execute(
+    toolId: string,
+    input: unknown,
+    context: Partial<ToolExecutionContext> = {},
+    options: ToolExecutionOptions = {}
+  ): Promise<ToolResult> {
+    const entry = this.tools.get(toolId);
+    if (!entry) {
+      return {
+        success: false,
+        error: `Tool not found: ${toolId}`,
+        executionTime: 0,
       };
-      this.permissions.set(toolName, permission);
     }
 
-    permission.pluginIds.add(pluginId);
-    this.logger.info(`Permission granted: ${pluginId} -> ${toolName}`);
+    if (!entry.definition.enabled) {
+      return {
+        success: false,
+        error: `Tool is disabled: ${toolId}`,
+        executionTime: 0,
+      };
+    }
+
+    // Generate execution ID
+    const executionId = `${toolId}_${++this.executionCounter}_${Date.now()}`;
+
+    // Validate input
+    if (this.config.enableValidation) {
+      const errors = entry.instance.validate(input);
+      if (errors.length > 0) {
+        return {
+          success: false,
+          error: `Validation failed: ${errors.map((e) => e.message).join(', ')}`,
+          executionTime: 0,
+          metadata: { validationErrors: errors },
+        };
+      }
+    }
+
+    // Create full execution context
+    const fullContext: ToolExecutionContext = {
+      toolId,
+      executionId,
+      workingDirectory: context.workingDirectory ?? process.cwd(),
+      environment: context.environment ?? {},
+      cancelled: false,
+      permissionLevel: context.permissionLevel ?? 'L2',
+      metadata: context.metadata ?? {},
+      ...context,
+    };
+
+    // Start execution
+    const startTime = Date.now();
+    this.activeExecutions.set(executionId, { toolId, startTime });
+    this.emit('execution:start', { toolId, executionId, timestamp: startTime });
+
+    // Apply timeout
+    const timeout = options.timeout ?? entry.definition.timeout ?? this.config.defaultTimeout;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      setTimeout(() => {
+        reject(new Error(`Tool execution timed out after ${timeout}ms`));
+      }, timeout);
+    });
+
+    try {
+      // Execute with timeout
+      const result = await Promise.race([
+        entry.instance.execute(input, fullContext),
+        timeoutPromise,
+      ]);
+
+      // Update stats
+      this.updateStats(toolId, result, Date.now() - startTime);
+
+      this.emit('execution:complete', { toolId, executionId, result, timestamp: Date.now() });
+
+      return result;
+    } catch (error) {
+      const executionTime = Date.now() - startTime;
+      const errorResult: ToolResult = {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+        executionTime,
+      };
+
+      this.updateStats(toolId, errorResult, executionTime);
+
+      this.emit('execution:error', {
+        toolId,
+        executionId,
+        error: error instanceof Error ? error : new Error(String(error)),
+        timestamp: Date.now(),
+      });
+
+      return errorResult;
+    } finally {
+      this.activeExecutions.delete(executionId);
+    }
   }
 
   /**
-   * Revoke permission from plugin for tool
+   * Validate tool input
    */
-  revoke_permission(pluginId: string, toolName: string): void {
-    const permission = this.permissions.get(toolName);
-    if (permission) {
-      permission.pluginIds.delete(pluginId);
-      this.logger.info(`Permission revoked: ${pluginId} -> ${toolName}`);
+  validate(toolId: string, input: unknown): ToolValidationError[] {
+    const tool = this.getTool(toolId);
+    if (!tool) {
+      return [{ path: '', message: `Tool not found: ${toolId}` }];
     }
+
+    return tool.validate(input);
+  }
+
+  // ==================== Statistics ====================
+
+  /**
+   * Get tool statistics
+   */
+  getToolStats(toolId: string): ToolStats | undefined {
+    return this.tools.get(toolId)?.stats;
   }
 
   /**
-   * Grant permission with expiration
+   * Get service statistics
    */
-  grant_permission_with_expiry(
-    pluginId: string,
-    toolName: string,
-    expiresInMs: number
-  ): void {
-    this.grant_permission(pluginId, toolName);
-    
-    const permission = this.permissions.get(toolName);
-    if (permission) {
-      permission.expiresAt = Date.now() + expiresInMs;
+  getServiceStats(): {
+    totalTools: number;
+    enabledTools: number;
+    activeExecutions: number;
+    totalExecutions: number;
+    avgExecutionTime: number;
+  } {
+    let totalExecutions = 0;
+    let totalTime = 0;
+
+    for (const entry of this.tools.values()) {
+      totalExecutions += entry.stats.totalExecutions;
+      totalTime += entry.stats.totalExecutionTime;
+    }
+
+    return {
+      totalTools: this.tools.size,
+      enabledTools: this.getAllTools().filter((t) => t.enabled).length,
+      activeExecutions: this.activeExecutions.size,
+      totalExecutions,
+      avgExecutionTime: totalExecutions > 0 ? totalTime / totalExecutions : 0,
+    };
+  }
+
+  /**
+   * Update tool statistics
+   */
+  private updateStats(toolId: string, result: ToolResult, executionTime: number): void {
+    if (!this.config.enableMetrics) return;
+
+    const entry = this.tools.get(toolId);
+    if (!entry) return;
+
+    entry.stats.totalExecutions++;
+    entry.stats.totalExecutionTime += executionTime;
+    entry.stats.avgExecutionTime =
+      entry.stats.totalExecutionTime / entry.stats.totalExecutions;
+    entry.stats.lastExecutionAt = Date.now();
+
+    if (result.success) {
+      entry.stats.successfulExecutions++;
+      entry.stats.lastSuccessAt = Date.now();
+    } else {
+      entry.stats.failedExecutions++;
+      entry.stats.lastFailureAt = Date.now();
     }
   }
 
   // ==================== Utility Methods ====================
 
   /**
-   * Get tool count
+   * Check if a tool is registered
    */
-  getToolCount(): number {
-    return this.tools.size;
+  hasTool(toolId: string): boolean {
+    return this.tools.has(toolId);
   }
 
   /**
-   * Check if service is enabled
+   * Check if a tool is enabled
    */
-  isEnabled(): boolean {
-    return this.enabled;
+  isToolEnabled(toolId: string): boolean {
+    return this.tools.get(toolId)?.definition.enabled ?? false;
   }
 
   /**
-   * Enable or disable the service
+   * Get active execution count
    */
-  setEnabled(enabled: boolean): void {
-    this.enabled = enabled;
-    this.logger.info(`Tool service ${enabled ? 'enabled' : 'disabled'}`);
+  getActiveExecutionCount(): number {
+    return this.activeExecutions.size;
+  }
+
+  /**
+   * Check if service can accept more executions
+   */
+  canAcceptExecution(): boolean {
+    return this.activeExecutions.size < this.config.maxConcurrentExecutions;
   }
 
   /**
@@ -365,68 +399,13 @@ export class ToolService {
    */
   clear(): void {
     this.tools.clear();
-    this.permissions.clear();
     this.logger.info('Tool registry cleared');
   }
+}
 
-  // ==================== Private Methods ====================
-
-  /**
-   * Execute with timeout
-   */
-  private async executeWithTimeout(
-    promise: Promise<ToolResult>,
-    timeoutMs: number,
-    toolName: string
-  ): Promise<ToolResult> {
-    let timeoutId: ReturnType<typeof setTimeout>;
-
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      timeoutId = setTimeout(() => {
-        reject(new Error(`Tool '${toolName}' execution timed out after ${timeoutMs}ms`));
-      }, timeoutMs);
-    });
-
-    try {
-      const result = await Promise.race([promise, timeoutPromise]);
-      clearTimeout(timeoutId!);
-      return result;
-    } catch (error) {
-      clearTimeout(timeoutId!);
-      throw error;
-    }
-  }
-
-  /**
-   * Generate unique request ID
-   */
-  private generateRequestId(): string {
-    return `req_${Date.now()}_${++this.requestCounter}`;
-  }
-
-  /**
-   * Create a tool result object
-   */
-  private createToolResult(
-    toolName: string,
-    requestId: string,
-    startTime: number,
-    success: boolean,
-    data?: unknown,
-    error?: ToolError
-  ): ToolResult {
-    const endTime = Date.now();
-    return {
-      success,
-      data,
-      error,
-      metadata: {
-        tool_name: toolName,
-        start_time: startTime,
-        end_time: endTime,
-        execution_time: endTime - startTime,
-        request_id: requestId,
-      },
-    };
-  }
+/**
+ * Create a tool service instance
+ */
+export function createToolService(config?: Partial<ToolServiceConfig>): ToolService {
+  return new ToolService(config);
 }

@@ -1,366 +1,485 @@
 /**
- * Tool Executor - Handles tool execution with validation and security
+ * ToolExecutor - Handles tool execution with sandbox support
+ *
+ * Manages the actual execution of tools with proper isolation,
+ * resource limits, and error handling.
  */
 
-import type {
-  ToolDefinition,
-  ToolResult,
-  ToolError,
-  ToolParameterDefinition,
-  ToolParameter,
-  ToolExecutionContext,
-  Logger,
-} from '@organic/utils';
-import { ToolErrorCode as ErrorCode } from '@organic/utils';
-import { ToolContext } from './ToolContext.js';
+import { createLogger, type Logger } from '@organic/utils';
+import { EventEmitter } from 'events';
+import {
+  type Tool,
+  type ToolResult,
+  type ToolExecutionContext,
+  type SandboxConfig,
+  type ToolExecutionOptions,
+} from '../types/index.js';
 
 /**
- * Execution options
+ * Execution request
  */
-export interface ExecutionOptions {
-  /** Request ID for tracking */
-  requestId?: string;
-  /** Caller plugin ID */
-  callerPluginId?: string;
-  /** Caller plugin name */
-  callerPluginName?: string;
-  /** Working directory */
-  workingDirectory?: string;
-  /** Execution timeout override */
-  timeout?: number;
-  /** Enable verbose logging */
-  verbose?: boolean;
+interface ExecutionRequest {
+  tool: Tool;
+  input: unknown;
+  context: ToolExecutionContext;
+  options: ToolExecutionOptions;
 }
 
 /**
- * Tool executor options
+ * Execution queue item
  */
-export interface ToolExecutorOptions {
+interface QueueItem {
+  request: ExecutionRequest;
+  resolve: (result: ToolResult) => void;
+  reject: (error: Error) => void;
+  priority: number;
+  enqueuedAt: number;
+}
+
+/**
+ * ToolExecutor events
+ */
+export interface ToolExecutorEvents {
+  'execution:queued': { toolId: string; queueLength: number; timestamp: number };
+  'execution:started': { toolId: string; executionId: string; timestamp: number };
+  'execution:completed': { toolId: string; executionId: string; duration: number; timestamp: number };
+  'execution:failed': { toolId: string; executionId: string; error: string; duration: number; timestamp: number };
+  'execution:cancelled': { toolId: string; executionId: string; timestamp: number };
+  'queue:empty': { timestamp: number };
+  'queue:full': { timestamp: number };
+}
+
+/**
+ * ToolExecutor configuration
+ */
+export interface ToolExecutorConfig {
+  /** Maximum concurrent executions */
+  maxConcurrent: number;
+
+  /** Maximum queue size (0 = unlimited) */
+  maxQueueSize: number;
+
+  /** Enable sandbox */
+  enableSandbox: boolean;
+
+  /** Sandbox configuration */
+  sandboxConfig?: SandboxConfig;
+
+  /** Default execution timeout */
+  defaultTimeout: number;
+
+  /** Enable execution cancellation */
+  enableCancellation: boolean;
+}
+
+/**
+ * Default executor configuration
+ */
+export const DEFAULT_EXECUTOR_CONFIG: ToolExecutorConfig = {
+  maxConcurrent: 5,
+  maxQueueSize: 100,
+  enableSandbox: true,
+  defaultTimeout: 30000,
+  enableCancellation: true,
+};
+
+/**
+ * ToolExecutor - Executes tools with resource management
+ */
+export class ToolExecutor extends EventEmitter {
+  /** Executor configuration */
+  private config: ToolExecutorConfig;
+
+  /** Active executions */
+  private activeExecutions: Map<string, ExecutionRequest> = new Map();
+
+  /** Execution queue */
+  private executionQueue: QueueItem[] = [];
+
   /** Logger instance */
-  logger?: Logger;
-  /** Default execution timeout in milliseconds */
-  defaultTimeout?: number;
-  /** Maximum output size in bytes */
-  maxOutputSize?: number;
-  /** Enable parameter validation */
-  validateParameters?: boolean;
-}
-
-/**
- * Parameter validation result
- */
-interface ValidationResult {
-  valid: boolean;
-  errors: string[];
-  sanitizedParams?: Record<string, unknown>;
-}
-
-/**
- * ToolExecutor - Handles the complete tool execution lifecycle
- */
-export class ToolExecutor {
   private logger: Logger;
-  private defaultTimeout: number;
-  private maxOutputSize: number;
-  private validateParameters: boolean;
-  private executionCounter: number = 0;
 
-  constructor(options: ToolExecutorOptions = {}) {
-    const { 
-      logger, 
-      defaultTimeout = 30000, 
-      maxOutputSize = 1024 * 1024, // 1MB
-      validateParameters = true 
-    } = options;
-    
-    const { createLogger } = require('@organic/utils');
-    this.logger = logger ?? createLogger({ prefix: 'tool-executor' });
-    this.defaultTimeout = defaultTimeout;
-    this.maxOutputSize = maxOutputSize;
-    this.validateParameters = validateParameters;
+  /** Whether executor is running */
+  private running: boolean = false;
+
+  /** Process interval ID */
+  private processIntervalId?: ReturnType<typeof setInterval>;
+
+  /**
+   * Create a new ToolExecutor instance
+   */
+  constructor(config: Partial<ToolExecutorConfig> = {}) {
+    super();
+    this.config = { ...DEFAULT_EXECUTOR_CONFIG, ...config };
+    this.logger = createLogger({ prefix: 'tool-executor' });
   }
+
+  // ==================== Lifecycle ====================
+
+  /**
+   * Start the executor
+   */
+  start(): void {
+    if (this.running) {
+      this.logger.warn('Executor already running');
+      return;
+    }
+
+    this.running = true;
+    this.startProcessing();
+    this.logger.info('ToolExecutor started');
+  }
+
+  /**
+   * Stop the executor
+   */
+  async stop(): Promise<void> {
+    if (!this.running) {
+      this.logger.warn('Executor not running');
+      return;
+    }
+
+    this.running = false;
+    this.stopProcessing();
+
+    // Wait for active executions to complete
+    if (this.activeExecutions.size > 0) {
+      this.logger.info(`Waiting for ${this.activeExecutions.size} active executions to complete`);
+      await this.waitForActiveExecutions();
+    }
+
+    // Clear queue
+    this.clearQueue();
+
+    this.logger.info('ToolExecutor stopped');
+  }
+
+  // ==================== Execution ====================
 
   /**
    * Execute a tool
    */
   async execute(
-    tool: ToolDefinition,
-    handler: (params: Record<string, unknown>, context: ToolExecutionContext) => Promise<ToolResult>,
-    params: Record<string, unknown>,
-    options: ExecutionOptions = {}
+    tool: Tool,
+    input: unknown,
+    context: ToolExecutionContext,
+    options: ToolExecutionOptions = {}
   ): Promise<ToolResult> {
-    const requestId = options.requestId ?? this.generateRequestId();
-    const startTime = Date.now();
-    const executionId = ++this.executionCounter;
+    const definition = tool.getDefinition();
 
-    this.logger.info(`[${executionId}] Executing tool: ${tool.name}`, {
-      requestId,
-      params: this.validateParameters ? params : '[hidden]',
-    });
-
-    // Phase 1: Parameter Validation
-    if (this.validateParameters) {
-      const validationResult = this.validateParams(params, tool.parameters);
-      if (!validationResult.valid) {
-        return this.createToolResult(tool.name, requestId, startTime, false, undefined, {
-          code: ErrorCode.INVALID_ARGUMENTS,
-          message: `Parameter validation failed: ${validationResult.errors.join(', ')}`,
-          details: validationResult.errors,
-        });
-      }
-      params = validationResult.sanitizedParams!;
+    // Check if we can execute directly
+    if (this.activeExecutions.size < this.config.maxConcurrent) {
+      return this.executeDirect(tool, input, context, options);
     }
 
-    // Create execution context
-    const context = new ToolContext({
-      request_id: requestId,
-      caller_plugin_id: options.callerPluginId ?? 'kernel',
-      caller_plugin_name: options.callerPluginName ?? 'kernel',
-      timestamp: startTime,
-      verbose: options.verbose ?? false,
-      logger: this.logger,
-      working_directory: options.workingDirectory ?? process.cwd(),
-    });
+    // Check queue size
+    if (
+      this.config.maxQueueSize > 0 &&
+      this.executionQueue.length >= this.config.maxQueueSize
+    ) {
+      this.emit('queue:full', { timestamp: Date.now() });
+      return {
+        success: false,
+        error: 'Execution queue is full',
+        executionTime: 0,
+      };
+    }
 
-    // Phase 2: Execution
-    try {
-      const timeout = options.timeout ?? tool.max_execution_time ?? this.defaultTimeout;
-      const result = await this.executeWithTimeout(
-        handler(params, context.getContext()),
-        timeout,
-        tool.name
+    // Add to queue
+    return new Promise((resolve, reject) => {
+      const priority = (context.metadata?.priority as number) ?? 0;
+
+      const queueItem: QueueItem = {
+        request: { tool, input, context, options },
+        resolve,
+        reject,
+        priority,
+        enqueuedAt: Date.now(),
+      };
+
+      // Insert in priority order
+      const insertIndex = this.executionQueue.findIndex(
+        (item) => item.priority < priority
       );
+      if (insertIndex === -1) {
+        this.executionQueue.push(queueItem);
+      } else {
+        this.executionQueue.splice(insertIndex, 0, queueItem);
+      }
 
-      // Phase 3: Result Processing
-      const processedResult = this.processResult(result, startTime, requestId);
+      this.emit('execution:queued', {
+        toolId: definition.id,
+        queueLength: this.executionQueue.length,
+        timestamp: Date.now(),
+      });
+    });
+  }
 
-      this.logger.info(`[${executionId}] Tool executed successfully: ${tool.name}`, {
-        requestId,
-        executionTime: processedResult.metadata.execution_time,
+  /**
+   * Execute a tool directly
+   */
+  private async executeDirect(
+    tool: Tool,
+    input: unknown,
+    context: ToolExecutionContext,
+    options: ToolExecutionOptions
+  ): Promise<ToolResult> {
+    const definition = tool.getDefinition();
+    const executionId = context.executionId;
+
+    this.activeExecutions.set(executionId, { tool, input, context, options });
+
+    this.emit('execution:started', {
+      toolId: definition.id,
+      executionId,
+      timestamp: Date.now(),
+    });
+
+    const startTime = Date.now();
+
+    try {
+      // Apply sandbox if enabled
+      const effectiveContext = this.config.enableSandbox
+        ? this.applySandbox(context)
+        : context;
+
+      // Apply timeout
+      const timeout = options.timeout ?? this.config.defaultTimeout;
+      const timeoutPromise = new Promise<never>((_, reject) => {
+        const timer = setTimeout(() => {
+          reject(new Error(`Execution timed out after ${timeout}ms`));
+        }, timeout);
+        // Store timer for cleanup
+        effectiveContext.metadata = {
+          ...effectiveContext.metadata,
+          _timeoutTimer: timer,
+        };
       });
 
-      return processedResult;
-    } catch (error) {
-      this.logger.error(`[${executionId}] Tool execution failed: ${tool.name}`, error);
-
-      if (error instanceof Error && error.message.includes('timeout')) {
-        return this.createToolResult(tool.name, requestId, startTime, false, undefined, {
-          code: ErrorCode.TIMEOUT,
-          message: error.message,
+      // Apply cancellation
+      if (this.config.enableCancellation && options.signal) {
+        options.signal.addEventListener('abort', () => {
+          this.cancelExecution(executionId);
         });
       }
 
-      return this.createToolResult(tool.name, requestId, startTime, false, undefined, {
-        code: ErrorCode.EXECUTION_ERROR,
-        message: error instanceof Error ? error.message : String(error),
+      // Execute
+      const result = await Promise.race([
+        tool.execute(input, effectiveContext),
+        timeoutPromise,
+      ]);
+
+      const duration = Date.now() - startTime;
+
+      this.emit('execution:completed', {
+        toolId: definition.id,
+        executionId,
+        duration,
+        timestamp: Date.now(),
       });
-    }
-  }
 
-  /**
-   * Validate parameters against definition
-   */
-  private validateParams(
-    params: Record<string, unknown>,
-    definition: ToolParameterDefinition
-  ): ValidationResult {
-    const errors: string[] = [];
-    const sanitized: Record<string, unknown> = {};
-
-    // Check required parameters
-    for (const required of definition.required) {
-      if (!(required in params) || params[required] === undefined || params[required] === null) {
-        errors.push(`Missing required parameter: ${required}`);
-      }
-    }
-
-    // Validate each provided parameter
-    for (const [key, value] of Object.entries(params)) {
-      const property = definition.properties[key];
-
-      if (!property) {
-        if (!definition.additionalProperties) {
-          errors.push(`Unknown parameter: ${key}`);
-        }
-        sanitized[key] = value;
-        continue;
-      }
-
-      const paramError = this.validateParameter(key, value, property);
-      if (paramError) {
-        errors.push(paramError);
-      } else {
-        sanitized[key] = this.sanitizeValue(value, property);
-      }
-    }
-
-    return {
-      valid: errors.length === 0,
-      errors,
-      sanitizedParams: errors.length === 0 ? sanitized : undefined,
-    };
-  }
-
-  /**
-   * Validate a single parameter
-   */
-  private validateParameter(
-    name: string,
-    value: unknown,
-    property: ToolParameter
-  ): string | null {
-    // Type check
-    if (value === undefined || value === null) {
-      return null; // Let required check handle this
-    }
-
-    const expectedType = property.type;
-    let actualType: string = typeof value;
-
-    if (Array.isArray(value)) {
-      actualType = 'array';
-    } else if (typeof value === 'object') {
-      actualType = 'object';
-    }
-
-    if (expectedType !== actualType) {
-      return `Parameter '${name}' expected type '${expectedType}', got '${actualType}'`;
-    }
-
-    // Type-specific validation
-    if (expectedType === 'string') {
-      const strValue = String(value);
-
-      if (property.minLength !== undefined && strValue.length < property.minLength) {
-        return `Parameter '${name}' must be at least ${property.minLength} characters`;
-      }
-
-      if (property.maxLength !== undefined && strValue.length > property.maxLength) {
-        return `Parameter '${name}' must be at most ${property.maxLength} characters`;
-      }
-
-      if (property.pattern) {
-        const regex = new RegExp(property.pattern);
-        if (!regex.test(strValue)) {
-          return `Parameter '${name}' does not match required pattern`;
-        }
-      }
-    }
-
-    if (expectedType === 'number') {
-      const numValue = Number(value);
-
-      if (property.minimum !== undefined && numValue < property.minimum) {
-        return `Parameter '${name}' must be at least ${property.minimum}`;
-      }
-
-      if (property.maximum !== undefined && numValue > property.maximum) {
-        return `Parameter '${name}' must be at most ${property.maximum}`;
-      }
-    }
-
-    if (property.enum && property.enum.length > 0) {
-      if (!property.enum.includes(value)) {
-        return `Parameter '${name}' must be one of: ${property.enum.join(', ')}`;
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Sanitize parameter value
-   */
-  private sanitizeValue(value: unknown, property: ToolParameter): unknown {
-    if (property.type === 'string') {
-      return String(value).trim();
-    }
-    if (property.type === 'number') {
-      return Number(value);
-    }
-    if (property.type === 'boolean') {
-      return Boolean(value);
-    }
-    return value;
-  }
-
-  /**
-   * Process result and ensure it matches expected format
-   */
-  private processResult(result: ToolResult, startTime: number, requestId: string): ToolResult {
-    const endTime = Date.now();
-
-    // Ensure metadata is complete
-    return {
-      success: result.success,
-      data: result.data,
-      error: result.error,
-      metadata: {
-        tool_name: result.metadata.tool_name,
-        start_time: result.metadata.start_time || startTime,
-        end_time: endTime,
-        execution_time: result.metadata.execution_time || (endTime - startTime),
-        request_id: requestId,
-      },
-    };
-  }
-
-  /**
-   * Execute with timeout
-   */
-  private async executeWithTimeout(
-    promise: Promise<ToolResult>,
-    timeoutMs: number,
-    toolName: string
-  ): Promise<ToolResult> {
-    let timeoutId: ReturnType<typeof setTimeout>;
-
-    const timeoutPromise = new Promise<never>((_, reject) => {
-      timeoutId = setTimeout(() => {
-        reject(new Error(`Tool '${toolName}' execution timed out after ${timeoutMs}ms`));
-      }, timeoutMs);
-    });
-
-    try {
-      const result = await Promise.race([promise, timeoutPromise]);
-      clearTimeout(timeoutId!);
       return result;
     } catch (error) {
-      clearTimeout(timeoutId!);
-      throw error;
+      const duration = Date.now() - startTime;
+
+      this.emit('execution:failed', {
+        toolId: definition.id,
+        executionId,
+        error: error instanceof Error ? error.message : String(error),
+        duration,
+        timestamp: Date.now(),
+      });
+
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+        executionTime: duration,
+      };
+    } finally {
+      this.activeExecutions.delete(executionId);
+
+      // Clear timeout timer if exists
+      const timeoutTimer = context.metadata?._timeoutTimer as ReturnType<typeof setTimeout> | undefined;
+      if (timeoutTimer) {
+        clearTimeout(timeoutTimer);
+      }
     }
   }
 
   /**
-   * Generate unique request ID
+   * Cancel an execution
    */
-  private generateRequestId(): string {
-    return `req_${Date.now()}_${++this.executionCounter}`;
+  cancelExecution(executionId: string): boolean {
+    const request = this.activeExecutions.get(executionId);
+    if (!request) {
+      return false;
+    }
+
+    request.context.cancelled = true;
+    this.emit('execution:cancelled', {
+      toolId: request.tool.getDefinition().id,
+      executionId,
+      timestamp: Date.now(),
+    });
+
+    return true;
   }
 
   /**
-   * Create a tool result object
+   * Apply sandbox restrictions to context
    */
-  private createToolResult(
-    toolName: string,
-    requestId: string,
-    startTime: number,
-    success: boolean,
-    data?: unknown,
-    error?: ToolError
-  ): ToolResult {
-    const endTime = Date.now();
+  private applySandbox(context: ToolExecutionContext): ToolExecutionContext {
+    if (!this.config.sandboxConfig?.enabled) {
+      return context;
+    }
+
+    // Create sandboxed context with restrictions
     return {
-      success,
-      data,
-      error,
-      metadata: {
-        tool_name: toolName,
-        start_time: startTime,
-        end_time: endTime,
-        execution_time: endTime - startTime,
-        request_id: requestId,
-      },
+      ...context,
+      permissionLevel: this.getRestrictedPermissionLevel(context.permissionLevel),
+      environment: this.filterEnvironment(context.environment),
     };
   }
+
+  /**
+   * Get restricted permission level based on sandbox config
+   */
+  private getRestrictedPermissionLevel(level: string): string {
+    // Sandbox restricts L4 to L3
+    if (level === 'L4') return 'L3';
+    return level;
+  }
+
+  /**
+   * Filter environment variables for sandbox
+   */
+  private filterEnvironment(env: Record<string, string>): Record<string, string> {
+    // Remove sensitive environment variables in sandbox
+    const sensitive = ['API_KEY', 'SECRET', 'PASSWORD', 'TOKEN', 'PRIVATE_KEY'];
+    const filtered: Record<string, string> = {};
+
+    for (const [key, value] of Object.entries(env)) {
+      const isSensitive = sensitive.some((s) =>
+        key.toUpperCase().includes(s)
+      );
+      if (!isSensitive) {
+        filtered[key] = value;
+      }
+    }
+
+    return filtered;
+  }
+
+  // ==================== Queue Processing ====================
+
+  /**
+   * Start queue processing
+   */
+  private startProcessing(): void {
+    if (this.processIntervalId) return;
+
+    this.processIntervalId = setInterval(() => {
+      this.processQueue();
+    }, 100); // Process every 100ms
+  }
+
+  /**
+   * Stop queue processing
+   */
+  private stopProcessing(): void {
+    if (this.processIntervalId) {
+      clearInterval(this.processIntervalId);
+      this.processIntervalId = undefined;
+    }
+  }
+
+  /**
+   * Process the execution queue
+   */
+  private async processQueue(): Promise<void> {
+    if (this.executionQueue.length === 0) {
+      return;
+    }
+
+    if (this.activeExecutions.size >= this.config.maxConcurrent) {
+      return;
+    }
+
+    // Get next item from queue
+    const item = this.executionQueue.shift();
+    if (!item) return;
+
+    const { request, resolve, reject } = item;
+
+    try {
+      const result = await this.executeDirect(
+        request.tool,
+        request.input,
+        request.context,
+        request.options
+      );
+      resolve(result);
+    } catch (error) {
+      reject(error instanceof Error ? error : new Error(String(error)));
+    }
+  }
+
+  /**
+   * Clear the execution queue
+   */
+  private clearQueue(): void {
+    for (const item of this.executionQueue) {
+      item.reject(new Error('Executor stopped'));
+    }
+    this.executionQueue = [];
+  }
+
+  /**
+   * Wait for all active executions to complete
+   */
+  private waitForActiveExecutions(): Promise<void> {
+    return new Promise((resolve) => {
+      const check = () => {
+        if (this.activeExecutions.size === 0) {
+          resolve();
+        } else {
+          setTimeout(check, 100);
+        }
+      };
+      check();
+    });
+  }
+
+  // ==================== Status ====================
+
+  /**
+   * Get executor status
+   */
+  getStatus(): {
+    running: boolean;
+    activeExecutions: number;
+    queueLength: number;
+    maxConcurrent: number;
+  } {
+    return {
+      running: this.running,
+      activeExecutions: this.activeExecutions.size,
+      queueLength: this.executionQueue.length,
+      maxConcurrent: this.config.maxConcurrent,
+    };
+  }
+
+  /**
+   * Check if executor is idle
+   */
+  isIdle(): boolean {
+    return this.activeExecutions.size === 0 && this.executionQueue.length === 0;
+  }
+}
+
+/**
+ * Create a tool executor instance
+ */
+export function createToolExecutor(config?: Partial<ToolExecutorConfig>): ToolExecutor {
+  return new ToolExecutor(config);
 }

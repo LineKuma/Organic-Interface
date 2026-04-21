@@ -1,346 +1,251 @@
 /**
- * ShellTool - Built-in shell command execution tools
+ * ShellTool - Built-in tool for shell command execution
  */
 
-import { exec, spawn } from 'child_process';
-import { promisify } from 'util';
-import path from 'path';
-import type {
-  ToolDefinition,
-  ToolResult,
-  ToolExecutionContext,
-  ToolType,
-  ToolCallLevel,
-} from '@organic/utils';
-import { ToolErrorCode as ErrorCode } from '@organic/utils';
-
-const execAsync = promisify(exec);
+import { spawn } from 'child_process';
+import {
+  type Tool,
+  type ToolDefinition,
+  type ToolResult,
+  type ToolExecutionContext,
+  type ToolValidationError,
+} from '../types/index.js';
 
 /**
- * Shell tool handler functions
+ * ShellTool input schema
  */
-export const shellToolHandlers = {
-  /**
-   * shell_exec - Execute a shell command (sync)
-   */
-  async shell_exec(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
-    const startTime = Date.now();
-    const command = String(params.command);
-    const cwd = String(params.cwd ?? context.logger ? process.cwd() : process.cwd());
-    const timeout = Number(params.timeout ?? 30000);
-    const env = params.env as Record<string, string> | undefined;
+interface ShellToolInput {
+  /** Command to execute */
+  command: string;
 
-    // Security: Validate command for dangerous patterns
-    if (isDangerousCommand(command)) {
-      return {
-        success: false,
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: 'Command contains potentially dangerous patterns and was blocked',
+  /** Command arguments */
+  args?: string[];
+
+  /** Working directory */
+  cwd?: string;
+
+  /** Environment variables */
+  env?: Record<string, string>;
+
+  /** Timeout in milliseconds */
+  timeout?: number;
+
+  /** Whether to capture stdout */
+  captureStdout?: boolean;
+
+  /** Whether to capture stderr */
+  captureStderr?: boolean;
+}
+
+/**
+ * ShellTool execution result
+ */
+interface ShellToolResult {
+  /** Exit code */
+  exitCode: number | null;
+
+  /** Standard output */
+  stdout: string;
+
+  /** Standard error */
+  stderr: string;
+
+  /** Signal that terminated the process */
+  signal?: string;
+}
+
+/**
+ * ShellTool - Built-in shell command execution tool
+ */
+export class ShellTool implements Tool {
+  private definition: ToolDefinition;
+
+  constructor() {
+    this.definition = {
+      id: 'builtin:shell',
+      name: 'ShellTool',
+      description: 'Built-in tool for executing shell commands with controlled environment and timeout',
+      category: 'shell',
+      inputSchema: {
+        type: 'object',
+        required: ['command'],
+        properties: {
+          command: {
+            type: 'string',
+            description: 'Shell command to execute',
+          },
+          args: {
+            type: 'array',
+            items: { type: 'string' },
+            description: 'Command arguments',
+          },
+          cwd: {
+            type: 'string',
+            description: 'Working directory for command execution',
+          },
+          env: {
+            type: 'object',
+            additionalProperties: { type: 'string' },
+            description: 'Environment variables',
+          },
+          timeout: {
+            type: 'number',
+            description: 'Timeout in milliseconds',
+          },
+          captureStdout: {
+            type: 'boolean',
+            description: 'Whether to capture stdout (default: true)',
+          },
+          captureStderr: {
+            type: 'boolean',
+            description: 'Whether to capture stderr (default: true)',
+          },
         },
-        metadata: {
-          tool_name: 'shell_exec',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
+      },
+      outputSchema: {
+        type: 'object',
+        properties: {
+          success: { type: 'boolean' },
+          data: {
+            type: 'object',
+            properties: {
+              exitCode: { type: ['number', 'null'] },
+              stdout: { type: 'string' },
+              stderr: { type: 'string' },
+              signal: { type: 'string' },
+            },
+          },
+          error: { type: 'string' },
         },
-      };
-    }
+      },
+      enabled: true,
+      timeout: 60000,
+      permissions: [
+        { type: 'execute', scope: 'shell', granted: true },
+      ],
+    };
+  }
 
-    try {
-      context.logger.debug(`Executing command: ${command}`, { cwd });
+  getDefinition(): ToolDefinition {
+    return this.definition;
+  }
 
-      const result = await execAsync(command, {
-        cwd,
-        timeout,
-        env: { ...process.env, ...env },
-        maxBuffer: 1024 * 1024 * 10, // 10MB max buffer
+  validate(input: unknown): ToolValidationError[] {
+    const errors: ToolValidationError[] = [];
+    const data = input as Partial<ShellToolInput>;
+
+    if (!data.command) {
+      errors.push({
+        path: 'command',
+        message: 'Command is required',
+        expected: 'string',
+        actual: data.command,
       });
-
-      return {
-        success: true,
-        data: {
-          command,
-          stdout: result.stdout,
-          stderr: result.stderr,
-          exitCode: 0,
-        },
-        metadata: {
-          tool_name: 'shell_exec',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
-    } catch (error: unknown) {
-      const execError = error as { code?: string; killed?: boolean; signal?: string; stdout?: string; stderr?: string };
-      
-      context.logger.error(`Command execution failed: ${command}`, error);
-
-      // Handle timeout
-      if (execError.killed || execError.code === 'ETIMEDOUT') {
-        return {
-          success: false,
-          error: {
-            code: ErrorCode.TIMEOUT,
-            message: `Command timed out after ${timeout}ms`,
-            details: { command, timeout },
-          },
-          metadata: {
-            tool_name: 'shell_exec',
-            start_time: startTime,
-            end_time: Date.now(),
-            execution_time: Date.now() - startTime,
-            request_id: context.request_id,
-          },
-        };
-      }
-
-      return {
-        success: false,
-        data: {
-          command,
-          stdout: execError.stdout ?? '',
-          stderr: execError.stderr ?? '',
-          exitCode: execError.code ? parseInt(String(execError.code), 10) : 1,
-        },
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: `Command failed: ${error instanceof Error ? error.message : String(error)}`,
-        },
-        metadata: {
-          tool_name: 'shell_exec',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
-      };
     }
-  },
 
-  /**
-   * shell_spawn - Execute a shell command (async/streaming)
-   */
-  async shell_spawn(
-    params: Record<string, unknown>,
-    context: ToolExecutionContext
-  ): Promise<ToolResult> {
+    if (data.args !== undefined && !Array.isArray(data.args)) {
+      errors.push({
+        path: 'args',
+        message: 'Args must be an array',
+        expected: 'array',
+        actual: typeof data.args,
+      });
+    }
+
+    if (data.timeout !== undefined && (typeof data.timeout !== 'number' || data.timeout <= 0)) {
+      errors.push({
+        path: 'timeout',
+        message: 'Timeout must be a positive number',
+        expected: 'number > 0',
+        actual: data.timeout,
+      });
+    }
+
+    return errors;
+  }
+
+  async execute(input: unknown, context: ToolExecutionContext): Promise<ToolResult> {
+    const data = input as ShellToolInput;
     const startTime = Date.now();
-    const command = String(params.command);
-    const args = (params.args as string[]) ?? [];
-    const cwd = String(params.cwd ?? process.cwd());
-    const timeout = Number(params.timeout ?? 30000);
 
-    // Security: Validate command for dangerous patterns
-    if (isDangerousCommand(command)) {
+    // Check permission level for shell execution
+    if (context.permissionLevel === 'L1') {
       return {
         success: false,
-        error: {
-          code: ErrorCode.EXECUTION_ERROR,
-          message: 'Command contains potentially dangerous patterns and was blocked',
-        },
-        metadata: {
-          tool_name: 'shell_spawn',
-          start_time: startTime,
-          end_time: Date.now(),
-          execution_time: Date.now() - startTime,
-          request_id: context.request_id,
-        },
+        error: 'Shell execution not permitted at L1 permission level',
+        executionTime: Date.now() - startTime,
       };
     }
 
     return new Promise((resolve) => {
-      context.logger.debug(`Spawning command: ${command}`, { cwd, args });
+      const stdoutChunks: string[] = [];
+      const stderrChunks: string[] = [];
 
-      let stdout = '';
-      let stderr = '';
-      let killed = false;
+      const captureStdout = data.captureStdout !== false;
+      const captureStderr = data.captureStderr !== false;
 
-      const child = spawn(command, args, {
-        cwd,
-        env: process.env,
+      const proc = spawn(data.command, data.args ?? [], {
+        cwd: data.cwd ?? context.workingDirectory,
+        env: { ...context.environment, ...data.env },
         shell: true,
       });
 
+      // Set up timeout
+      const timeout = data.timeout ?? this.definition.timeout;
       const timeoutId = setTimeout(() => {
-        killed = true;
-        child.kill('SIGKILL');
+        proc.kill('SIGTERM');
       }, timeout);
 
-      child.stdout?.on('data', (data) => {
-        stdout += data.toString();
-      });
+      // Set up event handlers
+      if (captureStdout && proc.stdout) {
+        proc.stdout.on('data', (chunk: Buffer) => {
+          stdoutChunks.push(chunk.toString());
+        });
+      }
 
-      child.stderr?.on('data', (data) => {
-        stderr += data.toString();
-      });
+      if (captureStderr && proc.stderr) {
+        proc.stderr.on('data', (chunk: Buffer) => {
+          stderrChunks.push(chunk.toString());
+        });
+      }
 
-      child.on('close', (code) => {
+      proc.on('close', (code, signal) => {
         clearTimeout(timeoutId);
-        const executionTime = Date.now() - startTime;
+
+        const result: ShellToolResult = {
+          exitCode: code,
+          stdout: stdoutChunks.join(''),
+          stderr: stderrChunks.join(''),
+          signal: signal ?? undefined,
+        };
 
         resolve({
-          success: !killed && (code === 0 || code === null),
-          data: {
-            command,
-            args,
-            stdout,
-            stderr,
-            exitCode: code,
-            killed,
-          },
+          success: code === 0,
+          data: result,
+          executionTime: Date.now() - startTime,
           metadata: {
-            tool_name: 'shell_spawn',
-            start_time: startTime,
-            end_time: Date.now(),
-            execution_time: executionTime,
-            request_id: context.request_id,
+            exitCode: code,
+            signal,
           },
         });
       });
 
-      child.on('error', (error) => {
+      proc.on('error', (error) => {
         clearTimeout(timeoutId);
-        context.logger.error(`Spawn failed: ${command}`, error);
 
         resolve({
           success: false,
-          error: {
-            code: ErrorCode.EXECUTION_ERROR,
-            message: `Spawn failed: ${error.message}`,
-          },
-          metadata: {
-            tool_name: 'shell_spawn',
-            start_time: startTime,
-            end_time: Date.now(),
-            execution_time: Date.now() - startTime,
-            request_id: context.request_id,
-          },
+          error: error.message,
+          executionTime: Date.now() - startTime,
         });
       });
     });
-  },
-};
-
-/**
- * Check if command contains dangerous patterns
- */
-function isDangerousCommand(command: string): boolean {
-  const dangerousPatterns = [
-    /\brsync\b/i,
-    /\brm\s+-rf\b/i,
-    /\bmkfs\b/i,
-    /\bdd\b.*\bof=\/dev\//i,
-    /\bparted\b.*\brm\b/i,
-    /\:()\{.*:\|.*&\};:/i, // Fork bomb
-  ];
-
-  return dangerousPatterns.some(pattern => pattern.test(command));
+  }
 }
 
 /**
- * Get shell tool definitions
+ * Create a ShellTool instance
  */
-export function getShellToolDefinitions(): Array<{
-  definition: ToolDefinition;
-  handler: (params: Record<string, unknown>, context: ToolExecutionContext) => Promise<ToolResult>;
-}> {
-  return [
-    {
-      definition: {
-        name: 'shell_exec',
-        version: '1.0.0',
-        description: 'Execute a shell command synchronously',
-        type: ToolType.EXECUTION,
-        call_level: ToolCallLevel.RESTRICTED,
-        parameters: {
-          type: 'object',
-          properties: {
-            command: {
-              name: 'command',
-              type: 'string',
-              description: 'Shell command to execute',
-              required: true,
-            },
-            cwd: {
-              name: 'cwd',
-              type: 'string',
-              description: 'Working directory',
-              required: false,
-            },
-            timeout: {
-              name: 'timeout',
-              type: 'number',
-              description: 'Timeout in milliseconds (default: 30000)',
-              required: false,
-              default: 30000,
-              minimum: 100,
-              maximum: 300000,
-            },
-            env: {
-              name: 'env',
-              type: 'object',
-              description: 'Environment variables',
-              required: false,
-            },
-          },
-          required: ['command'],
-          additionalProperties: false,
-        },
-        max_execution_time: 60000,
-      },
-      handler: shellToolHandlers.shell_exec,
-    },
-    {
-      definition: {
-        name: 'shell_spawn',
-        version: '1.0.0',
-        description: 'Spawn a shell command with streaming output',
-        type: ToolType.EXECUTION,
-        call_level: ToolCallLevel.RESTRICTED,
-        parameters: {
-          type: 'object',
-          properties: {
-            command: {
-              name: 'command',
-              type: 'string',
-              description: 'Command to execute',
-              required: true,
-            },
-            args: {
-              name: 'args',
-              type: 'array',
-              description: 'Command arguments',
-              required: false,
-            },
-            cwd: {
-              name: 'cwd',
-              type: 'string',
-              description: 'Working directory',
-              required: false,
-            },
-            timeout: {
-              name: 'timeout',
-              type: 'number',
-              description: 'Timeout in milliseconds (default: 30000)',
-              required: false,
-              default: 30000,
-              minimum: 100,
-              maximum: 300000,
-            },
-          },
-          required: ['command'],
-          additionalProperties: false,
-        },
-        max_execution_time: 60000,
-      },
-      handler: shellToolHandlers.shell_spawn,
-    },
-  ];
+export function createShellTool(): ShellTool {
+  return new ShellTool();
 }
