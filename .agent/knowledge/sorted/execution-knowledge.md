@@ -186,9 +186,86 @@ cat .agent/tasks/pending/{task-id}.md | grep "**状态**"
 
 ---
 
+## 4. 模块实现规范
+
+### 4.1 Monorepo 包结构
+
+每个包需要包含以下文件：
+```
+packages/{name}/
+├── package.json
+├── tsconfig.json
+└── src/
+    ├── index.ts          # 主入口，导出所有公共 API
+    └── {module}/         # 模块目录
+        ├── index.ts      # 模块入口
+        ├── {Component}.ts
+        └── ...
+```
+
+### 4.2 package.json 规范
+
+```json
+{
+  "name": "@organic/{name}",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo \"No tests configured\"",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@organic/utils": "workspace:*",
+    "@organic/kernel": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  }
+}
+```
+
+### 4.3 依赖层级
+
+```
+@organic/utils (基础层，无依赖)
+     ↓
+@organic/kernel (内核层，依赖 utils)
+     ↓
+@organic/plugins, @organic/storage, @organic/tools (功能层，依赖 kernel)
+     ↓
+@organic/agent (业务层，依赖 plugins/tools)
+     ↓
+@organic/ui (展示层，依赖 agent)
+```
+
+### 4.4 模块实现检查清单
+
+| 检查项 | 要求 |
+|--------|------|
+| package.json | 正确命名，配置完整 |
+| tsconfig.json | 继承基础配置 |
+| src/index.ts | 导出所有公共 API |
+| 依赖声明 | 使用 workspace:* |
+| 类型定义 | 完整的类型导出 |
+| 版本号 | 统一使用 0.1.0 |
+
+---
+
 ## 更新历史
 
 | 日期 | 版本 | 变更内容 |
 |------|------|----------|
 | 2026-04-21 | 1.0.0 | 初始版本，整理执行知识 |
+| 2026-04-21 | 1.1.0 | 新增模块实现规范 |
 
