@@ -19,7 +19,12 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@organic/shared": "workspace:*",
+    "@organic/utils": "workspace:*",
+    "@organic/kernel": "workspace:*",
+    "@organic/plugins": "workspace:*",
+    "@organic/tools": "workspace:*",
+    "@organic/agent": "workspace:*"
+  },",
     "@organic/kernel": "workspace:*",
     "@organic/plugins": "workspace:*",
     "@organic/tools": "workspace:*",

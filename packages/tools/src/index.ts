@@ -9,7 +9,7 @@ export {
   createLogger,
   type Logger,
   type LogLevel,
-} from '@organic/shared';
+} from '@organic/utils';
 
 /**
  * Tool registry for managing available tools

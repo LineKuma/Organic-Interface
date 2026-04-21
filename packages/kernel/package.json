@@ -19,7 +19,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@organic/shared": "workspace:*"
+    "@organic/utils": "workspace:*"
   },
   "devDependencies": {
     "typescript": "^5.4.0"

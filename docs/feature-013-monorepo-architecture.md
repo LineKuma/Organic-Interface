@@ -52,7 +52,7 @@ organic-interface/
 │   ├── tools/           # 工具服务模块
 │   ├── agent/           # Agent调度模块
 │   ├── ui/              # 界面模块（可选）
-│   └── shared/          # 共享类型和工具模块
+│   └── utils/          # 共享类型和工具模块
 ├── scripts/             # 构建和维护脚本
 ├── docs/                # 项目文档
 ├── configs/             # 共享配置文件
@@ -75,7 +75,7 @@ organic-interface/
 
 **packages/ui**：界面模块（可选），包含命令行界面或Web界面的实现。
 
-**packages/shared**：共享类型和工具模块，包含TypeScript类型定义、通用工具函数、日志格式化等，所有其他模块都依赖此模块。
+**packages/utils**：共享类型和工具模块，包含TypeScript类型定义、通用工具函数、日志格式化等，所有其他模块都依赖此模块。
 
 ---
 
@@ -114,7 +114,7 @@ organic-interface/
     }
   },
   "dependencies": {
-    "@organic/shared": "workspace:*"
+    "@organic/utils": "workspace:*"
   }
 }
 ```
@@ -147,7 +147,7 @@ organic-interface/
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@organic/shared": "workspace:*",
+    "@organic/utils": "workspace:*",
     "@organic/kernel": "workspace:*"
   }
 }
@@ -181,7 +181,7 @@ organic-interface/
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@organic/shared": "workspace:*",
+    "@organic/utils": "workspace:*",
     "@organic/kernel": "workspace:*",
     "@organic/plugins": "workspace:*"
   }
@@ -215,7 +215,7 @@ organic-interface/
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "dependencies": {
-    "@organic/shared": "workspace:*",
+    "@organic/utils": "workspace:*",
     "@organic/kernel": "workspace:*",
     "@organic/plugins": "workspace:*",
     "@organic/tools": "workspace:*"
@@ -223,9 +223,9 @@ organic-interface/
 }
 ```
 
-### 共享模块：shared
+### 共享模块：utils
 
-**模块职责**：shared模块存放所有模块共享的类型定义和工具函数。
+**模块职责**：utils模块存放所有模块共享的类型定义和工具函数。
 
 **核心功能**：
 - TypeScript类型定义和接口
@@ -246,7 +246,7 @@ organic-interface/
 
 ```json
 {
-  "name": "@organic/shared",
+  "name": "@organic/utils",
   "version": "1.0.0",
   "type": "module",
   "main": "./dist/index.js",
@@ -261,7 +261,7 @@ organic-interface/
 ### 依赖层级结构
 
 ```
-         shared (level 0)
+         utils (level 0)
             ↑
       kernel (level 1)
        ↗       ↖
@@ -275,7 +275,7 @@ organic-interface/
 **层级规则**：
 - 只能依赖同层或下层模块
 - 禁止循环依赖
-- shared是基础层，所有模块都依赖它
+- utils是基础层，所有模块都依赖它
 - 层级越高，依赖越多，功能越具体
 
 ### 依赖声明规范
@@ -285,7 +285,7 @@ organic-interface/
 **内部依赖**：使用workspace协议指向内部模块。
 ```json
 "dependencies": {
-  "@organic/shared": "workspace:*"
+  "@organic/utils": "workspace:*"
 }
 ```
 
@@ -433,7 +433,7 @@ pnpm --filter @organic/kernel up <package>
 
 ### 类型共享策略
 
-**shared模块导出的类型**必须包含：
+**utils模块导出的类型**必须包含：
 - 所有核心接口（KernelApi、PluginInterface、ToolService等）
 - 所有数据传输对象（DTO）
 - 所有枚举类型
@@ -442,10 +442,10 @@ pnpm --filter @organic/kernel up <package>
 **使用示例**：
 ```typescript
 // packages/tools/src/index.ts
-import { PluginInterface, KernelApi } from '@organic/shared';
+import { PluginInterface, KernelApi } from '@organic/utils';
 
-// 在shared中定义
-// packages/shared/src/types/plugin.ts
+// 在utils中定义
+// packages/utils/src/types/plugin.ts
 export interface PluginInterface {
   initialize(context: PluginContext): Promise<InitializeResult>;
   execute(input: PluginInput): Promise<PluginOutput>;
@@ -536,11 +536,11 @@ pnpm publish --access public
 | 序号 | 验收项 | 验收标准 |
 |------|--------|----------|
 | 1 | 目录结构定义 | 明确定义packages/、scripts/、docs/等目录结构 |
-| 2 | 模块划分 | 定义kernel、plugins、tools、agent、shared五个核心模块 |
+| 2 | 模块划分 | 定义kernel、plugins、tools、agent、utils五个核心模块 |
 | 3 | 依赖关系 | 定义模块间依赖关系和共享策略，无循环依赖 |
 | 4 | 包管理 | 确定使用pnpm workspaces管理内部模块 |
 | 5 | 构建配置 | 定义turbo.json配置实现增量构建 |
-| 6 | 类型共享 | 所有模块共享的类型定义存放在shared模块 |
+| 6 | 类型共享 | 所有模块共享的类型定义存放在utils模块 |
 | 7 | 层级规范 | 模块依赖遵循层级规范，只能依赖下层模块 |
 | 8 | 文档编号 | 文档编号为DOC-013，与feature系列保持一致 |
 

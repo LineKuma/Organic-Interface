@@ -12,7 +12,7 @@ export {
   createLogger,
   type Logger,
   type LogLevel,
-} from '@organic/shared';
+} from '@organic/utils';
 
 /**
  * Plugin Registry - manages plugin lifecycle

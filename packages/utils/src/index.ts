@@ -1,5 +1,5 @@
 /**
- * @organic/shared - Shared types and utilities for Organic Interface
+ * @organic/utils - Shared types and utilities for Organic Interface
  */
 
 // Config types

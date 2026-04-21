@@ -180,7 +180,7 @@ packages:
 **命名格式**: @organic/{module-name}
 
 **已定义包**：
-- @organic/shared - 共享类型和工具
+- @organic/utils - 共享类型和工具
 - @organic/kernel - 核心引擎
 - @organic/plugins - Plugin系统
 - @organic/tools - 工具服务
