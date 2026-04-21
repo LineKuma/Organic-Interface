@@ -37,7 +37,52 @@ export {
   type ContextStats,
   type ContextManagerConfig,
   ContextStatus,
-  ContextItemType,
+  ContextItemType as ContextManagerContextItemType,
   StateType,
   DEFAULT_CONTEXT_CONFIG,
 } from './ContextManager.js';
+
+// ContextItem model exports
+export {
+  type ContextItem,
+  type ContextItemOptions,
+  type ContextItemFilter,
+  type ContextItemUpdate,
+  type ContextItemMetadata,
+  ContextItemType,
+  ContextItemPriority,
+  createContextItem,
+  createMessageContextItem,
+  createStateContextItem,
+  createToolCallContextItem,
+  createResultContextItem,
+  updateContextItem,
+  isContextItemExpired,
+  touchContextItem,
+  isValidContextItem,
+  calculateContextItemSize,
+  compareContextItems,
+} from './models/index.js';
+
+// ContextWindowManager exports
+export {
+  ContextWindowManager,
+  type ContextWindow,
+  type ContextWindowConfig,
+  type ContextWindowManagerConfig,
+  ContextWindowType,
+  DEFAULT_CONTEXT_WINDOW_CONFIG,
+  DEFAULT_CONTEXT_WINDOW_MANAGER_CONFIG,
+} from './services/ContextWindowManager.js';
+
+// ContextService exports
+export {
+  ContextService,
+  type PropagationScope,
+  type ContextFilter,
+  type ExecutionFrame,
+  type ExecutionContextStack,
+  type ContextServiceConfig,
+  PropagationMode,
+  DEFAULT_CONTEXT_SERVICE_CONFIG,
+} from './services/ContextService.js';
