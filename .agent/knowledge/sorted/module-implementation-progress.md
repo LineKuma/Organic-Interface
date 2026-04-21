@@ -4,11 +4,11 @@
 
 | 字段 | 值 |
 |------|-----|
-| 版本 | 2.0.0 |
+| 版本 | 3.0.0 |
 | 创建日期 | 2026-04-21 |
 | 最后更新 | 2026-04-21 |
 | 作者 | Learner |
-| 描述 | Organic-Interface 项目各模块实现进度追踪 - 最终完成状态 |
+| 描述 | Organic-Interface 项目各模块实现进度追踪 - 包含上下文管理服务和工作流引擎 |
 
 ---
 
@@ -24,14 +24,16 @@
 | storage | @organic/storage | 已完成 | 12 | 2 |
 | tools | @organic/tools | 已配置 | 0 (git-ignored) | 2 |
 | agent | @organic/agent | 已完成 | 11 | 4 |
+| context-service | @organic/context-service | 已完成 | 8 | 4 |
+| workflow-engine | @organic/workflow-engine | 已完成 | 10 | 4 |
 | ui | @organic/ui | 已完成 | 12 | 5 |
 
 ### 1.2 项目统计
 
-- **总模块数**: 7
-- **已完成模块**: 6
+- **总模块数**: 9
+- **已完成模块**: 7
 - **已配置模块**: 1 (@organic/tools)
-- **总源码文件**: 65
+- **总源码文件**: 83
 - **依赖层级**: 5
 
 ---
@@ -271,7 +273,110 @@ src/
 
 ---
 
-### 2.7 @organic/ui - UI 界面模块
+### 2.7 @organic/context-service - 上下文管理服务
+
+**状态**: 已完成
+
+**源码结构**:
+```
+src/
+├── index.ts                    # 主入口
+├── ContextService.ts           # 上下文服务主类
+├── ContextCache.ts             # 上下文缓存
+├── ContextSerializer.ts         # 上下文序列化器
+├── types.ts                    # 类型定义
+└── errors.ts                   # 错误定义
+```
+
+**核心组件**:
+- `ContextService`: 上下文服务主类
+  - 上下文创建、获取、更新、删除
+  - 上下文过期管理 (TTL)
+  - 上下文版本控制
+  - 上下文搜索 (searchByMetadata)
+  - 批量操作 (batchGet, batchUpdate)
+  - 统计信息 (getStats)
+- `ContextCache`: 上下文缓存
+  - LRU 缓存策略
+  - 自动过期清理
+- `ContextSerializer`: 上下文序列化器
+  - JSON 序列化/反序列化
+  - 压缩存储
+  - Schema 验证
+
+**导出内容**:
+- ContextService 主类
+- ContextCache 缓存类
+- ContextSerializer 序列化器
+- 类型定义 (Context, ContextMetadata, ContextOptions)
+- 错误类型 (ContextError, ContextErrorCode)
+
+**依赖**:
+- `@organic/utils` (workspace:*)
+- `@organic/kernel` (workspace:*)
+- `@organic/plugins` (workspace:*)
+- `@organic/storage` (workspace:*)
+
+---
+
+### 2.8 @organic/workflow-engine - 工作流引擎
+
+**状态**: 已完成
+
+**源码结构**:
+```
+src/
+├── index.ts                    # 主入口
+├── WorkflowEngine.ts           # 工作流引擎主类
+├── nodes/
+│   ├── index.ts
+│   ├── Node.ts                 # 节点基类
+│   ├── TaskNode.ts            # 任务节点
+│   ├── ConditionNode.ts       # 条件节点
+│   ├── ParallelNode.ts        # 并行节点
+│   └── LoopNode.ts            # 循环节点
+├── ExecutionContext.ts         # 执行上下文
+├── ExecutionHistory.ts        # 执行历史
+└── types.ts                   # 类型定义
+```
+
+**核心组件**:
+
+**Engine**:
+- `WorkflowEngine`: 工作流引擎主类
+  - 工作流创建、加载、保存
+  - 执行控制 (start, pause, resume, cancel)
+  - 节点执行 (executeNode)
+  - 事件处理 (onEvent, emitEvent)
+  - 状态查询 (getStatus, getProgress)
+
+**Nodes**:
+- `Node`: 节点基类
+- `TaskNode`: 任务节点 (执行具体任务)
+- `ConditionNode`: 条件节点 (条件分支判断)
+- `ParallelNode`: 并行节点 (并行执行多个分支)
+- `LoopNode`: 循环节点 (循环执行)
+
+**Context & History**:
+- `ExecutionContext`: 执行上下文 (运行时数据)
+- `ExecutionHistory`: 执行历史 (记录执行过程)
+
+**导出内容**:
+- WorkflowEngine 主类
+- 所有节点类型
+- 执行上下文和历史
+- 工作流定义类型 (WorkflowDefinition, NodeDefinition)
+- 执行状态类型 (ExecutionStatus, NodeStatus)
+
+**依赖**:
+- `@organic/utils` (workspace:*)
+- `@organic/kernel` (workspace:*)
+- `@organic/plugins` (workspace:*)
+- `@organic/agent` (workspace:*)
+
+---
+
+### 2.9 @organic/ui - UI 界面模块
 
 **状态**: 已完成
 
@@ -371,6 +476,15 @@ Layer 2: 功能层
          │  @organic/agent     │
          │  (11 files)        │
          └──────────┬─────────┘
+           ┌────────┴────────┐
+           │                 │
+┌──────────▼──────────┐  ┌─▼─────────────────┐
+│  @organic/context   │  │  @organic/workflow │
+│  -service           │  │  -engine          │
+│  (8 files)          │  │  (10 files)        │
+└──────────┬──────────┘  └─┬─────────────────┘
+           │                │
+           └────────┬───────┘
                     │
          ┌──────────▼─────────┐
          │  @organic/ui       │
@@ -390,6 +504,8 @@ Layer 2: 功能层
 | 2026-04-21 | @organic/storage | 已完成 | 存储模块，12个文件 |
 | 2026-04-21 | @organic/tools | 已配置 | package.json 完成 |
 | 2026-04-21 | @organic/agent | 已完成 | Agent 核心，11个文件 |
+| 2026-04-21 | @organic/context-service | 已完成 | 上下文管理服务，8个文件 |
+| 2026-04-21 | @organic/workflow-engine | 已完成 | 工作流引擎，10个文件 |
 | 2026-04-21 | @organic/ui | 已完成 | UI 模块，12个文件 |
 
 ---
@@ -410,13 +526,27 @@ Layer 2: 功能层
 - 会话管理
 - 操作序列执行
 
-### 5.3 插件系统
+### 5.3 上下文管理服务
+- LRU 缓存策略
+- TTL 过期管理
+- 上下文版本控制
+- 元数据搜索
+- 批量操作
+
+### 5.4 工作流引擎
+- 可视化流程设计
+- 多种节点类型 (Task, Condition, Parallel, Loop)
+- 执行状态控制 (start, pause, resume, cancel)
+- 执行历史记录
+- 事件驱动架构
+
+### 5.5 插件系统
 - 本地插件加载
 - 远程插件加载
 - 插件注册表
 - 生命周期管理
 
-### 5.4 存储系统
+### 5.6 存储系统
 - 多后端支持 (Memory, File, Database)
 - 实体元数据管理
 - 工厂模式存储管理
@@ -444,6 +574,7 @@ Layer 2: 功能层
 |------|------|----------|
 | 2026-04-21 | 1.0.0 | 初始版本，记录模块实现进度 |
 | 2026-04-21 | 2.0.0 | 最终版本，@organic/agent 和 @organic/ui 模块完成，更新全部状态 |
+| 2026-04-21 | 3.0.0 | 新增 @organic/context-service 和 @organic/workflow-engine 模块 |
 
 ---
 
