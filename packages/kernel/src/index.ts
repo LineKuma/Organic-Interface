@@ -1,88 +1,34 @@
 /**
- * @organic/kernel - Core Kernel module
+ * @organic/kernel - Core Kernel module for Organic Interface
+ *
+ * Kernel provides the core runtime for the Organic Interface system,
+ * managing plugins, lifecycle, events, and tool execution.
  */
 
-export {
-  type KernelConfig,
-  type KernelApi,
-  type PluginInterface,
-  type PluginContext,
-  type PluginInput,
-  type PluginOutput,
-  createLogger,
-  type Logger,
-  type LogLevel,
+// Re-export types from @organic/utils
+export type {
+  KernelConfig,
+  KernelApi,
+  PluginInterface,
+  PluginContext,
+  PluginInput,
+  PluginOutput,
+  PluginConfig,
+  ToolResult,
+  ToolError,
+  ToolMetadata,
 } from '@organic/utils';
 
+// Re-export logger utilities
+export { createLogger, type Logger, type LogLevel } from '@organic/utils';
+
+// Kernel core components
+export { Kernel } from './kernel/Kernel.js';
+export { EventBus, KernelEvents, type EventSubscription, type KernelEvent } from './kernel/EventBus.js';
+export { LifecycleManager, LifecycleState, type LifecycleTransition } from './kernel/LifecycleManager.js';
+export { PluginManager, type PluginMetadata } from './kernel/PluginManager.js';
+
 /**
- * Core Kernel implementation
+ * Module version
  */
-export class Kernel {
-  private plugins: Map<string, PluginInterface> = new Map();
-  private config: KernelConfig;
-  private logger: Logger;
-  private initialized: boolean = false;
-
-  constructor(config: KernelConfig, logger?: Logger) {
-    this.config = config;
-    this.logger = logger ?? createLogger('kernel');
-  }
-
-  async initialize(): Promise<void> {
-    if (this.initialized) {
-      this.logger.warn('Kernel already initialized');
-      return;
-    }
-    this.logger.info(`Initializing Kernel: ${this.config.name} v${this.config.version}`);
-    this.initialized = true;
-  }
-
-  async shutdown(): Promise<void> {
-    this.logger.info('Shutting down Kernel');
-    for (const [name, plugin] of this.plugins) {
-      await plugin.shutdown();
-      this.logger.info(`Plugin ${name} shutdown`);
-    }
-    this.plugins.clear();
-    this.initialized = false;
-  }
-
-  getConfig(): KernelConfig {
-    return { ...this.config };
-  }
-
-  getVersion(): string {
-    return this.config.version;
-  }
-
-  async registerPlugin(plugin: PluginInterface): Promise<void> {
-    if (this.plugins.has(plugin.name)) {
-      throw new Error(`Plugin ${plugin.name} already registered`);
-    }
-    this.logger.info(`Registering plugin: ${plugin.name}`);
-    this.plugins.set(plugin.name, plugin);
-  }
-
-  async unregisterPlugin(name: string): Promise<void> {
-    const plugin = this.plugins.get(name);
-    if (!plugin) {
-      throw new Error(`Plugin ${name} not found`);
-    }
-    await plugin.shutdown();
-    this.plugins.delete(name);
-    this.logger.info(`Unregistered plugin: ${name}`);
-  }
-
-  getPlugin(name: string): PluginInterface | undefined {
-    return this.plugins.get(name);
-  }
-
-  listPlugins(): PluginInterface[] {
-    return Array.from(this.plugins.values());
-  }
-
-  async executeTool(name: string, params: Record<string, unknown>): Promise<{ success: boolean; data?: unknown; error?: string }> {
-    this.logger.info(`Executing tool: ${name}`);
-    return { success: true, data: null };
-  }
-}
+export const VERSION = '0.1.0';
