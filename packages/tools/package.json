@@ -2,6 +2,7 @@
   "name": "@organic/tools",
   "version": "0.1.0",
   "type": "module",
+  "description": "Tool Service module for Organic Interface - provides tool registration, discovery, and execution",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
@@ -19,11 +20,19 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@organic/utils": "workspace:*",
     "@organic/kernel": "workspace:*",
-    "@organic/plugins": "workspace:*"
+    "@organic/utils": "workspace:*"
   },
   "devDependencies": {
+    "@types/node": "^20.11.0",
     "typescript": "^5.4.0"
-  }
+  },
+  "keywords": [
+    "organic",
+    "tools",
+    "agent",
+    "plugin"
+  ],
+  "author": "",
+  "license": "MIT"
 }
