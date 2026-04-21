@@ -1,42 +1,72 @@
 /**
- * @organic/storage - Storage module
+ * @organic/storage - Storage module for Organic Interface
+ *
+ * Provides unified storage abstraction with support for multiple backends:
+ * - Memory storage (high-speed, temporary)
+ * - File storage (persistent, file-based)
+ * - Database storage (structured, transactional)
  */
 
+// Re-export logger from utils
 export {
   createLogger,
   type Logger,
   type LogLevel,
 } from '@organic/utils';
 
-/**
- * Storage interface
- */
-export interface Storage {
-  get<T>(key: string): Promise<T | undefined>;
-  set<T>(key: string, value: T): Promise<void>;
-  delete(key: string): Promise<void>;
-  clear(): Promise<void>;
-}
+// Model exports
+export {
+  type EntityMetadata,
+  createDefaultMetadata,
+  isMetadataExpired,
+  cloneMetadata,
+  type StorageEntity,
+  StorageEntityImpl,
+  type StorageIndex,
+  IndexType,
+  createStorageEntity,
+  isValidEntity,
+} from './models/index.js';
+
+// Backend exports
+export {
+  type IStorageBackend,
+  type StorageBackendInfo,
+  StorageBackendType,
+  type MemoryStorageConfig,
+  MemoryStorage,
+  type FileStorageConfig,
+  FileStorage,
+  type DatabaseStorageConfig,
+  DatabaseStorage,
+} from './backends/index.js';
+
+// Service exports
+export {
+  StorageService,
+  StorageError,
+  StorageErrorCode,
+  IsolationLevel,
+  TransactionStatus,
+  type Transaction,
+  type TransactionOptions,
+  type QueryFilter,
+  type OrderSpec,
+  type UpdateOperation,
+  type CreateResult,
+  type UpdateResult,
+  type DeleteResult,
+  type BatchCreateResult,
+  type BatchUpdateResult,
+  type BatchDeleteResult,
+  type QueryResult,
+  type ClearResult,
+  type StorageInfo,
+  StorageManager,
+  type StorageManagerConfig,
+} from './services/index.js';
 
 /**
- * Memory storage implementation
+ * Module version
  */
-export class MemoryStorage implements Storage {
-  private store: Map<string, unknown> = new Map();
-
-  async get<T>(key: string): Promise<T | undefined> {
-    return this.store.get(key) as T | undefined;
-  }
-
-  async set<T>(key: string, value: T): Promise<void> {
-    this.store.set(key, value);
-  }
-
-  async delete(key: string): Promise<void> {
-    this.store.delete(key);
-  }
-
-  async clear(): Promise<void> {
-    this.store.clear();
-  }
-}
+export const VERSION = '0.1.0';
