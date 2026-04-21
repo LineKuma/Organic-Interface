@@ -1,55 +1,57 @@
 /**
- * @organic/plugins - Plugin system module
+ * @organic/plugins - Plugin system module for Organic Interface
+ *
+ * Provides plugin management, loading, and lifecycle control.
  */
 
-export {
-  type PluginInterface,
-  type PluginContext,
-  type PluginInput,
-  type PluginOutput,
-  type InitializeResult,
-  type PluginConfig,
-  createLogger,
-  type Logger,
-  type LogLevel,
-} from '@organic/utils';
+// Re-export all types
+export type {
+  PluginInterface,
+  PluginMetadata,
+  PluginDependency,
+  PluginHooks,
+  PluginLifecycleState,
+  PluginConfig,
+  ValidateResult,
+  ValidationError,
+  PluginStatus,
+  PluginStats,
+  PluginContext,
+  PluginInput,
+  PluginOutput,
+  InitializeResult,
+} from './interfaces/PluginInterface.js';
+
+export type {
+  PluginLoaderInterface,
+  PluginLoaderOptions,
+  PluginLoadResult,
+  PluginDiscoveryResult,
+  CompatibilityResult,
+  CompatibilityIssue,
+  RemotePluginSource,
+  RemotePluginLoadResult,
+} from './interfaces/PluginLoaderInterface.js';
+
+export type {
+  PluginInfo,
+  PluginSearchOptions,
+  InstallResult,
+  UpgradeResult,
+  RegistryEvent,
+} from './registry/PluginRegistry.js';
+
+// Re-export loaders
+export { PluginLoader } from './loaders/PluginLoader.js';
+export { RemotePluginLoader, type RemotePluginLoaderOptions } from './loaders/RemotePluginLoader.js';
+
+// Re-export registry
+export { PluginRegistry } from './registry/PluginRegistry.js';
+
+// Re-export base plugin
+export { BasePlugin, type BasePluginOptions } from './base/BasePlugin.js';
 
 /**
- * Plugin Registry - manages plugin lifecycle
+ * Module version
  */
-export class PluginRegistry {
-  private plugins: Map<string, PluginInterface> = new Map();
-
-  register(plugin: PluginInterface): void {
-    if (this.plugins.has(plugin.name)) {
-      throw new Error(`Plugin ${plugin.name} already registered`);
-    }
-    this.plugins.set(plugin.name, plugin);
-  }
-
-  unregister(name: string): void {
-    this.plugins.delete(name);
-  }
-
-  get(name: string): PluginInterface | undefined {
-    return this.plugins.get(name);
-  }
-
-  list(): PluginInterface[] {
-    return Array.from(this.plugins.values());
-  }
-
-  has(name: string): boolean {
-    return this.plugins.has(name);
-  }
-}
-
-/**
- * Plugin Loader - dynamic plugin loading
- */
-export class PluginLoader {
-  async load(path: string): Promise<PluginInterface> {
-    // Dynamic loading implementation placeholder
-    throw new Error('Dynamic plugin loading not implemented');
-  }
-}
+export const VERSION = '0.1.0';
