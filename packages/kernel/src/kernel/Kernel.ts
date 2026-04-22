@@ -18,6 +18,7 @@ import { createLogger, type Logger } from '@organic/utils';
 import { EventBus, KernelEvents } from './EventBus.js';
 import { LifecycleManager, LifecycleState } from './LifecycleManager.js';
 import { PluginManager } from './PluginManager.js';
+import { TextService, InfoService, type TextServiceConfig, type InfoServiceConfig } from '../services/index.js';
 
 /**
  * Kernel options for creation
@@ -29,6 +30,10 @@ export interface KernelOptions {
   logger?: Logger;
   /** Enable debug logging */
   debug?: boolean;
+  /** Text service configuration */
+  textServiceConfig?: TextServiceConfig;
+  /** Info service configuration */
+  infoServiceConfig?: InfoServiceConfig;
 }
 
 /**
@@ -41,6 +46,12 @@ export class Kernel implements KernelApi {
   private lifecycle: LifecycleManager;
   private pluginManager: PluginManager;
   private requestCounter: number = 0;
+
+  /** Text service for CLI output */
+  public readonly text: TextService;
+
+  /** Info service for system information */
+  public readonly info: InfoService;
 
   constructor(options: KernelOptions) {
     this.config = { ...options.config };
@@ -58,6 +69,12 @@ export class Kernel implements KernelApi {
       eventBus: this.eventBus,
       logger: this.logger,
     });
+
+    // Initialize text service
+    this.text = new TextService(options.textServiceConfig);
+
+    // Initialize info service
+    this.info = new InfoService(options.infoServiceConfig);
   }
 
   // ==================== KernelApi Implementation ====================
