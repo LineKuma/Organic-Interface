@@ -51,6 +51,33 @@ export { PluginRegistry } from './registry/PluginRegistry.js';
 // Re-export base plugin
 export { BasePlugin, type BasePluginOptions } from './base/BasePlugin.js';
 
+// Re-export core-conversation plugin
+export {
+  CoreConversationPlugin,
+  SessionManager,
+  ContextManager,
+  InputParser,
+  OutputFormatter,
+  METADATA,
+  VERSION,
+  PLUGIN_ID,
+  COMPATIBLE_API_VERSIONS,
+} from './core-conversation/src/index.js';
+
+export type {
+  Session,
+  SessionConfig,
+  SessionStatus,
+  ContextWindow,
+  Message,
+  ParsedInput,
+  ConversationResult,
+  FormattedOutput,
+  ConversationError,
+  SessionError,
+  ContextError,
+} from './core-conversation/src/index.js';
+
 /**
  * Module version
  */
