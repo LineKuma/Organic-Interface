@@ -14,6 +14,8 @@ import {
   MessageSender,
   OutputFormat,
   ContentFormat,
+  SessionStatus,
+  ContextWindowType,
 } from '../types/index.js';
 
 // Helper to create test conversation results
@@ -39,12 +41,12 @@ function createSessionResult(id: string, title: string) {
     session: {
       id,
       title,
-      status: 'active',
+      status: SessionStatus.ACTIVE,
       tags: [],
       metadata: {},
       contextWindow: {
         windowSize: 50,
-        windowType: 'recent_messages',
+        windowType: ContextWindowType.RECENT_MESSAGES,
         includeSystemMessages: true,
         includeToolCalls: true,
       },
@@ -55,7 +57,22 @@ function createSessionResult(id: string, title: string) {
   };
 }
 
-function createSessionListResult(sessions: Array<{ id: string; title: string; messageCount: number; status: string }>) {
+function createSessionListResult(sessions: Array<{
+  id: string;
+  title: string;
+  messageCount: number;
+  status: SessionStatus;
+  tags: string[];
+  metadata: Record<string, unknown>;
+  contextWindow: {
+    windowSize: number;
+    windowType: ContextWindowType;
+    includeSystemMessages: boolean;
+    includeToolCalls: boolean;
+  };
+  createdAt: number;
+  lastActiveAt: number;
+}>) {
   return {
     type: ResultType.SESSION_LIST,
     sessions,
@@ -71,7 +88,7 @@ function createContextResult(sessionId: string, messageCount: number) {
       messages: [],
       config: {
         windowSize: 50,
-        windowType: 'recent_messages',
+        windowType: ContextWindowType.RECENT_MESSAGES,
         includeSystemMessages: true,
         includeToolCalls: true,
       },
@@ -117,8 +134,38 @@ describe('OutputFormatter', () => {
 
     it('should format session list result', () => {
       const result = createSessionListResult([
-        { id: 'sess-1', title: 'Session 1', messageCount: 5, status: 'active' },
-        { id: 'sess-2', title: 'Session 2', messageCount: 10, status: 'idle' },
+        {
+          id: 'sess-1',
+          title: 'Session 1',
+          messageCount: 5,
+          status: SessionStatus.ACTIVE,
+          tags: [],
+          metadata: {},
+          contextWindow: {
+            windowSize: 50,
+            windowType: ContextWindowType.RECENT_MESSAGES,
+            includeSystemMessages: true,
+            includeToolCalls: true,
+          },
+          createdAt: Date.now(),
+          lastActiveAt: Date.now(),
+        },
+        {
+          id: 'sess-2',
+          title: 'Session 2',
+          messageCount: 10,
+          status: SessionStatus.IDLE,
+          tags: [],
+          metadata: {},
+          contextWindow: {
+            windowSize: 50,
+            windowType: ContextWindowType.RECENT_MESSAGES,
+            includeSystemMessages: true,
+            includeToolCalls: true,
+          },
+          createdAt: Date.now(),
+          lastActiveAt: Date.now(),
+        },
       ]);
       const output = formatter.format(result);
 
@@ -433,19 +480,45 @@ describe('OutputFormatter', () => {
 
   describe('message streaming', () => {
     it('should indicate non-final messages', () => {
-      const result = createMessageResult('Partial response...');
-      result.message!.stream = { streamId: 'stream-1', chunkCount: 3, isFinal: false };
+      // Create a message result with stream info
+      const streamResult = {
+        type: ResultType.MESSAGE,
+        message: {
+          id: 'msg-1',
+          content: {
+            text: 'Partial response...',
+            format: ContentFormat.PLAIN_TEXT,
+          },
+          type: ResponseType.TEXT,
+          sender: MessageSender.ASSISTANT,
+          timestamp: Date.now(),
+          stream: { streamId: 'stream-1', chunkCount: 3, isFinal: false },
+        },
+      };
 
-      const output = formatter.format(result);
+      const output = formatter.format(streamResult);
 
       expect(output.metadata.stream).toBe(true);
     });
 
     it('should not indicate stream for final messages', () => {
-      const result = createMessageResult('Complete response');
-      result.message!.stream = { streamId: 'stream-1', chunkCount: 5, isFinal: true };
+      // Create a message result with final stream info
+      const streamResult = {
+        type: ResultType.MESSAGE,
+        message: {
+          id: 'msg-1',
+          content: {
+            text: 'Complete response',
+            format: ContentFormat.PLAIN_TEXT,
+          },
+          type: ResponseType.TEXT,
+          sender: MessageSender.ASSISTANT,
+          timestamp: Date.now(),
+          stream: { streamId: 'stream-1', chunkCount: 5, isFinal: true },
+        },
+      };
 
-      const output = formatter.format(result);
+      const output = formatter.format(streamResult);
 
       expect(output.metadata.stream).toBeUndefined();
     });
