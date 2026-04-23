@@ -21,4 +21,5 @@ export {
 export {
   DatabaseStorage,
   DatabaseStorageConfig,
+  BatchOperationResult,
 } from './DatabaseStorage.js';

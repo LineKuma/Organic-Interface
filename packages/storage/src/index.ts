@@ -39,6 +39,7 @@ export {
   FileStorage,
   type DatabaseStorageConfig,
   DatabaseStorage,
+  type BatchOperationResult,
 } from './backends/index.js';
 
 // Service exports
@@ -64,6 +65,13 @@ export {
   type StorageInfo,
   StorageManager,
   type StorageManagerConfig,
+  SessionPersistenceStorage,
+  type SessionPersistenceStorageConfig,
+  createSessionPersistenceStorage,
+  SessionAdapter,
+  type SessionPersistence,
+  type SessionPersistenceContextWindow,
+  SessionPersistenceStatus,
 } from './services/index.js';
 
 /**
