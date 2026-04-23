@@ -38,6 +38,12 @@
 | [execution-knowledge.md](sorted/execution-knowledge.md) | 任务执行规范与常见问题处理 |
 | [p0-tasks-execution-summary.md](sorted/p0-tasks-execution-summary.md) | P0 任务执行总结 |
 
+### 5. TypeScript 类型修复
+
+| 文档 | 说明 |
+|------|------|
+| [typescript-fix-patterns.md](sorted/typescript-fix-patterns.md) | TypeScript类型错误修复模式与解决方案 |
+
 ## 知识层级说明
 
 | 层级 | 说明 | 位置 |
