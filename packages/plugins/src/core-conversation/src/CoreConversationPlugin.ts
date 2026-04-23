@@ -347,6 +347,9 @@ export class CoreConversationPlugin implements PluginInterface {
     const session = await this.sessionManager!.createSession(options);
     this.activeSessionId = session.id;
 
+    // Initialize context for the new session
+    this.contextManager!.getContext(session.id);
+
     return {
       type: ResultType.SESSION,
       session,
@@ -445,6 +448,9 @@ export class CoreConversationPlugin implements PluginInterface {
     }
 
     this.activeSessionId = sessionId;
+
+    // Initialize context for the resumed session
+    this.contextManager!.getContext(sessionId);
 
     return {
       type: ResultType.SESSION,

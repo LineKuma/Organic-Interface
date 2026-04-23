@@ -96,9 +96,7 @@ export class ContextManager {
       throw ContextError.notFound(sessionId);
     }
 
-    const windowConfig = config ?? context.messages.length > 0
-      ? this.options.defaultConfig
-      : this.options.defaultConfig;
+    const windowConfig = config ?? this.options.defaultConfig;
 
     const messages = this.filterMessages(context.messages, windowConfig);
     const tokenCount = this.estimateTokenCount(messages);

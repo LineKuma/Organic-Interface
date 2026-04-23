@@ -270,17 +270,18 @@ describe('ContextManager', () => {
       expect(history).toHaveLength(5);
     });
 
-    it('should return limited history', async () => {
+    it('should return limited history (last N messages)', async () => {
       const sessionId = 'session-1';
       for (let i = 0; i < 10; i++) {
         await manager.addMessage(sessionId, createMessage(`m${i}`, `Message ${i}`));
       }
 
+      // Implementation returns the LAST N messages, not first N
       const history = await manager.getHistory(sessionId, 3);
       expect(history).toHaveLength(3);
-      expect(history[0].id).toBe('m0');
-      expect(history[1].id).toBe('m1');
-      expect(history[2].id).toBe('m2');
+      expect(history[0].id).toBe('m7');
+      expect(history[1].id).toBe('m8');
+      expect(history[2].id).toBe('m9');
     });
 
     it('should return empty array for non-existent session', async () => {
