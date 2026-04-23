@@ -4,18 +4,21 @@
   "private": true,
   "description": "Organic Interface - Plugin-based Agent Framework",
   "type": "module",
-  "packageManager": "pnpm@8.0.0",
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "test": "turbo run test",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
+    "@vitest/coverage-v8": "^1.4.0",
     "turbo": "^1.13.0",
-    "typescript": "^5.4.0"
+    "typescript": "^5.4.0",
+    "vitest": "^1.4.0"
   },
   "engines": {
     "node": ">=18.0.0",

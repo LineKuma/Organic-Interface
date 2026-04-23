@@ -194,7 +194,7 @@ export abstract class BasePlugin implements PluginInterface {
     const errors: ValidationError[] = [];
 
     // Get validation schema from subclass
-    const schema = this.getConfigSchema();
+    const schema = this.getConfigSchema?.();
 
     if (schema) {
       for (const [field, rules] of Object.entries(schema)) {
