@@ -133,31 +133,33 @@ export class FileTool implements Tool {
       });
     }
 
+    const operation = data.operation;
+
     // Validate operation-specific requirements
-    if (['read', 'write', 'delete', 'exists', 'stat', 'mkdir'].includes(data.operation) && !data.path) {
+    if (['read', 'write', 'delete', 'exists', 'stat', 'mkdir'].includes(operation as string) && !(data as FileToolInput).path) {
       errors.push({
         path: 'path',
         message: 'Path is required for this operation',
         expected: 'string',
-        actual: data.path,
+        actual: (data as FileToolInput).path,
       });
     }
 
-    if (['copy', 'move'].includes(data.operation)) {
-      if (!data.source) {
+    if (['copy', 'move'].includes(operation as string)) {
+      if (!(data as FileToolInput).source) {
         errors.push({
           path: 'source',
           message: 'Source path is required for copy/move operations',
           expected: 'string',
-          actual: data.source,
+          actual: (data as FileToolInput).source,
         });
       }
-      if (!data.destination) {
+      if (!(data as FileToolInput).destination) {
         errors.push({
           path: 'destination',
           message: 'Destination path is required for copy/move operations',
           expected: 'string',
-          actual: data.destination,
+          actual: (data as FileToolInput).destination,
         });
       }
     }

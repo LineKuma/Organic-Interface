@@ -2,55 +2,67 @@
  * Type exports for core conversation plugin
  */
 
-// Session types
+// Session types - 枚举作为值导出，接口作为类型导出
 export {
   SessionStatus,
+  ContextWindowType,
   type SessionConfig,
   type ContextWindowConfig,
-  type ContextWindowType,
-  type Session,
-  type SessionUpdates,
-  type SessionFilter,
-  type SessionCreateOptions,
 } from './session.js';
 
-// Context types
+export type {
+  Session,
+  SessionUpdates,
+  SessionFilter,
+  SessionCreateOptions,
+} from './session.js';
+
+// Context types - 枚举作为值导出，接口作为类型导出
 export {
-  type ContextWindow,
-  type ContextUpdates,
-  type ContextStats,
   CompressionStrategy,
-  type ConversationContext,
 } from './context.js';
 
-// Input types
+export type {
+  ContextWindow,
+  ContextUpdates,
+  ContextStats,
+  ConversationContext,
+} from './context.js';
+
+// Input types - 枚举作为值导出，接口作为类型导出
 export {
   MessageSender,
   InputFormat,
   InputType,
-  type Message,
-  type ParsedInput,
-  type InputOptions,
-  type InputMetadata,
-  type ValidationResult,
-  type ValidationError,
-  type ValidationWarning,
 } from './input.js';
 
-// Output types
+export type {
+  Message,
+  ParsedInput,
+  InputOptions,
+  InputMetadata,
+  ValidationResult,
+  ValidationError,
+  ValidationWarning,
+} from './input.js';
+
+// Output types - 枚举作为值导出，接口作为类型导出
 export {
   ContentFormat,
   ResponseType,
   ToolCallStatus,
   ResultType,
-  type ResponseContent,
-  type ResponseMessage,
-  type ToolCall,
-  type StreamInfo,
-  type ConversationResult,
-  type ToolCallResult,
-  type ToolCallError,
-  type FormattedOutput,
   OutputFormat,
-  type OutputMetadata,
+} from './output.js';
+
+export type {
+  ResponseContent,
+  ResponseMessage,
+  ToolCall,
+  StreamInfo,
+  ConversationResult,
+  ToolCallResult,
+  ToolCallError,
+  FormattedOutput,
+  OutputMetadata,
 } from './output.js';

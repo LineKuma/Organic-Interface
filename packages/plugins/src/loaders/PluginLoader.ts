@@ -6,7 +6,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
-import type {
+import {
   PluginInterface,
   PluginMetadata,
   PluginConfig,
@@ -85,7 +85,7 @@ export class PluginLoader implements PluginLoaderInterface {
       }
 
       // Update status to loading
-      this.updateStatus(pluginId, 'loading');
+      this.updateStatus(pluginId, PluginLifecycleState.LOADING);
 
       // Dynamically import the plugin module
       const pluginModule = await import(pluginPath);
@@ -121,15 +121,12 @@ export class PluginLoader implements PluginLoaderInterface {
 
       // Initialize plugin if not already initialized
       if (plugin.initialize) {
-        const context: PluginContext = {
-          kernel: config?.pluginId ? {} as any : ({} as any),
-          config: config?.config,
+        const context = {
+          kernel: this.createKernelApi(pluginId),
+          config: config as any,
         };
 
-        // Create a minimal kernel API for initialization
-        context.kernel = this.createKernelApi(pluginId);
-
-        const initResult = await plugin.initialize(context);
+        const initResult = await plugin.initialize(context as any);
         if (!initResult.success) {
           return {
             success: false,
@@ -152,7 +149,7 @@ export class PluginLoader implements PluginLoaderInterface {
       this.pluginPaths.set(pluginId, pluginPath);
 
       // Update status to active
-      this.updateStatus(pluginId, 'active');
+      this.updateStatus(pluginId, PluginLifecycleState.ACTIVE);
 
       return {
         success: true,
@@ -160,7 +157,7 @@ export class PluginLoader implements PluginLoaderInterface {
         metadata,
       };
     } catch (error) {
-      this.updateStatus(pluginId, 'error', error instanceof Error ? error.message : String(error));
+      this.updateStatus(pluginId, PluginLifecycleState.ERROR, error instanceof Error ? error.message : String(error));
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -186,7 +183,7 @@ export class PluginLoader implements PluginLoaderInterface {
       // Remove from cache
       this.cache.delete(pluginId);
       this.pluginPaths.delete(pluginId);
-      this.updateStatus(pluginId, 'shutdown');
+      this.updateStatus(pluginId, PluginLifecycleState.SHUTDOWN);
     }
   }
 
@@ -415,6 +412,3 @@ export class PluginLoader implements PluginLoaderInterface {
     };
   }
 }
-
-// Re-export PluginContext for use in load method
-import type { PluginContext } from '@organic/utils';

@@ -368,13 +368,13 @@ export class Agent extends EventEmitter {
 
       this.emit('task:complete', {
         taskId: input.taskId,
-        result: { success: true, data: result, executionTime },
+        result: { success: true, data: result as R, executionTime },
         timestamp: Date.now(),
       });
 
       return {
         success: true,
-        data: result,
+        data: result as R,
         executionTime,
       };
     } catch (error) {

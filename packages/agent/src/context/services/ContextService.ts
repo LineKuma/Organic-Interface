@@ -356,7 +356,7 @@ export class ContextService extends EventEmitter {
       return null;
     }
 
-    const item = store.get(itemId);
+    const item = store.get(itemId) as ContextItem<T> | undefined;
     if (!item) {
       return null;
     }
@@ -440,13 +440,13 @@ export class ContextService extends EventEmitter {
       return null;
     }
 
-    const item = store.get(itemId);
+    const item = store.get(itemId) as ContextItem<T> | undefined;
     if (!item) {
       return null;
     }
 
     const updatedItem = updateContextItem(item, updates);
-    store.set(itemId, updatedItem);
+    store.set(itemId, updatedItem as ContextItem<T>);
 
     this.emit('item:updated', { contextId, itemId, item: updatedItem });
 
@@ -749,6 +749,7 @@ export class ContextService extends EventEmitter {
     tokenEstimate: number;
     lastActivityAt: number;
     createdAt: number;
+    nestingDepth: number;
   } | null {
     const context = this.contextManager.getStats(contextId);
     if (!context) {

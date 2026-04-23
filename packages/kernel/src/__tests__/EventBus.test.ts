@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { EventBus, KernelEvents } from '@organic/kernel/kernel/EventBus';
+import { EventBus, KernelEvents } from '../kernel/EventBus.js';
 
 describe('EventBus', () => {
   let eventBus: EventBus;

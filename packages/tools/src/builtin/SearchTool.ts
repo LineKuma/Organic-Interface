@@ -97,7 +97,7 @@ export class SearchTool implements Tool {
   private logger: Logger;
 
   // Simple in-memory index for demonstration
-  private index: Map<string, Map<string, Set<string>>> = new Map(); // indexName -> file -> lines
+  private index: Map<string, Map<string, string>> = new Map(); // indexName -> documentId -> content
 
   constructor() {
     this.logger = createLogger({ prefix: 'search-tool' });
@@ -180,41 +180,42 @@ export class SearchTool implements Tool {
   validate(input: unknown): ToolValidationError[] {
     const errors: ToolValidationError[] = [];
     const data = input as Partial<SearchToolInput>;
+    const operation = data.operation;
 
-    if (!data.operation) {
+    if (!operation) {
       errors.push({
         path: 'operation',
         message: 'Operation is required',
         expected: 'string',
-        actual: data.operation,
+        actual: operation,
       });
-    }
+    } else {
+      if (['grep', 'find'].includes(operation) && !data.pattern) {
+        errors.push({
+          path: 'pattern',
+          message: 'Pattern is required for grep/find operations',
+          expected: 'string',
+          actual: data.pattern,
+        });
+      }
 
-    if (['grep', 'find'].includes(data.operation) && !data.pattern) {
-      errors.push({
-        path: 'pattern',
-        message: 'Pattern is required for grep/find operations',
-        expected: 'string',
-        actual: data.pattern,
-      });
-    }
+      if (operation === 'query' && !data.query) {
+        errors.push({
+          path: 'query',
+          message: 'Query is required for query operation',
+          expected: 'string',
+          actual: data.query,
+        });
+      }
 
-    if (data.operation === 'query' && !data.query) {
-      errors.push({
-        path: 'query',
-        message: 'Query is required for query operation',
-        expected: 'string',
-        actual: data.query,
-      });
-    }
-
-    if (['grep', 'find', 'query'].includes(data.operation) && !data.paths?.length) {
-      errors.push({
-        path: 'paths',
-        message: 'At least one path is required for this operation',
-        expected: 'array of strings',
-        actual: data.paths,
-      });
+      if (['grep', 'find', 'query'].includes(operation) && !data.paths?.length) {
+        errors.push({
+          path: 'paths',
+          message: 'At least one path is required for this operation',
+          expected: 'array of strings',
+          actual: data.paths,
+        });
+      }
     }
 
     return errors;
@@ -423,14 +424,14 @@ export class SearchTool implements Tool {
     documentId: string,
     document: Record<string, unknown>
   ): { index: string; documentId: string; indexed: boolean } {
-    let index = this.index.get(indexName);
-    if (!index) {
-      index = new Map();
-      this.index.set(indexName, index);
+    let indexMap = this.index.get(indexName);
+    if (!indexMap) {
+      indexMap = new Map();
+      this.index.set(indexName, indexMap);
     }
 
     const content = JSON.stringify(document);
-    index.set(documentId, content);
+    indexMap.set(documentId, content);
 
     return { index: indexName, documentId, indexed: true };
   }

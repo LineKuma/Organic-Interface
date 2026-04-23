@@ -15,7 +15,7 @@ import {
   DatabaseStorage,
   DatabaseStorageConfig,
 } from '../backends/index.js';
-import { StorageService } from './StorageService.js';
+import { StorageService, type StorageInfo } from './StorageService.js';
 
 /**
  * Storage manager configuration
@@ -165,11 +165,11 @@ export class StorageManager {
   /**
    * Get storage info for all storages
    */
-  async getAllStorageInfo(): Promise<Map<string, ReturnType<StorageService['getStorageInfo']>>> {
-    const infoMap = new Map<string, ReturnType<StorageService['getStorageInfo']>>();
+  async getAllStorageInfo(): Promise<Map<string, Promise<StorageInfo>>> {
+    const infoMap = new Map<string, Promise<StorageInfo>>();
 
     for (const [name, entry] of this.backends.entries()) {
-      infoMap.set(name, await entry.service.getStorageInfo());
+      infoMap.set(name, entry.service.getStorageInfo());
     }
 
     return infoMap;

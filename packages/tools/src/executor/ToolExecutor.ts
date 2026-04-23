@@ -13,6 +13,7 @@ import {
   type ToolExecutionContext,
   type SandboxConfig,
   type ToolExecutionOptions,
+  type PermissionLevel,
 } from '../types/index.js';
 
 /**
@@ -344,7 +345,7 @@ export class ToolExecutor extends EventEmitter {
   /**
    * Get restricted permission level based on sandbox config
    */
-  private getRestrictedPermissionLevel(level: string): string {
+  private getRestrictedPermissionLevel(level: PermissionLevel): PermissionLevel {
     // Sandbox restricts L4 to L3
     if (level === 'L4') return 'L3';
     return level;

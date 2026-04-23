@@ -195,7 +195,7 @@ export class RemotePluginLoader implements PluginLoaderInterface {
   /**
    * Install plugin from remote source
    */
-  private async installPlugin(source: RemotePluginSource): Promise<PluginLoadResult> {
+  private async installPlugin(source: RemotePluginSource): Promise<RemotePluginLoadResult> {
     switch (source.type) {
       case 'http':
         return this.downloadPlugin(source);
@@ -207,6 +207,7 @@ export class RemotePluginLoader implements PluginLoaderInterface {
         return {
           success: false,
           error: `Unsupported source type: ${source.type}`,
+          source,
         };
     }
   }
@@ -214,13 +215,13 @@ export class RemotePluginLoader implements PluginLoaderInterface {
   /**
    * Download plugin from HTTP/HTTPS URL
    */
-  private async downloadPlugin(source: RemotePluginSource): Promise<PluginLoadResult> {
+  private async downloadPlugin(source: RemotePluginSource): Promise<RemotePluginLoadResult> {
     return new Promise((resolve) => {
       const protocol = source.url.startsWith('https') ? https : http;
 
       const req = protocol.get(source.url, { timeout: this.options.timeout }, (res) => {
         // Handle redirects
-        if ([301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
+        if (res.statusCode && [301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
           const redirectSource = { ...source, url: res.headers.location };
           this.downloadPlugin(redirectSource).then(resolve);
           return;
@@ -230,6 +231,7 @@ export class RemotePluginLoader implements PluginLoaderInterface {
           resolve({
             success: false,
             error: `Download failed with status: ${res.statusCode}`,
+            source,
           });
           return;
         }
@@ -259,6 +261,7 @@ export class RemotePluginLoader implements PluginLoaderInterface {
             resolve({
               success: false,
               error: error instanceof Error ? error.message : String(error),
+              source,
             });
           }
         });
@@ -268,6 +271,7 @@ export class RemotePluginLoader implements PluginLoaderInterface {
         resolve({
           success: false,
           error: error.message,
+          source,
         });
       });
 
@@ -276,6 +280,7 @@ export class RemotePluginLoader implements PluginLoaderInterface {
         resolve({
           success: false,
           error: 'Download timed out',
+          source,
         });
       });
     });
@@ -284,24 +289,26 @@ export class RemotePluginLoader implements PluginLoaderInterface {
   /**
    * Install NPM package (placeholder - would need npm CLI or library)
    */
-  private async installNpmPackage(source: RemotePluginSource): Promise<PluginLoadResult> {
+  private async installNpmPackage(source: RemotePluginSource): Promise<RemotePluginLoadResult> {
     // This would typically use npm registry API or npm CLI
     // For now, return error indicating implementation needed
     return {
       success: false,
       error: 'NPM package installation not yet implemented',
+      source,
     };
   }
 
   /**
    * Clone git repository (placeholder - would need git CLI or library)
    */
-  private async cloneGitRepository(source: RemotePluginSource): Promise<PluginLoadResult> {
+  private async cloneGitRepository(source: RemotePluginSource): Promise<RemotePluginLoadResult> {
     // This would typically use git CLI or a library like simple-git
     // For now, return error indicating implementation needed
     return {
       success: false,
       error: 'Git repository cloning not yet implemented',
+      source,
     };
   }
 

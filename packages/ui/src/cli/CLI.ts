@@ -35,7 +35,10 @@ export interface CLIConfig {
 /**
  * Default CLI configuration
  */
-export const DEFAULT_CLI_CONFIG: Required<Omit<CLIConfig, 'logger' | 'parser'>> = {
+export const DEFAULT_CLI_CONFIG: Omit<CLIConfig, 'logger' | 'parser'> & {
+  logger?: Logger;
+  parser?: CommandParser;
+} = {
   name: 'organic-cli',
   version: '0.1.0',
   description: 'Organic Interface CLI',
@@ -63,7 +66,13 @@ export interface OperationLog {
  * CLI main class
  */
 export class CLI {
-  private readonly config: Required<CLIConfig>;
+  private readonly config: CLIConfig & {
+  name: string;
+  version: string;
+  description: string;
+  interactive: boolean;
+  historyPath: string;
+};
   private readonly logger: Logger;
   private readonly parser: CommandParser;
   private readonly rootCommand: Command;
@@ -71,8 +80,13 @@ export class CLI {
 
   constructor(config: CLIConfig = {}) {
     this.config = {
-      ...DEFAULT_CLI_CONFIG,
-      ...config,
+      name: config.name ?? 'organic-cli',
+      version: config.version ?? '0.1.0',
+      description: config.description ?? 'Organic Interface CLI',
+      logger: config.logger,
+      parser: config.parser,
+      interactive: config.interactive ?? false,
+      historyPath: config.historyPath ?? '.organic-cli-history',
     };
 
     this.logger = this.config.logger ?? createLogger({ prefix: 'cli' });
@@ -151,7 +165,8 @@ export class CLI {
     raw: string[];
   }): Promise<CommandResult> {
     // Find command
-    const command = this.rootCommand.subcommands.get(parsed.command);
+    const subcommands = this.rootCommand.subcommands ?? new Map();
+    const command = subcommands.get(parsed.command);
 
     if (!command) {
       return {
@@ -193,9 +208,10 @@ export class CLI {
    */
   private showHelp(args: string[]): CommandResult {
     const target = args[args.indexOf('--help') + 1] ?? args[args.indexOf('-h') + 1];
+    const subcommands = this.rootCommand.subcommands ?? new Map();
 
-    if (target && this.rootCommand.subcommands.has(target)) {
-      const command = this.rootCommand.subcommands.get(target)!;
+    if (target && subcommands.has(target)) {
+      const command = subcommands.get(target)!;
       const help = this.parser.formatHelp(command);
       return {
         success: true,
@@ -210,10 +226,10 @@ export class CLI {
       `Version: ${this.config.version}`,
       '',
       'Available commands:',
-      ...Array.from(this.rootCommand.subcommands.keys())
+      ...Array.from(subcommands.keys())
         .filter((name, index, arr) => arr.indexOf(name) === index) // Unique
         .map(name => {
-          const cmd = this.rootCommand.subcommands.get(name)!;
+          const cmd = subcommands.get(name)!;
           return `  ${name.padEnd(20)} ${cmd.description}`;
         }),
       '',
@@ -253,8 +269,9 @@ export class CLI {
       ],
       handler: async (args) => {
         const cmd = args.command as string | undefined;
-        if (cmd && this.rootCommand.subcommands.has(cmd)) {
-          const command = this.rootCommand.subcommands.get(cmd)!;
+        const subcommands = this.rootCommand.subcommands ?? new Map();
+        if (cmd && subcommands.has(cmd)) {
+          const command = subcommands.get(cmd)!;
           return {
             success: true,
             code: 0,

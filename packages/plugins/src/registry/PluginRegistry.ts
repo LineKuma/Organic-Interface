@@ -2,7 +2,7 @@
  * PluginRegistry - Central registry for plugin management
  */
 
-import type {
+import {
   PluginInterface,
   PluginMetadata,
   PluginConfig,
@@ -118,7 +118,7 @@ export class PluginRegistry {
       installTime: now,
       status: {
         pluginId,
-        state: 'discovered' as PluginLifecycleState,
+        state: PluginLifecycleState.DISCOVERED,
         enabled: config?.enabled ?? true,
       },
       config,
@@ -243,7 +243,7 @@ export class PluginRegistry {
     const result = await this.loader.load(pluginId, config);
 
     if (result.success) {
-      pluginInfo.status.state = 'active';
+      pluginInfo.status.state = PluginLifecycleState.ACTIVE;
       this.emit('plugin:loaded', { pluginId });
     }
 
@@ -258,7 +258,7 @@ export class PluginRegistry {
     const pluginInfo = this.plugins.get(pluginId);
     if (pluginInfo) {
       await this.loader.unload(pluginId);
-      pluginInfo.status.state = 'shutdown';
+      pluginInfo.status.state = PluginLifecycleState.SHUTDOWN;
       this.emit('plugin:unloaded', { pluginId });
     }
   }
@@ -413,9 +413,9 @@ export class PluginRegistry {
       disabledPlugins: plugins.filter((p) => !p.status.enabled).length,
       loadedPlugins: plugins.filter(
         (p) =>
-          p.status.state === 'active' ||
-          p.status.state === 'running' ||
-          p.status.state === 'initialized'
+          p.status.state === PluginLifecycleState.ACTIVE ||
+          p.status.state === PluginLifecycleState.RUNNING ||
+          p.status.state === PluginLifecycleState.INITIALIZED
       ).length,
     };
   }

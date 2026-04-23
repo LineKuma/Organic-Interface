@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { Kernel } from '@organic/kernel/kernel/Kernel';
+import { Kernel } from '../kernel/Kernel.js';
 import type { KernelConfig, PluginInterface, PluginContext, PluginInput, PluginOutput, InitializeResult } from '@organic/utils';
 
 // Mock plugin for testing

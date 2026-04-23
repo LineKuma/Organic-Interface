@@ -26,7 +26,7 @@ import { ContextManager, type ContextManagerOptions } from './ContextManager.js'
 import { InputParser, type InputParserOptions } from './InputParser.js';
 import { OutputFormatter, type OutputFormatterOptions } from './OutputFormatter.js';
 import { ConversationError, ConversationErrorCode } from './errors/index.js';
-import type {
+import {
   Session,
   SessionConfig,
   SessionCreateOptions,
@@ -38,6 +38,9 @@ import type {
   ResponseType,
   ResultType,
   FormattedOutput,
+  ContextWindowType,
+  ContentFormat,
+  MessageSender,
 } from './types/index.js';
 
 /**
@@ -184,7 +187,7 @@ export class CoreConversationPlugin implements PluginInterface {
       const contextOptions: ContextManagerOptions = {
         defaultConfig: {
           windowSize: this.config.defaultContextWindowSize as number,
-          windowType: 0, // RECENT_MESSAGES
+          windowType: ContextWindowType.RECENT_MESSAGES,
           includeSystemMessages: true,
           includeToolCalls: true,
         },
@@ -209,10 +212,10 @@ export class CoreConversationPlugin implements PluginInterface {
       this.inputParser = new InputParser(inputOptions);
       this.outputFormatter = new OutputFormatter(outputOptions);
 
-      // Set up logger if kernel provides one
-      if (context.logger) {
+      // Set up logger if kernel provides logging capability
+      if ('logger' in context) {
         this.logger = (message: string, ...args: unknown[]) => {
-          context.logger.info(`[core-conversation] ${message}`, ...args);
+          console.log(`[core-conversation] ${message}`, ...args);
         };
       }
 
@@ -295,10 +298,6 @@ export class CoreConversationPlugin implements PluginInterface {
       return {
         success: true,
         data: result,
-        metadata: {
-          executionTime: Date.now() - startTime,
-          pluginVersion: METADATA.version,
-        },
       };
     } catch (error) {
       this.log('Execution error', error);
@@ -398,10 +397,10 @@ export class CoreConversationPlugin implements PluginInterface {
       id: this.generateMessageId(),
       content: {
         text: `Processed: ${parsedInput.normalizedText}`,
-        format: 'plain_text',
+        format: ContentFormat.PLAIN_TEXT,
       },
       type: ResponseType.TEXT,
-      sender: 'assistant' as any,
+      sender: MessageSender.ASSISTANT,
       timestamp: Date.now(),
       requestId: parsedInput.metadata.timestamp.toString(),
     };
@@ -478,10 +477,10 @@ export class CoreConversationPlugin implements PluginInterface {
         id: this.generateMessageId(),
         content: {
           text: `Session ${sessionId} closed successfully`,
-          format: 'plain_text',
+          format: ContentFormat.PLAIN_TEXT,
         },
         type: ResponseType.TEXT,
-        sender: 'system' as any,
+        sender: MessageSender.SYSTEM,
         timestamp: Date.now(),
       },
     };
@@ -570,10 +569,10 @@ export class CoreConversationPlugin implements PluginInterface {
         id: this.generateMessageId(),
         content: {
           text: `Context cleared for session ${sessionId}`,
-          format: 'plain_text',
+          format: ContentFormat.PLAIN_TEXT,
         },
         type: ResponseType.TEXT,
-        sender: 'system' as any,
+        sender: MessageSender.SYSTEM,
         timestamp: Date.now(),
       },
     };

@@ -5,16 +5,16 @@
  * context retrieval, updates, and cleanup.
  */
 
-import type {
-  Message,
+import {
+  type Message,
   MessageSender,
-  ContextWindow,
-  ContextWindowConfig,
+  type ContextWindow,
+  type ContextWindowConfig,
   ContextWindowType,
-  ContextUpdates,
-  ContextStats,
+  type ContextUpdates,
+  type ContextStats,
   CompressionStrategy,
-  ConversationContext,
+  type ConversationContext,
 } from './types/index.js';
 import { ContextError } from './errors/index.js';
 

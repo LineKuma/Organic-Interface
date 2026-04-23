@@ -6,19 +6,22 @@
  * for different display contexts.
  */
 
-import type {
-  ResponseMessage,
-  ResponseContent,
+import {
+  type ResponseMessage,
+  type ResponseContent,
   ResponseType,
-  MessageSender,
-  ToolCall,
-  StreamInfo,
-  ConversationResult,
-  ToolCallResult,
-  FormattedOutput,
+  type MessageSender,
+  type ToolCall,
+  type StreamInfo,
+  type ConversationResult,
+  type ToolCallResult,
+  type FormattedOutput,
   OutputFormat,
-  OutputMetadata,
+  type OutputMetadata,
   ResultType,
+  type Session,
+  type ContextWindow,
+  ContentFormat,
 } from './types/index.js';
 import { ConversationError, ConversationErrorCode } from './errors/index.js';
 
@@ -336,7 +339,7 @@ export class OutputFormatter {
     let text = message.content.text;
 
     // Apply formatting based on content format
-    if (message.content.format === 'markdown') {
+    if (message.content.format === ContentFormat.MARKDOWN) {
       text = this.formatMarkdown(text);
     }
 
@@ -360,11 +363,10 @@ export class OutputFormatter {
 
     return {
       text,
-      format: message.content.format === 'markdown' ? OutputFormat.MARKDOWN : this.options.defaultFormat,
+      format: message.content.format === ContentFormat.MARKDOWN ? OutputFormat.MARKDOWN : this.options.defaultFormat,
       metadata: {
         executionTime: Date.now() - startTime,
         pluginVersion: '1.0.0',
-        sessionId: message.requestId ? undefined : undefined,
         messageId: message.id,
         stream: message.stream?.isFinal === false,
       },
@@ -377,7 +379,7 @@ export class OutputFormatter {
    * @param startTime - Start timestamp
    * @returns Formatted output
    */
-  formatSession(session: Record<string, unknown>, startTime: number): FormattedOutput {
+  formatSession(session: Session, startTime: number): FormattedOutput {
     const lines: string[] = [];
 
     lines.push(this.formatSection('Session Information', [
@@ -389,8 +391,8 @@ export class OutputFormatter {
       `Messages: ${session.messageCount ?? 0}`,
     ]));
 
-    if (session.tags && (session.tags as unknown[]).length > 0) {
-      lines.push(`Tags: ${(session.tags as string[]).join(', ')}`);
+    if (session.tags && session.tags.length > 0) {
+      lines.push(`Tags: ${session.tags.join(', ')}`);
     }
 
     return {
@@ -399,7 +401,7 @@ export class OutputFormatter {
       metadata: {
         executionTime: Date.now() - startTime,
         pluginVersion: '1.0.0',
-        sessionId: session.id as string | undefined,
+        sessionId: session.id ?? undefined,
       },
     };
   }
@@ -410,7 +412,7 @@ export class OutputFormatter {
    * @param startTime - Start timestamp
    * @returns Formatted output
    */
-  formatSessionList(sessions: Record<string, unknown>[], startTime: number): FormattedOutput {
+  formatSessionList(sessions: Session[], startTime: number): FormattedOutput {
     if (sessions.length === 0) {
       return this.formatSuccess('No active sessions');
     }
@@ -419,7 +421,7 @@ export class OutputFormatter {
     lines.push(`Active Sessions (${sessions.length}):\n`);
 
     for (const session of sessions) {
-      const statusIcon = this.getStatusIcon(session.status as string);
+      const statusIcon = this.getStatusIcon(session.status);
       const line = `${statusIcon} ${session.id?.substring(0, 8) ?? 'unknown'} - ${session.title ?? 'Untitled'} (${session.messageCount ?? 0} messages)`;
       lines.push(line);
     }
@@ -430,6 +432,7 @@ export class OutputFormatter {
       metadata: {
         executionTime: Date.now() - startTime,
         pluginVersion: '1.0.0',
+        sessionId: undefined,
       },
     };
   }
@@ -440,7 +443,7 @@ export class OutputFormatter {
    * @param startTime - Start timestamp
    * @returns Formatted output
    */
-  formatContext(context: Record<string, unknown>, startTime: number): FormattedOutput {
+  formatContext(context: ContextWindow, startTime: number): FormattedOutput {
     const lines: string[] = [];
 
     lines.push(this.formatSection('Context Window', [
@@ -451,12 +454,11 @@ export class OutputFormatter {
     ]));
 
     if (context.config) {
-      const config = context.config as Record<string, unknown>;
       lines.push(this.formatSection('Configuration', [
-        `Window Size: ${config.windowSize ?? 'N/A'}`,
-        `Window Type: ${config.windowType ?? 'N/A'}`,
-        `Include System: ${config.includeSystemMessages ?? true}`,
-        `Include Tool Calls: ${config.includeToolCalls ?? true}`,
+        `Window Size: ${context.config.windowSize ?? 'N/A'}`,
+        `Window Type: ${context.config.windowType ?? 'N/A'}`,
+        `Include System: ${context.config.includeSystemMessages ?? true}`,
+        `Include Tool Calls: ${context.config.includeToolCalls ?? true}`,
       ]));
     }
 
@@ -466,7 +468,7 @@ export class OutputFormatter {
       metadata: {
         executionTime: Date.now() - startTime,
         pluginVersion: '1.0.0',
-        sessionId: context.sessionId as string | undefined,
+        sessionId: context.sessionId,
       },
     };
   }

@@ -203,7 +203,7 @@ export class WorkflowEngine extends EventEmitter {
    * Pause workflow execution
    */
   pauseExecution(executionId: string): boolean {
-    const execution = this.executions.get(executionId);
+    let execution = this.executions.get(executionId);
     if (!execution || execution.status !== WorkflowExecutionStatus.RUNNING) {
       return false;
     }
@@ -223,7 +223,7 @@ export class WorkflowEngine extends EventEmitter {
    * Resume paused execution
    */
   async resumeExecution(executionId: string): Promise<boolean> {
-    const execution = this.executions.get(executionId);
+    let execution = this.executions.get(executionId);
     if (!execution || execution.status !== WorkflowExecutionStatus.PAUSED) {
       return false;
     }
@@ -249,7 +249,7 @@ export class WorkflowEngine extends EventEmitter {
    * Cancel workflow execution
    */
   cancelExecution(executionId: string): boolean {
-    const execution = this.executions.get(executionId);
+    let execution = this.executions.get(executionId);
     if (!execution) {
       return false;
     }
@@ -338,7 +338,7 @@ export class WorkflowEngine extends EventEmitter {
     executionId: string,
     workflow: Workflow
   ): Promise<void> {
-    const execution = this.executions.get(executionId);
+    let execution = this.executions.get(executionId);
     if (!execution) {
       return;
     }

@@ -111,7 +111,7 @@ export interface WorkflowConfig {
 /**
  * Default workflow configuration
  */
-export const DEFAULT_WORKFLOW_CONFIG: Required<WorkflowConfig> = {
+export const DEFAULT_WORKFLOW_CONFIG: Omit<WorkflowConfig, 'callbackUrl'> & { callbackUrl?: string } = {
   enableParallel: true,
   maxParallelNodes: 10,
   defaultTimeout: 3600000, // 1 hour

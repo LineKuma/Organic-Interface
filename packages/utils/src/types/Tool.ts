@@ -2,6 +2,8 @@
  * Tool related types for Organic Interface
  */
 
+import type { Logger } from '../utils/logger.js';
+
 /**
  * Tool type categories
  */
@@ -179,8 +181,3 @@ export interface ToolExecutionContext {
   /** Logger instance */
   logger: Logger;
 }
-
-/**
- * Re-export Logger type
- */
-export type { Logger } from '../utils/logger.js';

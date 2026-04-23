@@ -56,8 +56,8 @@ export enum ContextWindowType {
  * Context updates for modification
  */
 export interface ContextUpdates {
-  /** System message to add */
-  systemMessage?: Message;
+  /** System message to add (string content) */
+  systemMessage?: string;
   /** User preferences */
   preferences?: Record<string, unknown>;
   /** Custom context data */

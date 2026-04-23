@@ -5,14 +5,14 @@
  * resumption, and cleanup of conversation sessions.
  */
 
-import type {
-  Session,
-  SessionConfig,
+import {
+  type Session,
+  type SessionConfig,
   SessionStatus,
-  SessionUpdates,
-  SessionFilter,
-  SessionCreateOptions,
-  ContextWindowConfig,
+  type SessionUpdates,
+  type SessionFilter,
+  type SessionCreateOptions,
+  type ContextWindowConfig,
   ContextWindowType,
 } from './types/index.js';
 import { SessionError } from './errors/index.js';
@@ -108,11 +108,11 @@ export class SessionManager {
 
     const session: Session = {
       id: sessionId,
-      title: config.title,
+      title: config.title ?? `Session ${sessionId.substring(0, 8)}`,
       status: SessionStatus.ACTIVE,
-      tags: config.tags,
-      metadata: config.metadata,
-      contextWindow: config.contextWindow,
+      tags: config.tags ?? [],
+      metadata: config.metadata ?? {},
+      contextWindow: config.contextWindow ?? DEFAULT_CONTEXT_WINDOW,
       createdAt: now,
       lastActiveAt: now,
       expiresAt: config.ttl ? now + config.ttl : undefined,

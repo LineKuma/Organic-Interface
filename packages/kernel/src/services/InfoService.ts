@@ -459,14 +459,3 @@ export class InfoService {
     return 'development';
   }
 }
-
-// ==================== Export Types ====================
-
-export type {
-  InfoServiceConfig,
-  ProjectContext,
-  SystemInfo,
-  PlatformInfo,
-  RuntimeInfo,
-  ConfigValue,
-};

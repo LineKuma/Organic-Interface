@@ -231,7 +231,7 @@ export class MemoryStorage implements IStorageBackend {
         } else if (key === 'updated_before') {
           if (entity.updated_at > (value as number)) return false;
         } else {
-          if ((entity as Record<string, unknown>)[key] !== value) return false;
+          if ((entity as unknown as Record<string, unknown>)[key] !== value) return false;
         }
       }
       return true;

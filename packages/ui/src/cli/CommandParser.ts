@@ -38,7 +38,7 @@ export class CommandParser {
   private logger: Logger;
 
   constructor(logger?: Logger) {
-    this.logger = logger ?? createLogger('parser');
+    this.logger = logger ?? createLogger({ prefix: 'parser' });
   }
 
   /**

@@ -5,15 +5,15 @@
  * Provides standardized parsing for different input formats.
  */
 
-import type {
-  ParsedInput,
+import {
+  type ParsedInput,
   InputType,
-  InputOptions,
-  InputMetadata,
-  ValidationResult,
-  ValidationError,
-  ValidationWarning,
-  Message,
+  type InputOptions,
+  type InputMetadata,
+  type ValidationResult,
+  type ValidationError,
+  type ValidationWarning,
+  type Message,
   MessageSender,
 } from './types/index.js';
 

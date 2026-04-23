@@ -2,6 +2,9 @@
  * Plugin related types for Organic Interface
  */
 
+import type { KernelConfig, PluginConfig } from './Config.js';
+import type { ToolResult } from './Tool.js';
+
 /**
  * Plugin context provided during initialization
  */

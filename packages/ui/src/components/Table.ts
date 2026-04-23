@@ -58,7 +58,7 @@ export interface TableSortConfig<T = unknown> {
 export class Table<T extends Record<string, unknown> = Record<string, unknown>> {
   private logger: Logger;
   private columns: TableColumn<T>[];
-  private config: Required<TableConfig>;
+  private config: TableConfig;
   private rows: T[] = [];
   private sortConfig?: TableSortConfig<T>;
 
@@ -237,7 +237,7 @@ export class Table<T extends Record<string, unknown> = Record<string, unknown>> 
       }
 
       // Apply global max width
-      width = Math.min(width, this.config.maxWidth);
+      width = Math.min(width, this.config.maxWidth ?? 100);
 
       return width;
     });

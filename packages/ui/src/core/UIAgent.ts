@@ -9,7 +9,6 @@ import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
 import {
   UIOperationManager,
-  type UIOperation,
   type UIOperationType,
   type UIOperationInput,
   type UIOperationResult,
@@ -415,7 +414,7 @@ export class UIAgent extends EventEmitter {
         session,
         operation,
         selector: input.selector,
-        data: input as Record<string, unknown>,
+        data: input as unknown as Record<string, unknown>,
         timestamp: Date.now(),
       });
 

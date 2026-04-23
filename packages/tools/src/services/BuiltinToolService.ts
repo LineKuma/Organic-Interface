@@ -2,11 +2,11 @@
  * Builtin Tool Service - Manages built-in tools registration and lifecycle
  */
 
-import type {
-  ToolDefinition,
+import {
+  type ToolDefinition,
   ToolType,
   ToolCallLevel,
-  ToolParameterDefinition,
+  type ToolParameterDefinition,
 } from '@organic/utils';
 
 /**

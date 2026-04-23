@@ -59,7 +59,6 @@ export {
   InputParser,
   OutputFormatter,
   METADATA,
-  VERSION,
   PLUGIN_ID,
   COMPATIBLE_API_VERSIONS,
 } from './core-conversation/src/index.js';

@@ -331,7 +331,7 @@ export class Kernel implements KernelApi {
     event: string,
     listener: (data: T) => void
   ): { unsubscribe: () => void } {
-    return this.eventBus.on(event, (e) => listener(e.data));
+    return this.eventBus.on(event, (e) => listener(e.data as T));
   }
 
   /**
@@ -341,7 +341,7 @@ export class Kernel implements KernelApi {
     event: string,
     listener: (data: T) => void
   ): { unsubscribe: () => void } {
-    return this.eventBus.once(event, (e) => listener(e.data));
+    return this.eventBus.once(event, (e) => listener(e.data as T));
   }
 
   // ==================== Status Methods ====================

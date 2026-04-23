@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { LifecycleManager, LifecycleState } from '@organic/kernel/kernel/LifecycleManager';
+import { LifecycleManager, LifecycleState } from '../kernel/LifecycleManager.js';
 
 describe('LifecycleManager', () => {
   let lifecycle: LifecycleManager;

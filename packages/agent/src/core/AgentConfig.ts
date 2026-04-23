@@ -96,7 +96,7 @@ export interface AgentConfigOptions {
 /**
  * Default agent configuration
  */
-export const DEFAULT_AGENT_CONFIG: Required<Omit<AgentConfig, 'id' | 'name' | 'version'>> = {
+export const DEFAULT_AGENT_CONFIG: Omit<AgentConfig, 'id' | 'name' | 'version'> = {
   description: '',
   maxDepth: 3,
   maxParallelTasks: 10,

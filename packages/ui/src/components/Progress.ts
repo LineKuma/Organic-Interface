@@ -58,7 +58,7 @@ export interface ProgressState {
  */
 export class Progress {
   private logger: Logger;
-  private config: Required<ProgressConfig>;
+  private config: ProgressConfig;
   private state: ProgressState;
   private intervalId?: ReturnType<typeof setInterval>;
   private lastUpdate: string = '';
@@ -240,7 +240,8 @@ export class Progress {
    */
   private renderSpinner(): string {
     const chars = '| / - \\';
-    const index = Math.floor(Date.now() / this.config.updateInterval) % chars.length;
+    const updateInterval = this.config.updateInterval ?? 100;
+    const index = Math.floor(Date.now() / updateInterval) % chars.length;
     const spinner = chars[index];
 
     const parts: string[] = [];
@@ -326,13 +327,15 @@ export class Progress {
    * Create initial state
    */
   private createInitialState(): ProgressState {
+    const current = this.config.current ?? 0;
+    const total = this.config.total;
     return {
-      current: this.config.current,
-      total: this.config.total,
+      current,
+      total,
       completed: false,
       startTime: Date.now(),
       elapsed: 0,
-      percentage: (this.config.current / this.config.total) * 100,
+      percentage: total > 0 ? (current / total) * 100 : 0,
     };
   }
 }

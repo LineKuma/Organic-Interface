@@ -236,6 +236,7 @@ export function updateContextItem<T = unknown>(
     metadata: updates.metadata
       ? { ...item.metadata, ...updates.metadata }
       : item.metadata,
+    accessedAt: Date.now(),
     updatedAt: Date.now(),
     expiresAt: updates.expiresAt ?? item.expiresAt,
   };

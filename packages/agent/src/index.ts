@@ -39,14 +39,11 @@ export {
   TaskQueue,
   TaskPriority,
   TaskStatus,
-  type Task,
+  type Task as SchedulerTask,
   type TaskOptions,
   type TaskQueueConfig,
-  type SchedulerConfig,
-  type SchedulerEvents,
-  type TaskExecutor,
   DEFAULT_QUEUE_CONFIG,
-  createTask,
+  createTask as createSchedulerTask,
   TaskScheduler,
   DEFAULT_SCHEDULER_CONFIG,
 } from './scheduler/index.js';
@@ -126,7 +123,7 @@ export {
 // Re-export from workflow module
 export {
   // Task model
-  type Task,
+  type Task as WorkflowTask,
   type TaskExecution,
   type TaskExecutionHistory,
   type TaskConfig,
@@ -142,7 +139,7 @@ export {
   TaskStatus as WorkflowTaskStatus,
   TaskType,
   DEFAULT_RETRY_POLICY,
-  createTask,
+  createTask as createWorkflowTask,
   createTaskExecution,
   updateTaskExecution,
   isTaskExecutionFinal,

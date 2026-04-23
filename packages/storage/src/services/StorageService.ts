@@ -406,7 +406,7 @@ export class StorageService {
         created.push(result.entity);
       } else {
         failed.push({
-          entity: createStorageEntity(item.type, item.data, item.id, item.metadata).toObject(),
+          entity: createStorageEntity(item.type, item.data, { id: item.id, metadata: item.metadata }).toObject(),
           error: result.error || 'Unknown error',
         });
       }
@@ -499,7 +499,7 @@ export class StorageService {
       let entities = await this.backend.query(backendFilter);
 
       // Apply OR conditions
-      if (filter.orWhere && filter.orWhere.length > 0) {
+      if (filter.orWhere && Object.keys(filter.orWhere).length > 0) {
         const orEntities = await this.backend.query(filter.orWhere);
         const idSet = new Set(entities.map(e => e.id));
         for (const entity of orEntities) {
@@ -710,7 +710,14 @@ export class StorageService {
 
         if (aVal === bVal) continue;
 
-        const comparison = aVal < bVal ? -1 : 1;
+        // Handle null/undefined comparisons
+        if (aVal == null) return spec.direction === 'desc' ? 1 : -1;
+        if (bVal == null) return spec.direction === 'desc' ? -1 : 1;
+
+        // Handle different types by converting to string for comparison
+        const aStr = String(aVal);
+        const bStr = String(bVal);
+        const comparison = aStr < bStr ? -1 : 1;
         return spec.direction === 'desc' ? -comparison : comparison;
       }
       return 0;
@@ -729,9 +736,9 @@ export class StorageService {
     }
     if (field.startsWith('metadata.')) {
       const metaKey = field.substring(9);
-      return (entity.metadata as Record<string, unknown>)[metaKey];
+      return (entity.metadata as unknown as Record<string, unknown>)[metaKey];
     }
-    return (entity as Record<string, unknown>)[field];
+    return (entity as unknown as Record<string, unknown>)[field];
   }
 
   private filterFields(

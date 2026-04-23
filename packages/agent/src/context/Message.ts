@@ -198,6 +198,8 @@ export interface MessageOptions {
   type: MessageType;
   /** Tool call */
   tool_call?: ToolCall;
+  /** Tool response */
+  tool_response?: ToolResponse;
   /** Reply to message ID */
   reply_to?: string;
   /** Context ID */

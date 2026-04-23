@@ -6,9 +6,12 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createLogger, createChildLogger, defaultLogger, type Logger, type LoggerOptions, type LogLevel, type LogEntry } from '@organic/utils';
 
 describe('Logger', () => {
-  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
-  let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
-  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let consoleLogSpy: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let consoleWarnSpy: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let consoleErrorSpy: any;
 
   beforeEach(() => {
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});

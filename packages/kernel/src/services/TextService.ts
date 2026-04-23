@@ -543,6 +543,7 @@ export class TextService {
     let isRunning = false;
     let intervalId: ReturnType<typeof setInterval> | null = null;
     const frames = SPINNER_FRAMES[type];
+    const self = this;
 
     const clearLine = (): void => {
       process.stdout.write('\r' + ' '.repeat(80) + '\r');
@@ -551,8 +552,8 @@ export class TextService {
     const render = (): void => {
       clearLine();
       const frame = frames[frameIndex % frames.length];
-      const output = this.enableColor
-        ? `${this.styled(frame, { color: 'cyan' })} ${currentMessage || 'Loading...'}`
+      const output = self.enableColor
+        ? `${self.styled(frame, { color: 'cyan' })} ${currentMessage || 'Loading...'}`
         : `${frame} ${currentMessage || 'Loading...'}`;
       process.stdout.write(output);
       frameIndex++;
@@ -581,24 +582,24 @@ export class TextService {
       success(message?: string): void {
         this.stop();
         const msg = message ?? currentMessage ?? 'Done';
-        process.stdout.write(this.success(`✓ ${msg}`) + '\n');
+        process.stdout.write(self.success(`✓ ${msg}`) + '\n');
       },
 
       error(message?: string): void {
         this.stop();
         const msg = message ?? currentMessage ?? 'Failed';
-        process.stdout.write(this.error(`✗ ${msg}`) + '\n');
+        process.stdout.write(self.error(`✗ ${msg}`) + '\n');
       },
 
       stopWithMessage(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
         this.stop();
         const styledMsg = type === 'success'
-          ? this.success(`✓ ${message}`)
+          ? self.success(`✓ ${message}`)
           : type === 'error'
-          ? this.error(`✗ ${message}`)
+          ? self.error(`✗ ${message}`)
           : type === 'warning'
-          ? this.warning(`⚠ ${message}`)
-          : this.info(`ℹ ${message}`);
+          ? self.warning(`⚠ ${message}`)
+          : self.info(`ℹ ${message}`);
         process.stdout.write(styledMsg + '\n');
       },
     };
@@ -688,19 +689,3 @@ export class TextService {
     return bgColors[color];
   }
 }
-
-// ==================== Export Types ====================
-
-export type {
-  TextServiceConfig,
-  TextStream,
-  SpinnerController,
-  SpinnerFrames,
-  TextStyle,
-  TextColor,
-  TableData,
-  TableOptions,
-  ListOptions,
-  PrintOptions,
-  StreamOptions,
-};

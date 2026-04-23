@@ -22,7 +22,7 @@ import {
  */
 export interface SchedulerConfig {
   /** Maximum parallel tasks */
-  maxParallelTasks: number;
+  maxParallelTasks?: number;
 
   /** Task queue configuration */
   queueConfig?: TaskQueueConfig;

@@ -3,8 +3,8 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { PluginManager } from '@organic/kernel/kernel/PluginManager';
-import { EventBus } from '@organic/kernel/kernel/EventBus';
+import { PluginManager } from '../kernel/PluginManager.js';
+import { EventBus } from '../kernel/EventBus.js';
 import type { PluginInterface, PluginContext, PluginInput, PluginOutput } from '@organic/utils';
 
 // Mock plugin for testing

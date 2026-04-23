@@ -72,7 +72,7 @@ export class Prompt {
     defaultValue?: string;
     placeholder?: string;
     required?: boolean;
-    validate?: (value: string) => string | null;
+    validate?: (value: unknown) => string | null;
   } = {}): string {
     const input = this.render(message, {
       type: 'text',
@@ -90,7 +90,7 @@ export class Prompt {
    */
   renderPassword(message: string, options: {
     required?: boolean;
-    validate?: (value: string) => string | null;
+    validate?: (value: unknown) => string | null;
   } = {}): string {
     const input = this.render(message, {
       type: 'password',
@@ -104,20 +104,24 @@ export class Prompt {
   /**
    * Render a confirmation prompt (yes/no)
    */
-  renderConfirm(message: string, defaultValue: boolean = false): boolean {
+  renderConfirm(message: string, defaultValue: boolean = false, options?: {
+    validate?: (value: unknown) => string | null;
+  }): boolean {
     const suffix = defaultValue ? ' [Y/n]' : ' [y/N]';
     const input = this.render(message + suffix, {
       type: 'confirm',
       defaultValue,
+      validate: options?.validate,
     });
 
-    return this.parseConfirm(input);
+    const inputStr = typeof input === 'string' ? input : input.value?.toString() ?? '';
+    return this.parseConfirm(inputStr);
   }
 
   /**
    * Render a single-select prompt
    */
-  renderSelect(message: string, options: SelectOption[]): string {
+  renderSelect(message: string, options: SelectOption[], validate?: (value: unknown) => string | null): string {
     const formattedOptions = options.map((opt, i) => {
       const disabled = opt.disabled ? ' (disabled)' : '';
       return `  ${i + 1}. ${opt.label}${disabled}`;
@@ -128,15 +132,17 @@ export class Prompt {
     const input = this.render('Enter choice', {
       type: 'select',
       options,
+      validate,
     });
 
-    return this.parseSelect(input, options);
+    const inputStr = typeof input === 'string' ? input : (typeof input.value === 'string' ? input.value : '');
+    return this.parseSelect(inputStr, options);
   }
 
   /**
    * Render a multi-select prompt
    */
-  renderMultiselect(message: string, options: SelectOption[]): string[] {
+  renderMultiselect(message: string, options: SelectOption[], validate?: (value: unknown) => string | null): string[] {
     const formattedOptions = options.map((opt, i) => {
       const disabled = opt.disabled ? ' (disabled)' : '';
       return `  ${i + 1}. ${opt.label}${disabled}`;
@@ -148,9 +154,11 @@ export class Prompt {
     const input = this.render('Enter choices', {
       type: 'multiselect',
       options,
+      validate,
     });
 
-    return this.parseMultiselect(input, options);
+    const inputStr = typeof input === 'string' ? input : input.value?.toString() ?? '';
+    return this.parseMultiselect(inputStr, options);
   }
 
   /**
@@ -246,29 +254,14 @@ export class Prompt {
   }
 
   /**
-   * Read a line from input
+   * Read a line from input (synchronous placeholder for demo)
    */
   private readLine(): string {
     // In Node.js environment, use readline
-    // This is a simplified synchronous version
-    try {
-      const readline = require('readline');
-      const rl = readline.createInterface({
-        input: process.stdin,
-        output: process.stdout,
-      });
-
-      return new Promise<string>((resolve) => {
-        rl.question('', (answer: string) => {
-          rl.close();
-          resolve(answer);
-        });
-      });
-    } catch {
-      // Fallback for non-interactive environments
-      this.logger.warn('Non-interactive environment detected');
-      return '';
-    }
+    // For synchronous operation in demo mode, return empty string
+    // In real interactive mode, this should use async prompts
+    this.logger.warn('Using placeholder for synchronous input - use async methods for real input');
+    return '';
   }
 
   /**

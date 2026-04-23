@@ -106,6 +106,9 @@ export function createCommand(config: {
  * Add a subcommand to a command
  */
 export function addSubcommand(parent: Command, subcommand: Command): Command {
+  if (!parent.subcommands) {
+    parent.subcommands = new Map();
+  }
   parent.subcommands.set(subcommand.name, subcommand);
   subcommand.parent = parent;
 
@@ -123,5 +126,5 @@ export function addSubcommand(parent: Command, subcommand: Command): Command {
  * Find a command by name or alias
  */
 export function findCommand(root: Command, name: string): Command | undefined {
-  return root.subcommands.get(name);
+  return root.subcommands?.get(name);
 }

@@ -51,7 +51,7 @@ export interface ContextWindowConfig {
 /**
  * Default context window configuration
  */
-export const DEFAULT_CONTEXT_WINDOW_CONFIG: Required<ContextWindowConfig> = {
+export const DEFAULT_CONTEXT_WINDOW_CONFIG: ContextWindowConfig = {
   windowSize: 50,
   windowType: ContextWindowType.RECENT_MESSAGES,
   includeSystemMessages: true,
@@ -108,8 +108,16 @@ export interface ContextWindowManagerConfig {
 /**
  * Default context window manager configuration
  */
-export const DEFAULT_CONTEXT_WINDOW_MANAGER_CONFIG: Required<ContextWindowManagerConfig> = {
-  defaultConfig: DEFAULT_CONTEXT_WINDOW_CONFIG,
+export const DEFAULT_CONTEXT_WINDOW_MANAGER_CONFIG: ContextWindowManagerConfig = {
+  defaultConfig: {
+    windowSize: 50,
+    windowType: ContextWindowType.RECENT_MESSAGES,
+    includeSystemMessages: true,
+    includeToolCalls: true,
+    maxTokens: 4096,
+    timeWindowMinutes: 30,
+    overlapSize: 5,
+  },
   autoOptimize: true,
   maxWindowsPerContext: 10,
   charsPerToken: 4,
@@ -122,7 +130,7 @@ export const DEFAULT_CONTEXT_WINDOW_MANAGER_CONFIG: Required<ContextWindowManage
  * Handles window creation, sliding, and optimization.
  */
 export class ContextWindowManager extends EventEmitter {
-  private config: Required<ContextWindowManagerConfig>;
+  private config: ContextWindowManagerConfig;
   private windows: Map<string, ContextWindow> = new Map();
   private logger: Logger;
 
@@ -132,8 +140,18 @@ export class ContextWindowManager extends EventEmitter {
   constructor(config: ContextWindowManagerConfig = {}) {
     super();
     this.config = {
-      ...DEFAULT_CONTEXT_WINDOW_MANAGER_CONFIG,
-      ...config,
+      defaultConfig: config.defaultConfig ?? {
+        windowSize: 50,
+        windowType: ContextWindowType.RECENT_MESSAGES,
+        includeSystemMessages: true,
+        includeToolCalls: true,
+        maxTokens: 4096,
+        timeWindowMinutes: 30,
+        overlapSize: 5,
+      },
+      autoOptimize: config.autoOptimize ?? true,
+      maxWindowsPerContext: config.maxWindowsPerContext ?? 10,
+      charsPerToken: config.charsPerToken ?? 4,
     };
     this.logger = createLogger({ prefix: 'context-window-manager' });
   }
@@ -148,9 +166,15 @@ export class ContextWindowManager extends EventEmitter {
     allMessages: Message[],
     config?: Partial<ContextWindowConfig>
   ): ContextWindow {
-    const windowConfig = {
-      ...this.config.defaultConfig,
-      ...config,
+    const defaults = this.config.defaultConfig ?? {};
+    const windowConfig: ContextWindowConfig = {
+      windowSize: config?.windowSize ?? defaults.windowSize ?? 50,
+      windowType: config?.windowType ?? defaults.windowType ?? ContextWindowType.RECENT_MESSAGES,
+      includeSystemMessages: config?.includeSystemMessages ?? defaults.includeSystemMessages ?? true,
+      includeToolCalls: config?.includeToolCalls ?? defaults.includeToolCalls ?? true,
+      maxTokens: config?.maxTokens ?? defaults.maxTokens ?? 4096,
+      timeWindowMinutes: config?.timeWindowMinutes ?? defaults.timeWindowMinutes ?? 30,
+      overlapSize: config?.overlapSize ?? defaults.overlapSize ?? 5,
     };
 
     const windowId = `window_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -341,7 +365,7 @@ export class ContextWindowManager extends EventEmitter {
    * Get optimal window size for token limit
    */
   getOptimalWindowSize(tokenLimit: number): number {
-    const charsPerToken = this.config.charsPerToken;
+    const charsPerToken = this.config.charsPerToken ?? 4;
     return Math.floor(tokenLimit / charsPerToken);
   }
 
@@ -414,7 +438,7 @@ export class ContextWindowManager extends EventEmitter {
   ): Message[] {
     const result: Message[] = [];
     let tokenCount = 0;
-    const charsPerToken = this.config.charsPerToken;
+    const charsPerToken = this.config.charsPerToken ?? 4;
 
     for (let i = startIndex; i < messages.length && result.length < windowSize; i++) {
       const message = messages[i];
@@ -437,7 +461,7 @@ export class ContextWindowManager extends EventEmitter {
   private trimToTokenLimit(messages: Message[], maxTokens: number): Message[] {
     const result: Message[] = [];
     let tokenCount = 0;
-    const charsPerToken = this.config.charsPerToken;
+    const charsPerToken = this.config.charsPerToken ?? 4;
 
     // Start from the most recent messages
     for (let i = messages.length - 1; i >= 0; i--) {
@@ -459,7 +483,7 @@ export class ContextWindowManager extends EventEmitter {
    * Estimate token count for messages
    */
   private estimateTokenCount(messages: Message[]): number {
-    const charsPerToken = this.config.charsPerToken;
+    const charsPerToken = this.config.charsPerToken ?? 4;
     let totalChars = 0;
 
     for (const message of messages) {
@@ -487,13 +511,14 @@ export class ContextWindowManager extends EventEmitter {
    */
   private cleanupOldWindows(contextId: string): void {
     const windows = this.getWindowsForContext(contextId);
+    const maxWindows = this.config.maxWindowsPerContext ?? 10;
 
-    if (windows.length > this.config.maxWindowsPerContext) {
+    if (windows.length > maxWindows) {
       // Sort by creation time, oldest first
       windows.sort((a, b) => a.createdAt - b.createdAt);
 
       // Remove oldest windows
-      const toRemove = windows.length - this.config.maxWindowsPerContext;
+      const toRemove = windows.length - maxWindows;
       for (let i = 0; i < toRemove; i++) {
         this.windows.delete(windows[i].id);
       }
