@@ -192,6 +192,30 @@ export {
   WORKFLOW_VERSION,
 } from './workflow/index.js';
 
+// Re-export from orchestration module
+export {
+  type OrchestrationRequest,
+  OrchestrationStrategy,
+  type OrchestrationResult,
+  type OrchestrationLayerPlan,
+  OrchestrationPlanStatus,
+  type OrchestrationLayerEvents,
+  type DecomposedTask,
+  type AgentSelectionStrategy,
+  type OrchestrationLayerConfig,
+  DEFAULT_ORCHESTRATION_CONFIG,
+  OrchestrationLayer,
+  createOrchestrationLayer,
+  type ExecutionRequest as OrchestrationExecutionRequest,
+  type RetryConfig as OrchestrationRetryConfig,
+  DEFAULT_RETRY_CONFIG as DEFAULT_ORCHESTRATION_RETRY_CONFIG,
+  type ExecutionResult as OrchestrationExecutionResult,
+  type ExecutionPlan as OrchestrationExecutionPlan,
+  type ExecutionStep as OrchestrationExecutionStep,
+  type CoordinatorEvents as OrchestrationCoordinatorEvents,
+  ExecutionCoordinator,
+} from './orchestration/index.js';
+
 /**
  * Module version
  */
