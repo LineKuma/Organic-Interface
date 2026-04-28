@@ -15,6 +15,7 @@
     "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
+    "@types/node": "^20.11.0",
     "@vitest/coverage-v8": "^1.4.0",
     "turbo": "^1.13.0",
     "typescript": "^5.4.0",
