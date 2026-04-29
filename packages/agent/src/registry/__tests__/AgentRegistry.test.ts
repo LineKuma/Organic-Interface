@@ -68,6 +68,7 @@ describe('AgentRegistry', () => {
         tags: [],
         registeredAt: Date.now(),
         lastHeartbeatAt: Date.now(),
+        childIds: [],
       };
 
       const result = registry.register(metadata);
@@ -92,6 +93,7 @@ describe('AgentRegistry', () => {
         tags: [],
         registeredAt: Date.now(),
         lastHeartbeatAt: Date.now(),
+        childIds: [],
       };
 
       registry.register(metadata);

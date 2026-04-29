@@ -7,6 +7,7 @@ import {
   type ContextWindowConfig,
   type ContextWindow,
 } from './ContextWindowManager.js';
+import { ContentFormat, MessageType, MessageStatus } from '../Message.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
@@ -26,10 +27,10 @@ describe('ContextWindowManager', () => {
       messages.push({
         id: `msg-${i}`,
         sender: { id: 'user-1', type: 'user' as const, name: 'User' },
-        content: { text: `Message ${i}`, format: 'plain_text' as const },
-        type: 'user_message' as const,
+        content: { text: `Message ${i}`, format: ContentFormat.PLAIN_TEXT },
+        type: MessageType.USER_MESSAGE,
         timestamp: Date.now() + i * 1000,
-        status: 'sent' as const,
+        status: MessageStatus.SENT,
         flags: [],
       });
     }
@@ -100,10 +101,10 @@ describe('ContextWindowManager', () => {
         {
           id: 'sys-msg',
           sender: { id: 'system', type: 'system' as const, name: 'System' },
-          content: { text: 'System message', format: 'plain_text' as const },
-          type: 'system_message' as const,
+          content: { text: 'System message', format: ContentFormat.PLAIN_TEXT },
+          type: MessageType.SYSTEM_MESSAGE,
           timestamp: Date.now(),
-          status: 'sent' as const,
+          status: MessageStatus.SENT,
           flags: [],
         },
       ];
@@ -119,10 +120,10 @@ describe('ContextWindowManager', () => {
         {
           id: 'tool-call',
           sender: { id: 'agent-1', type: 'agent' as const, name: 'Agent' },
-          content: { text: 'Calling tool', format: 'plain_text' as const },
-          type: 'tool_call' as const,
+          content: { text: 'Calling tool', format: ContentFormat.PLAIN_TEXT },
+          type: MessageType.TOOL_CALL,
           timestamp: Date.now(),
-          status: 'sent' as const,
+          status: MessageStatus.SENT,
           flags: [],
         },
       ];
@@ -242,11 +243,10 @@ describe('ContextWindowManager', () => {
       const window = manager.createWindow('ctx-1', messages, {
         windowSize: 50,
         maxTokens: 100,
-        charsPerToken: 4,
       });
 
       const optimized = manager.optimizeWindow(window.id);
-      expect(optimized?.tokenCount).toBeLessThanOrEqual(window.config.maxTokens);
+      expect(optimized?.tokenCount).toBeLessThanOrEqual(window.config.maxTokens ?? Infinity);
     });
 
     it('should return null for non-existent window', () => {

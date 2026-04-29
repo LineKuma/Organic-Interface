@@ -125,6 +125,7 @@ describe('AgentMetadata', () => {
         tags: [],
         registeredAt: Date.now(),
         lastHeartbeatAt: Date.now(),
+        childIds: [],
       };
 
       expect(isAgentHealthy(agent)).toBe(true);
@@ -144,6 +145,7 @@ describe('AgentMetadata', () => {
         tags: [],
         registeredAt: Date.now(),
         lastHeartbeatAt: Date.now(),
+        childIds: [],
       };
 
       expect(isAgentHealthy(agent)).toBe(false);
@@ -163,6 +165,7 @@ describe('AgentMetadata', () => {
         tags: [],
         registeredAt: Date.now(),
         lastHeartbeatAt: Date.now() - 60000,
+        childIds: [],
       };
 
       expect(isAgentHealthy(agent, 30000)).toBe(false);
@@ -183,6 +186,7 @@ describe('AgentMetadata', () => {
         registeredAt: Date.now(),
         lastHeartbeatAt: Date.now(),
         healthCheck: { healthy: false, checkedAt: Date.now(), error: 'Unhealthy' },
+        childIds: [],
       };
 
       expect(isAgentHealthy(agent)).toBe(false);
@@ -204,6 +208,7 @@ describe('AgentMetadata', () => {
         tags: [],
         registeredAt: Date.now(),
         lastHeartbeatAt: Date.now(),
+        childIds: [],
       };
 
       expect(canAgentAcceptTasks(agent)).toBe(true);
@@ -223,6 +228,7 @@ describe('AgentMetadata', () => {
         tags: [],
         registeredAt: Date.now(),
         lastHeartbeatAt: Date.now(),
+        childIds: [],
       };
 
       expect(canAgentAcceptTasks(agent)).toBe(false);
@@ -244,6 +250,7 @@ describe('AgentMetadata', () => {
         tags: [],
         registeredAt: Date.now(),
         lastHeartbeatAt: Date.now(),
+        childIds: [],
       };
 
       const b: AgentMetadata = {
@@ -259,6 +266,7 @@ describe('AgentMetadata', () => {
         tags: [],
         registeredAt: Date.now(),
         lastHeartbeatAt: Date.now(),
+        childIds: [],
       };
 
       expect(compareByLoad(a, b)).toBeGreaterThan(0);

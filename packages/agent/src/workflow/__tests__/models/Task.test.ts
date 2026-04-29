@@ -193,7 +193,7 @@ describe('Task', () => {
     it('should return false if retry count exceeded', () => {
       const execution = createTaskExecution('task-1', 'exec-1');
       execution.retryCount = 3;
-      const task = createTask('TestTask', TaskType.TASK, {}, { retryPolicy: { maxRetries: 3 } });
+      const task = createTask('TestTask', TaskType.TASK, {}, { retryPolicy: { maxRetries: 3, retryInterval: 1000, backoffMultiplier: 2, maxRetryInterval: 60000, retryableErrors: [], nonRetryableErrors: [] } });
 
       expect(canTaskRetry(execution, task)).toBe(false);
     });
@@ -201,7 +201,7 @@ describe('Task', () => {
     it('should return true if retries available', () => {
       const execution = createTaskExecution('task-1', 'exec-1');
       execution.retryCount = 1;
-      const task = createTask('TestTask', TaskType.TASK, {}, { retryPolicy: { maxRetries: 3 } });
+      const task = createTask('TestTask', TaskType.TASK, {}, { retryPolicy: { maxRetries: 3, retryInterval: 1000, backoffMultiplier: 2, maxRetryInterval: 60000, retryableErrors: [], nonRetryableErrors: [] } });
 
       expect(canTaskRetry(execution, task)).toBe(true);
     });
@@ -212,7 +212,7 @@ describe('Task', () => {
       const execution = createTaskExecution('task-1', 'exec-1');
       execution.retryCount = 2;
       const task = createTask('TestTask', TaskType.TASK, {}, {
-        retryPolicy: { retryInterval: 1000, backoffMultiplier: 2 },
+        retryPolicy: { retryInterval: 1000, backoffMultiplier: 2, maxRetries: 3, maxRetryInterval: 60000, retryableErrors: [], nonRetryableErrors: [] },
       });
 
       const interval = calculateRetryInterval(execution, task);
@@ -223,7 +223,7 @@ describe('Task', () => {
       const execution = createTaskExecution('task-1', 'exec-1');
       execution.retryCount = 10;
       const task = createTask('TestTask', TaskType.TASK, {}, {
-        retryPolicy: { retryInterval: 1000, maxRetryInterval: 30000 },
+        retryPolicy: { retryInterval: 1000, maxRetryInterval: 30000, maxRetries: 3, backoffMultiplier: 2, retryableErrors: [], nonRetryableErrors: [] },
       });
 
       const interval = calculateRetryInterval(execution, task);

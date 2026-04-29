@@ -13,10 +13,9 @@ vi.mock('@organic/utils', () => ({
 
 describe('WorkflowExecutor', () => {
   let executor: WorkflowExecutor;
-  let mockNodeExecutor: NodeExecutor;
 
   beforeEach(() => {
-    mockNodeExecutor = vi.fn();
+    const mockNodeExecutor = vi.fn(async () => ({ success: true, output: {}, duration: 100 }));
     executor = new WorkflowExecutor(mockNodeExecutor);
   });
 
@@ -26,7 +25,7 @@ describe('WorkflowExecutor', () => {
     });
 
     it('should accept custom config', () => {
-      const customExecutor = new WorkflowExecutor(mockNodeExecutor, {
+      const customExecutor = new WorkflowExecutor(vi.fn(async () => ({ success: true, output: {}, duration: 100 })), {
         maxConcurrency: 5,
         autoRetry: false,
       });
@@ -36,11 +35,8 @@ describe('WorkflowExecutor', () => {
 
   describe('executeTask', () => {
     it('should execute task successfully', async () => {
-      mockNodeExecutor.mockResolvedValueOnce({
-        success: true,
-        output: { result: 'success' },
-        duration: 100,
-      });
+      const mockFn = vi.fn(async () => ({ success: true, output: { result: 'success' }, duration: 100 }));
+      executor = new WorkflowExecutor(mockFn);
 
       const task = createTask('TestTask', TaskType.TASK, { handler: 'test' });
       const execution = createTaskExecution(task.id, 'exec-1');
@@ -51,11 +47,8 @@ describe('WorkflowExecutor', () => {
     });
 
     it('should handle task failure', async () => {
-      mockNodeExecutor.mockResolvedValueOnce({
-        success: false,
-        error: { code: 'ERR_001', message: 'Task failed' },
-        duration: 100,
-      });
+      const mockFn = vi.fn(async () => ({ success: false, error: { code: 'ERR_001', message: 'Task failed' }, duration: 100 }));
+      executor = new WorkflowExecutor(mockFn);
 
       const task = createTask('TestTask', TaskType.TASK, { handler: 'test' });
       const execution = createTaskExecution(task.id, 'exec-1');
@@ -66,7 +59,8 @@ describe('WorkflowExecutor', () => {
     });
 
     it('should handle executor error', async () => {
-      mockNodeExecutor.mockRejectedValueOnce(new Error('Execution error'));
+      const mockFn = vi.fn(async () => { throw new Error('Execution error'); });
+      executor = new WorkflowExecutor(mockFn);
 
       const task = createTask('TestTask', TaskType.TASK, { handler: 'test' });
       const execution = createTaskExecution(task.id, 'exec-1');
@@ -77,7 +71,8 @@ describe('WorkflowExecutor', () => {
     });
 
     it('should emit task:start event', async () => {
-      mockNodeExecutor.mockResolvedValueOnce({ success: true, duration: 100 });
+      const mockFn = vi.fn(async () => ({ success: true, duration: 100 }));
+      executor = new WorkflowExecutor(mockFn);
 
       const handler = vi.fn();
       executor.on('task:start', handler);
@@ -90,7 +85,8 @@ describe('WorkflowExecutor', () => {
     });
 
     it('should emit task:complete event', async () => {
-      mockNodeExecutor.mockResolvedValueOnce({ success: true, duration: 100 });
+      const mockFn = vi.fn(async () => ({ success: true, duration: 100 }));
+      executor = new WorkflowExecutor(mockFn);
 
       const handler = vi.fn();
       executor.on('task:complete', handler);
@@ -105,7 +101,8 @@ describe('WorkflowExecutor', () => {
 
   describe('shouldRetry', () => {
     it('should return false if autoRetry is disabled', () => {
-      const noRetryExecutor = new WorkflowExecutor(mockNodeExecutor, { autoRetry: false });
+      const mockFn = vi.fn(async () => ({ success: true, output: {}, duration: 100 }));
+      const noRetryExecutor = new WorkflowExecutor(mockFn, { autoRetry: false });
       const task = createTask('TestTask', TaskType.TASK);
       const execution = createTaskExecution(task.id, 'exec-1');
 

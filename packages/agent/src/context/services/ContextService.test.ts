@@ -7,6 +7,7 @@ import {
   type PropagationScope,
 } from './ContextService.js';
 import { ContextItemType, ContextItemPriority } from '../models/ContextItem.js';
+import { ContentFormat, MessageType, MessageStatus } from '../Message.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
@@ -146,10 +147,10 @@ describe('ContextService', () => {
       const message = {
         id: 'msg-1',
         sender: { id: 'user-1', type: 'user' as const, name: 'User' },
-        content: { text: 'Hello', format: 'plain_text' as const },
-        type: 'user_message' as const,
+        content: { text: 'Hello', format: ContentFormat.PLAIN_TEXT },
+        type: MessageType.USER_MESSAGE,
         timestamp: Date.now(),
-        status: 'sent' as const,
+        status: MessageStatus.SENT,
         flags: [],
       };
 
@@ -166,10 +167,10 @@ describe('ContextService', () => {
         service.addMessage(context.id, {
           id: `msg-${i}`,
           sender: { id: 'user-1', type: 'user' as const, name: 'User' },
-          content: { text: `Message ${i}`, format: 'plain_text' as const },
-          type: 'user_message' as const,
+          content: { text: `Message ${i}`, format: ContentFormat.PLAIN_TEXT },
+          type: MessageType.USER_MESSAGE,
           timestamp: Date.now(),
-          status: 'sent' as const,
+          status: MessageStatus.SENT,
           flags: [],
         });
       }
@@ -187,10 +188,10 @@ describe('ContextService', () => {
         service.addMessage(context.id, {
           id: `msg-${i}`,
           sender: { id: 'user-1', type: 'user' as const, name: 'User' },
-          content: { text: `Message ${i}`, format: 'plain_text' as const },
-          type: 'user_message' as const,
+          content: { text: `Message ${i}`, format: ContentFormat.PLAIN_TEXT },
+          type: MessageType.USER_MESSAGE,
           timestamp: Date.now(),
-          status: 'sent' as const,
+          status: MessageStatus.SENT,
           flags: [],
         });
       }
@@ -450,10 +451,10 @@ describe('ContextService', () => {
       service.addMessage(context.id, {
         id: 'msg-1',
         sender: { id: 'user-1', type: 'user' as const, name: 'User' },
-        content: { text: 'Hello', format: 'plain_text' as const },
-        type: 'user_message' as const,
+        content: { text: 'Hello', format: ContentFormat.PLAIN_TEXT },
+        type: MessageType.USER_MESSAGE,
         timestamp: Date.now(),
-        status: 'sent' as const,
+        status: MessageStatus.SENT,
         flags: [],
       });
 

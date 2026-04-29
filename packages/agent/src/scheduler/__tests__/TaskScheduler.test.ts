@@ -1,12 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   TaskScheduler,
-  TaskPriority,
-  TaskStatus,
   type SchedulerConfig,
   type TaskExecutor,
 } from '../TaskScheduler.js';
-import { Task } from '../TaskQueue.js';
+import { TaskPriority, TaskStatus, Task } from '../TaskQueue.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
