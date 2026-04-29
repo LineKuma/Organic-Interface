@@ -14,6 +14,14 @@
 | **执行分支** | agent-develop |
 | **项目路径** | /workspaces/agent-workspace/projects/Organic-Interface |
 
+## 归档信息
+
+| 字段 | 内容 |
+|------|------|
+| **归档时间** | 2026-04-30 |
+| **归档原因** | 任务已被 task-P1-001-organic-enhanced-testing 替代（该任务也已停用） |
+| **当前状态** | 已完成且被替代，不再需要 |
+
 ---
 
 ## 任务背景
