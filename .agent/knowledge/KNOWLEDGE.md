@@ -59,6 +59,7 @@
 | 文档 | 说明 |
 |------|------|
 | [experience-2026-04-30.md](raw/experience-2026-04-30.md) | P0/P1 任务执行经验 |
+| [experience-2026-04-30-p0-006.md](raw/experience-2026-04-30-p0-006.md) | task-P0-006 ui包TS修复经验 |
 
 ## 贡献指南
 

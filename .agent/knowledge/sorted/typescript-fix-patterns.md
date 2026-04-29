@@ -366,6 +366,66 @@ export interface ConversationPlugin {
 | 日期 | 版本 | 变更内容 |
 |------|------|----------|
 | 2026-04-28 | 1.0.0 | 初始版本，记录TypeScript类型修复经验 |
+| 2026-04-30 | 1.1.0 | task-P0-006补充ui包修复经验：接口属性必选化、索引签名模式 |
+
+---
+
+## 10. @organic/ui包修复 (task-P0-006)
+
+### 10.1 任务概述
+
+| 字段 | 值 |
+|------|-----|
+| 任务ID | task-P0-006 |
+| 修复文件数 | 3 |
+| 修复错误数 | 12 |
+| 提交 | f0f6e3a |
+
+### 10.2 修复详情
+
+**Command.ts - 接口属性必选化**
+```typescript
+// 修复前
+interface Command {
+  name: string;
+  subcommands?: Command[];
+}
+
+// 修复后
+interface Command {
+  name: string;
+  subcommands: Command[];
+}
+```
+
+**Table.test.ts - 索引签名**
+```typescript
+// 修复前
+interface Person {
+  name: string;
+  age: number;
+}
+
+// 修复后
+interface Person {
+  name: string;
+  age: number;
+  [key: string]: any;  // 支持动态属性访问
+}
+```
+
+**UIOperation.test.ts - 导入补全**
+```typescript
+import { beforeEach, describe, expect, it } from 'vitest';
+```
+
+### 10.3 ui包 vs agent包修复对比
+
+| 对比项 | agent包 (task-P0-003) | ui包 (task-P0-006) |
+|--------|----------------------|-------------------|
+| 错误数量 | 91 | 12 |
+| 主要问题 | Mock对象缺失属性 | 接口定义不一致、索引签名缺失 |
+| 修复模式 | 类型断言、Partial补全 | 接口修改、索引签名 |
 
 ---
 

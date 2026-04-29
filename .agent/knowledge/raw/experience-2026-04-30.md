@@ -7,7 +7,7 @@
 | 版本 | 1.0.0 |
 | 创建日期 | 2026-04-30 |
 | 作者 | Learner |
-| 描述 | task-P0-003, task-P1-001, task-P1-007 执行经验总结 |
+| 描述 | task-P0-003, task-P0-006, task-P1-001, task-P1-007 执行经验总结 |
 
 ---
 
@@ -44,7 +44,33 @@
 
 ---
 
-### 1.2 task-P1-001-deprioritize-enhanced-testing
+### 1.2 task-P0-006-fix-typescript-errors-in-ui-package
+
+| 字段 | 值 |
+|------|-----|
+| 任务ID | task-P0-006 |
+| 执行结果 | 完成 |
+| 提交 | f0f6e3a |
+| 修复文件数 | 3 |
+| 修复错误数 | 12 |
+
+**执行的操作**:
+1. **Command.ts** - `subcommands` 改为必选属性
+2. **Table.test.ts** - Person 接口添加索引签名 `[key: string]: any`
+3. **UIOperation.test.ts** - 添加 `beforeEach` 导入
+
+**修复模式**:
+- 接口属性必选化：`subcommands?: Command[]` → `subcommands: Command[]`
+- 索引签名：`[key: string]: any` 解决动态属性访问
+- 导入补全：添加测试框架钩子函数
+
+**验证结果**:
+- `pnpm typecheck`: 全部通过
+- `pnpm build`: 7个包构建成功
+
+---
+
+### 1.3 task-P1-001-deprioritize-enhanced-testing
 
 | 字段 | 值 |
 |------|-----|
@@ -59,7 +85,7 @@
 
 ---
 
-### 1.3 task-P1-007-task-docs-cleanup
+### 1.4 task-P1-007-task-docs-cleanup
 
 | 字段 | 值 |
 |------|-----|
@@ -87,11 +113,20 @@
 |------|------|----------|
 | AgentMessage.test.ts 逻辑错误 | 修复 TS 错误后 invalidMessage 变成 valid | 需人工复核测试逻辑 |
 
-### 2.3 遗留问题
+### 2.3 @organic/ui包TS错误修复 (task-P0-006)
 
-| 包 | 剩余错误数 | 说明 |
-|----|-----------|------|
-| @organic/ui | 12 | 超出任务范围，未处理 |
+| 字段 | 值 |
+|------|-----|
+| 任务ID | task-P0-006 |
+| 状态 | 已完成 |
+| 提交 | f0f6e3a |
+
+**修复内容**:
+- Command.ts: subcommands 改为必选属性
+- Table.test.ts: Person接口添加索引签名
+- UIOperation.test.ts: 添加beforeEach导入
+
+**验证结果**: pnpm typecheck 全部通过，pnpm build 7个包构建成功
 
 ---
 
@@ -111,6 +146,14 @@
 3. **测试文件修复优先**:
    - 测试文件的 TS 错误通常比业务代码更简单
    - 优先修复测试文件可以快速减少错误数量
+
+4. **接口属性必选化**:
+   - 当接口定义与实际使用一致时，将可选属性改为必选
+   - `subcommands?: Command[]` → `subcommands: Command[]`
+
+5. **索引签名模式**:
+   - 测试中动态访问对象属性时，添加 `[key: string]: any`
+   - 解决类型检查对动态属性的限制
 
 ### 3.2 任务状态管理经验
 
@@ -170,7 +213,6 @@ expect(invalidMessage.isValid).toBe(false);  // 注意验证方向
 | 优先级 | 行动项 | 说明 |
 |--------|--------|------|
 | 高 | 复核 AgentMessage.test.ts 测试逻辑 | 确保修复后逻辑正确 |
-| 中 | @organic/ui 包 12 个 TS 错误 | 超出当前任务范围 |
 | 低 | task-P0-002 重做 | 指向正确文件 |
 
 ---
