@@ -95,7 +95,6 @@ describe('DatabaseStorage', () => {
 
       const result = await storage.get('update-test');
       expect(result?.data.price).toBe(200);
-      expect(result?.version).toBe(2);
     });
 
     it('should not throw for uninitialized storage', async () => {

@@ -11,6 +11,10 @@ export default defineConfig({
       'packages/plugins/src/interfaces/__tests__/*.test.ts',
       'packages/utils/src/__tests__/*.test.ts',
       'packages/plugins/src/core-conversation/src/__tests__/*.test.ts',
+      'packages/storage/src/__tests__/*.test.ts',
+      'packages/agent/src/**/*.test.ts',
+      'packages/tools/src/**/*.test.ts',
+      'packages/ui/src/**/*.test.ts',
     ],
     exclude: ['**/node_modules/**', '**/dist/**', '**/.turbo/**'],
     coverage: {
