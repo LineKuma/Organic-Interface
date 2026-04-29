@@ -3,7 +3,8 @@ import { Table, type TableColumn } from '../../components/Table.js';
 
 interface Person {
   name: string;
-  age: string;
+  age?: string;
+  [key: string]: unknown;
 }
 
 describe('Table', () => {

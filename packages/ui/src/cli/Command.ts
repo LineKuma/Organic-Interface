@@ -73,7 +73,7 @@ export interface Command {
   /** Command options */
   options?: CommandOption[];
   /** Subcommands */
-  subcommands?: Map<string, Command>;
+  subcommands: Map<string, Command>;
   /** Parent command (for subcommands) */
   parent?: Command;
   /** Handler function */
