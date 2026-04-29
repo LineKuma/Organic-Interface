@@ -338,7 +338,9 @@ export function isValidMessage(message: unknown): message is AgentMessage {
     typeof msg.target === 'string' &&
     Object.values(MessageAction).includes(msg.action) &&
     msg.payload !== undefined &&
-    Object.values(MessagePriority).includes(msg.priority)
+    Object.values(MessagePriority).includes(msg.priority) &&
+    Object.values(DeliveryMode).includes(msg.deliveryMode) &&
+    typeof msg.timestamp === 'number'
   );
 }
 

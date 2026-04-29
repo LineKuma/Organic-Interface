@@ -302,6 +302,7 @@ describe('AgentMessage', () => {
 
     it('should return false for missing required fields', () => {
       const invalidMessage = {
+        id: 'msg-1',
         source: 'agent-1',
         target: 'agent-2',
         action: MessageAction.EXECUTE,
@@ -317,10 +318,10 @@ describe('AgentMessage', () => {
         id: 'msg-1',
         source: 'agent-1',
         target: 'agent-2',
-        action: 'invalid-action',
+        action: 'invalid-action' as MessageAction,
         payload: { task: 'test' },
         priority: MessagePriority.NORMAL,
-      } as AgentMessage;
+      };
 
       expect(isValidMessage(invalidMessage)).toBe(false);
     });
