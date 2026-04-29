@@ -5,7 +5,7 @@
 | 字段 | 值 |
 |------|-----|
 | 版本 | 1.0.0 |
-| 更新时间 | 2026-04-21 |
+| 更新时间 | 2026-04-30 |
 | 维护者 | Learner |
 
 ## 知识分类索引
@@ -37,6 +37,7 @@
 |------|------|
 | [execution-knowledge.md](sorted/execution-knowledge.md) | 任务执行规范与常见问题处理 |
 | [p0-tasks-execution-summary.md](sorted/p0-tasks-execution-summary.md) | P0 任务执行总结 |
+| [learning-summary-2026-04-30.md](sorted/learning-summary-2026-04-30.md) | 2026-04-30 学习总结报告 |
 
 ### 5. TypeScript 类型修复
 
@@ -52,6 +53,12 @@
 | sorted | 结构化整理后的知识 | `sorted/` |
 | verified | 经严格验证的知识 | `verified/` |
 | user | 用户显式提供的知识 | `user/` |
+
+### 6. 执行经验记录
+
+| 文档 | 说明 |
+|------|------|
+| [experience-2026-04-30.md](raw/experience-2026-04-30.md) | P0/P1 任务执行经验 |
 
 ## 贡献指南
 
@@ -71,4 +78,4 @@
 
 ---
 
-*最后更新：2026-04-21*
+*最后更新：2026-04-30*
