@@ -45,6 +45,13 @@
 |------|------|
 | [typescript-fix-patterns.md](sorted/typescript-fix-patterns.md) | TypeScript类型错误修复模式与解决方案 |
 
+### 6. 测试覆盖率提升
+
+| 文档 | 说明 |
+|------|------|
+| [test-coverage-improvement.md](sorted/test-coverage-improvement.md) | 测试覆盖率提升最佳实践 |
+| [implementation-knowledge-2026-04-30.md](sorted/implementation-knowledge-2026-04-30.md) | 任务执行知识记录（Agent调度框架、安全系统） |
+
 ## 知识层级说明
 
 | 层级 | 说明 | 位置 |
