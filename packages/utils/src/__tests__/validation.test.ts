@@ -117,7 +117,7 @@ describe('validation utilities', () => {
     });
 
     it('should throw for missing required fields', () => {
-      expect(() => validateRequired({ name: 'test' }, ['name', 'missing'])).toThrow(ValidationError);
+      expect(() => validateRequired({ name: 'test', value: 123 } as Record<string, unknown>, ['name', 'missing'])).toThrow(ValidationError);
     });
 
     it('should throw for empty required fields', () => {
