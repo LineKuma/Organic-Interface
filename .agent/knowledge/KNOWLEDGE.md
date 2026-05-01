@@ -84,6 +84,14 @@
 | #typescript | TypeScript 配置经验 |
 | #problem-solving | 问题解决方案 |
 
+## 7. 项目任务执行经验
+
+| 文档 | 说明 |
+|------|------|
+| [organic-project-task-execution-2026-05-02.md](raw/experiences/organic-project-task-execution-2026-05-02.md) | 2026-05-02 Organic-Interface 项目任务执行总结 |
+| [monorepo-task-execution-pattern.md](raw/patterns/monorepo-task-execution-pattern.md) | Monorepo 项目任务执行模式 |
+| [organic-interface-project-config.md](raw/configs/organic-interface-project-config.md) | Organic-Interface 项目配置说明 |
+
 ---
 
-*最后更新：2026-04-30*
+*最后更新：2026-05-02*
