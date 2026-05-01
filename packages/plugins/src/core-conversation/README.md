@@ -1,147 +1,394 @@
-# Core Conversation Plugin
+# core-conversation Plugin
 
-## Overview
+## 概述
 
-The Core Conversation Plugin (`core-conversation`) is the primary user interaction interface for Organic Interface. It provides text-based CLI interaction capabilities, following the Linux design philosophy where the plugin acts as a system program (like a shell) interacting with the kernel.
+`core-conversation` 是 Organic-Interface 的核心对话插件，提供基于文本的 CLI 交互界面。它作为用户与系统之间的主要接口，类似于 Linux 系统中的 "shell"。
 
-## Design Philosophy
+## 设计理念
 
-Organic Interface adopts the Linux design philosophy:
+- **Kernel (核心)**: 提供基础服务、任务调度、资源管理
+- **Plugin (插件)**: 实现具体业务逻辑、用户交互
+- **core-conversation**: 主要的用户面插件，等价于 Linux 中的 "shell"
 
-- **Kernel (core)**: Provides base services, task scheduling, resource management, and runtime environment
-- **Plugin (peripheral)**: Implements specific business logic and user interaction
-- **core-conversation**: The primary user-facing plugin, equivalent to the shell in Linux
+## 插件信息
 
-## Features
+| 属性 | 值 |
+|------|-----|
+| ID | `core-conversation` |
+| 版本 | `1.0.0` |
+| API 版本 | `1.0.0` |
+| 最低 Kernel 版本 | `1.0.0` |
 
-### Session Management
-- Create new conversation sessions
-- Resume existing sessions
-- Close and archive sessions
-- List active sessions with filtering
-- Session timeout and TTL management
-
-### Context Management
-- Maintain conversation context windows
-- Add, update, and delete messages
-- Automatic context compression
-- Token-based window limiting
-
-### Input Processing
-- CLI-level text input parsing
-- Command recognition (`/command` syntax)
-- Intent extraction from natural language
-- Input validation
-
-### Output Formatting
-- Plain text, terminal, JSON, and markdown formats
-- Color support for terminal output
-- Streaming output support
-- Error formatting
-
-## Architecture
-
-```
-┌─────────────────────────────────────────────────────────┐
-│                   Kernel (Core)                          │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │         PluginManager, EventBus, Lifecycle       │   │
-│  └─────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────┘
-                          │
-                          ▼
-┌─────────────────────────────────────────────────────────┐
-│          CoreConversationPlugin (Peripheral)            │
-│  ┌───────────────┬────────────────┬────────────────┐   │
-│  │ SessionManager│ ContextManager │ InputParser    │   │
-│  └───────────────┴────────────────┴────────────────┘   │
-│  ┌─────────────────────────────────────────────────┐   │
-│  │              OutputFormatter                    │   │
-│  └─────────────────────────────────────────────────┘   │
-└─────────────────────────────────────────────────────────┘
-```
-
-## Usage
-
-### Initialize Plugin
+## 默认配置
 
 ```typescript
-import { CoreConversationPlugin } from '@organic/plugins/core-conversation';
-import { Kernel } from '@organic/kernel';
-
-const kernel = new Kernel({ config: {...} });
-const plugin = new CoreConversationPlugin();
-
-await kernel.registerPlugin(plugin);
-await kernel.start();
+{
+  maxSessionHistory: 100,        // 会话历史最大消息数
+  defaultTimeout: 30000,          // 默认超时时间（毫秒）
+  enableStreaming: false,         // 启用流式响应
+  maxSessions: 100,               // 最大并发会话数
+  defaultContextWindowSize: 50    // 默认上下文窗口大小
+}
 ```
 
-### Create Session
+## 支持的操作
 
+### create_session
+
+创建新会话。
+
+**参数**:
+- `userId?: string` - 用户 ID
+- `config?: SessionConfig` - 会话配置
+
+**返回**: `Session` 对象
+
+**示例**:
 ```typescript
 const result = await plugin.execute({
   action: 'create_session',
-  params: {
-    userId: 'user-123',
-    config: {
-      title: 'My Session',
-      ttl: 3600000, // 1 hour
-    },
-  },
+  params: { userId: 'user-123' }
 });
 ```
 
-### Send Message
+### send_message
 
+发送消息到会话。
+
+**参数**:
+- `text: string` - 消息文本
+- `sessionId?: string` - 会话 ID（可选，使用当前活跃会话）
+
+**返回**: `ConversationResult` 包含消息、会话和上下文窗口
+
+**示例**:
 ```typescript
 const result = await plugin.execute({
   action: 'send_message',
   params: {
-    sessionId: 'sess_abc123',
-    text: 'Hello, how are you?',
-  },
+    text: 'Hello, world!',
+    sessionId: 'session-id-123'
+  }
 });
 ```
 
-### List Sessions
+### resume_session
 
+恢复已存在的会话。
+
+**参数**:
+- `sessionId: string` - 会话 ID
+
+**返回**: `Session` 对象
+
+**示例**:
+```typescript
+const result = await plugin.execute({
+  action: 'resume_session',
+  params: { sessionId: 'session-id-123' }
+});
+```
+
+### close_session
+
+关闭会话。
+
+**参数**:
+- `sessionId?: string` - 会话 ID（可选，使用当前活跃会话）
+
+**返回**: 确认消息
+
+**示例**:
+```typescript
+await plugin.execute({
+  action: 'close_session',
+  params: { sessionId: 'session-id-123' }
+});
+```
+
+### list_sessions
+
+列出所有会话。
+
+**参数**:
+- `filter?: SessionFilter` - 过滤条件
+
+**返回**: 会话列表
+
+**示例**:
 ```typescript
 const result = await plugin.execute({
   action: 'list_sessions',
-  params: {
-    filter: {
-      status: 'active',
-    },
-  },
+  params: { filter: { status: 'active' } }
 });
 ```
 
-## API Reference
+### get_session
 
-### Actions
+获取会话信息。
 
-| Action | Description | Parameters |
-|--------|-------------|------------|
-| `create_session` | Create a new conversation session | `userId?`, `config?` |
-| `send_message` | Send a message to a session | `sessionId?`, `text` |
-| `resume_session` | Resume an existing session | `sessionId` |
-| `close_session` | Close a session | `sessionId?` |
-| `list_sessions` | List all sessions | `filter?` |
-| `get_session` | Get session details | `sessionId?` |
-| `get_context` | Get context window | `sessionId?` |
-| `clear_context` | Clear session context | `sessionId?` |
-| `update_context` | Update context data | `sessionId?`, `updates` |
+**参数**:
+- `sessionId?: string` - 会话 ID
 
-### Configuration
+**返回**: `Session` 对象
 
-| Option | Type | Default | Description |
-|--------|------|---------|-------------|
-| `maxSessionHistory` | number | 100 | Max messages per session |
-| `defaultTimeout` | number | 30000 | Default timeout (ms) |
-| `enableStreaming` | boolean | false | Enable streaming responses |
-| `maxSessions` | number | 100 | Max concurrent sessions |
-| `defaultContextWindowSize` | number | 50 | Default context window size |
+### get_context
 
-## License
+获取会话的上下文窗口。
 
-MIT
+**参数**:
+- `sessionId?: string` - 会话 ID
+
+**返回**: `ContextWindow` 对象
+
+### clear_context
+
+清除会话的上下文。
+
+**参数**:
+- `sessionId?: string` - 会话 ID
+
+**返回**: 确认消息
+
+### update_context
+
+更新会话的上下文。
+
+**参数**:
+- `sessionId?: string` - 会话 ID
+- `updates: Record<string, unknown>` - 更新内容
+
+**返回**: 更新后的 `ContextWindow`
+
+## 核心组件
+
+### SessionManager
+
+管理会话的生命周期。
+
+**主要功能**:
+- 创建新会话
+- 恢复已存在的会话
+- 关闭会话
+- 跟踪会话状态
+- 管理会话超时
+
+**示例**:
+```typescript
+const sessionManager = plugin.getSessionManager();
+const session = await sessionManager.createSession({
+  userId: 'user-123',
+  config: { ttl: 60000 }
+});
+```
+
+### ContextManager
+
+管理对话上下文和消息历史。
+
+**主要功能**:
+- 维护消息历史
+- 管理上下文窗口大小
+- 支持系统消息和工具调用
+- 提供上下文查询和更新
+
+**示例**:
+```typescript
+const contextManager = plugin.getContextManager();
+const contextWindow = await contextManager.getContextWindow('session-id-123');
+await contextManager.addMessage('session-id-123', message);
+```
+
+### InputParser
+
+解析用户输入，支持命令识别和意图提取。
+
+**主要功能**:
+- 文本规范化
+- 命令识别
+- 意图提取
+- 输入验证
+
+**示例**:
+```typescript
+const parsedInput = plugin.parseInput('Hello, how are you?');
+// {
+//   normalizedText: 'hello how are you',
+//   intent: 'greeting',
+//   entities: {},
+//   confidence: 0.95,
+//   metadata: { ... }
+// }
+```
+
+### OutputFormatter
+
+格式化输出结果。
+
+**主要功能**:
+- 格式化对话结果
+- 添加时间戳
+- 处理样式和颜色
+- 支持多种输出格式
+
+**示例**:
+```typescript
+const formatted = plugin.formatOutput(result);
+// {
+//   text: '...',
+//   metadata: { timestamp: 1234567890 }
+// }
+```
+
+## 类型定义
+
+### Session
+
+```typescript
+interface Session {
+  id: string;
+  userId?: string;
+  status: SessionStatus;
+  createdAt: number;
+  updatedAt: number;
+  messageCount: number;
+  metadata?: Record<string, unknown>;
+}
+```
+
+### Message
+
+```typescript
+interface Message {
+  id: string;
+  content: string;
+  sender: 'user' | 'assistant' | 'system';
+  timestamp: number;
+  sessionId: string;
+  metadata?: Record<string, unknown>;
+}
+```
+
+### ContextWindow
+
+```typescript
+interface ContextWindow {
+  sessionId: string;
+  messages: Message[];
+  systemMessages: Message[];
+  toolCalls: Message[];
+  windowSize: number;
+}
+```
+
+### ParsedInput
+
+```typescript
+interface ParsedInput {
+  originalText: string;
+  normalizedText: string;
+  intent?: string;
+  entities: Record<string, unknown>;
+  confidence: number;
+  metadata: {
+    timestamp: number;
+    requestId: string;
+  };
+}
+```
+
+### ConversationResult
+
+```typescript
+interface ConversationResult {
+  type: 'session' | 'message' | 'confirmation' | 'session_list' | 'context';
+  session?: Session;
+  message?: ResponseMessage;
+  sessions?: Session[];
+  contextWindow?: ContextWindow;
+}
+```
+
+## 错误处理
+
+### ConversationError
+
+```typescript
+enum ConversationErrorCode {
+  SESSION_NOT_FOUND = 'SESSION_NOT_FOUND',
+  INVALID_INPUT = 'INVALID_INPUT',
+  SESSION_LIMIT_EXCEEDED = 'SESSION_LIMIT_EXCEEDED',
+  TIMEOUT = 'TIMEOUT',
+  PARSER_ERROR = 'PARSER_ERROR',
+  FORMATTER_ERROR = 'FORMATTER_ERROR'
+}
+```
+
+### 处理错误
+
+```typescript
+try {
+  await plugin.execute({
+    action: 'send_message',
+    params: { text: 'Hello' }
+  });
+} catch (error) {
+  if (error instanceof ConversationError) {
+    console.error(`Error [${error.code}]: ${error.message}`);
+  }
+}
+```
+
+## 使用完整示例
+
+```typescript
+import { CoreConversationPlugin } from '@organic/plugins';
+
+async function main() {
+  const plugin = new CoreConversationPlugin();
+
+  await plugin.initialize({
+    kernel: kernelApi,
+    config: {
+      maxSessions: 50,
+      defaultTimeout: 60000
+    }
+  });
+
+  // 创建会话
+  const createResult = await plugin.execute({
+    action: 'create_session',
+    params: { userId: 'user-123' }
+  });
+  const sessionId = createResult.data.session.id;
+  console.log(`Created session: ${sessionId}`);
+
+  // 发送消息
+  const messageResult = await plugin.execute({
+    action: 'send_message',
+    params: {
+      text: 'Hello, world!',
+      sessionId
+    }
+  });
+  console.log(`Response: ${messageResult.data.message.content.text}`);
+
+  // 获取上下文
+  const contextResult = await plugin.execute({
+    action: 'get_context',
+    params: { sessionId }
+  });
+  console.log(`Context window size: ${contextResult.data.contextWindow.messages.length}`);
+
+  // 关闭会话
+  await plugin.execute({
+    action: 'close_session',
+    params: { sessionId }
+  });
+
+  // 关闭插件
+  await plugin.shutdown();
+}
+
+main().catch(console.error);
+```
