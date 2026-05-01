@@ -368,3 +368,11 @@ grep -r "core-conversation" packages/plugins/src/index.ts
 ## 后续关联任务
 
 - **task-P0-003-kernel-text-interaction**：强化Kernel文字交互能力
+
+---
+
+## 最终状态
+
+- **归档时间**: 2026-05-02
+- **归档原因**: 问题已被后续任务修复（task-P0-002-fix-typescript-errors-in-core-conversation.md）
+- **最终状态**: 已完成 (archived)
