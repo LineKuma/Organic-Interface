@@ -12,7 +12,7 @@
 | **可并行** | 是 |
 | **创建时间** | 2026-05-02 |
 | **执行分支** | agent-develop |
-| **项目路径** | c:\Users\LineCat\Projects\agent-workspace\projects\Organic-Interface |
+| **项目路径** | /workspaces/agent-workspace/projects/Organic-Interface |
 
 ---
 
