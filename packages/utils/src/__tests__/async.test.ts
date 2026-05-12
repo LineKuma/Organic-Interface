@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { sleep, withRetry, withTimeout, withConcurrencyLimit, AsyncQueue } from '../utils/async.js';
 
 describe('async utilities', () => {
