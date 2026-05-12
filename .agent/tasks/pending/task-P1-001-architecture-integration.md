@@ -12,7 +12,8 @@
 | **可并行** | 否（项目首个核心文档，后续任务依赖此文档） |
 | **创建时间** | 2026-05-09 |
 | **执行分支** | agent-develop |
-| **项目路径** | c:\Users\LineCat\Projects\agent-workspace\projects\Organic-Interface |
+| **项目路径** | projects/Organic-Interface |
+| **Worktree路径** | worktrees/Organic-Interface/Organic-Interface-P1-001-architecture |
 
 ---
 
@@ -107,7 +108,12 @@ Organic-Interface 是一个多包 Monorepo 项目，包含7个包（agent, kerne
 
 ### 步骤1：创建架构设计核心文档
 
-创建 `docs/architecture.md`，包含以下内容节点（本步骤5个节点）：
+**前提**：必须通过worktree机制执行
+
+**操作流程**：
+1. 创建worktree：`git worktree add worktrees/Organic-Interface/Organic-Interface-P1-001-architecture -b wt/P1-001/architecture docs/architecture.md`
+2. 在worktree的`docs/`目录下创建`architecture.md`
+3. 如`docs/`目录不存在，先创建目录
 
 #### 1.1 项目架构概述
 
@@ -386,7 +392,7 @@ Organic-Interface 是一个多包 Monorepo 项目，包含7个包（agent, kerne
 ## 后置任务
 
 - 命令：git add . && git commit -m "feat: add architecture design document with three-layer architecture and package mapping" && git push origin agent-develop
-- 执行目录：c:\Users\LineCat\Projects\agent-workspace\projects\Organic-Interface
+- 执行目录：projects/Organic-Interface
 
 ---
 
