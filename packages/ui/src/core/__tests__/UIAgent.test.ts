@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { UIAgent, createUIAgent } from '../UIAgent.js';
+import type { UIOperationType, UIOperationStatus } from '../UIOperation.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
@@ -166,9 +167,9 @@ describe('UIAgent', () => {
       const agent = new UIAgent();
       await agent.start();
       const mockHandler = {
-        getType: () => 'custom' as const,
-        supports: (op: string) => op === 'custom',
-        execute: async () => ({ success: true, operationId: '', type: 'custom', status: 'completed', executionTime: 0, timestamp: Date.now() }),
+        getType: () => 'click' as UIOperationType,
+        supports: (op: UIOperationType) => op === 'click',
+        execute: async () => ({ success: true, operationId: '', type: 'click' as UIOperationType, status: 'completed' as UIOperationStatus, executionTime: 0, timestamp: Date.now() }),
         validate: () => [],
       };
       agent.registerOperationHandler(mockHandler);
@@ -180,7 +181,7 @@ describe('UIAgent', () => {
     it('should unregister handler', async () => {
       const agent = new UIAgent();
       await agent.start();
-      const result = agent.unregisterOperationHandler('non-existent');
+      const result = agent.unregisterOperationHandler('non-existent' as UIOperationType);
       expect(result).toBe(false);
     });
   });
