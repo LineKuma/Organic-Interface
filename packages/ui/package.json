@@ -13,7 +13,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "echo \"No tests configured\"",
+    "test": "cd ../.. && pnpm exec vitest run --config ./vitest.config.ts",
     "lint": "echo \"No linter configured\"",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
