@@ -2,7 +2,7 @@
  * SessionManager Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi, beforeAll } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
 import {
   SessionManager,
   type SessionManagerOptions,

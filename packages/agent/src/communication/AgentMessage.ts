@@ -4,8 +4,6 @@
  * Defines the standardized message format for inter-agent communication.
  */
 
-import { createLogger, type Logger } from '@organic/utils';
-
 /**
  * Message action types
  */

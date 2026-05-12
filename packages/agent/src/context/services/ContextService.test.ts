@@ -1,9 +1,8 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   ContextService,
   PropagationMode,
   DEFAULT_CONTEXT_SERVICE_CONFIG,
-  type ContextServiceConfig,
   type PropagationScope,
 } from './ContextService.js';
 import { ContextItemType, ContextItemPriority } from '../models/ContextItem.js';

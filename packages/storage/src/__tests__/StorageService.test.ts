@@ -2,7 +2,7 @@
  * StorageService Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { StorageService } from '../services/StorageService.js';
 import { MemoryStorage } from '../backends/MemoryStorage.js';
 import type { StorageEntity } from '../models/StorageEntity.js';

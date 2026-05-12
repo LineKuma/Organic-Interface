@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { SearchTool, createSearchTool } from '../SearchTool.js';
 import type { ToolExecutionContext } from '../../types/index.js';
 import { promises as fs } from 'fs';

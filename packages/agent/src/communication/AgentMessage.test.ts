@@ -1,13 +1,10 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   MessageAction,
   MessagePriority,
   DeliveryMode,
   MessageFlag,
   type AgentMessage,
-  type MessageMetadata,
-  type MessageError,
-  type MessageOptions,
   createAgentMessage,
   createExecuteMessage,
   createQueryMessage,
