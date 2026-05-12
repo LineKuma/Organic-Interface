@@ -1,5 +1,5 @@
 services:
-  app:
+  dev:
     build:
       context: .
       dockerfile: Dockerfile
@@ -8,21 +8,23 @@ services:
     environment:
       - NODE_ENV=development
     volumes:
-      - ./packages:/app/packages
-    restart: unless-stopped
-    stop_grace_period: 30s
+      - .:/app
+      - /app/node_modules
     networks:
       - organic-interface-network
-    command: >
-      sh -c "echo '========================================' &&
-             echo '  Organic-Interface 启动信息' &&
-             echo '========================================' &&
-             echo '  服务端口: 3000' &&
-             echo '  服务地址: http://localhost:3000' &&
-             echo '  Node环境: development' &&
-             echo '========================================' &&
-             tail -f /dev/null"
-    entrypoint: ["sh", "-c"]
+    command: pnpm dev
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=test
+    networks:
+      - organic-interface-network
+    command: pnpm test
+    profiles:
+      - ci
 
 networks:
   organic-interface-network:
