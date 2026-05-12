@@ -12,7 +12,8 @@ RUN corepack enable && corepack prepare pnpm@9.1.0 --activate
 COPY pnpm-workspace.yaml pnpm-lock.yaml turbo.json package.json tsconfig.base.json ./
 
 # Install dependencies (uses workspace config from pnpm-workspace.yaml)
-RUN pnpm install --frozen-lockfile
+# Use --config.optional=true to install optional dependencies for Alpine musl platform
+RUN pnpm install --frozen-lockfile --config.optional=true
 
 # Copy source code
 COPY . .
