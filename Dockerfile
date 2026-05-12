@@ -28,6 +28,8 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
+RUN npm install -g pnpm@9.1.0
+
 # Copy node_modules from builder (pnpm workspace dependencies)
 COPY --from=builder /app/node_modules ./node_modules
 
