@@ -39,6 +39,21 @@ describe('UIAgent', () => {
       await agent.stop();
       expect(agent.getState().status).toBe('offline');
     });
+
+    it('should not start if already idle', async () => {
+      const agent = new UIAgent();
+      await agent.start();
+      await agent.start();
+      expect(agent.getState().status).toBe('idle');
+    });
+
+    it('should not stop if already offline', async () => {
+      const agent = new UIAgent();
+      await agent.start();
+      await agent.stop();
+      await agent.stop();
+      expect(agent.getState().status).toBe('offline');
+    });
   });
 
   describe('pause/resume', () => {
@@ -53,6 +68,19 @@ describe('UIAgent', () => {
       const agent = new UIAgent();
       await agent.start();
       agent.pause();
+      agent.resume();
+      expect(agent.getState().status).toBe('idle');
+    });
+
+    it('should not pause in offline state', async () => {
+      const agent = new UIAgent();
+      agent.pause();
+      expect(agent.getState().status).toBe('offline');
+    });
+
+    it('should not resume when not paused', async () => {
+      const agent = new UIAgent();
+      await agent.start();
       agent.resume();
       expect(agent.getState().status).toBe('idle');
     });
@@ -80,6 +108,80 @@ describe('UIAgent', () => {
       await agent.start();
       const session = agent.startSession();
       expect(agent.getCurrentSession()?.sessionId).toBe(session.sessionId);
+    });
+  });
+
+  describe('execute', () => {
+    it('should throw error when no session', async () => {
+      const agent = new UIAgent();
+      await agent.start();
+      await expect(agent.execute({
+        type: 'click',
+        input: { selector: '#button' },
+      })).rejects.toThrow('No active session');
+    });
+
+    it('should return permission denied result', async () => {
+      const agent = new UIAgent();
+      await agent.start();
+      const session = agent.startSession();
+      agent.setPermissionLevel('L1');
+      const result = await agent.execute({
+        type: 'click',
+        input: { selector: '#button' },
+      });
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('denied');
+    });
+  });
+
+  describe('executeSequence', () => {
+    it('should execute multiple operations', async () => {
+      const agent = new UIAgent();
+      await agent.start();
+      agent.startSession();
+      agent.setPermissionLevel('L4');
+      const results = await agent.executeSequence([
+        { type: 'click', input: { selector: '#button1' } },
+        { type: 'click', input: { selector: '#button2' } },
+      ]);
+      expect(results.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('should stop on failure', async () => {
+      const agent = new UIAgent();
+      await agent.start();
+      agent.startSession();
+      agent.setPermissionLevel('L1');
+      const results = await agent.executeSequence([
+        { type: 'click', input: { selector: '#button1' } },
+        { type: 'click', input: { selector: '#button2' } },
+      ]);
+      expect(results[0].success).toBe(false);
+    });
+  });
+
+  describe('registerOperationHandler', () => {
+    it('should register custom handler', async () => {
+      const agent = new UIAgent();
+      await agent.start();
+      const mockHandler = {
+        getType: () => 'custom' as const,
+        supports: (op: string) => op === 'custom',
+        execute: async () => ({ success: true, operationId: '', type: 'custom', status: 'completed', executionTime: 0, timestamp: Date.now() }),
+        validate: () => [],
+      };
+      agent.registerOperationHandler(mockHandler);
+      expect(agent.getState().status).toBe('idle');
+    });
+  });
+
+  describe('unregisterOperationHandler', () => {
+    it('should unregister handler', async () => {
+      const agent = new UIAgent();
+      await agent.start();
+      const result = agent.unregisterOperationHandler('non-existent');
+      expect(result).toBe(false);
     });
   });
 

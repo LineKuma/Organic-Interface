@@ -84,6 +84,13 @@ describe('Sandbox', () => {
       sandbox.createSession('agent-1');
       expect(handler).toHaveBeenCalled();
     });
+
+    it('should transition session status to terminated', () => {
+      const session = sandbox.createSession('agent-1');
+      expect(session.status).toBe('active');
+      sandbox.terminateSession(session.sessionId);
+      expect(sandbox.getSession(session.sessionId)?.status).toBe('terminated');
+    });
   });
 
   describe('getSession', () => {
@@ -164,6 +171,15 @@ describe('Sandbox', () => {
       const session = sandbox.createSession('agent-1', 'L1');
       expect(sandbox.checkPermission(session.sessionId, 'click', '#button').allowed).toBe(false);
     });
+
+    it('should deny when operation is in deniedOperations', () => {
+      const restrictedSandbox = new Sandbox({
+        deniedOperations: ['click'],
+      });
+      const session = restrictedSandbox.createSession('agent-1');
+      const result = restrictedSandbox.checkPermission(session.sessionId, 'click', '#button');
+      expect(result.allowed).toBe(false);
+    });
   });
 
   describe('recordOperation', () => {
@@ -177,6 +193,18 @@ describe('Sandbox', () => {
       });
       const history = sandbox.getOperationHistory(session.sessionId);
       expect(history).toHaveLength(1);
+    });
+
+    it('should increment session operationCount', () => {
+      const session = sandbox.createSession('agent-1');
+      expect(session.operationCount).toBe(0);
+      sandbox.recordOperation({
+        session,
+        operation: 'click',
+        selector: '#button',
+        timestamp: Date.now(),
+      });
+      expect(sandbox.getSession(session.sessionId)?.operationCount).toBe(1);
     });
 
     it('should emit operation:recorded event', () => {
@@ -226,9 +254,26 @@ describe('Sandbox', () => {
       const history = sandbox.getAllOperationHistory();
       expect(history).toHaveLength(2);
     });
+
+    it('should return empty array when no operations', () => {
+      const history = sandbox.getAllOperationHistory();
+      expect(history).toEqual([]);
+    });
   });
 
   describe('clearHistory', () => {
+    it('should clear all history without sessionId', () => {
+      const session = sandbox.createSession('agent-1');
+      sandbox.recordOperation({
+        session,
+        operation: 'click',
+        selector: '#button',
+        timestamp: Date.now(),
+      });
+      sandbox.clearHistory(undefined);
+      expect(sandbox.getAllOperationHistory()).toHaveLength(0);
+    });
+
     it('should clear all history', () => {
       const session = sandbox.createSession('agent-1');
       sandbox.recordOperation({
@@ -282,8 +327,20 @@ describe('Sandbox', () => {
       expect(result.valid).toBe(true);
     });
 
-    it('should reject dangerous selector', () => {
+    it('should reject javascript: selector', () => {
       const result = sandbox.validateSelector('javascript:alert(1)');
+      expect(result.valid).toBe(false);
+      expect(result.reason).toContain('Dangerous pattern');
+    });
+
+    it('should reject data: selector', () => {
+      const result = sandbox.validateSelector('data:text/html,<script>alert(1)</script>');
+      expect(result.valid).toBe(false);
+      expect(result.reason).toContain('Dangerous pattern');
+    });
+
+    it('should reject vbscript: selector', () => {
+      const result = sandbox.validateSelector('vbscript:msgbox("hello")');
       expect(result.valid).toBe(false);
       expect(result.reason).toContain('Dangerous pattern');
     });
