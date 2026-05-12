@@ -6,12 +6,13 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 
-import {
+import type {
   IStorageBackend,
-  StorageBackendInfo,
+  StorageBackendInfo} from './IStorageBackend.js';
+import {
   StorageBackendType,
 } from './IStorageBackend.js';
-import { StorageEntity } from '../models/StorageEntity.js';
+import type { StorageEntity } from '../models/StorageEntity.js';
 
 /**
  * Database storage configuration

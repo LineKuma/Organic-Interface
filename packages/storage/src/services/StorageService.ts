@@ -3,18 +3,20 @@
  * Core storage interface providing CRUD, query, and transaction operations
  */
 
-import { createLogger, Logger } from '@organic/utils';
+import type { Logger } from '@organic/utils';
+import { createLogger } from '@organic/utils';
 import { BaseError } from '@organic/utils';
 
-import {
+import type {
   StorageEntity,
-  StorageEntityImpl,
   StorageIndex,
+  EntityMetadata} from '../models/index.js';
+import {
+  StorageEntityImpl,
   IndexType,
-  EntityMetadata,
   createStorageEntity,
 } from '../models/index.js';
-import { IStorageBackend, StorageBackendInfo } from '../backends/index.js';
+import type { IStorageBackend, StorageBackendInfo } from '../backends/index.js';
 
 /**
  * Isolation level for transactions

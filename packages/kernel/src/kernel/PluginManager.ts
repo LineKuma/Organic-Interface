@@ -12,7 +12,7 @@ import type {
   KernelConfig,
   ToolResult,
 } from '@organic/utils';
-import { EventBus } from './EventBus.js';
+import type { EventBus } from './EventBus.js';
 import type { Logger } from '@organic/utils';
 
 /**

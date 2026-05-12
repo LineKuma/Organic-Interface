@@ -1,4 +1,8 @@
 import { describe, it, expect } from 'vitest';
+import type {
+  ConditionExpression,
+  LoopConfig,
+  ParallelConfig} from '../../models/Task.js';
 import {
   TaskStatus,
   TaskType,
@@ -9,9 +13,6 @@ import {
   TaskOutput,
   TaskConfig,
   TaskDependency,
-  ConditionExpression,
-  LoopConfig,
-  ParallelConfig,
   TaskMetadata,
   Task,
   TaskExecution,

@@ -6,11 +6,12 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
-import {
+import type {
   PluginInterface,
   PluginMetadata,
   PluginConfig,
-  PluginStatus,
+  PluginStatus} from '../interfaces/PluginInterface.js';
+import {
   PluginLifecycleState,
 } from '../interfaces/PluginInterface.js';
 import type {

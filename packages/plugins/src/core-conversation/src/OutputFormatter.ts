@@ -23,7 +23,8 @@ import {
   type ContextWindow,
   ContentFormat,
 } from './types/index.js';
-import { ConversationError, ConversationErrorCode } from './errors/index.js';
+import type { ConversationError} from './errors/index.js';
+import { ConversationErrorCode } from './errors/index.js';
 
 /**
  * Output formatter options

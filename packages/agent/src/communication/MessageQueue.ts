@@ -7,10 +7,11 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
+import type {
+  MessagePriority} from './AgentMessage.js';
 import {
   type AgentMessage,
   type MessageMetadata,
-  MessagePriority,
   DeliveryMode,
   isMessageExpired,
 } from './AgentMessage.js';

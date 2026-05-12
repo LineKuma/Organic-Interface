@@ -2,7 +2,8 @@
  * Storage Entity for Organic Interface Storage
  */
 
-import { EntityMetadata, createDefaultMetadata, cloneMetadata, isMetadataExpired } from './EntityMetadata.js';
+import type { EntityMetadata} from './EntityMetadata.js';
+import { createDefaultMetadata, cloneMetadata, isMetadataExpired } from './EntityMetadata.js';
 
 /**
  * Storage index type enumeration

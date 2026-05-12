@@ -17,8 +17,9 @@ import {
   OPERATION_PERMISSIONS,
   SENSITIVE_OPERATIONS,
 } from './UIOperation.js';
+import type {
+  Sandbox} from './Sandbox.js';
 import {
-  Sandbox,
   createSandbox,
   type SandboxConfig,
   type SandboxSession,

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { AgentRegistry, createRegistry, type AgentRegistryConfig } from '../AgentRegistry.js';
-import { AgentType, AgentRegistryStatus, AgentMetadata } from '../AgentMetadata.js';
+import type { AgentMetadata } from '../AgentMetadata.js';
+import { AgentType, AgentRegistryStatus } from '../AgentMetadata.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({

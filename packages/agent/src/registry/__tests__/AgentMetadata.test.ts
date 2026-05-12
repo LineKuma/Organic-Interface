@@ -1,13 +1,14 @@
 import { describe, it, expect } from 'vitest';
-import {
-  AgentType,
-  AgentRegistryStatus,
+import type {
   AgentCapability,
   AgentMetadata,
   RegistryEntry,
-  HealthCheckResult,
   AgentSelector,
-  RegistryStats,
+  RegistryStats} from '../AgentMetadata.js';
+import {
+  AgentType,
+  AgentRegistryStatus,
+  HealthCheckResult,
   createAgentMetadata,
   createHealthCheckResult,
   isAgentHealthy,

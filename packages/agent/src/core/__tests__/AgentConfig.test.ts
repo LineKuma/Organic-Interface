@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import {
+import type {
   AgentConfig,
+  AgentConfigOptions} from '../AgentConfig.js';
+import {
   AgentType,
   AgentPriority,
-  AgentConfigOptions,
   DEFAULT_AGENT_CONFIG,
   createAgentConfig,
 } from '../AgentConfig.js';

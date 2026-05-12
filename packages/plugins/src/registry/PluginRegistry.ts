@@ -2,11 +2,12 @@
  * PluginRegistry - Central registry for plugin management
  */
 
-import {
-  PluginInterface,
+import type {
   PluginMetadata,
   PluginConfig,
-  PluginStatus,
+  PluginStatus} from '../interfaces/PluginInterface.js';
+import {
+  PluginInterface,
   PluginLifecycleState,
   PluginHooks,
 } from '../interfaces/PluginInterface.js';

@@ -1,9 +1,10 @@
 import { describe, it, expect } from 'vitest';
+import type {
+  AgentState,
+  AgentStats} from '../AgentState.js';
 import {
   AgentStatus,
-  AgentState,
   AgentStateOptions,
-  AgentStats,
   createAgentState,
   getAgentStats,
 } from '../AgentState.js';

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { Command, CommandOption, CommandArgument, CommandResult, createCommand, addSubcommand, findCommand } from '../Command.js';
+import type { CommandOption, CommandArgument, CommandResult} from '../Command.js';
+import { Command, createCommand, addSubcommand, findCommand } from '../Command.js';
 
 describe('Command', () => {
   describe('CommandOption', () => {

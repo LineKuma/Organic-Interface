@@ -26,18 +26,19 @@ import { ContextManager, type ContextManagerOptions } from './ContextManager.js'
 import { InputParser, type InputParserOptions } from './InputParser.js';
 import { OutputFormatter, type OutputFormatterOptions } from './OutputFormatter.js';
 import { ConversationError, ConversationErrorCode } from './errors/index.js';
-import {
-  Session,
+import type {
   SessionConfig,
   SessionCreateOptions,
   SessionFilter,
-  Message,
   ParsedInput,
   ConversationResult,
   ResponseMessage,
+  FormattedOutput} from './types/index.js';
+import {
+  Session,
+  Message,
   ResponseType,
   ResultType,
-  FormattedOutput,
   ContextWindowType,
   ContentFormat,
   MessageSender,

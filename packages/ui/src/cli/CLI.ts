@@ -10,7 +10,8 @@ import {
   createCommand,
   addSubcommand,
 } from './Command.js';
-import { CommandParser, defaultParser } from './CommandParser.js';
+import type { CommandParser} from './CommandParser.js';
+import { defaultParser } from './CommandParser.js';
 
 /**
  * CLI configuration

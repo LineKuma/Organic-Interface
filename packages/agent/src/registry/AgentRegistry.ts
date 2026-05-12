@@ -7,13 +7,14 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
+import type {
+  AgentType} from './AgentMetadata.js';
 import {
   type AgentMetadata,
   type AgentSelector,
   type RegistryEntry,
   type HealthCheckResult,
   type RegistryStats,
-  AgentType,
   AgentRegistryStatus,
   createAgentMetadata,
   createHealthCheckResult,

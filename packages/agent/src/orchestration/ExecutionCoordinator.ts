@@ -7,7 +7,8 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
-import { AgentRegistry, type AgentMetadata } from '../registry/index.js';
+import type { AgentRegistry} from '../registry/index.js';
+import { type AgentMetadata } from '../registry/index.js';
 import {
   AgentChannel,
   type AgentMessage,

@@ -2,7 +2,7 @@
  * Storage Backend Interface for Organic Interface Storage
  */
 
-import { StorageEntity } from '../models/StorageEntity.js';
+import type { StorageEntity } from '../models/StorageEntity.js';
 
 /**
  * Storage backend interface

@@ -3,17 +3,19 @@
  * Manages multiple storage backends and provides factory methods
  */
 
-import { createLogger, Logger } from '@organic/utils';
+import type { Logger } from '@organic/utils';
+import { createLogger } from '@organic/utils';
 
-import {
+import type {
   IStorageBackend,
+  MemoryStorageConfig,
+  FileStorageConfig,
+  DatabaseStorageConfig} from '../backends/index.js';
+import {
   StorageBackendType,
   MemoryStorage,
-  MemoryStorageConfig,
   FileStorage,
-  FileStorageConfig,
-  DatabaseStorage,
-  DatabaseStorageConfig,
+  DatabaseStorage
 } from '../backends/index.js';
 import { StorageService, type StorageInfo } from './StorageService.js';
 
