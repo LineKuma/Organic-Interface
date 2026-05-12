@@ -5,8 +5,6 @@
  * for Organic Interface.
  */
 
-import { createLogger, type Logger } from '@organic/utils';
-
 // Re-export utils
 export {
   createLogger,

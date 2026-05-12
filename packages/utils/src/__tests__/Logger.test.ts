@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createLogger, createChildLogger, defaultLogger, type Logger, type LoggerOptions, type LogLevel, type LogEntry } from '@organic/utils';
+import { createLogger, createChildLogger, defaultLogger, type LoggerOptions, type LogLevel, type LogEntry } from '@organic/utils';
 
 describe('Logger', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
