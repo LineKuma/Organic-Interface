@@ -1,0 +1,19 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    volumes:
+      - ./packages:/app/packages
+    restart: unless-stopped
+    stop_grace_period: 30s
+    networks:
+      - organic-interface-network
+
+networks:
+  organic-interface-network:
+    name: organic-interface-network
