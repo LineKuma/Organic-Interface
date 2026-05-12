@@ -11,7 +11,8 @@
       "inputs": ["src/**", "tests/**"]
     },
     "lint": {
-      "outputs": []
+      "outputs": [],
+      "inputs": ["src/**", "tests/**", "*.ts", "*.js", "*.json"]
     },
     "typecheck": {
       "dependsOn": ["^build"]
