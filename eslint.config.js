@@ -38,6 +38,6 @@ export default [
   },
   configPrettier,
   {
-    ignores: ['dist/**', 'node_modules/**', 'coverage/**', '*.min.js'],
+    ignores: ['dist/**', 'node_modules/**', 'coverage/**', '*.min.js', '**/dist/**'],
   },
 ];
