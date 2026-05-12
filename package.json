@@ -13,6 +13,7 @@
     "lint": "eslint . && prettier --check .",
     "lint:fix": "eslint --fix . && prettier --write .",
     "typecheck": "turbo run typecheck",
+    "docs": "typedoc",
     "clean": "turbo run clean && rm -rf node_modules"
   },
   "devDependencies": {
