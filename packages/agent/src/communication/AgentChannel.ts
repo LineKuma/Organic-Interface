@@ -10,8 +10,6 @@ import { createLogger, type Logger } from '@organic/utils';
 import {
   type AgentMessage,
   MessageAction,
-  type MessageMetadata,
-  type MessageOptions,
   createAgentMessage,
   createExecuteMessage,
   createQueryMessage,

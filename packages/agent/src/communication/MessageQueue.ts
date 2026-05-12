@@ -11,8 +11,6 @@ import type {
   MessagePriority} from './AgentMessage.js';
 import {
   type AgentMessage,
-  type MessageMetadata,
-  DeliveryMode,
   isMessageExpired,
 } from './AgentMessage.js';
 
