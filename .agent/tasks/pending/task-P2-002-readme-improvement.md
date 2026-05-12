@@ -52,6 +52,8 @@ test upload
   - `@organic/ui` - CLI界面
   - `@organic/utils` - 工具库
 
+> **架构文档引用**：完整的架构设计文档见 `docs/architecture.md`，包含三层架构（内核层/外围层/自定义层）详细定义、包-架构映射关系、层间交互规范和接口规范。
+
 ### 3. 快速开始 (Quick Start)
 
 添加安装和使用指南：

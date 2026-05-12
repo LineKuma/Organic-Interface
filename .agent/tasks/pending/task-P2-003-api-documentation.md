@@ -100,6 +100,9 @@ interface PluginMetadata {
 | `packages/plugins/src/interfaces/PluginInterface.ts` | 插件接口定义 |
 | `packages/plugins/src/core-conversation/` | 已实现插件参考 |
 | `docs/feature-006-plugin-spec.md` | 插件规范文档 |
+| `docs/architecture.md` | 核心架构设计文档（包含插件系统在三层架构中的定位和接口规范定义） |
+
+> **架构文档引用**：完整的架构设计文档见 `docs/architecture.md`，其中第六章"包-架构映射"详细说明了 `@organic/plugins` 作为跨层包的设计意图和接口规范。 |
 
 ---
 
