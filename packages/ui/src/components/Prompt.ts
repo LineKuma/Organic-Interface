@@ -242,6 +242,14 @@ export class Prompt {
       parts.push(config.message);
     }
 
+    if (config.options && config.options.length > 0) {
+      const optionStr = config.options.map((opt, i) => {
+        const disabled = opt.disabled ? ' (disabled)' : '';
+        return `${i + 1}. ${opt.label}${disabled}`;
+      }).join(' ');
+      parts.push(optionStr);
+    }
+
     if (config.defaultValue !== undefined) {
       parts.push(`(default: ${config.defaultValue})`);
     }

@@ -125,14 +125,14 @@ describe('UIAgent', () => {
     it('should return permission denied result', async () => {
       const agent = new UIAgent();
       await agent.start();
-      const session = agent.startSession();
       agent.setPermissionLevel('L1');
+      agent.startSession();
       const result = await agent.execute({
         type: 'click',
         input: { selector: '#button' },
       });
       expect(result.success).toBe(false);
-      expect(result.error).toContain('denied');
+      expect(result.error).toContain('Insufficient permission level');
     });
   });
 
