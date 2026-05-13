@@ -3,19 +3,8 @@ import {
   AgentChannel,
   createAgentChannel,
   DEFAULT_CHANNEL_CONFIG,
-  type AgentChannelConfig,
 } from './AgentChannel.js';
-import {
-  MessageAction,
-  MessagePriority,
-  DeliveryMode,
-  createExecuteMessage,
-  createQueryMessage,
-  createResponseMessage,
-  createHeartbeatMessage,
-  createNotifyMessage,
-  createErrorMessage,
-} from './AgentMessage.js';
+import { MessageAction, createExecuteMessage, createNotifyMessage } from './AgentMessage.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({

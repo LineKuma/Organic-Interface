@@ -4,7 +4,6 @@ import type {
   AgentStats} from '../AgentState.js';
 import {
   AgentStatus,
-  AgentStateOptions,
   createAgentState,
   getAgentStats,
 } from '../AgentState.js';

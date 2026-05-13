@@ -7,15 +7,8 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
-import type {
-  MessageMetadata,
-  MessagePriority,
-  AgentMessage,
-} from './AgentMessage.js';
-import {
-  DeliveryMode,
-  isMessageExpired,
-} from './AgentMessage.js';
+import type { MessagePriority, AgentMessage } from './AgentMessage.js';
+import { isMessageExpired } from './AgentMessage.js';
 
 /**
  * Queue configuration

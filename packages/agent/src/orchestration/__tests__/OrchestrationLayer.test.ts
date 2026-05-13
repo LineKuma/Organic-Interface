@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { OrchestrationLayer, createOrchestrationLayer, OrchestrationStrategy, OrchestrationPlanStatus } from '../OrchestrationLayer.js';
+import { OrchestrationLayer, createOrchestrationLayer, OrchestrationPlanStatus } from '../OrchestrationLayer.js';
 import { AgentRegistry } from '../../registry/AgentRegistry.js';
 import { ExecutionCoordinator } from '../ExecutionCoordinator.js';
 import { AgentType, createAgentMetadata } from '../../registry/AgentMetadata.js';

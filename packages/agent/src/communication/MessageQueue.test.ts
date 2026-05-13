@@ -1,12 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { MessageQueue, DEFAULT_QUEUE_CONFIG, type MessageQueueConfig, type QueueFilter, type QueueStats } from './MessageQueue.js';
+import { MessageQueue, DEFAULT_QUEUE_CONFIG } from './MessageQueue.js';
 import {
   MessageAction,
   MessagePriority,
-  DeliveryMode,
   createExecuteMessage,
   createQueryMessage,
-  createHeartbeatMessage,
 } from './AgentMessage.js';
 
 vi.mock('@organic/utils', () => ({

@@ -8,7 +8,6 @@ import type {
 import {
   AgentType,
   AgentRegistryStatus,
-  HealthCheckResult,
   createAgentMetadata,
   createHealthCheckResult,
   isAgentHealthy,

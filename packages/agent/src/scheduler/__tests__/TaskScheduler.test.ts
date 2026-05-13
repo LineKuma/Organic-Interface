@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   TaskScheduler,
-  type SchedulerConfig,
   type TaskExecutor,
 } from '../TaskScheduler.js';
 import { TaskPriority, TaskStatus, Task } from '../TaskQueue.js';
