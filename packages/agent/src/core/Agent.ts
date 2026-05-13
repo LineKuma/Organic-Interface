@@ -11,7 +11,6 @@ import { EventEmitter } from 'events';
 import {
   type AgentConfig,
   type AgentConfigOptions,
-  AgentType,
   createAgentConfig,
 } from './AgentConfig.js';
 import {

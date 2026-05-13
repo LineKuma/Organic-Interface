@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { Agent, type AgentResult, type AgentTaskInput } from '../Agent.js';
-import { AgentType, AgentPriority } from '../AgentConfig.js';
+import { Agent, type AgentTaskInput } from '../Agent.js';
 import { AgentStatus } from '../AgentState.js';
 
 vi.mock('@organic/kernel', () => ({

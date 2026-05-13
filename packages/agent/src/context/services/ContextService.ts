@@ -8,20 +8,14 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
-import type {
-  Message,
-  MessageSender,
-  MessageContent,
-} from '../Message.js';
+import type { Message } from '../Message.js';
 import {
   ContextManager,
   type ConversationContext,
   type Participant,
-  type ContextMetadata,
   type ContextManagerConfig,
-  ContextStatus,
   type StateItem,
-  type StateChange,
+  type ContextMetadata,
 } from '../ContextManager.js';
 import type {
   ContextItem,
@@ -29,11 +23,8 @@ import type {
   ContextItemUpdate,
 } from '../models/ContextItem.js';
 import {
-  createContextItem,
   createMessageContextItem,
   createStateContextItem,
-  createToolCallContextItem,
-  createResultContextItem,
   updateContextItem,
   isContextItemExpired,
   touchContextItem,
@@ -795,7 +786,7 @@ export class ContextService extends EventEmitter {
     let deletedItems = 0;
 
     // Clean up expired items
-    for (const [contextId, store] of this.contextItems) {
+    for (const [_contextId, store] of this.contextItems) {
       for (const [itemId, item] of store) {
         if (isContextItemExpired(item)) {
           store.delete(itemId);

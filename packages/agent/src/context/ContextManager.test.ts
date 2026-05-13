@@ -2,10 +2,8 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import {
   ContextManager,
   ContextStatus,
-  ContextItemType,
   StateType,
   type Participant,
-  type ContextMetadata,
   DEFAULT_CONTEXT_CONFIG,
 } from './ContextManager.js';
 import { MessageType, ContentFormat } from './Message.js';

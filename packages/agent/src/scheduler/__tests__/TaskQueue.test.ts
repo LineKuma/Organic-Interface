@@ -3,7 +3,6 @@ import {
   TaskQueue,
   TaskPriority,
   TaskStatus,
-  Task,
   TaskOptions,
   TaskQueueConfig,
   DEFAULT_QUEUE_CONFIG,

@@ -7,25 +7,15 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
-import type { Workflow } from '../models/Workflow.js';
 import {
   type Task,
   type TaskExecution,
-  type TaskConfig,
   TaskStatus,
-  TaskType,
-  createTaskExecution,
   updateTaskExecution,
-  isTaskExecutionFinal,
   canTaskRetry,
   calculateRetryInterval,
-  DEFAULT_RETRY_POLICY,
 } from '../models/Task.js';
-import {
-  getOutgoingEdges,
-  getEntryNode,
-  EdgeConditionType,
-} from '../models/Workflow.js';
+import { getEntryNode } from '../models/Workflow.js';
 
 /**
  * Task execution result
@@ -449,10 +439,9 @@ export class WorkflowExecutor extends EventEmitter {
  */
 export async function defaultNodeExecutor(
   task: Task,
-  input: Record<string, unknown>,
-  context: Record<string, unknown>
+  _input: Record<string, unknown>,
+  _context: Record<string, unknown>
 ): Promise<TaskExecutionResult> {
-  const startTime = Date.now();
 
   // Check if handler is defined
   if (!task.config.handler) {

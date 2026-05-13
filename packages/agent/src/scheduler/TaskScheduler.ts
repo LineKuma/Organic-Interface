@@ -9,8 +9,6 @@ import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
 import {
   TaskQueue,
-  TaskPriority,
-  TaskStatus,
   type Task,
   type TaskOptions,
   type TaskQueueConfig,
@@ -212,7 +210,7 @@ export class TaskScheduler extends EventEmitter {
    */
   cancelAll(): void {
     // Cancel active tasks
-    for (const [taskId, active] of this.activeTasks) {
+    for (const [_taskId, active] of this.activeTasks) {
       active.abortController.abort();
     }
 

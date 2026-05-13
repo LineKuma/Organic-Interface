@@ -11,10 +11,7 @@ import type { AgentRegistry} from '../registry/index.js';
 import { type AgentMetadata } from '../registry/index.js';
 import {
   AgentChannel,
-  type AgentMessage,
-  MessageAction,
   createExecuteMessage,
-  createQueryMessage,
 } from '../communication/index.js';
 
 /**
@@ -151,7 +148,7 @@ export class ExecutionCoordinator extends EventEmitter {
   /**
    * Execute a single task
    */
-  async execute<T = unknown, R = unknown>(
+  async execute<_T = unknown, R = unknown>(
     request: ExecutionRequest
   ): Promise<ExecutionResult<R>> {
     const startTime = Date.now();
