@@ -210,7 +210,7 @@ export class TaskScheduler extends EventEmitter {
    */
   cancelAll(): void {
     // Cancel active tasks
-    for (const [_taskId, active] of this.activeTasks) {
+    for (const active of this.activeTasks.values()) {
       active.abortController.abort();
     }
 

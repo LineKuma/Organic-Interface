@@ -21,10 +21,7 @@ import {
   updateWorkflowExecution,
   createWorkflowSnapshot,
   getEntryNode,
-  getTopologicalOrder,
-  EdgeConditionType,
   type WorkflowExecution,
-  type WorkflowEdge,
   type WorkflowExecutionSnapshot,
 } from '../models/Workflow.js';
 import {
@@ -384,7 +381,7 @@ export class WorkflowEngine extends EventEmitter {
       return result;
     }
 
-    for (const [nodeId, state] of nodeStates) {
+    for (const [, state] of nodeStates) {
       // Skip already processed nodes
       if (state.status !== 'pending') {
         continue;

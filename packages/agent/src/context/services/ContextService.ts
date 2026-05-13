@@ -786,9 +786,9 @@ export class ContextService extends EventEmitter {
     let deletedItems = 0;
 
     // Clean up expired items
-    for (const [_contextId, store] of this.contextItems) {
-      for (const [itemId, item] of store) {
-        if (isContextItemExpired(item)) {
+    for (const store of this.contextItems.values()) {
+      for (const [itemId, contextItem] of store) {
+        if (isContextItemExpired(contextItem)) {
           store.delete(itemId);
           deletedItems++;
         }

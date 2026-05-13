@@ -15,7 +15,6 @@ import {
   canTaskRetry,
   calculateRetryInterval,
 } from '../models/Task.js';
-import { getEntryNode } from '../models/Workflow.js';
 
 /**
  * Task execution result

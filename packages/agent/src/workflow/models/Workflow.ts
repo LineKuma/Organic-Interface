@@ -4,7 +4,7 @@
  * Defines workflow structure, edges, and execution records.
  */
 
-import type { Task, TaskDependency } from './Task.js';
+import type { Task } from './Task.js';
 
 /**
  * Workflow status enumeration

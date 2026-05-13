@@ -148,7 +148,7 @@ export class ExecutionCoordinator extends EventEmitter {
   /**
    * Execute a single task
    */
-  async execute<_T = unknown, R = unknown>(
+  async execute<R = unknown>(
     request: ExecutionRequest
   ): Promise<ExecutionResult<R>> {
     const startTime = Date.now();

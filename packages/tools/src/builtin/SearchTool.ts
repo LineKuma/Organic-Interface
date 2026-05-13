@@ -280,7 +280,6 @@ export class SearchTool implements Tool {
     options?: SearchOptions
   ): Promise<{ results: SearchResult[]; count: number }> {
     const { readFile } = await import('fs/promises');
-    const pathModule = await import('path');
 
     const results: SearchResult[] = [];
     const regex = this.createRegex(pattern, options?.regex, options?.caseSensitive);
@@ -340,8 +339,8 @@ export class SearchTool implements Tool {
     paths: string[],
     options?: SearchOptions
   ): Promise<{ files: string[]; count: number }> {
-    const pathModule = await import('path');
 
+    const pathModule = await import("path");
     const files: string[] = [];
     const regex = this.createRegex(pattern, true, options?.caseSensitive);
     const limit = options?.limit ?? 1000;
@@ -486,8 +485,7 @@ export class SearchTool implements Tool {
     searchPath: string,
     options?: SearchOptions
   ): Promise<string[]> {
-    const { readdir, stat } = await import('fs/promises');
-    const pathModule = await import('path');
+    const pathModule = await import("path"); const { readdir, stat } = await import("fs/promises");
 
     const files: string[] = [];
     const extensions = options?.extensions?.map((ext) => ext.toLowerCase()) ?? [];
