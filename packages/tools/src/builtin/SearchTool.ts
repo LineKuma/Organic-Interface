@@ -221,7 +221,7 @@ export class SearchTool implements Tool {
     return errors;
   }
 
-  async execute(input: unknown, context: ToolExecutionContext): Promise<ToolResult> {
+  async execute(input: unknown, _context: ToolExecutionContext): Promise<ToolResult> {
     const data = input as SearchToolInput;
     const startTime = Date.now();
 

@@ -9,7 +9,6 @@ import type {
   PluginInput,
   PluginOutput,
   KernelApi,
-  KernelConfig,
   ToolResult,
 } from '@organic/utils';
 import type { EventBus } from './EventBus.js';

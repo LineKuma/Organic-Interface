@@ -20,7 +20,6 @@ import {
 /**
  * Regular expression patterns for command parsing
  */
-const COMMAND_PATTERN = /^\/(\w+)(?:\s+(.*))?$/;
 const JSON_PATTERN = /^\s*[\[{]/;
 const QUOTED_PATTERN = /^"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/;
 

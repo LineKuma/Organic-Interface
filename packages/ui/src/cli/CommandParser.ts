@@ -2,7 +2,7 @@
  * Command parser for CLI
  */
 
-import type { Command, CommandArgument, CommandOption, CommandResult } from './Command.js';
+import type { Command } from './Command.js';
 import { createLogger, type Logger } from '@organic/utils';
 
 /**

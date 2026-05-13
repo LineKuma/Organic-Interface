@@ -16,7 +16,6 @@ import {
   type ToolServiceConfig,
   type ToolValidationError,
   type ToolExecutionOptions,
-  SandboxConfig,
 } from '../types/index.js';
 
 /**

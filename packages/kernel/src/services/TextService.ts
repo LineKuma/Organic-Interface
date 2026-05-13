@@ -5,7 +5,6 @@
  * list formatting, streaming output, and spinner animations.
  */
 
-import { Writable, type WritableOptions } from 'node:stream';
 import process from 'node:process';
 
 // ==================== Type Definitions ====================
@@ -467,26 +466,7 @@ export class TextService {
     } = options;
 
     let buffer = '';
-    let frameIndex = 0;
     let isActive = true;
-
-    // Create a writable stream for buffering
-    const stream = new Writable({
-      write(chunk: string, encoding: BufferEncoding, callback: () => void) {
-        buffer += chunk;
-        if (flush) {
-          process.stdout.write(chunk);
-          buffer = '';
-        }
-        callback();
-      },
-      final(callback: () => void) {
-        if (buffer && endWithNewline) {
-          process.stdout.write(buffer + '\n');
-        }
-        callback();
-      },
-    } as WritableOptions);
 
     return {
       write(chunk: string): void {

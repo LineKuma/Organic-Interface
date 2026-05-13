@@ -8,7 +8,6 @@
 
 import {
   type ResponseMessage,
-  type ResponseContent,
   ResponseType,
   type MessageSender,
   type ToolCall,

@@ -385,7 +385,6 @@ export class ContextManager {
 
     // Exclude system messages from count
     const nonSystem = messages.filter((m) => m.sender !== MessageSender.SYSTEM);
-    const systemCount = messages.length - nonSystem.length;
 
     if (nonSystem.length <= windowSize) {
       // Return all messages if non-system count is within limit

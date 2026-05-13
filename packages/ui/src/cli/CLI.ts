@@ -6,7 +6,6 @@ import { createLogger, type Logger } from '@organic/utils';
 import {
   type Command,
   type CommandResult,
-  type CommandOption,
   createCommand,
   addSubcommand,
 } from './Command.js';

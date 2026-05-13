@@ -14,17 +14,9 @@ import {
   type UIOperationResult,
   type UIOperationContext,
   type UIPermissionLevel,
-  OPERATION_PERMISSIONS,
-  SENSITIVE_OPERATIONS,
 } from './UIOperation.js';
-import type {
-  Sandbox} from './Sandbox.js';
-import {
-  createSandbox,
-  type SandboxConfig,
-  type SandboxSession,
-  type PermissionCheckResult,
-} from './Sandbox.js';
+import type { Sandbox, SandboxConfig, SandboxSession } from './Sandbox.js';
+import { createSandbox } from './Sandbox.js';
 
 /**
  * UIAgent configuration

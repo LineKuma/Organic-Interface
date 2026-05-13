@@ -302,8 +302,8 @@ export class Sandbox extends EventEmitter {
   checkPermission(
     sessionId: string,
     operation: UIOperationType,
-    selector: string,
-    data?: Record<string, unknown>
+    _selector: string,
+    _data?: Record<string, unknown>
   ): PermissionCheckResult {
     const session = this.sessions.get(sessionId);
 

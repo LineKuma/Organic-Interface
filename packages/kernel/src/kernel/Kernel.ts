@@ -6,7 +6,6 @@ import type {
   KernelConfig,
   KernelApi,
   PluginInterface,
-  PluginContext,
   PluginInput,
   PluginOutput,
   PluginConfig,
