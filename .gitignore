@@ -23,3 +23,10 @@ Thumbs.db
 npm-debug.log*
 coverage/
 worktrees/
+.pnpm-store/
+
+# Core dumps
+core.*
+
+# Heap dumps
+*.heap
