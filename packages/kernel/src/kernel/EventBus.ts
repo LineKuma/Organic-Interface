@@ -47,7 +47,8 @@ export interface EventBusConfig {
  * EventBus for kernel internal events
  */
 export class EventBus {
-  private listeners: Map<string, Set<EventListener>> = new Map();
+  private listeners: Map<string, EventListener[]> = new Map();
+  private wildcardListeners: Map<string, EventListener[]> = new Map();
   private logger: Logger;
   private async: boolean;
   private captureLimit: number;
@@ -64,20 +65,57 @@ export class EventBus {
   }
 
   /**
+   * Check if a type matches a wildcard pattern
+   */
+  private matchesPattern(type: string, pattern: string): boolean {
+    if (pattern.endsWith(':*')) {
+      const prefix = pattern.slice(0, -2);
+      return type.startsWith(prefix + ':') || type.startsWith(prefix + '/');
+    }
+    if (pattern.startsWith('*:')) {
+      const suffix = pattern.slice(2);
+      return type.endsWith(':' + suffix) || type.endsWith('/' + suffix);
+    }
+    if (pattern.includes('*')) {
+      const regex = new RegExp('^' + pattern.replace(/\*/g, '[^:]*') + '$');
+      return regex.test(type);
+    }
+    return false;
+  }
+
+  /**
    * Subscribe to an event
    */
   on<T = unknown>(type: string, listener: EventListener<T>): EventSubscription {
     if (!this.listeners.has(type)) {
-      this.listeners.set(type, new Set());
+      this.listeners.set(type, []);
     }
 
     const listeners = this.listeners.get(type)!;
-    listeners.add(listener as EventListener);
+    listeners.push(listener as EventListener);
 
     this.logger.debug(`Listener subscribed to event: ${type}`);
 
     return {
       unsubscribe: () => this.off(type, listener),
+    };
+  }
+
+  /**
+   * Subscribe to events matching a wildcard pattern
+   */
+  onWildcard<T = unknown>(pattern: string, listener: EventListener<T>): EventSubscription {
+    if (!this.wildcardListeners.has(pattern)) {
+      this.wildcardListeners.set(pattern, []);
+    }
+
+    const listeners = this.wildcardListeners.get(pattern)!;
+    listeners.push(listener as EventListener);
+
+    this.logger.debug(`Listener subscribed to wildcard pattern: ${pattern}`);
+
+    return {
+      unsubscribe: () => this.offWildcard(pattern, listener),
     };
   }
 
@@ -99,12 +137,14 @@ export class EventBus {
   off<T = unknown>(type: string, listener: EventListener<T>): void {
     const listeners = this.listeners.get(type);
     if (listeners) {
-      listeners.delete(listener as EventListener);
-      this.logger.debug(`Listener unsubscribed from event: ${type}`);
-
-      if (listeners.size === 0) {
+      const index = listeners.indexOf(listener as EventListener);
+      if (index !== -1) {
+        listeners.splice(index, 1);
+      }
+      if (listeners.length === 0) {
         this.listeners.delete(type);
       }
+      this.logger.debug(`Listener unsubscribed from event: ${type}`);
     }
   }
 
@@ -122,30 +162,73 @@ export class EventBus {
     this.logger.debug(`Emitting event: ${type}`);
 
     const listeners = this.listeners.get(type);
-    if (!listeners || listeners.size === 0) {
+    const hasExactListeners = listeners && listeners.length > 0;
+    const hasWildcardListeners = this.wildcardListeners.size > 0;
+
+    if (!hasExactListeners && !hasWildcardListeners) {
       return;
     }
 
     if (this.async) {
-      // Async dispatch for non-blocking behavior
       setImmediate(() => {
-        for (const listener of listeners) {
+        if (hasExactListeners) {
+          for (const listener of listeners!) {
+            try {
+              listener(event);
+            } catch (error) {
+              this.logger.error(`Error in event listener for ${type}:`, error);
+            }
+          }
+        }
+
+        for (const [pattern, patternListeners] of this.wildcardListeners) {
+          if (this.matchesPattern(type, pattern)) {
+            for (const listener of patternListeners) {
+              try {
+                listener(event);
+              } catch (error) {
+                this.logger.error(`Error in wildcard listener for ${pattern}:`, error);
+              }
+            }
+          }
+        }
+      });
+    } else {
+      if (hasExactListeners) {
+        for (const listener of listeners!) {
           try {
             listener(event);
           } catch (error) {
             this.logger.error(`Error in event listener for ${type}:`, error);
           }
         }
-      });
-    } else {
-      // Sync dispatch
-      for (const listener of listeners) {
-        try {
-          listener(event);
-        } catch (error) {
-          this.logger.error(`Error in event listener for ${type}:`, error);
+      }
+
+      for (const [pattern, patternListeners] of this.wildcardListeners) {
+        if (this.matchesPattern(type, pattern)) {
+          for (const listener of patternListeners) {
+            try {
+              listener(event);
+            } catch (error) {
+              this.logger.error(`Error in wildcard listener for ${pattern}:`, error);
+            }
+          }
         }
       }
+    }
+  }
+
+  /**
+   * Unsubscribe from a wildcard pattern
+   */
+  offWildcard<T = unknown>(pattern: string, listener: EventListener<T>): void {
+    const listeners = this.wildcardListeners.get(pattern);
+    if (listeners) {
+      this.wildcardListeners.set(pattern, listeners.filter(l => l !== listener));
+      if (this.wildcardListeners.get(pattern)!.length === 0) {
+        this.wildcardListeners.delete(pattern);
+      }
+      this.logger.debug(`Listener unsubscribed from wildcard pattern: ${pattern}`);
     }
   }
 
@@ -155,9 +238,11 @@ export class EventBus {
   removeAllListeners(type?: string): void {
     if (type) {
       this.listeners.delete(type);
+      this.wildcardListeners.delete(type);
       this.logger.debug(`All listeners removed for event: ${type}`);
     } else {
       this.listeners.clear();
+      this.wildcardListeners.clear();
       this.logger.debug('All event listeners removed');
     }
   }
@@ -166,7 +251,7 @@ export class EventBus {
    * Get the count of listeners for a specific event type
    */
   listenerCount(type: string): number {
-    return this.listeners.get(type)?.size ?? 0;
+    return this.listeners.get(type)?.length ?? 0;
   }
 
   /**

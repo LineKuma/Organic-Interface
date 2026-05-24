@@ -266,15 +266,112 @@ describe('EventBus', () => {
       expect(listener).toHaveBeenCalledTimes(1);
     });
 
-    it('should dispatch events synchronously when async is false', () => {
+it('should dispatch events synchronously when async is false', () => {
       const syncEventBus = new EventBus({ async: false });
       const listener = vi.fn();
       syncEventBus.on('syncEvent', listener);
 
       syncEventBus.emit('syncEvent', { data: 'test' });
 
-      // Listener should be called immediately
       expect(listener).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  describe('Wildcard subscription', () => {
+    it('should subscribe to multiple events using wildcard pattern user:*', () => {
+      const syncEventBus = new EventBus({ async: false });
+      const listener = vi.fn();
+
+      syncEventBus.onWildcard('user:*', listener);
+
+      syncEventBus.emit('user:created', { id: 1 });
+      syncEventBus.emit('user:updated', { id: 1 });
+      syncEventBus.emit('user:deleted', { id: 1 });
+
+      expect(listener).toHaveBeenCalledTimes(3);
+      expect(listener).toHaveBeenNthCalledWith(1, expect.objectContaining({ type: 'user:created', data: { id: 1 } }));
+      expect(listener).toHaveBeenNthCalledWith(2, expect.objectContaining({ type: 'user:updated', data: { id: 1 } }));
+      expect(listener).toHaveBeenNthCalledWith(3, expect.objectContaining({ type: 'user:deleted', data: { id: 1 } }));
+    });
+
+    it('should not match events that do not match the pattern', () => {
+      const syncEventBus = new EventBus({ async: false });
+      const listener = vi.fn();
+
+      syncEventBus.onWildcard('user:*', listener);
+
+      syncEventBus.emit('user:created', { id: 1 });
+      syncEventBus.emit('post:created', { id: 1 });
+      syncEventBus.emit('admin:login', { id: 1 });
+
+      expect(listener).toHaveBeenCalledTimes(1);
+      expect(listener).toHaveBeenCalledWith(expect.objectContaining({ type: 'user:created' }));
+    });
+
+    it('should return unsubscribe function for wildcard subscription', () => {
+      const syncEventBus = new EventBus({ async: false });
+      const listener = vi.fn();
+
+      const subscription = syncEventBus.onWildcard('user:*', listener);
+      subscription.unsubscribe();
+
+      syncEventBus.emit('user:created', { id: 1 });
+      syncEventBus.emit('user:updated', { id: 1 });
+
+      expect(listener).not.toHaveBeenCalled();
+    });
+
+    it('should handle offWildcard to remove specific wildcard listener', () => {
+      const syncEventBus = new EventBus({ async: false });
+      const listener1 = vi.fn();
+      const listener2 = vi.fn();
+
+      syncEventBus.onWildcard('user:*', listener1);
+      syncEventBus.onWildcard('user:*', listener2);
+
+      syncEventBus.emit('user:created', { id: 1 });
+
+      expect(listener1).toHaveBeenCalledTimes(1);
+      expect(listener2).toHaveBeenCalledTimes(1);
+
+      syncEventBus.offWildcard('user:*', listener1);
+
+      syncEventBus.emit('user:updated', { id: 1 });
+
+      expect(listener1).toHaveBeenCalledTimes(1);
+      expect(listener2).toHaveBeenCalledTimes(2);
+    });
+
+    it('should work with async dispatch mode', async () => {
+      const asyncEventBus = new EventBus({ async: true });
+      const listener = vi.fn();
+
+      asyncEventBus.onWildcard('user:*', listener);
+
+      asyncEventBus.emit('user:created', { id: 1 });
+      asyncEventBus.emit('user:updated', { id: 1 });
+
+      expect(listener).not.toHaveBeenCalled();
+
+      await new Promise(resolve => setImmediate(resolve));
+
+      expect(listener).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle multiple wildcard patterns', () => {
+      const syncEventBus = new EventBus({ async: false });
+      const userListener = vi.fn();
+      const orderListener = vi.fn();
+
+      syncEventBus.onWildcard('user:*', userListener);
+      syncEventBus.onWildcard('order:*', orderListener);
+
+      syncEventBus.emit('user:created', { id: 1 });
+      syncEventBus.emit('order:placed', { id: 101 });
+      syncEventBus.emit('user:updated', { id: 2 });
+
+      expect(userListener).toHaveBeenCalledTimes(2);
+      expect(orderListener).toHaveBeenCalledTimes(1);
     });
   });
 });
