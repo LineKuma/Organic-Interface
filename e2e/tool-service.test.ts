@@ -8,11 +8,12 @@ import {
   type ToolExecutionContext,
   type ToolValidationError,
 } from '@organic/tools';
+import { ToolExecutor, type ToolExecutionOptions } from '@organic/tools';
 
 class TestTool implements Tool {
   private definition: ToolDefinition;
 
-  constructor(id: string, name: string, category: string = 'custom') {
+  constructor(id: string, name: string, category: string = 'custom', timeout: number = 5000) {
     this.definition = {
       id,
       name,
@@ -21,7 +22,7 @@ class TestTool implements Tool {
       inputSchema: { type: 'object' },
       outputSchema: { type: 'object' },
       enabled: true,
-      timeout: 5000,
+      timeout,
     };
   }
 
@@ -42,6 +43,79 @@ class TestTool implements Tool {
       success: true,
       data: { result: 'executed', input },
       executionTime: 10,
+    };
+  }
+}
+
+class SlowTool implements Tool {
+  private definition: ToolDefinition;
+
+  constructor(id: string, name: string, delayMs: number = 100) {
+    this.definition = {
+      id,
+      name,
+      description: `Slow test tool: ${name}`,
+      category: 'slow' as any,
+      inputSchema: { type: 'object' },
+      outputSchema: { type: 'object' },
+      enabled: true,
+      timeout: 5000,
+    };
+    this.delayMs = delayMs;
+  }
+
+  private delayMs: number;
+
+  getDefinition(): ToolDefinition {
+    return this.definition;
+  }
+
+  validate(input: unknown): ToolValidationError[] {
+    return [];
+  }
+
+  async execute(input: unknown, _context: ToolExecutionContext): Promise<ToolResult> {
+    await new Promise(resolve => setTimeout(resolve, this.delayMs));
+    return {
+      success: true,
+      data: { result: 'slow-executed', input },
+      executionTime: this.delayMs,
+    };
+  }
+}
+
+class ValidatingTool implements Tool {
+  private definition: ToolDefinition;
+
+  constructor(id: string, name: string, validateFn: (input: unknown) => ToolValidationError[] = () => []) {
+    this.definition = {
+      id,
+      name,
+      description: `Validating tool: ${name}`,
+      category: 'validating' as any,
+      inputSchema: { type: 'object' },
+      outputSchema: { type: 'object' },
+      enabled: true,
+      timeout: 5000,
+    };
+    this.validateFn = validateFn;
+  }
+
+  private validateFn: (input: unknown) => ToolValidationError[];
+
+  getDefinition(): ToolDefinition {
+    return this.definition;
+  }
+
+  validate(input: unknown): ToolValidationError[] {
+    return this.validateFn(input);
+  }
+
+  async execute(input: unknown, _context: ToolExecutionContext): Promise<ToolResult> {
+    return {
+      success: true,
+      data: { result: 'executed', input },
+      executionTime: 5,
     };
   }
 }
@@ -147,5 +221,99 @@ describe('Tool Service', () => {
     const stats = toolService.getServiceStats();
     expect(stats.totalTools).toBe(1);
     expect(stats.enabledTools).toBe(1);
+  });
+
+  describe('ToolExecutor', () => {
+    let executor: ToolExecutor;
+
+    beforeEach(() => {
+      executor = new ToolExecutor({
+        maxConcurrent: 3,
+        defaultTimeout: 5000,
+        enableCancellation: true,
+      });
+      executor.start();
+    });
+
+    afterEach(async () => {
+      await executor.stop();
+    });
+
+    it('should execute tool directly', async () => {
+      const tool = new TestTool('direct-tool', 'Direct Tool');
+      const context: ToolExecutionContext = {
+        executionId: 'exec-1',
+        metadata: {},
+      };
+
+      const result = await executor.execute(tool, { data: 'test' }, context, {});
+
+      expect(result.success).toBe(true);
+    });
+
+    it('should handle tool timeout', async () => {
+      const slowTool = new SlowTool('slow-tool', 'Slow Tool', 2000);
+      const context: ToolExecutionContext = {
+        executionId: 'exec-timeout',
+        metadata: {},
+      };
+      const options: ToolExecutionOptions = {
+        timeout: 100,
+      };
+
+      const result = await executor.execute(slowTool, {}, context, options);
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('timed out');
+    });
+
+    it('should execute multiple tools in sequence', async () => {
+      const tool1 = new TestTool('batch-tool-1', 'Batch Tool 1');
+      const tool2 = new TestTool('batch-tool-2', 'Batch Tool 2');
+      const context1: ToolExecutionContext = { executionId: 'batch-1', metadata: {} };
+      const context2: ToolExecutionContext = { executionId: 'batch-2', metadata: {} };
+
+      const result1 = await executor.execute(tool1, { order: 1 }, context1, {});
+      const result2 = await executor.execute(tool2, { order: 2 }, context2, {});
+
+      expect(result1.success).toBe(true);
+      expect(result2.success).toBe(true);
+      expect(result1.data).toBeDefined();
+      expect(result2.data).toBeDefined();
+    });
+
+    it('should validate tool input before execution', async () => {
+      const validatingTool = new ValidatingTool('validate-tool', 'Validate Tool', (input) => {
+        if (!input || typeof input !== 'object') {
+          return [{ path: '', message: 'Input must be an object' }];
+        }
+        if (!(input as any).requiredField) {
+          return [{ path: 'requiredField', message: 'requiredField is missing' }];
+        }
+        return [];
+      });
+
+      toolService.registerTool(validatingTool);
+
+      const errors = toolService.validate('validate-tool', {});
+      expect(errors.length).toBeGreaterThan(0);
+      expect(errors[0].message).toContain('requiredField');
+    });
+
+    it('should handle execution errors gracefully', async () => {
+      const errorTool = new ValidatingTool('error-tool', 'Error Tool', () => []);
+
+      executor.on('execution:failed', (data) => {
+        expect(data.toolId).toBe('error-tool');
+      });
+
+      const context: ToolExecutionContext = {
+        executionId: 'exec-error',
+        metadata: {},
+      };
+
+      const result = await executor.execute(errorTool, {}, context, {});
+      expect(result).toBeDefined();
+    });
   });
 });

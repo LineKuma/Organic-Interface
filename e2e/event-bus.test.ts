@@ -104,4 +104,101 @@ describe('Event Bus', () => {
 
     expect(eventBus.listenerCount('count-event')).toBe(0);
   });
+
+  it('should handle error level events', async () => {
+    let errorReceived = false;
+    const errorPayload = { code: 'TEST_ERROR', message: 'Test error occurred' };
+
+    eventBus.on('error', (event) => {
+      errorReceived = true;
+      expect(event.data).toEqual(errorPayload);
+    });
+
+    eventBus.emit('error', errorPayload);
+
+    await new Promise(resolve => setImmediate(resolve));
+    expect(errorReceived).toBe(true);
+  });
+
+  it('should support wildcard event subscription', async () => {
+    const events: string[] = [];
+
+    eventBus.on('user:*', (event) => {
+      events.push(event.type);
+    });
+
+    eventBus.emit('user:created', { id: '1' });
+    eventBus.emit('user:updated', { id: '1' });
+    eventBus.emit('user:deleted', { id: '1' });
+
+    await new Promise(resolve => setImmediate(resolve));
+
+    expect(events.length).toBe(3);
+    expect(events).toContain('user:created');
+    expect(events).toContain('user:updated');
+    expect(events).toContain('user:deleted');
+  });
+
+  it('should not trigger listener after unsubscribe', async () => {
+    let callCount = 0;
+    const listener = () => {
+      callCount++;
+    };
+
+    eventBus.on('remove-test', listener);
+    eventBus.emit('remove-test', { data: 'test' });
+
+    await new Promise(resolve => setImmediate(resolve));
+    expect(callCount).toBe(1);
+
+    eventBus.off('remove-test', listener);
+    eventBus.emit('remove-test', { data: 'test2' });
+
+    await new Promise(resolve => setImmediate(resolve));
+    expect(callCount).toBe(1);
+  });
+
+  it('should emit events with timestamp and source', async () => {
+    let receivedEvent: any = null;
+
+    eventBus.on('timestamp-test', (event) => {
+      receivedEvent = event;
+    });
+
+    eventBus.emit('timestamp-test', { value: 'test' }, 'test-source');
+
+    await new Promise(resolve => setImmediate(resolve));
+
+    expect(receivedEvent).not.toBeNull();
+    expect(receivedEvent.timestamp).toBeDefined();
+    expect(receivedEvent.source).toBe('test-source');
+    expect(receivedEvent.data.value).toBe('test');
+  });
+
+  it('should handle event with metadata', async () => {
+    let receivedData: any = null;
+
+    eventBus.on('metadata-test', (event) => {
+      receivedData = event.data;
+    });
+
+    eventBus.emit('metadata-test', { key: 'value' }, undefined, { traceId: '123' });
+
+    await new Promise(resolve => setImmediate(resolve));
+    expect(receivedData.key).toBe('value');
+  });
+
+  it('should remove all listeners for specific event', async () => {
+    let callCount = 0;
+
+    eventBus.on('clear-event', () => callCount++);
+    eventBus.on('clear-event', () => callCount++);
+    eventBus.on('clear-event', () => callCount++);
+
+    expect(eventBus.listenerCount('clear-event')).toBe(3);
+
+    eventBus.removeAllListeners('clear-event');
+
+    expect(eventBus.listenerCount('clear-event')).toBe(0);
+  });
 });

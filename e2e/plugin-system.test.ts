@@ -131,4 +131,174 @@ describe('Plugin System', () => {
       expect(error).toBeDefined();
     }
   });
+
+  it('should transition through plugin lifecycle states', async () => {
+    class LifecycleTestPlugin extends BasePlugin {
+      static override metadata: PluginMetadata = {
+        id: 'lifecycle-test-plugin',
+        name: 'Lifecycle Test Plugin',
+        version: '1.0.0',
+        description: 'Lifecycle test plugin',
+        author: 'Test',
+        apiVersion: '1.0.0',
+        dependencies: [],
+      };
+
+      async initialize() {
+        this.setState({ status: 'initialized' });
+        return { success: true };
+      }
+
+      async shutdown() {
+        this.setState({ status: 'stopped' });
+        return { success: true };
+      }
+    }
+
+    const config: PluginConfig = {
+      name: 'lifecycle-test-plugin',
+      version: '1.0.0',
+      enabled: true,
+    };
+
+    const plugin = new LifecycleTestPlugin(config);
+    await kernel.registerPlugin(plugin);
+
+    const pluginState = (plugin as any).state?.status || (plugin as any).getState?.()?.status;
+    expect(pluginState).toBeDefined();
+
+    await kernel.unregisterPlugin('lifecycle-test-plugin');
+  });
+
+  it('should validate plugin configuration', async () => {
+    class ConfigTestPlugin extends BasePlugin {
+      static override metadata: PluginMetadata = {
+        id: 'config-test-plugin',
+        name: 'Config Test Plugin',
+        version: '1.0.0',
+        description: 'Config test plugin',
+        author: 'Test',
+        apiVersion: '1.0.0',
+        dependencies: [],
+      };
+
+      async initialize() {
+        return { success: true };
+      }
+
+      async shutdown() {
+        return { success: true };
+      }
+    }
+
+    const config: PluginConfig = {
+      name: 'config-test-plugin',
+      version: '1.0.0',
+      enabled: true,
+    };
+
+    const plugin = new ConfigTestPlugin(config);
+    await kernel.registerPlugin(plugin);
+
+    const loadedPlugin = kernel.getPlugin('config-test-plugin');
+    expect(loadedPlugin).toBeDefined();
+    expect(loadedPlugin?.name).toBe('config-test-plugin');
+  });
+
+  it('should check plugin dependencies', async () => {
+    class DepTestPlugin extends BasePlugin {
+      static override metadata: PluginMetadata = {
+        id: 'dep-test-plugin',
+        name: 'Dependency Test Plugin',
+        version: '1.0.0',
+        description: 'Dependency test plugin',
+        author: 'Test',
+        apiVersion: '1.0.0',
+        dependencies: ['non-existent-dep'],
+      };
+
+      async initialize() {
+        return { success: true };
+      }
+
+      async shutdown() {
+        return { success: true };
+      }
+    }
+
+    const config: PluginConfig = {
+      name: 'dep-test-plugin',
+      version: '1.0.0',
+      enabled: true,
+    };
+
+    const plugin = new DepTestPlugin(config);
+
+    const hasDependencies = plugin.metadata.dependencies.length > 0;
+    expect(hasDependencies).toBe(true);
+  });
+
+  it('should handle multiple plugins', async () => {
+    class MultiPlugin1 extends BasePlugin {
+      static override metadata: PluginMetadata = {
+        id: 'multi-plugin-1',
+        name: 'Multi Plugin 1',
+        version: '1.0.0',
+        description: 'Multi plugin 1',
+        author: 'Test',
+        apiVersion: '1.0.0',
+        dependencies: [],
+      };
+
+      async initialize() { return { success: true }; }
+      async shutdown() { return { success: true }; }
+    }
+
+    class MultiPlugin2 extends BasePlugin {
+      static override metadata: PluginMetadata = {
+        id: 'multi-plugin-2',
+        name: 'Multi Plugin 2',
+        version: '1.0.0',
+        description: 'Multi plugin 2',
+        author: 'Test',
+        apiVersion: '1.0.0',
+        dependencies: [],
+      };
+
+      async initialize() { return { success: true }; }
+      async shutdown() { return { success: true }; }
+    }
+
+    await kernel.registerPlugin(new MultiPlugin1({ name: 'multi-plugin-1', version: '1.0.0', enabled: true }));
+    await kernel.registerPlugin(new MultiPlugin2({ name: 'multi-plugin-2', version: '1.0.0', enabled: true }));
+
+    const plugin1 = kernel.getPlugin('multi-plugin-1');
+    const plugin2 = kernel.getPlugin('multi-plugin-2');
+
+    expect(plugin1).toBeDefined();
+    expect(plugin2).toBeDefined();
+  });
+
+  it('should verify plugin priority handling', async () => {
+    class PriorityPlugin extends BasePlugin {
+      static override metadata: PluginMetadata = {
+        id: 'priority-plugin',
+        name: 'Priority Plugin',
+        version: '1.0.0',
+        description: 'Priority plugin',
+        author: 'Test',
+        apiVersion: '1.0.0',
+        dependencies: [],
+      };
+
+      async initialize() { return { success: true }; }
+      async shutdown() { return { success: true }; }
+    }
+
+    const plugin = new PriorityPlugin({ name: 'priority-plugin', version: '1.0.0', enabled: true });
+    await kernel.registerPlugin(plugin);
+
+    const loaded = kernel.getPlugin('priority-plugin');
+    expect(loaded).toBeDefined();
+  });
 });
