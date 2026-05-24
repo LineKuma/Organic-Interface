@@ -203,6 +203,82 @@ describe('SearchTool', () => {
       expect(result.success).toBe(true);
       expect((result.data as any).suggestions).toEqual([]);
     });
+
+    it('should track execution time', async () => {
+      const tool = new SearchTool();
+      const result = await tool.execute(
+        {
+          operation: 'index',
+          index: 'test-index',
+          documentId: 'doc-1',
+          document: { title: 'Test', content: 'test' },
+        },
+        mockContext
+      );
+      expect(result.executionTime).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should return results with count', async () => {
+      const tool = new SearchTool();
+      await tool.execute(
+        {
+          operation: 'index',
+          index: 'test-index',
+          documentId: 'doc-1',
+          document: { title: 'Test', content: 'hello world test' },
+        },
+        mockContext
+      );
+
+      const result = await tool.execute(
+        {
+          operation: 'query',
+          query: 'test',
+          index: 'test-index',
+        },
+        mockContext
+      );
+      expect(result.success).toBe(true);
+      const data = result.data as any;
+      expect(data.count).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should handle multiple documents in index', async () => {
+      const tool = new SearchTool();
+
+      await tool.execute(
+        {
+          operation: 'index',
+          index: 'multi-index',
+          documentId: 'doc-1',
+          document: { content: 'apple banana' },
+        },
+        mockContext
+      );
+
+      await tool.execute(
+        {
+          operation: 'index',
+          index: 'multi-index',
+          documentId: 'doc-2',
+          document: { content: 'banana cherry' },
+        },
+        mockContext
+      );
+
+      const result = await tool.execute(
+        {
+          operation: 'query',
+          query: 'banana',
+          index: 'multi-index',
+        },
+        mockContext
+      );
+
+      expect(result.success).toBe(true);
+      const data = result.data as any;
+      expect(data.count).toBe(2);
+    });
   });
 
   describe('createSearchTool', () => {
