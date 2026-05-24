@@ -2,8 +2,7 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Kernel, LifecycleState, type KernelConfig } from '@organic/kernel';
 import {
   StorageManager,
-  type StorageConfig,
-  type StorageData,
+  StorageBackendType,
 } from '@organic/storage';
 
 describe('Storage Service', () => {
@@ -30,25 +29,23 @@ describe('Storage Service', () => {
   });
 
   describe('StorageManager', () => {
-    it('should create storage with config', async () => {
-      const storage = storageManager.createStorage('test-storage', {
-        type: 'memory',
-      });
+    it('should create storage with type', async () => {
+      const storage = await storageManager.createStorage('test-storage', StorageBackendType.MEMORY);
 
       expect(storage).toBeDefined();
       expect(storageManager.hasStorage('test-storage')).toBe(true);
     });
 
     it('should get storage by name', async () => {
-      storageManager.createStorage('get-test', { type: 'memory' });
+      await storageManager.createStorage('get-test', StorageBackendType.MEMORY);
 
       const storage = storageManager.getStorage('get-test');
       expect(storage).toBeDefined();
     });
 
     it('should return existing storage for same name', async () => {
-      const storage1 = storageManager.createStorage('existing', { type: 'memory' });
-      const storage2 = storageManager.createStorage('existing', { type: 'memory' });
+      const storage1 = await storageManager.createStorage('existing', StorageBackendType.MEMORY);
+      const storage2 = await storageManager.createStorage('existing', StorageBackendType.MEMORY);
 
       expect(storage1).toBe(storage2);
     });
@@ -58,28 +55,28 @@ describe('Storage Service', () => {
     });
 
     it('should check if storage exists', async () => {
-      storageManager.createStorage('exists-check', { type: 'memory' });
+      await storageManager.createStorage('exists-check', StorageBackendType.MEMORY);
 
       expect(storageManager.hasStorage('exists-check')).toBe(true);
       expect(storageManager.hasStorage('does-not-exist')).toBe(false);
     });
 
     it('should remove storage', async () => {
-      storageManager.createStorage('to-remove', { type: 'memory' });
-      const result = storageManager.removeStorage('to-remove');
+      await storageManager.createStorage('to-remove', StorageBackendType.MEMORY);
+      const result = await storageManager.removeStorage('to-remove');
 
       expect(result).toBe(true);
       expect(storageManager.hasStorage('to-remove')).toBe(false);
     });
 
     it('should return false when removing non-existent storage', async () => {
-      const result = storageManager.removeStorage('non-existent');
+      const result = await storageManager.removeStorage('non-existent');
       expect(result).toBe(false);
     });
 
     it('should list all storage names', async () => {
-      storageManager.createStorage('list-1', { type: 'memory' });
-      storageManager.createStorage('list-2', { type: 'memory' });
+      await storageManager.createStorage('list-1', StorageBackendType.MEMORY);
+      await storageManager.createStorage('list-2', StorageBackendType.MEMORY);
 
       const names = storageManager.getStorageNames();
       expect(names.length).toBeGreaterThanOrEqual(2);
@@ -88,25 +85,32 @@ describe('Storage Service', () => {
     });
 
     it('should get all storage info', async () => {
-      storageManager.createStorage('info-1', { type: 'memory' });
-      storageManager.createStorage('info-2', { type: 'memory' });
+      await storageManager.createStorage('info-1', StorageBackendType.MEMORY);
+      await storageManager.createStorage('info-2', StorageBackendType.MEMORY);
 
-      const infos = storageManager.getAllStorageInfo();
-      expect(infos.length).toBeGreaterThanOrEqual(2);
+      const infos = await storageManager.getAllStorageInfo();
+      expect(infos.size).toBeGreaterThanOrEqual(2);
     });
 
     it('should clear all storages', async () => {
-      storageManager.createStorage('clear-1', { type: 'memory' });
-      storageManager.createStorage('clear-2', { type: 'memory' });
+      await storageManager.createStorage('clear-1', StorageBackendType.MEMORY);
+      const storage1 = storageManager.getStorage('clear-1');
+      await storage1.create('test', { data: 'value1' });
 
-      storageManager.clearAll();
+      await storageManager.createStorage('clear-2', StorageBackendType.MEMORY);
+      const storage2 = storageManager.getStorage('clear-2');
+      await storage2.create('test', { data: 'value2' });
 
-      expect(storageManager.hasStorage('clear-1')).toBe(false);
-      expect(storageManager.hasStorage('clear-2')).toBe(false);
+      await storageManager.clearAll();
+
+      const cleared1 = await storageManager.getStorage('clear-1').findByType('test');
+      const cleared2 = await storageManager.getStorage('clear-2').findByType('test');
+      expect(cleared1.length).toBe(0);
+      expect(cleared2.length).toBe(0);
     });
 
     it('should set default storage', async () => {
-      storageManager.createStorage('new-default', { type: 'memory' });
+      await storageManager.createStorage('new-default', StorageBackendType.MEMORY);
       storageManager.setDefaultStorage('new-default');
 
       expect(storageManager.getDefaultStorageName()).toBe('new-default');
@@ -131,129 +135,71 @@ describe('Storage Service', () => {
     });
   });
 
-  describe('SessionPersistenceStorage', () => {
-    it('should create session storage', async () => {
-      const storage = storageManager.createStorage('session-storage', {
-        type: 'memory',
-      });
+  describe('StorageService', () => {
+    it('should create entity', async () => {
+      const storage = await storageManager.createStorage('entity-storage', StorageBackendType.MEMORY);
 
-      expect(storage).toBeDefined();
+      const result = await storage.create('user', { name: 'Alice' });
+
+      expect(result.success).toBe(true);
+      expect(result.entity).toBeDefined();
+      expect(result.entity?.data.name).toBe('Alice');
     });
 
-    it('should persist session data', async () => {
-      const storage = storageManager.createStorage('persist-session', {
-        type: 'memory',
-      });
+    it('should read entity', async () => {
+      const storage = await storageManager.createStorage('read-storage', StorageBackendType.MEMORY);
+      const created = await storage.create('user', { name: 'Bob' });
 
-      storage.set('session-key', { data: 'test-value' });
-      const retrieved = storage.get('session-key');
+      const retrieved = await storage.read(created.entity!.id);
 
-      expect(retrieved).toEqual({ data: 'test-value' });
+      expect(retrieved).toBeDefined();
+      expect(retrieved?.data.name).toBe('Bob');
     });
 
-    it('should delete session data', async () => {
-      const storage = storageManager.createStorage('delete-session', {
-        type: 'memory',
-      });
+    it('should update entity', async () => {
+      const storage = await storageManager.createStorage('update-storage', StorageBackendType.MEMORY);
+      const created = await storage.create('user', { name: 'Charlie' });
 
-      storage.set('delete-key', { data: 'to-delete' });
-      storage.delete('delete-key');
+      const result = await storage.update(created.entity!.id, { name: 'Chuck' });
 
-      expect(storage.get('delete-key')).toBeNull();
+      expect(result.success).toBe(true);
+      expect(result.entity?.data.name).toBe('Chuck');
     });
 
-    it('should clear all session data', async () => {
-      const storage = storageManager.createStorage('clear-session', {
-        type: 'memory',
-      });
+    it('should delete entity', async () => {
+      const storage = await storageManager.createStorage('delete-storage', StorageBackendType.MEMORY);
+      const created = await storage.create('user', { name: 'Dave' });
 
-      storage.set('key1', { data: '1' });
-      storage.set('key2', { data: '2' });
-      storage.clear();
+      const result = await storage.delete(created.entity!.id);
 
-      expect(storage.size()).toBe(0);
+      expect(result.success).toBe(true);
+
+      const retrieved = await storage.read(created.entity!.id);
+      expect(retrieved).toBeNull();
     });
 
-    it('should check if key exists', async () => {
-      const storage = storageManager.createStorage('exists-session', {
-        type: 'memory',
-      });
+    it('should batch create entities', async () => {
+      const storage = await storageManager.createStorage('batch-create-storage', StorageBackendType.MEMORY);
 
-      storage.set('exists-key', { data: 'exists' });
+      const result = await storage.batchCreate([
+        { type: 'user', data: { name: 'Eve' } },
+        { type: 'user', data: { name: 'Frank' } },
+      ]);
 
-      expect(storage.has('exists-key')).toBe(true);
-      expect(storage.has('not-exists-key')).toBe(false);
+      expect(result.success).toBe(true);
+      expect(result.created.length).toBe(2);
     });
 
-    it('should get storage size', async () => {
-      const storage = storageManager.createStorage('size-session', {
-        type: 'memory',
-      });
+    it('should find entities by type', async () => {
+      const storage = await storageManager.createStorage('find-type-storage', StorageBackendType.MEMORY);
 
-      storage.set('size-1', { data: '1' });
-      storage.set('size-2', { data: '2' });
-      storage.set('size-3', { data: '3' });
+      await storage.create('item', { name: 'Item1' });
+      await storage.create('item', { name: 'Item2' });
+      await storage.create('user', { name: 'Grace' });
 
-      expect(storage.size()).toBe(3);
-    });
+      const items = await storage.findByType('item');
 
-    it('should list all keys', async () => {
-      const storage = storageManager.createStorage('keys-session', {
-        type: 'memory',
-      });
-
-      storage.set('key-a', { data: 'a' });
-      storage.set('key-b', { data: 'b' });
-
-      const keys = storage.keys();
-      expect(keys.length).toBe(2);
-      expect(keys).toContain('key-a');
-      expect(keys).toContain('key-b');
-    });
-  });
-
-  describe('DatabaseStorage', () => {
-    it('should create database storage', async () => {
-      const storage = storageManager.createStorage('db-storage', {
-        type: 'memory',
-      });
-
-      expect(storage).toBeDefined();
-    });
-
-    it('should perform batch operations', async () => {
-      const storage = storageManager.createStorage('batch-storage', {
-        type: 'memory',
-      });
-
-      const batchData = [
-        { key: 'batch-1', data: { value: 'first' } },
-        { key: 'batch-2', data: { value: 'second' } },
-        { key: 'batch-3', data: { value: 'third' } },
-      ];
-
-      batchData.forEach(({ key, data }) => storage.set(key, data));
-
-      expect(storage.get('batch-1')).toEqual({ value: 'first' });
-      expect(storage.get('batch-2')).toEqual({ value: 'second' });
-      expect(storage.get('batch-3')).toEqual({ value: 'third' });
-    });
-
-    it('should handle transaction rollback', async () => {
-      const storage = storageManager.createStorage('transaction-storage', {
-        type: 'memory',
-      });
-
-      storage.set('tx-key', { value: 'original' });
-
-      try {
-        storage.set('tx-key', { value: 'modified' });
-        const result = storage.get('tx-key');
-        expect(result).toEqual({ value: 'modified' });
-      } catch {
-        const result = storage.get('tx-key');
-        expect(result).toEqual({ value: 'original' });
-      }
+      expect(items.length).toBe(2);
     });
   });
 });

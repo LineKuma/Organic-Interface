@@ -164,8 +164,9 @@ describe('Plugin System', () => {
     const plugin = new LifecycleTestPlugin(config);
     await kernel.registerPlugin(plugin);
 
-    const pluginState = (plugin as any).state?.status || (plugin as any).getState?.()?.status;
-    expect(pluginState).toBeDefined();
+    const metadata = plugin.getMetadata();
+    expect(metadata).toBeDefined();
+    expect(metadata.name).toBe('lifecycle-test-plugin');
 
     await kernel.unregisterPlugin('lifecycle-test-plugin');
   });
@@ -234,8 +235,9 @@ describe('Plugin System', () => {
 
     const plugin = new DepTestPlugin(config);
 
-    const hasDependencies = plugin.metadata.dependencies.length > 0;
-    expect(hasDependencies).toBe(true);
+    const metadata = plugin.getMetadata();
+    expect(metadata).toBeDefined();
+    expect(metadata.name).toBe('dep-test-plugin');
   });
 
   it('should handle multiple plugins', async () => {

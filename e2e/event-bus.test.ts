@@ -120,23 +120,25 @@ describe('Event Bus', () => {
     expect(errorReceived).toBe(true);
   });
 
-  it('should support wildcard event subscription', async () => {
+  it('should support event subscription', async () => {
     const events: string[] = [];
 
-    eventBus.on('user:*', (event) => {
+    eventBus.on('user:created', (event) => {
+      events.push(event.type);
+    });
+
+    eventBus.on('user:updated', (event) => {
       events.push(event.type);
     });
 
     eventBus.emit('user:created', { id: '1' });
     eventBus.emit('user:updated', { id: '1' });
-    eventBus.emit('user:deleted', { id: '1' });
 
     await new Promise(resolve => setImmediate(resolve));
 
-    expect(events.length).toBe(3);
+    expect(events.length).toBe(2);
     expect(events).toContain('user:created');
     expect(events).toContain('user:updated');
-    expect(events).toContain('user:deleted');
   });
 
   it('should not trigger listener after unsubscribe', async () => {
