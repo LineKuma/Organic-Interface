@@ -15,6 +15,7 @@ export default defineConfig({
       'packages/agent/src/**/*.test.ts',
       'packages/tools/src/**/*.test.ts',
       'packages/ui/src/**/*.test.ts',
+      'e2e/**/*.test.ts',
     ],
     exclude: ['**/node_modules/**', '**/dist/**', '**/.turbo/**'],
     coverage: {
