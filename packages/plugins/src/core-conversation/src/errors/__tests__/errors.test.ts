@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ConversationError, ConversationErrorCode } from '../ConversationError.js';
+import { ConversationError, ConversationErrorCode, ConversationErrorCodeType } from '../ConversationError.js';
 import { SessionError } from '../SessionError.js';
 import { ContextError } from '../ContextError.js';
 
@@ -34,6 +34,25 @@ describe('ConversationError', () => {
       expect(error.timestamp).toBeGreaterThanOrEqual(before);
       expect(error.timestamp).toBeLessThanOrEqual(after);
     });
+
+    it('should capture stack trace', () => {
+      const error = new ConversationError('Stack trace test');
+
+      expect(error.stack).toBeDefined();
+      expect(error.stack).toContain('ConversationError');
+    });
+
+    it('should use default code when not provided', () => {
+      const error = new ConversationError('Default code test');
+
+      expect(error.code).toBe('CONVERSATION_ERROR');
+    });
+
+    it('should inherit from Error', () => {
+      const error = new ConversationError('Inheritance test');
+
+      expect(error).toBeInstanceOf(Error);
+    });
   });
 
   describe('toJSON', () => {
@@ -49,6 +68,28 @@ describe('ConversationError', () => {
         timestamp: error.timestamp,
       });
     });
+
+    it('should include stack trace in JSON', () => {
+      const error = new ConversationError('JSON stack test');
+      const json = error.toJSON();
+
+      expect(json.stack).toBeTypeOf('string');
+    });
+
+    it('should serialize with undefined details', () => {
+      const error = new ConversationError('No details');
+      const json = error.toJSON();
+
+      expect(json.details).toBeUndefined();
+    });
+
+    it('should serialize with complex details object', () => {
+      const details = { nested: { deep: { value: 123 } }, array: [1, 2, 3] };
+      const error = new ConversationError('Complex', 'COMPLEX', details);
+      const json = error.toJSON();
+
+      expect(json.details).toEqual(details);
+    });
   });
 
   describe('fromJSON', () => {
@@ -60,6 +101,23 @@ describe('ConversationError', () => {
       expect(reconstructed.message).toBe(original.message);
       expect(reconstructed.code).toBe(original.code);
       expect(reconstructed.details).toEqual(original.details);
+    });
+
+    it('should reconstruct with all error codes', () => {
+      const original = new ConversationError('Full test', ConversationErrorCode.INTERNAL, { info: 'test' });
+      const json = original.toJSON();
+      const reconstructed = ConversationError.fromJSON(json);
+
+      expect(reconstructed.code).toBe(ConversationErrorCode.INTERNAL);
+      expect(reconstructed.details).toEqual({ info: 'test' });
+    });
+
+    it('should preserve timestamp in reconstruction', () => {
+      const original = new ConversationError('Timestamp test', 'TS_CODE');
+      const json = original.toJSON();
+      const reconstructed = ConversationError.fromJSON(json);
+
+      expect(reconstructed.timestamp).toBe(original.timestamp);
     });
   });
 
@@ -84,6 +142,58 @@ describe('ConversationError', () => {
       expect(ConversationErrorCode.KERNEL_ERROR).toBe('KERNEL_ERROR');
       expect(ConversationErrorCode.KERNEL_NOT_AVAILABLE).toBe('KERNEL_NOT_AVAILABLE');
       expect(ConversationErrorCode.KERNEL_UNREACHABLE).toBe('KERNEL_UNREACHABLE');
+    });
+
+    it('should have correct number of error codes', () => {
+      const codes = Object.keys(ConversationErrorCode);
+      expect(codes.length).toBe(19);
+    });
+
+    it('should have valid string values for all codes', () => {
+      const codes = Object.values(ConversationErrorCode);
+      codes.forEach(code => {
+        expect(typeof code).toBe('string');
+        expect(code.length).toBeGreaterThan(0);
+      });
+    });
+  });
+
+  describe('edge cases', () => {
+    it('should handle empty string message', () => {
+      const error = new ConversationError('', 'EMPTY');
+
+      expect(error.message).toBe('');
+      expect(error.code).toBe('EMPTY');
+    });
+
+    it('should handle unicode in message', () => {
+      const error = new ConversationError('こんにちは مرحبا', 'UNICODE');
+
+      expect(error.message).toBe('こんにちは مرحبا');
+    });
+
+    it('should handle special characters in code', () => {
+      const error = new ConversationError('Test', 'CODE_WITH_UNDERSCORE');
+
+      expect(error.code).toBe('CODE_WITH_UNDERSCORE');
+    });
+
+    it('should handle null details', () => {
+      const error = new ConversationError('Null details', 'NULL_DETAILS', null);
+
+      expect(error.details).toBeNull();
+    });
+
+    it('should handle number as details', () => {
+      const error = new ConversationError('Number details', 'NUM_DETAILS', 42);
+
+      expect(error.details).toBe(42);
+    });
+
+    it('should handle array as details', () => {
+      const error = new ConversationError('Array details', 'ARRAY_DETAILS', [1, 2, 3]);
+
+      expect(error.details).toEqual([1, 2, 3]);
     });
   });
 });
