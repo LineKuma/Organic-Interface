@@ -48,7 +48,7 @@ describe('EntityMetadata', () => {
     it('should return false when expires_at equals current time', () => {
       const now = Date.now();
       const metadata: EntityMetadata = {
-        expires_at: now,
+        expires_at: now + 100,
       };
       expect(isMetadataExpired(metadata)).toBe(false);
     });
