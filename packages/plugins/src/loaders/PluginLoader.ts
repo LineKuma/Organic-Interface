@@ -61,6 +61,19 @@ export class PluginLoader implements PluginLoaderInterface {
 
   /**
    * Load a plugin by identifier
+   * @param pluginId - Unique plugin identifier
+   * @param config - Optional plugin configuration
+   * @returns Promise resolving to PluginLoadResult containing plugin instance and metadata
+   * @throws {Error} When plugin module is invalid or lacks required exports
+   * @throws {Error} When plugin initialization fails
+   * @example
+   * ```typescript
+   * const loader = new PluginLoader({ baseDir: './plugins' });
+   * const result = await loader.load('my-plugin', { enabled: true });
+   * if (result.success) {
+   *   console.log(`Loaded ${result.metadata.name}`);
+   * }
+   * ```
    */
   async load(pluginId: string, config?: PluginConfig): Promise<PluginLoadResult> {
     try {
@@ -168,6 +181,11 @@ export class PluginLoader implements PluginLoaderInterface {
 
   /**
    * Unload a plugin by identifier
+   * @param pluginId - Unique plugin identifier
+   * @returns Promise that resolves when plugin is unloaded
+   * @remarks
+   * Calls the plugin's shutdown method if available before removing from cache.
+   * Updates plugin lifecycle state to SHUTDOWN upon successful unload.
    */
   async unload(pluginId: string): Promise<void> {
     const entry = this.cache.get(pluginId);
@@ -189,7 +207,12 @@ export class PluginLoader implements PluginLoaderInterface {
   }
 
   /**
-   * Reload a plugin
+   * Reload a plugin by identifier
+   * @param pluginId - Unique plugin identifier
+   * @returns Promise resolving to PluginLoadResult for the reloaded plugin
+   * @remarks
+   * Performs unload followed by load with the same configuration.
+   * Useful for applying configuration changes or recovering from error states.
    */
   async reload(pluginId: string): Promise<PluginLoadResult> {
     await this.unload(pluginId);
@@ -198,7 +221,12 @@ export class PluginLoader implements PluginLoaderInterface {
   }
 
   /**
-   * Discover available plugins
+   * Discover available plugins in the configured base directory
+   * @returns Promise resolving to array of PluginDiscoveryResult
+   * @remarks
+   * Scans the base directory for subdirectories containing package.json.
+   * Each valid plugin directory is added to the results with parsed metadata.
+   * Failed discoveries include error information for debugging.
    */
   async discover(): Promise<PluginDiscoveryResult[]> {
     const results: PluginDiscoveryResult[] = [];

@@ -6,29 +6,56 @@ import { BaseError } from './BaseError.js';
 
 /**
  * Error codes for not found errors
+ * Used to identify the specific type of resource that was not found
  */
 export enum NotFoundErrorCode {
-  /** Resource not found */
+  /** Generic resource not found */
   NOT_FOUND = 'NOT_FOUND',
-  /** Plugin not found */
+  /** Plugin not found in registry or loader */
   PLUGIN_NOT_FOUND = 'PLUGIN_NOT_FOUND',
-  /** Tool not found */
+  /** Tool not found in tool registry */
   TOOL_NOT_FOUND = 'TOOL_NOT_FOUND',
-  /** Configuration not found */
+  /** Configuration key not found */
   CONFIG_NOT_FOUND = 'CONFIG_NOT_FOUND',
-  /** File not found */
+  /** File or directory not found on filesystem */
   FILE_NOT_FOUND = 'FILE_NOT_FOUND',
 }
 
 /**
- * Not found error class for resource lookup failures
+ * NotFoundError class for resource lookup failures.
+ * Use the static factory methods (plugin, tool, config, file) for common scenarios,
+ * or the constructor for custom resource types.
+ *
+ * @example
+ * ```typescript
+ * // Using factory methods
+ * throw NotFoundError.plugin('auth-plugin');
+ * throw NotFoundError.tool('SearchTool');
+ *
+ * // Using constructor for custom resource types
+ * throw new NotFoundError(
+ *   'User profile not found',
+ *   'user',
+ *   userId,
+ *   NotFoundErrorCode.NOT_FOUND,
+ *   { searchParams: { userId, timestamp } }
+ * );
+ * ```
  */
 export class NotFoundError extends BaseError {
-  /** The type of resource that was not found */
+  /** The type of resource that was not found (e.g., 'plugin', 'tool', 'config', 'file') */
   public readonly resourceType: string;
-  /** The identifier that was used for lookup */
+  /** The identifier that was used for the lookup that failed */
   public readonly resourceId: string;
 
+  /**
+   * Create a NotFoundError
+   * @param message - Human-readable error description
+   * @param resourceType - Type of resource that was not found
+   * @param resourceId - Identifier used for the failed lookup
+   * @param code - Error code from NotFoundErrorCode enum (default: NOT_FOUND)
+   * @param details - Additional context for debugging
+   */
   constructor(
     message: string,
     resourceType: string,
