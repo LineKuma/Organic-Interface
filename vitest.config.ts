@@ -33,6 +33,8 @@ export default defineConfig({
       '@organic/plugins': path.resolve(__dirname, './packages/plugins/src'),
       '@organic/agent': path.resolve(__dirname, './packages/agent/src'),
       '@organic/storage': path.resolve(__dirname, './packages/storage/src'),
+      '@organic/tools': path.resolve(__dirname, './packages/tools/src'),
+      '@organic/ui': path.resolve(__dirname, './packages/ui/src'),
     },
     extensions: ['.ts', '.tsx', '.js', '.jsx', '.json', '.mjs'],
   },
