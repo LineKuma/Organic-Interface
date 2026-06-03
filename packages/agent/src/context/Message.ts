@@ -218,6 +218,7 @@ export function createMessage(options: MessageOptions): Message {
     content: options.content,
     type: options.type,
     tool_call: options.tool_call,
+    tool_response: options.tool_response,
     timestamp: Date.now(),
     status: MessageStatus.SENDING,
     flags: [],
