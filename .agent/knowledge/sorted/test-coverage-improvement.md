@@ -210,8 +210,38 @@ pnpm typecheck
 | [vitest-monorepo-testing.md](vitest-monorepo-testing.md) | Vitest配置经验 |
 | [testing-problem-solutions.md](testing-problem-solutions.md) | 测试问题解决 |
 | [typescript-fix-patterns.md](typescript-fix-patterns.md) | TypeScript修复模式 |
+| [p1-008-unit-test-supplement-knowledge.md](p1-008-unit-test-supplement-knowledge.md) | P1-008 补充单元测试知识产出 |
+
+---
+
+## 8. P1-008 后续经验（2026-06-03）
+
+### 8.1 执行结果
+
+| 指标 | 数值 |
+|------|------|
+| 新增测试文件 | 7 个 |
+| 新增测试用例 | 402 个 |
+| 修复预存测试 | 4 文件 / 126 用例 |
+| 全量测试 | 78 文件 / 2287 用例 / 100% 通过 |
+| 涉及包 | kernel, plugins, utils, agent |
+
+### 8.2 与前次（P1-001）的差异
+
+| 维度 | P1-001 | P1-008 |
+|------|--------|--------|
+| 策略 | 补充已部分覆盖模块的测试 | 从 0 到 1 为完全缺失测试的模块创建测试 |
+| 模块类型 | communication, context, CLI | services, loaders, errors, context models |
+| 新增用例 | ~200+ | 402 |
+| 覆盖率变化 | 74.35% → 80.31% (+5.96%) | 涉及包覆盖率进一步提升 |
+
+### 8.3 关键发现
+
+- **源码 Bug**：`createMessage()` 函数丢失 `tool_response` 字段传递（Reviewer 标记 L2-05）
+- **预存测试激活**：新增 vitest include 路径后，4 个预存测试文件首次被执行，需修复导入路径、时间戳、API 期望
+- **isTTY Mock 陷阱**：`vi.spyOn(process.stdout, 'isTTY', 'get')` 对内置 getter 无效，需使用 `Object.defineProperty`
 
 ---
 
 *整理者: Learner*
-*整理时间: 2026-04-30*
+*整理时间: 2026-04-30（初始版本），2026-06-03（P1-008 补充）*

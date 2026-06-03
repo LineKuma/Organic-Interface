@@ -49,7 +49,8 @@
 
 | 文档 | 说明 |
 |------|------|
-| [test-coverage-improvement.md](sorted/test-coverage-improvement.md) | 测试覆盖率提升最佳实践 |
+| [test-coverage-improvement.md](sorted/test-coverage-improvement.md) | 测试覆盖率提升最佳实践（P1-001 + P1-008） |
+| [p1-008-unit-test-supplement-knowledge.md](sorted/p1-008-unit-test-supplement-knowledge.md) | P1-008 补充单元测试任务知识产出 |
 | [implementation-knowledge-2026-04-30.md](sorted/implementation-knowledge-2026-04-30.md) | 任务执行知识记录（Agent调度框架、安全系统） |
 
 ## 知识层级说明
@@ -94,4 +95,4 @@
 
 ---
 
-*最后更新：2026-05-02*
+*最后更新：2026-06-03*
