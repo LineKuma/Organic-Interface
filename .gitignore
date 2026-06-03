@@ -28,5 +28,8 @@ worktrees/
 # Core dumps
 core.*
 
+# Agent task management
+.agent/
+
 # Heap dumps
 *.heap
