@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { ContextError, ConversationErrorCode } from '../ContextError.js';
-import { ConversationError } from '../ConversationError.js';
+import { describe, it, expect, vi } from 'vitest';
+import { ContextError } from '../ContextError.js';
+import { ConversationError, ConversationErrorCode } from '../ConversationError.js';
 
 describe('ContextError', () => {
   describe('constructor', () => {
@@ -192,11 +192,11 @@ describe('ContextError', () => {
       expect(json.details).toEqual(details);
     });
 
-    it('should include stack trace', () => {
+    it('should not include stack trace in JSON (not in ConversationError.toJSON)', () => {
       const error = new ContextError('Test', 's1');
       const json = error.toJSON();
 
-      expect(json.stack).toBeTypeOf('string');
+      expect(json.stack).toBeUndefined();
     });
 
     it('should serialize static factory errors', () => {
