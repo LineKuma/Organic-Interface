@@ -264,7 +264,7 @@ describe('Message', () => {
       expect(msg.tool_call).toEqual(toolCall);
     });
 
-    it('should not set tool_response via createMessage (not passed through)', () => {
+    it('should set tool_response when provided', () => {
       const toolResp: ToolResponse = { name: 'readFile', success: true };
       const msg = createMessage({
         sender: { id: 'u1', type: 'system', name: 'Sys' },
@@ -273,8 +273,7 @@ describe('Message', () => {
         tool_response: toolResp,
       });
 
-      // createMessage does not spread tool_response to the returned object
-      expect(msg.tool_response).toBeUndefined();
+      expect(msg.tool_response).toEqual(toolResp);
     });
 
     it('should set reply_to when provided', () => {
@@ -482,7 +481,7 @@ describe('Message', () => {
       expect(msg.content.structured_data).toEqual({ response });
     });
 
-    it('should not set tool_response (createMessage does not pass it through)', () => {
+    it('should set tool_response on the message', () => {
       const response: ToolResponse = {
         name: 'readFile',
         success: true,
@@ -490,8 +489,7 @@ describe('Message', () => {
       };
       const msg = createToolResponseMessage('s1', 'System', response);
 
-      // createMessage does not spread tool_response to the returned object
-      expect(msg.tool_response).toBeUndefined();
+      expect(msg.tool_response).toEqual(response);
     });
 
     it('should preserve original tool_call when provided', () => {
