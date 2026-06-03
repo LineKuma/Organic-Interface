@@ -21,7 +21,7 @@ describe('EntityMetadata', () => {
     it('should return empty tags array', () => {
       const metadata = createDefaultMetadata();
       expect(Array.isArray(metadata.tags)).toBe(true);
-      expect(metadata.tags.length).toBe(0);
+      expect(metadata.tags?.length).toBe(0);
     });
   });
 
