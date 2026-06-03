@@ -50,10 +50,14 @@ describe('BaseError', () => {
     });
 
     it('should have different timestamps for different instances', () => {
+      vi.useFakeTimers();
       const error1 = new BaseError('First');
+      vi.advanceTimersByTime(1);
       const error2 = new BaseError('Second');
+      vi.useRealTimers();
 
       expect(error1.timestamp).not.toBe(error2.timestamp);
+      expect(error2.timestamp).toBeGreaterThan(error1.timestamp);
     });
   });
 
