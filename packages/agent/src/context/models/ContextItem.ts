@@ -135,9 +135,7 @@ export interface ContextItemUpdate<T = unknown> {
 /**
  * Create a new context item
  */
-export function createContextItem<T = unknown>(
-  options: ContextItemOptions<T>
-): ContextItem<T> {
+export function createContextItem<T = unknown>(options: ContextItemOptions<T>): ContextItem<T> {
   const now = Date.now();
   return {
     id: options.id ?? `ctx_item_${now}_${Math.random().toString(36).substr(2, 9)}`,
@@ -233,9 +231,7 @@ export function updateContextItem<T = unknown>(
   return {
     ...item,
     content: updates.content ?? item.content,
-    metadata: updates.metadata
-      ? { ...item.metadata, ...updates.metadata }
-      : item.metadata,
+    metadata: updates.metadata ? { ...item.metadata, ...updates.metadata } : item.metadata,
     accessedAt: Date.now(),
     updatedAt: Date.now(),
     expiresAt: updates.expiresAt ?? item.expiresAt,
@@ -292,9 +288,7 @@ export function calculateContextItemSize<T>(item: ContextItem<T>): number {
 
   // Estimate size based on content
   const contentSize =
-    typeof item.content === 'string'
-      ? item.content.length
-      : JSON.stringify(item.content).length;
+    typeof item.content === 'string' ? item.content.length : JSON.stringify(item.content).length;
 
   const metadataSize = JSON.stringify(item.metadata).length;
 
@@ -310,17 +304,9 @@ export function compareContextItems(
   sortBy: 'created' | 'accessed' | 'updated' = 'accessed'
 ): number {
   const timeA =
-    sortBy === 'created'
-      ? a.createdAt
-      : sortBy === 'accessed'
-        ? a.accessedAt
-        : a.updatedAt;
+    sortBy === 'created' ? a.createdAt : sortBy === 'accessed' ? a.accessedAt : a.updatedAt;
   const timeB =
-    sortBy === 'created'
-      ? b.createdAt
-      : sortBy === 'accessed'
-        ? b.accessedAt
-        : b.updatedAt;
+    sortBy === 'created' ? b.createdAt : sortBy === 'accessed' ? b.accessedAt : b.updatedAt;
 
   return timeB - timeA; // Descending order (newest first)
 }

@@ -1,11 +1,16 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import {
-  UIOperationManager,
-  OPERATION_PERMISSIONS,
-  SENSITIVE_OPERATIONS,
-} from '../UIOperation.js';
+import { UIOperationManager, OPERATION_PERMISSIONS, SENSITIVE_OPERATIONS } from '../UIOperation.js';
 
-type UIOperationType = 'click' | 'input' | 'select' | 'scroll' | 'hover' | 'wait' | 'getText' | 'getAttribute' | 'screenshot';
+type UIOperationType =
+  | 'click'
+  | 'input'
+  | 'select'
+  | 'scroll'
+  | 'hover'
+  | 'wait'
+  | 'getText'
+  | 'getAttribute'
+  | 'screenshot';
 type UIOperationStatus = 'pending' | 'running' | 'success' | 'failed' | 'cancelled';
 
 vi.mock('@organic/utils', () => ({

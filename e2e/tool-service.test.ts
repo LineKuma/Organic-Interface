@@ -30,8 +30,8 @@ class TestTool implements Tool {
     return this.definition;
   }
 
-  validate(input: unknown): ToolValidationError[] {
-    if (!input || typeof input !== 'object') {
+  validate(_input: unknown): ToolValidationError[] {
+    if (!_input || typeof _input !== 'object') {
       return [{ path: '', message: 'Input must be an object' }];
     }
     return [];
@@ -70,7 +70,7 @@ class SlowTool implements Tool {
     return this.definition;
   }
 
-  validate(input: unknown): ToolValidationError[] {
+  validate(_input: unknown): ToolValidationError[] {
     return [];
   }
 
@@ -87,7 +87,11 @@ class SlowTool implements Tool {
 class ValidatingTool implements Tool {
   private definition: ToolDefinition;
 
-  constructor(id: string, name: string, validateFn: (input: unknown) => ToolValidationError[] = () => []) {
+  constructor(
+    id: string,
+    name: string,
+    validateFn: (input: unknown) => ToolValidationError[] = () => []
+  ) {
     this.definition = {
       id,
       name,
@@ -283,7 +287,7 @@ describe('Tool Service', () => {
     });
 
     it('should validate tool input before execution', async () => {
-      const validatingTool = new ValidatingTool('validate-tool', 'Validate Tool', (input) => {
+      const validatingTool = new ValidatingTool('validate-tool', 'Validate Tool', input => {
         if (!input || typeof input !== 'object') {
           return [{ path: '', message: 'Input must be an object' }];
         }
@@ -303,7 +307,7 @@ describe('Tool Service', () => {
     it('should handle execution errors gracefully', async () => {
       const errorTool = new ValidatingTool('error-tool', 'Error Tool', () => []);
 
-      executor.on('execution:failed', (data) => {
+      executor.on('execution:failed', data => {
         expect(data.toolId).toBe('error-tool');
       });
 

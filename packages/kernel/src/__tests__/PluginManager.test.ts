@@ -5,7 +5,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { PluginManager } from '../kernel/PluginManager.js';
 import { EventBus } from '../kernel/EventBus.js';
-import type { PluginInterface, PluginContext, PluginInput, PluginOutput } from '@organic/utils';
+import type { PluginInterface, PluginInput, PluginOutput } from '@organic/utils';
 
 // Mock plugin for testing
 const createMockPlugin = (
@@ -17,10 +17,12 @@ const createMockPlugin = (
   version,
   description,
   initialize: vi.fn(async () => ({ success: true })),
-  execute: vi.fn(async (input: PluginInput): Promise<PluginOutput> => ({
-    success: true,
-    data: { action: input.action, result: 'executed' },
-  })),
+  execute: vi.fn(
+    async (input: PluginInput): Promise<PluginOutput> => ({
+      success: true,
+      data: { action: input.action, result: 'executed' },
+    })
+  ),
   shutdown: vi.fn(async () => {}),
 });
 

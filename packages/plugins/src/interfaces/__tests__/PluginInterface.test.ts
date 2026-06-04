@@ -40,9 +40,7 @@ describe('PluginInterface Types', () => {
         apiVersion: '1.0.0',
         description: 'A test plugin',
         minKernelVersion: '1.0.0',
-        dependencies: [
-          { pluginName: 'dep-plugin', versionRange: '>=1.0.0', optional: true },
-        ],
+        dependencies: [{ pluginName: 'dep-plugin', versionRange: '>=1.0.0', optional: true }],
         defaultConfig: { key: 'value' },
         hooks: {
           onLoad: vi.fn(),

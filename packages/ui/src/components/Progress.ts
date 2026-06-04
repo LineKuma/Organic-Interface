@@ -186,7 +186,8 @@ export class Progress {
     const width = 40;
     const filled = Math.round((this.state.current / this.config.total) * width);
     const empty = width - filled;
-    const bar = '='.repeat(filled) + (filled < width ? '>' : '') + ' '.repeat(Math.max(0, empty - 1));
+    const bar =
+      '='.repeat(filled) + (filled < width ? '>' : '') + ' '.repeat(Math.max(0, empty - 1));
     const percentage = this.state.percentage.toFixed(0).padStart(3);
 
     const parts: string[] = [];

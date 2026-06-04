@@ -49,7 +49,9 @@ describe('MessageQueue', () => {
     it('should reject message when queue is full', () => {
       const smallQueue = new MessageQueue({ maxSize: 1 });
       smallQueue.enqueue(createExecuteMessage('agent-1', 'agent-2', { task: 'test' }));
-      const result = smallQueue.enqueue(createExecuteMessage('agent-1', 'agent-2', { task: 'test2' }));
+      const result = smallQueue.enqueue(
+        createExecuteMessage('agent-1', 'agent-2', { task: 'test2' })
+      );
       expect(result).toBe(false);
     });
 
@@ -246,7 +248,10 @@ describe('MessageQueue', () => {
       queue.enqueue(highMsg);
       queue.enqueue(lowMsg);
 
-      const filtered = queue.filter({ minPriority: MessagePriority.HIGH, maxPriority: MessagePriority.HIGH });
+      const filtered = queue.filter({
+        minPriority: MessagePriority.HIGH,
+        maxPriority: MessagePriority.HIGH,
+      });
       expect(filtered).toHaveLength(1);
       expect(filtered[0].payload).toEqual({ task: 'high' });
     });

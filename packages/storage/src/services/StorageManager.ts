@@ -10,12 +10,13 @@ import type {
   IStorageBackend,
   MemoryStorageConfig,
   FileStorageConfig,
-  DatabaseStorageConfig} from '../backends/index.js';
+  DatabaseStorageConfig,
+} from '../backends/index.js';
 import {
   StorageBackendType,
   MemoryStorage,
   FileStorage,
-  DatabaseStorage
+  DatabaseStorage,
 } from '../backends/index.js';
 import { StorageService, type StorageInfo } from './StorageService.js';
 
@@ -74,7 +75,10 @@ export class StorageManager {
     }
 
     // Create default storage
-    await this.createStorage(this.defaultName, this.config.defaultBackend || StorageBackendType.MEMORY);
+    await this.createStorage(
+      this.defaultName,
+      this.config.defaultBackend || StorageBackendType.MEMORY
+    );
 
     this.initialized = true;
     this.logger.info('Storage manager initialized');

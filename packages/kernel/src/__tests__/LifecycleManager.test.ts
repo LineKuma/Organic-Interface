@@ -42,7 +42,9 @@ describe('LifecycleManager', () => {
   describe('isAnyState() - Check multiple states', () => {
     it('should return true if in any of the specified states', () => {
       expect(lifecycle.isAnyState(LifecycleState.CREATED, LifecycleState.INITIALIZING)).toBe(true);
-      expect(lifecycle.isAnyState(LifecycleState.INITIALIZING, LifecycleState.INITIALIZED)).toBe(false);
+      expect(lifecycle.isAnyState(LifecycleState.INITIALIZING, LifecycleState.INITIALIZED)).toBe(
+        false
+      );
     });
   });
 

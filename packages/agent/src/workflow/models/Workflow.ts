@@ -111,7 +111,9 @@ export interface WorkflowConfig {
 /**
  * Default workflow configuration
  */
-export const DEFAULT_WORKFLOW_CONFIG: Omit<WorkflowConfig, 'callbackUrl'> & { callbackUrl?: string } = {
+export const DEFAULT_WORKFLOW_CONFIG: Omit<WorkflowConfig, 'callbackUrl'> & {
+  callbackUrl?: string;
+} = {
   enableParallel: true,
   maxParallelNodes: 10,
   defaultTimeout: 3600000, // 1 hour
@@ -325,11 +327,7 @@ export function createWorkflowEdge(
 /**
  * Create a simple always-true edge
  */
-export function createSimpleEdge(
-  source: string,
-  target: string,
-  label?: string
-): WorkflowEdge {
+export function createSimpleEdge(source: string, target: string, label?: string): WorkflowEdge {
   return createWorkflowEdge(source, target, {
     condition: { type: EdgeConditionType.ALWAYS },
     label,
@@ -339,11 +337,7 @@ export function createSimpleEdge(
 /**
  * Create a success edge
  */
-export function createSuccessEdge(
-  source: string,
-  target: string,
-  label?: string
-): WorkflowEdge {
+export function createSuccessEdge(source: string, target: string, label?: string): WorkflowEdge {
   return createWorkflowEdge(source, target, {
     condition: { type: EdgeConditionType.ON_SUCCESS },
     label: label ?? 'on success',
@@ -353,11 +347,7 @@ export function createSuccessEdge(
 /**
  * Create a failure edge
  */
-export function createFailureEdge(
-  source: string,
-  target: string,
-  label?: string
-): WorkflowEdge {
+export function createFailureEdge(source: string, target: string, label?: string): WorkflowEdge {
   return createWorkflowEdge(source, target, {
     condition: { type: EdgeConditionType.ON_FAILURE },
     label: label ?? 'on failure',
@@ -393,9 +383,7 @@ export function createWorkflowExecution(
 /**
  * Create a workflow execution snapshot
  */
-export function createWorkflowSnapshot(
-  execution: WorkflowExecution
-): WorkflowExecutionSnapshot {
+export function createWorkflowSnapshot(execution: WorkflowExecution): WorkflowExecutionSnapshot {
   return {
     id: `snapshot_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
     executionId: execution.id,
@@ -450,11 +438,11 @@ export function isValidWorkflow(workflow: unknown): workflow is Workflow {
  */
 export function getEntryNode(workflow: Workflow): Task | undefined {
   if (workflow.entryNodeId) {
-    return workflow.nodes.find((n) => n.id === workflow.entryNodeId);
+    return workflow.nodes.find(n => n.id === workflow.entryNodeId);
   }
 
   // Find start node if exists
-  return workflow.nodes.find((n) => n.type === 'start');
+  return workflow.nodes.find(n => n.type === 'start');
 }
 
 /**
@@ -462,31 +450,25 @@ export function getEntryNode(workflow: Workflow): Task | undefined {
  */
 export function getExitNodes(workflow: Workflow): Task[] {
   if (workflow.exitNodeIds && workflow.exitNodeIds.length > 0) {
-    return workflow.nodes.filter((n) => workflow.exitNodeIds!.includes(n.id));
+    return workflow.nodes.filter(n => workflow.exitNodeIds!.includes(n.id));
   }
 
   // Find end nodes if exists
-  return workflow.nodes.filter((n) => n.type === 'end');
+  return workflow.nodes.filter(n => n.type === 'end');
 }
 
 /**
  * Get outgoing edges from a node
  */
-export function getOutgoingEdges(
-  workflow: Workflow,
-  nodeId: string
-): WorkflowEdge[] {
-  return workflow.edges.filter((e) => e.source === nodeId);
+export function getOutgoingEdges(workflow: Workflow, nodeId: string): WorkflowEdge[] {
+  return workflow.edges.filter(e => e.source === nodeId);
 }
 
 /**
  * Get incoming edges to a node
  */
-export function getIncomingEdges(
-  workflow: Workflow,
-  nodeId: string
-): WorkflowEdge[] {
-  return workflow.edges.filter((e) => e.target === nodeId);
+export function getIncomingEdges(workflow: Workflow, nodeId: string): WorkflowEdge[] {
+  return workflow.edges.filter(e => e.target === nodeId);
 }
 
 /**

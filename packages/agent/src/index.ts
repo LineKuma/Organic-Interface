@@ -6,11 +6,7 @@
  */
 
 // Re-export from @organic/utils
-export {
-  createLogger,
-  type Logger,
-  type LogLevel,
-} from '@organic/utils';
+export { createLogger, type Logger, type LogLevel } from '@organic/utils';
 
 // Re-export from core module
 export {

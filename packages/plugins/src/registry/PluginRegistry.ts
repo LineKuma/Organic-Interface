@@ -2,15 +2,8 @@
  * PluginRegistry - Central registry for plugin management
  */
 
-import type {
-  PluginMetadata,
-  PluginConfig,
-  PluginStatus} from '../interfaces/PluginInterface.js';
-import {
-  PluginInterface,
-  PluginLifecycleState,
-  PluginHooks,
-} from '../interfaces/PluginInterface.js';
+import type { PluginMetadata, PluginConfig, PluginStatus } from '../interfaces/PluginInterface.js';
+import { PluginLifecycleState } from '../interfaces/PluginInterface.js';
 import type {
   PluginLoaderInterface,
   PluginLoadResult,
@@ -179,14 +172,14 @@ export class PluginRegistry {
    * List enabled plugins
    */
   listEnabled(): PluginInfo[] {
-    return Array.from(this.plugins.values()).filter((p) => p.status.enabled);
+    return Array.from(this.plugins.values()).filter(p => p.status.enabled);
   }
 
   /**
    * List disabled plugins
    */
   listDisabled(): PluginInfo[] {
-    return Array.from(this.plugins.values()).filter((p) => !p.status.enabled);
+    return Array.from(this.plugins.values()).filter(p => !p.status.enabled);
   }
 
   /**
@@ -194,22 +187,28 @@ export class PluginRegistry {
    * @param options - Search options
    */
   search(options: PluginSearchOptions): PluginInfo[] {
-    return Array.from(this.plugins.values()).filter((plugin) => {
+    return Array.from(this.plugins.values()).filter(plugin => {
       if (options.name && !plugin.metadata.name.includes(options.name)) {
         return false;
       }
       if (options.enabled !== undefined && plugin.status.enabled !== options.enabled) {
         return false;
       }
-      if (options.minVersion && this.compareVersion(plugin.metadata.version, options.minVersion) < 0) {
+      if (
+        options.minVersion &&
+        this.compareVersion(plugin.metadata.version, options.minVersion) < 0
+      ) {
         return false;
       }
-      if (options.maxVersion && this.compareVersion(plugin.metadata.version, options.maxVersion) > 0) {
+      if (
+        options.maxVersion &&
+        this.compareVersion(plugin.metadata.version, options.maxVersion) > 0
+      ) {
         return false;
       }
       if (options.hasDependency) {
         const deps = plugin.metadata.dependencies || [];
-        if (!deps.some((d) => d.pluginName === options.hasDependency)) {
+        if (!deps.some(d => d.pluginName === options.hasDependency)) {
           return false;
         }
       }
@@ -222,9 +221,9 @@ export class PluginRegistry {
    * @param pluginId - Plugin identifier
    */
   findDependents(pluginId: string): PluginInfo[] {
-    return Array.from(this.plugins.values()).filter((plugin) => {
+    return Array.from(this.plugins.values()).filter(plugin => {
       const deps = plugin.metadata.dependencies || [];
-      return deps.some((d) => d.pluginName === pluginId);
+      return deps.some(d => d.pluginName === pluginId);
     });
   }
 
@@ -348,7 +347,7 @@ export class PluginRegistry {
    * @param listener - Event listener
    */
   once(event: string, listener: (event: RegistryEvent) => void): void {
-    const unsubscribe = this.on(event, (e) => {
+    const unsubscribe = this.on(event, e => {
       listener(e);
       unsubscribe();
     });
@@ -367,7 +366,7 @@ export class PluginRegistry {
         timestamp: Date.now(),
         data,
       };
-      listeners.forEach((listener) => listener(registryEvent));
+      listeners.forEach(listener => listener(registryEvent));
     }
   }
 
@@ -410,10 +409,10 @@ export class PluginRegistry {
     const plugins = Array.from(this.plugins.values());
     return {
       totalPlugins: plugins.length,
-      enabledPlugins: plugins.filter((p) => p.status.enabled).length,
-      disabledPlugins: plugins.filter((p) => !p.status.enabled).length,
+      enabledPlugins: plugins.filter(p => p.status.enabled).length,
+      disabledPlugins: plugins.filter(p => !p.status.enabled).length,
       loadedPlugins: plugins.filter(
-        (p) =>
+        p =>
           p.status.state === PluginLifecycleState.ACTIVE ||
           p.status.state === PluginLifecycleState.RUNNING ||
           p.status.state === PluginLifecycleState.INITIALIZED

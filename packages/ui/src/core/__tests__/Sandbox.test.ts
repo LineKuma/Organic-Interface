@@ -163,8 +163,12 @@ describe('Sandbox', () => {
         allowedOperations: ['click'],
       });
       const session = restrictedSandbox.createSession('agent-1');
-      expect(restrictedSandbox.checkPermission(session.sessionId, 'click', '#button').allowed).toBe(true);
-      expect(restrictedSandbox.checkPermission(session.sessionId, 'input', '#input').allowed).toBe(false);
+      expect(restrictedSandbox.checkPermission(session.sessionId, 'click', '#button').allowed).toBe(
+        true
+      );
+      expect(restrictedSandbox.checkPermission(session.sessionId, 'input', '#input').allowed).toBe(
+        false
+      );
     });
 
     it('should check permission level', () => {

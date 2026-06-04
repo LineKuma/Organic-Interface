@@ -137,11 +137,16 @@ describe('AgentMessage', () => {
     });
 
     it('should accept optional parameters', () => {
-      const message = createExecuteMessage('agent-1', 'agent-2', { task: 'test' }, {
-        priority: MessagePriority.HIGH,
-        correlationId: 'corr-123',
-        ttl: 3000,
-      });
+      const message = createExecuteMessage(
+        'agent-1',
+        'agent-2',
+        { task: 'test' },
+        {
+          priority: MessagePriority.HIGH,
+          correlationId: 'corr-123',
+          ttl: 3000,
+        }
+      );
 
       expect(message.priority).toBe(MessagePriority.HIGH);
       expect(message.metadata?.correlationId).toBe('corr-123');
@@ -162,7 +167,12 @@ describe('AgentMessage', () => {
 
   describe('createResponseMessage', () => {
     it('should create response message', () => {
-      const message = createResponseMessage('agent-1', 'agent-2', { result: 'success' }, 'corr-123');
+      const message = createResponseMessage(
+        'agent-1',
+        'agent-2',
+        { result: 'success' },
+        'corr-123'
+      );
 
       expect(message.action).toBe(MessageAction.RESPONSE);
       expect(message.source).toBe('agent-1');
@@ -207,7 +217,9 @@ describe('AgentMessage', () => {
 
   describe('createNotifyMessage', () => {
     it('should create notify message', () => {
-      const message = createNotifyMessage('agent-1', 'agent-2', 'task-completed', { taskId: '123' });
+      const message = createNotifyMessage('agent-1', 'agent-2', 'task-completed', {
+        taskId: '123',
+      });
 
       expect(message.action).toBe(MessageAction.NOTIFY);
       expect(message.payload.event).toBe('task-completed');
@@ -233,7 +245,14 @@ describe('AgentMessage', () => {
 
     it('should include error details in headers', () => {
       const details = { stack: 'error stack trace' };
-      const message = createErrorMessage('agent-1', 'agent-2', 'ERR_001', 'Error', undefined, details);
+      const message = createErrorMessage(
+        'agent-1',
+        'agent-2',
+        'ERR_001',
+        'Error',
+        undefined,
+        details
+      );
 
       expect(message.metadata?.headers?.['x-error-details']).toBe(JSON.stringify(details));
     });

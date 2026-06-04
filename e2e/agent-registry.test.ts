@@ -1,10 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import {
-  AgentRegistry,
-  createAgentMetadata,
-  AgentType,
-  AgentRegistryStatus,
-} from '@organic/agent/registry';
+import { AgentRegistry, createAgentMetadata, AgentType } from '@organic/agent/registry';
 
 describe('Agent Registry', () => {
   let registry: AgentRegistry;

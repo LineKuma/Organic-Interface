@@ -85,7 +85,7 @@ interface Participant {
   id: string;
 
   /** 参与者类型 */
-  type: "user" | "agent" | "plugin";
+  type: 'user' | 'agent' | 'plugin';
 
   /** 参与者名称 */
   name: string;
@@ -99,15 +99,15 @@ interface Participant {
  */
 enum ParticipantRole {
   /** 系统管理员 */
-  ADMIN = "admin",
+  ADMIN = 'admin',
   /** 普通用户 */
-  USER = "user",
+  USER = 'user',
   /** 助手角色 */
-  ASSISTANT = "assistant",
+  ASSISTANT = 'assistant',
   /** 工具角色 */
-  TOOL = "tool",
+  TOOL = 'tool',
   /** 系统角色 */
-  SYSTEM = "system"
+  SYSTEM = 'system',
 }
 ```
 
@@ -160,7 +160,7 @@ interface MessageSender {
   id: string;
 
   /** 发送者类型 */
-  type: "user" | "agent" | "system" | "plugin";
+  type: 'user' | 'agent' | 'system' | 'plugin';
 
   /** 发送者名称 */
   name: string;
@@ -187,11 +187,11 @@ interface MessageContent {
  * 内容格式枚举
  */
 enum ContentFormat {
-  PLAIN_TEXT = "plain_text",
-  MARKDOWN = "markdown",
-  HTML = "html",
-  JSON = "json",
-  CODE = "code"
+  PLAIN_TEXT = 'plain_text',
+  MARKDOWN = 'markdown',
+  HTML = 'html',
+  JSON = 'json',
+  CODE = 'code',
 }
 
 /**
@@ -221,12 +221,12 @@ interface Attachment {
  * 附件类型枚举
  */
 enum AttachmentType {
-  IMAGE = "image",
-  VIDEO = "video",
-  AUDIO = "audio",
-  DOCUMENT = "document",
-  CODE_FILE = "code_file",
-  OTHER = "other"
+  IMAGE = 'image',
+  VIDEO = 'video',
+  AUDIO = 'audio',
+  DOCUMENT = 'document',
+  CODE_FILE = 'code_file',
+  OTHER = 'other',
 }
 
 /**
@@ -234,19 +234,19 @@ enum AttachmentType {
  */
 enum MessageType {
   /** 用户消息 */
-  USER_MESSAGE = "user_message",
+  USER_MESSAGE = 'user_message',
   /** 助手回复 */
-  ASSISTANT_MESSAGE = "assistant_message",
+  ASSISTANT_MESSAGE = 'assistant_message',
   /** 系统消息 */
-  SYSTEM_MESSAGE = "system_message",
+  SYSTEM_MESSAGE = 'system_message',
   /** 工具调用 */
-  TOOL_CALL = "tool_call",
+  TOOL_CALL = 'tool_call',
   /** 工具响应 */
-  TOOL_RESPONSE = "tool_response",
+  TOOL_RESPONSE = 'tool_response',
   /** 错误消息 */
-  ERROR_MESSAGE = "error_message",
+  ERROR_MESSAGE = 'error_message',
   /** 状态更新 */
-  STATUS_UPDATE = "status_update"
+  STATUS_UPDATE = 'status_update',
 }
 
 /**
@@ -254,15 +254,15 @@ enum MessageType {
  */
 enum MessageStatus {
   /** 发送中 */
-  SENDING = "sending",
+  SENDING = 'sending',
   /** 已发送 */
-  SENT = "sent",
+  SENT = 'sent',
   /** 已读 */
-  READ = "read",
+  READ = 'read',
   /** 已处理 */
-  PROCESSED = "processed",
+  PROCESSED = 'processed',
   /** 失败 */
-  FAILED = "failed"
+  FAILED = 'failed',
 }
 
 /**
@@ -270,15 +270,15 @@ enum MessageStatus {
  */
 enum MessageFlag {
   /** 已标记 */
-  FLAGGED = "flagged",
+  FLAGGED = 'flagged',
   /** 已收藏 */
-  STARRED = "starred",
+  STARRED = 'starred',
   /** 已删除 */
-  DELETED = "deleted",
+  DELETED = 'deleted',
   /** 已归档 */
-  ARCHIVED = "archived",
+  ARCHIVED = 'archived',
   /** 私密消息 */
-  PRIVATE = "private"
+  PRIVATE = 'private',
 }
 ```
 
@@ -312,13 +312,13 @@ interface ContextWindowConfig {
  */
 enum ContextWindowType {
   /** 最近N条消息 */
-  RECENT_MESSAGES = "recent_messages",
+  RECENT_MESSAGES = 'recent_messages',
   /** 最近N分钟内 */
-  RECENT_MINUTES = "recent_minutes",
+  RECENT_MINUTES = 'recent_minutes',
   /** 基于Token数量 */
-  TOKEN_BASED = "token_based",
+  TOKEN_BASED = 'token_based',
   /** 基于语义相关性 */
-  SEMANTIC_BASED = "semantic_based"
+  SEMANTIC_BASED = 'semantic_based',
 }
 
 /**
@@ -396,11 +396,11 @@ interface StateItem<T = any> {
  */
 enum StateType {
   /** 会话状态 */
-  SESSION = "session",
+  SESSION = 'session',
   /** 持久化状态 */
-  PERSISTENT = "persistent",
+  PERSISTENT = 'persistent',
   /** 临时状态 */
-  TEMPORARY = "temporary"
+  TEMPORARY = 'temporary',
 }
 
 /**
@@ -436,10 +436,10 @@ interface StateChange {
  * 状态变更类型枚举
  */
 enum StateChangeType {
-  SET = "set",
-  UPDATE = "update",
-  DELETE = "delete",
-  CLEAR = "clear"
+  SET = 'set',
+  UPDATE = 'update',
+  DELETE = 'delete',
+  CLEAR = 'clear',
 }
 ```
 
@@ -516,10 +516,7 @@ interface StateStorageService {
   /**
    * 监听命名空间变更
    */
-  watch(
-    namespace: string,
-    callback: (change: StateChange) => void
-  ): UnsubscribeFn;
+  watch(namespace: string, callback: (change: StateChange) => void): UnsubscribeFn;
 }
 
 /**
@@ -587,13 +584,13 @@ interface ContextPropagationRequest {
  */
 enum PropagationMode {
   /** 直接传播，传递完整上下文 */
-  DIRECT = "direct",
+  DIRECT = 'direct',
   /** 引用传播，仅传递上下文引用 */
-  REFERENCE = "reference",
+  REFERENCE = 'reference',
   /** 增量传播，传递变化部分 */
-  INCREMENTAL = "incremental",
+  INCREMENTAL = 'incremental',
   /** 混合传播，自动选择 */
-  HYBRID = "hybrid"
+  HYBRID = 'hybrid',
 }
 
 /**
@@ -638,15 +635,15 @@ interface ContextFilter {
  */
 enum ContextFilterType {
   /** 消息类型过滤 */
-  MESSAGE_TYPE = "message_type",
+  MESSAGE_TYPE = 'message_type',
   /** 发送者过滤 */
-  SENDER = "sender",
+  SENDER = 'sender',
   /** 时间范围过滤 */
-  TIME_RANGE = "time_range",
+  TIME_RANGE = 'time_range',
   /** 内容关键词过滤 */
-  CONTENT_KEYWORD = "content_keyword",
+  CONTENT_KEYWORD = 'content_keyword',
   /** 标记过滤 */
-  FLAG = "flag"
+  FLAG = 'flag',
 }
 
 /**
@@ -670,10 +667,10 @@ interface PropagationOptions {
  * 优先级枚举
  */
 enum Priority {
-  LOW = "low",
-  NORMAL = "normal",
-  HIGH = "high",
-  CRITICAL = "critical"
+  LOW = 'low',
+  NORMAL = 'normal',
+  HIGH = 'high',
+  CRITICAL = 'critical',
 }
 ```
 
@@ -740,12 +737,12 @@ interface ExecutionFrame {
  * 执行状态枚举
  */
 enum ExecutionStatus {
-  PENDING = "pending",
-  RUNNING = "running",
-  WAITING = "waiting",
-  COMPLETED = "completed",
-  FAILED = "failed",
-  CANCELLED = "cancelled"
+  PENDING = 'pending',
+  RUNNING = 'running',
+  WAITING = 'waiting',
+  COMPLETED = 'completed',
+  FAILED = 'failed',
+  CANCELLED = 'cancelled',
 }
 
 /**
@@ -761,13 +758,13 @@ interface ContextError {
  * 上下文错误代码枚举
  */
 enum ContextErrorCode {
-  CONTEXT_NOT_FOUND = "context_not_found",
-  CONTEXT_EXPIRED = "context_expired",
-  CONTEXT_OVERFLOW = "context_overflow",
-  CONTEXT_CORRUPTED = "context_corrupted",
-  PROPAGATION_FAILED = "propagation_failed",
-  STATE_CONFLICT = "state_conflict",
-  MAX_DEPTH_EXCEEDED = "max_depth_exceeded"
+  CONTEXT_NOT_FOUND = 'context_not_found',
+  CONTEXT_EXPIRED = 'context_expired',
+  CONTEXT_OVERFLOW = 'context_overflow',
+  CONTEXT_CORRUPTED = 'context_corrupted',
+  PROPAGATION_FAILED = 'propagation_failed',
+  STATE_CONFLICT = 'state_conflict',
+  MAX_DEPTH_EXCEEDED = 'max_depth_exceeded',
 }
 ```
 
@@ -909,12 +906,12 @@ interface ContextItem {
  * 上下文条目类型
  */
 enum ContextItemType {
-  MESSAGE = "message",
-  STATE = "state",
-  TOOL_CALL = "tool_call",
-  RESULT = "result",
-  ATTACHMENT = "attachment",
-  CUSTOM = "custom"
+  MESSAGE = 'message',
+  STATE = 'state',
+  TOOL_CALL = 'tool_call',
+  RESULT = 'result',
+  ATTACHMENT = 'attachment',
+  CUSTOM = 'custom',
 }
 ```
 
@@ -955,11 +952,11 @@ interface ContextState {
  * 上下文状态枚举
  */
 enum ContextStatus {
-  INITIALIZING = "initializing",
-  ACTIVE = "active",
-  IDLE = "idle",
-  ARCHIVED = "archived",
-  DELETED = "deleted"
+  INITIALIZING = 'initializing',
+  ACTIVE = 'active',
+  IDLE = 'idle',
+  ARCHIVED = 'archived',
+  DELETED = 'deleted',
 }
 
 /**
@@ -979,7 +976,7 @@ interface ContextStats {
  */
 interface ContextObserver {
   observer_id: string;
-  observer_type: "agent" | "plugin" | "system";
+  observer_type: 'agent' | 'plugin' | 'system';
   events: ContextEvent[];
   registered_at: number;
 }
@@ -988,12 +985,12 @@ interface ContextObserver {
  * 上下文事件枚举
  */
 enum ContextEvent {
-  MESSAGE_ADDED = "message_added",
-  STATE_CHANGED = "state_changed",
-  AGENT_ENTERED = "agent_entered",
-  AGENT_EXITED = "agent_exited",
-  CONTEXT_EXPIRED = "context_expired",
-  CONTEXT_CLOSED = "context_closed"
+  MESSAGE_ADDED = 'message_added',
+  STATE_CHANGED = 'state_changed',
+  AGENT_ENTERED = 'agent_entered',
+  AGENT_EXITED = 'agent_exited',
+  CONTEXT_EXPIRED = 'context_expired',
+  CONTEXT_CLOSED = 'context_closed',
 }
 ```
 
@@ -1109,19 +1106,19 @@ interface PropagationResult {
 
 ## 验收条件
 
-| 序号 | 验收项 | 验收标准 |
-|------|--------|----------|
-| 1 | 对话上下文模型 | ConversationContext包含id、session_id、messages、participants等完整字段 |
-| 2 | 消息结构定义 | Message包含id、sender、content、type、timestamp等完整字段 |
-| 3 | 上下文窗口管理 | 支持RECENT_MESSAGES、TOKEN_BASED等窗口类型配置 |
-| 4 | 状态类型分类 | 区分SESSION、PERSISTENT、TEMPORARY三种状态类型 |
-| 5 | 状态存储接口 | StateStorageService提供get、set、delete、subscribe等核心方法 |
-| 6 | 传播机制实现 | 支持DIRECT、REFERENCE、INCREMENTAL、HYBRID四种传播模式 |
-| 7 | 嵌套调用管理 | ExecutionContextStack维护父子关系和执行栈 |
-| 8 | 生命周期管理 | 包含创建、活跃、闲置、过期、销毁五个阶段 |
-| 9 | ContextItem数据模型 | 包含id、type、content、context_id等完整字段 |
-| 10 | ContextState数据模型 | 包含status、active_agents、stats等完整字段 |
-| 11 | 文档编号 | 文档编号为DOC-008，与feature-007保持一致的结构风格 |
+| 序号 | 验收项               | 验收标准                                                                |
+| ---- | -------------------- | ----------------------------------------------------------------------- |
+| 1    | 对话上下文模型       | ConversationContext包含id、session_id、messages、participants等完整字段 |
+| 2    | 消息结构定义         | Message包含id、sender、content、type、timestamp等完整字段               |
+| 3    | 上下文窗口管理       | 支持RECENT_MESSAGES、TOKEN_BASED等窗口类型配置                          |
+| 4    | 状态类型分类         | 区分SESSION、PERSISTENT、TEMPORARY三种状态类型                          |
+| 5    | 状态存储接口         | StateStorageService提供get、set、delete、subscribe等核心方法            |
+| 6    | 传播机制实现         | 支持DIRECT、REFERENCE、INCREMENTAL、HYBRID四种传播模式                  |
+| 7    | 嵌套调用管理         | ExecutionContextStack维护父子关系和执行栈                               |
+| 8    | 生命周期管理         | 包含创建、活跃、闲置、过期、销毁五个阶段                                |
+| 9    | ContextItem数据模型  | 包含id、type、content、context_id等完整字段                             |
+| 10   | ContextState数据模型 | 包含status、active_agents、stats等完整字段                              |
+| 11   | 文档编号             | 文档编号为DOC-008，与feature-007保持一致的结构风格                      |
 
 ---
 
@@ -1130,6 +1127,7 @@ interface PropagationResult {
 ### 与Agent架构的协同
 
 上下文管理是Agent执行的基础支撑：
+
 - Agent通过ContextService获取任务相关上下文
 - Agent执行结果存储到上下文供后续使用
 - 多Agent协作通过上下文传播实现信息共享
@@ -1137,6 +1135,7 @@ interface PropagationResult {
 ### 与任务调度的协作
 
 任务调度依赖上下文管理：
+
 - 任务状态保存在上下文状态中
 - 任务中断后通过上下文恢复执行
 - 任务完成后上下文可以归档或清理
@@ -1144,6 +1143,7 @@ interface PropagationResult {
 ### 与Plugin系统的集成
 
 Plugin可以通过ContextService访问和操作上下文：
+
 - Plugin可以注册为上下文观察者
 - Plugin可以向上下文添加消息
 - Plugin可以读写上下文状态
@@ -1152,13 +1152,13 @@ Plugin可以通过ContextService访问和操作上下文：
 
 ## 术语定义
 
-| 术语 | 定义 |
-|------|------|
-| ConversationContext | 对话上下文，存储一次完整对话的所有信息 |
-| ContextWindow | 上下文窗口，控制Agent一次处理的消息范围 |
-| StateItem | 状态条目，上下文中的可存储状态单元 |
-| PropagationMode | 传播模式，上下文在Agent间传递的方式 |
-| ExecutionFrame | 执行帧，嵌套调用的单次调用上下文信息 |
+| 术语                | 定义                                    |
+| ------------------- | --------------------------------------- |
+| ConversationContext | 对话上下文，存储一次完整对话的所有信息  |
+| ContextWindow       | 上下文窗口，控制Agent一次处理的消息范围 |
+| StateItem           | 状态条目，上下文中的可存储状态单元      |
+| PropagationMode     | 传播模式，上下文在Agent间传递的方式     |
+| ExecutionFrame      | 执行帧，嵌套调用的单次调用上下文信息    |
 
 ---
 

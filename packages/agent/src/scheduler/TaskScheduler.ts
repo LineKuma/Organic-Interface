@@ -67,10 +67,7 @@ export interface SchedulerEvents {
 /**
  * Task execution function type
  */
-export type TaskExecutor = (
-  task: Task,
-  signal: AbortSignal
-) => Promise<unknown>;
+export type TaskExecutor = (task: Task, signal: AbortSignal) => Promise<unknown>;
 
 /**
  * Task Scheduler - Manages task execution
@@ -182,7 +179,7 @@ export class TaskScheduler extends EventEmitter {
    * Schedule multiple tasks
    */
   scheduleMany(tasks: TaskOptions[]): Task[] {
-    return tasks.map((options) => this.schedule(options));
+    return tasks.map(options => this.schedule(options));
   }
 
   /**
@@ -256,7 +253,7 @@ export class TaskScheduler extends EventEmitter {
    * Get running tasks
    */
   getRunningTasks(): Task[] {
-    return Array.from(this.activeTasks.values()).map((a) => a.task);
+    return Array.from(this.activeTasks.values()).map(a => a.task);
   }
 
   /**
@@ -334,7 +331,7 @@ export class TaskScheduler extends EventEmitter {
       return;
     }
 
-    this.processQueue().catch((error) => {
+    this.processQueue().catch(error => {
       this.logger.error('Error processing queue', error);
     });
 
@@ -403,7 +400,7 @@ export class TaskScheduler extends EventEmitter {
    */
   private async waitForActiveTasks(): Promise<void> {
     while (this.activeTasks.size > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 100));
+      await new Promise(resolve => setTimeout(resolve, 100));
     }
   }
 

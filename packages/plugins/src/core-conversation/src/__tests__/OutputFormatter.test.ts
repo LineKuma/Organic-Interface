@@ -57,22 +57,24 @@ function createSessionResult(id: string, title: string) {
   };
 }
 
-function createSessionListResult(sessions: Array<{
-  id: string;
-  title: string;
-  messageCount: number;
-  status: SessionStatus;
-  tags: string[];
-  metadata: Record<string, unknown>;
-  contextWindow: {
-    windowSize: number;
-    windowType: ContextWindowType;
-    includeSystemMessages: boolean;
-    includeToolCalls: boolean;
-  };
-  createdAt: number;
-  lastActiveAt: number;
-}>) {
+function createSessionListResult(
+  sessions: Array<{
+    id: string;
+    title: string;
+    messageCount: number;
+    status: SessionStatus;
+    tags: string[];
+    metadata: Record<string, unknown>;
+    contextWindow: {
+      windowSize: number;
+      windowType: ContextWindowType;
+      includeSystemMessages: boolean;
+      includeToolCalls: boolean;
+    };
+    createdAt: number;
+    lastActiveAt: number;
+  }>
+) {
   return {
     type: ResultType.SESSION_LIST,
     sessions,
@@ -536,13 +538,13 @@ describe('OutputFormatter', () => {
       const customTheme = new OutputFormatter({
         enableColors: true,
         theme: {
-          primary: '\x1b[94m',    // Bright blue
-          secondary: '\x1b[96m',  // Bright cyan
-          success: '\x1b[92m',    // Bright green
-          error: '\x1b[91m',      // Bright red
-          warning: '\x1b[93m',    // Bright yellow
-          info: '\x1b[95m',       // Bright magenta
-          muted: '\x1b[90m',      // Bright black
+          primary: '\x1b[94m', // Bright blue
+          secondary: '\x1b[96m', // Bright cyan
+          success: '\x1b[92m', // Bright green
+          error: '\x1b[91m', // Bright red
+          warning: '\x1b[93m', // Bright yellow
+          info: '\x1b[95m', // Bright magenta
+          muted: '\x1b[90m', // Bright black
         },
       });
       const output = customTheme.formatSuccess('Success');

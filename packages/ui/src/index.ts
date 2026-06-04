@@ -6,11 +6,7 @@
  */
 
 // Re-export utils
-export {
-  createLogger,
-  type Logger,
-  type LogLevel,
-} from '@organic/utils';
+export { createLogger, type Logger, type LogLevel } from '@organic/utils';
 
 // Re-export UI components
 export {

@@ -25,7 +25,11 @@ describe('FileStorage', () => {
     }
   });
 
-  function createTestEntity(id: string, type: string, data: Record<string, unknown>): StorageEntity {
+  function createTestEntity(
+    id: string,
+    type: string,
+    data: Record<string, unknown>
+  ): StorageEntity {
     return {
       id,
       type,
@@ -47,7 +51,9 @@ describe('FileStorage', () => {
     });
 
     it('should throw error for missing basePath', () => {
-      expect(() => new FileStorage({ basePath: '' })).toThrow('FileStorage requires a basePath configuration');
+      expect(() => new FileStorage({ basePath: '' })).toThrow(
+        'FileStorage requires a basePath configuration'
+      );
     });
 
     it('should use default file extension', () => {
@@ -173,7 +179,9 @@ describe('FileStorage', () => {
 
     it('should throw error when not initialized', async () => {
       const uninitStorage = new FileStorage({ basePath: '/tmp/uninit' });
-      await expect(uninitStorage.set(createTestEntity('test', 'user', {}))).rejects.toThrow('File storage is not initialized');
+      await expect(uninitStorage.set(createTestEntity('test', 'user', {}))).rejects.toThrow(
+        'File storage is not initialized'
+      );
     });
 
     it('should write to file immediately when autoFlush is false', async () => {
@@ -279,7 +287,9 @@ describe('FileStorage', () => {
 
     it('should throw error when not initialized', async () => {
       const uninitStorage = new FileStorage({ basePath: '/tmp/uninit' });
-      await expect(uninitStorage.getByType('user')).rejects.toThrow('File storage is not initialized');
+      await expect(uninitStorage.getByType('user')).rejects.toThrow(
+        'File storage is not initialized'
+      );
     });
   });
 
@@ -317,7 +327,9 @@ describe('FileStorage', () => {
 
     it('should throw error when not initialized', async () => {
       const uninitStorage = new FileStorage({ basePath: '/tmp/uninit' });
-      await expect(uninitStorage.query({ type: 'user' })).rejects.toThrow('File storage is not initialized');
+      await expect(uninitStorage.query({ type: 'user' })).rejects.toThrow(
+        'File storage is not initialized'
+      );
     });
   });
 

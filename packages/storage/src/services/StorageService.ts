@@ -7,15 +7,8 @@ import type { Logger } from '@organic/utils';
 import { createLogger } from '@organic/utils';
 import { BaseError } from '@organic/utils';
 
-import type {
-  StorageEntity,
-  StorageIndex,
-  EntityMetadata} from '../models/index.js';
-import {
-  StorageEntityImpl,
-  IndexType,
-  createStorageEntity,
-} from '../models/index.js';
+import type { StorageEntity, StorageIndex, EntityMetadata } from '../models/index.js';
+import { StorageEntityImpl, IndexType, createStorageEntity } from '../models/index.js';
 import type { IStorageBackend, StorageBackendInfo } from '../backends/index.js';
 
 /**
@@ -331,12 +324,7 @@ export class StorageService {
       }
 
       // Check version if using transactions
-      const impl = new StorageEntityImpl(
-        entity.type,
-        entity.data,
-        entity.id,
-        entity.metadata
-      );
+      const impl = new StorageEntityImpl(entity.type, entity.data, entity.id, entity.metadata);
       impl.created_at = entity.created_at;
       impl.updated_at = entity.updated_at;
       impl.version = entity.version;
@@ -408,7 +396,10 @@ export class StorageService {
         created.push(result.entity);
       } else {
         failed.push({
-          entity: createStorageEntity(item.type, item.data, { id: item.id, metadata: item.metadata }).toObject(),
+          entity: createStorageEntity(item.type, item.data, {
+            id: item.id,
+            metadata: item.metadata,
+          }).toObject(),
           error: result.error || 'Unknown error',
         });
       }

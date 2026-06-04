@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { OrchestrationLayer, createOrchestrationLayer, OrchestrationPlanStatus } from '../OrchestrationLayer.js';
+import {
+  OrchestrationLayer,
+  createOrchestrationLayer,
+  OrchestrationPlanStatus,
+} from '../OrchestrationLayer.js';
 import { AgentRegistry } from '../../registry/AgentRegistry.js';
 import { ExecutionCoordinator } from '../ExecutionCoordinator.js';
 import { AgentType, createAgentMetadata } from '../../registry/AgentMetadata.js';
@@ -177,9 +181,7 @@ describe('OrchestrationLayer', () => {
     });
 
     it('should pause plan', () => {
-      const plan = layer.createPlan([
-        { requestId: 'req-1', taskName: 'task1', payload: {} },
-      ]);
+      const plan = layer.createPlan([{ requestId: 'req-1', taskName: 'task1', payload: {} }]);
 
       const result = layer.pause(plan.planId);
       expect(result).toBe(true);

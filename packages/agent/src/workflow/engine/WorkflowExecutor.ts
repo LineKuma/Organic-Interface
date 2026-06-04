@@ -93,10 +93,7 @@ export class WorkflowExecutor extends EventEmitter {
   /**
    * Create a new WorkflowExecutor
    */
-  constructor(
-    executor: NodeExecutor,
-    config: WorkflowExecutorConfig = {}
-  ) {
+  constructor(executor: NodeExecutor, config: WorkflowExecutorConfig = {}) {
     super();
     this.config = {
       ...DEFAULT_WORKFLOW_EXECUTOR_CONFIG,
@@ -175,11 +172,7 @@ export class WorkflowExecutor extends EventEmitter {
       }
 
       // Handle execution error
-      const errorResult = this.handleExecutionError(
-        task,
-        execution,
-        error as Error
-      );
+      const errorResult = this.handleExecutionError(task, execution, error as Error);
 
       return errorResult;
     } finally {
@@ -339,12 +332,7 @@ export class WorkflowExecutor extends EventEmitter {
 
       setTimeout(async () => {
         try {
-          const result = await this.executeTask(
-            task,
-            retryExecution,
-            input,
-            context
-          );
+          const result = await this.executeTask(task, retryExecution, input, context);
           resolve(result);
         } catch (error) {
           reject(error);
@@ -441,7 +429,6 @@ export async function defaultNodeExecutor(
   _input: Record<string, unknown>,
   _context: Record<string, unknown>
 ): Promise<TaskExecutionResult> {
-
   // Check if handler is defined
   if (!task.config.handler) {
     throw new Error(`No handler defined for task: ${task.id}`);

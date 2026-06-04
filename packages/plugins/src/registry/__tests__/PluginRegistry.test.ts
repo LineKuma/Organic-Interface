@@ -1,8 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { PluginRegistry, type PluginInfo, type RegistryEvent } from '../PluginRegistry.js';
-import type { PluginMetadata, PluginConfig, PluginStatus } from '../../interfaces/PluginInterface.js';
+import { PluginRegistry } from '../PluginRegistry.js';
+import type { PluginMetadata, PluginConfig } from '../../interfaces/PluginInterface.js';
 import { PluginLifecycleState } from '../../interfaces/PluginInterface.js';
-import type { PluginLoaderInterface, PluginLoadResult, PluginDiscoveryResult } from '../../interfaces/PluginLoaderInterface.js';
+import type {
+  PluginLoaderInterface,
+  PluginLoadResult,
+  PluginDiscoveryResult,
+} from '../../interfaces/PluginLoaderInterface.js';
 
 const createMockLoader = (): PluginLoaderInterface => ({
   load: vi.fn().mockResolvedValue({ success: true } as PluginLoadResult),
@@ -149,8 +153,16 @@ describe('PluginRegistry', () => {
 
   describe('listAll', () => {
     it('should return all registered plugins', () => {
-      registry.register('plugin-1', createMockMetadata({ id: 'plugin-1', name: 'Plugin 1' }), '/path/1');
-      registry.register('plugin-2', createMockMetadata({ id: 'plugin-2', name: 'Plugin 2' }), '/path/2');
+      registry.register(
+        'plugin-1',
+        createMockMetadata({ id: 'plugin-1', name: 'Plugin 1' }),
+        '/path/1'
+      );
+      registry.register(
+        'plugin-2',
+        createMockMetadata({ id: 'plugin-2', name: 'Plugin 2' }),
+        '/path/2'
+      );
 
       const all = registry.listAll();
 
@@ -177,7 +189,10 @@ describe('PluginRegistry', () => {
   describe('listEnabled', () => {
     it('should return only enabled plugins', () => {
       registry.register('plugin-1', createMockMetadata(), '/path/1');
-      registry.register('plugin-2', createMockMetadata(), '/path/2', { pluginId: 'plugin-2', enabled: false });
+      registry.register('plugin-2', createMockMetadata(), '/path/2', {
+        pluginId: 'plugin-2',
+        enabled: false,
+      });
 
       const enabled = registry.listEnabled();
 
@@ -189,7 +204,10 @@ describe('PluginRegistry', () => {
   describe('listDisabled', () => {
     it('should return only disabled plugins', () => {
       registry.register('plugin-1', createMockMetadata(), '/path/1');
-      registry.register('plugin-2', createMockMetadata(), '/path/2', { pluginId: 'plugin-2', enabled: false });
+      registry.register('plugin-2', createMockMetadata(), '/path/2', {
+        pluginId: 'plugin-2',
+        enabled: false,
+      });
 
       const disabled = registry.listDisabled();
 
@@ -200,9 +218,21 @@ describe('PluginRegistry', () => {
 
   describe('search', () => {
     beforeEach(() => {
-      registry.register('plugin-1', createMockMetadata({ id: 'plugin-1', name: 'Alpha Plugin', version: '1.0.0' }), '/path/1');
-      registry.register('plugin-2', createMockMetadata({ id: 'plugin-2', name: 'Beta Plugin', version: '2.0.0' }), '/path/2');
-      registry.register('plugin-3', createMockMetadata({ id: 'plugin-3', name: 'Alpha Plus', version: '1.5.0' }), '/path/3');
+      registry.register(
+        'plugin-1',
+        createMockMetadata({ id: 'plugin-1', name: 'Alpha Plugin', version: '1.0.0' }),
+        '/path/1'
+      );
+      registry.register(
+        'plugin-2',
+        createMockMetadata({ id: 'plugin-2', name: 'Beta Plugin', version: '2.0.0' }),
+        '/path/2'
+      );
+      registry.register(
+        'plugin-3',
+        createMockMetadata({ id: 'plugin-3', name: 'Alpha Plus', version: '1.5.0' }),
+        '/path/3'
+      );
     });
 
     it('should search by name pattern', () => {
@@ -234,12 +264,20 @@ describe('PluginRegistry', () => {
     });
 
     it('should search by hasDependency', () => {
-      registry.register('dep-plugin', createMockMetadata({ id: 'dep-plugin', name: 'Dep Plugin', dependencies: [] }), '/dep');
-      registry.register('client-plugin', createMockMetadata({
-        id: 'client-plugin',
-        name: 'Client Plugin',
-        dependencies: [{ pluginName: 'dep-plugin', versionRange: '1.0.0' }]
-      }), '/client');
+      registry.register(
+        'dep-plugin',
+        createMockMetadata({ id: 'dep-plugin', name: 'Dep Plugin', dependencies: [] }),
+        '/dep'
+      );
+      registry.register(
+        'client-plugin',
+        createMockMetadata({
+          id: 'client-plugin',
+          name: 'Client Plugin',
+          dependencies: [{ pluginName: 'dep-plugin', versionRange: '1.0.0' }],
+        }),
+        '/client'
+      );
 
       const results = registry.search({ hasDependency: 'dep-plugin' });
 
@@ -249,12 +287,20 @@ describe('PluginRegistry', () => {
 
   describe('findDependents', () => {
     it('should find plugins that depend on given plugin', () => {
-      registry.register('dep-plugin', createMockMetadata({ id: 'dep-plugin', name: 'Dep Plugin' }), '/dep');
-      registry.register('client-plugin', createMockMetadata({
-        id: 'client-plugin',
-        name: 'Client Plugin',
-        dependencies: [{ pluginName: 'dep-plugin', versionRange: '1.0.0' }]
-      }), '/client');
+      registry.register(
+        'dep-plugin',
+        createMockMetadata({ id: 'dep-plugin', name: 'Dep Plugin' }),
+        '/dep'
+      );
+      registry.register(
+        'client-plugin',
+        createMockMetadata({
+          id: 'client-plugin',
+          name: 'Client Plugin',
+          dependencies: [{ pluginName: 'dep-plugin', versionRange: '1.0.0' }],
+        }),
+        '/client'
+      );
 
       const dependents = registry.findDependents('dep-plugin');
 
@@ -350,7 +396,10 @@ describe('PluginRegistry', () => {
   describe('enable/disable', () => {
     it('should enable plugin', () => {
       const metadata = createMockMetadata();
-      registry.register('plugin-1', metadata, '/path/to/plugin', { pluginId: 'plugin-1', enabled: false });
+      registry.register('plugin-1', metadata, '/path/to/plugin', {
+        pluginId: 'plugin-1',
+        enabled: false,
+      });
 
       registry.enable('plugin-1');
 
@@ -360,7 +409,10 @@ describe('PluginRegistry', () => {
 
     it('should emit plugin:enabled event', () => {
       const metadata = createMockMetadata();
-      registry.register('plugin-1', metadata, '/path/to/plugin', { pluginId: 'plugin-1', enabled: false });
+      registry.register('plugin-1', metadata, '/path/to/plugin', {
+        pluginId: 'plugin-1',
+        enabled: false,
+      });
 
       const handler = vi.fn();
       registry.on('plugin:enabled', handler);
@@ -474,7 +526,11 @@ describe('PluginRegistry', () => {
       const metadata = createMockMetadata();
       registry.register('plugin-1', metadata, '/path/to/plugin');
       unsubscribe();
-      registry.register('plugin-2', createMockMetadata({ id: 'plugin-2', name: 'Plugin 2' }), '/path/to/plugin');
+      registry.register(
+        'plugin-2',
+        createMockMetadata({ id: 'plugin-2', name: 'Plugin 2' }),
+        '/path/to/plugin'
+      );
 
       expect(handler).toHaveBeenCalledTimes(1);
     });
@@ -484,7 +540,11 @@ describe('PluginRegistry', () => {
       registry.once('plugin:registered', handler);
 
       registry.register('plugin-1', createMockMetadata(), '/path/1');
-      registry.register('plugin-2', createMockMetadata({ id: 'plugin-2', name: 'Plugin 2' }), '/path/2');
+      registry.register(
+        'plugin-2',
+        createMockMetadata({ id: 'plugin-2', name: 'Plugin 2' }),
+        '/path/2'
+      );
 
       expect(handler).toHaveBeenCalledTimes(1);
     });
@@ -493,7 +553,11 @@ describe('PluginRegistry', () => {
   describe('clear', () => {
     it('should remove all plugins', () => {
       registry.register('plugin-1', createMockMetadata(), '/path/1');
-      registry.register('plugin-2', createMockMetadata({ id: 'plugin-2', name: 'Plugin 2' }), '/path/2');
+      registry.register(
+        'plugin-2',
+        createMockMetadata({ id: 'plugin-2', name: 'Plugin 2' }),
+        '/path/2'
+      );
 
       registry.clear();
 
@@ -515,7 +579,10 @@ describe('PluginRegistry', () => {
   describe('getStats', () => {
     it('should return correct statistics', () => {
       registry.register('plugin-1', createMockMetadata(), '/path/1');
-      registry.register('plugin-2', createMockMetadata(), '/path/2', { pluginId: 'plugin-2', enabled: false });
+      registry.register('plugin-2', createMockMetadata(), '/path/2', {
+        pluginId: 'plugin-2',
+        enabled: false,
+      });
       registry.updateStatus('plugin-1', PluginLifecycleState.ACTIVE);
 
       const stats = registry.getStats();

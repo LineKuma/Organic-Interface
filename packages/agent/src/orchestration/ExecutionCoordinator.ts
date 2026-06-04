@@ -7,12 +7,9 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
-import type { AgentRegistry} from '../registry/index.js';
+import type { AgentRegistry } from '../registry/index.js';
 import { type AgentMetadata } from '../registry/index.js';
-import {
-  AgentChannel,
-  createExecuteMessage,
-} from '../communication/index.js';
+import { AgentChannel, createExecuteMessage } from '../communication/index.js';
 
 /**
  * Execution request
@@ -126,12 +123,15 @@ export class ExecutionCoordinator extends EventEmitter {
   private logger: Logger;
   private registry: AgentRegistry;
   private channels: Map<string, AgentChannel> = new Map();
-  private activeExecutions: Map<string, {
-    plan: ExecutionPlan;
-    stepResults: Map<string, ExecutionResult>;
-    startTime: number;
-    abortController: AbortController;
-  }> = new Map();
+  private activeExecutions: Map<
+    string,
+    {
+      plan: ExecutionPlan;
+      stepResults: Map<string, ExecutionResult>;
+      startTime: number;
+      abortController: AbortController;
+    }
+  > = new Map();
   private defaultTimeout: number = 30000;
 
   /**
@@ -148,9 +148,7 @@ export class ExecutionCoordinator extends EventEmitter {
   /**
    * Execute a single task
    */
-  async execute<R = unknown>(
-    request: ExecutionRequest
-  ): Promise<ExecutionResult<R>> {
+  async execute<R = unknown>(request: ExecutionRequest): Promise<ExecutionResult<R>> {
     const startTime = Date.now();
     const attempts: ExecutionResult[] = [];
 
@@ -193,9 +191,14 @@ export class ExecutionCoordinator extends EventEmitter {
             payload: request.payload,
           },
           {
-            priority: request.priority ? {
-              0: 0, 1: 1, 2: 2, 3: 3
-            }[request.priority] as 0 | 1 | 2 : undefined,
+            priority: request.priority
+              ? ({
+                  0: 0,
+                  1: 1,
+                  2: 2,
+                  3: 3,
+                }[request.priority] as 0 | 1 | 2)
+              : undefined,
             correlationId: request.requestId,
             ttl: request.timeout ?? this.defaultTimeout,
           }
@@ -260,10 +263,8 @@ export class ExecutionCoordinator extends EventEmitter {
   /**
    * Execute multiple tasks in parallel
    */
-  async executeParallel(
-    requests: ExecutionRequest[]
-  ): Promise<ExecutionResult[]> {
-    const promises = requests.map((req) => this.execute(req));
+  async executeParallel(requests: ExecutionRequest[]): Promise<ExecutionResult[]> {
+    const promises = requests.map(req => this.execute(req));
     return Promise.all(promises);
   }
 
@@ -322,7 +323,7 @@ export class ExecutionCoordinator extends EventEmitter {
         }
 
         // Check dependencies
-        const dependenciesMet = step.dependsOn.every((depId) => {
+        const dependenciesMet = step.dependsOn.every(depId => {
           const depResult = execution.stepResults.get(depId);
           return depResult?.success;
         });
@@ -389,7 +390,7 @@ export class ExecutionCoordinator extends EventEmitter {
       const step: ExecutionStep = {
         stepId: `step_${i}`,
         request,
-        dependsOn: request.payload?.dependsOn as string[] ?? [],
+        dependsOn: (request.payload?.dependsOn as string[]) ?? [],
         status: 'pending',
       };
 
@@ -415,21 +416,21 @@ export class ExecutionCoordinator extends EventEmitter {
       }
 
       // Find steps with same dependencies that can run in parallel
-      const parallelSteps = steps.filter((s) => {
+      const parallelSteps = steps.filter(s => {
         if (assigned.has(s.stepId)) return false;
         if (s.stepId === step.stepId) return true;
 
         // Check if dependencies are the same
         const depsMatch =
           s.dependsOn.length === step.dependsOn.length &&
-          s.dependsOn.every((d) => step.dependsOn.includes(d));
+          s.dependsOn.every(d => step.dependsOn.includes(d));
 
         return depsMatch;
       });
 
       if (parallelSteps.length > 1) {
-        groups.push(parallelSteps.map((s) => s.stepId));
-        parallelSteps.forEach((s) => assigned.add(s.stepId));
+        groups.push(parallelSteps.map(s => s.stepId));
+        parallelSteps.forEach(s => assigned.add(s.stepId));
       }
     }
 
@@ -499,7 +500,7 @@ export class ExecutionCoordinator extends EventEmitter {
    * Sleep utility
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**

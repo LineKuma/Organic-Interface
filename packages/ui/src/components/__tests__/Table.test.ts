@@ -48,9 +48,7 @@ describe('Table', () => {
     });
 
     it('should render empty table', () => {
-      const columns: TableColumn<Person>[] = [
-        { key: 'name', header: 'Name' },
-      ];
+      const columns: TableColumn<Person>[] = [{ key: 'name', header: 'Name' }];
       const table = new Table<Person>(columns);
       const output = table.render();
       expect(output).toContain('No data');
@@ -59,9 +57,7 @@ describe('Table', () => {
 
   describe('addRow', () => {
     it('should add a row to the table', () => {
-      const columns: TableColumn<Person>[] = [
-        { key: 'name', header: 'Name' },
-      ];
+      const columns: TableColumn<Person>[] = [{ key: 'name', header: 'Name' }];
       const table = new Table<Person>(columns);
       table.addRow({ name: 'John' });
       expect(table.rowCount).toBe(1);
@@ -70,9 +66,7 @@ describe('Table', () => {
 
   describe('setRows', () => {
     it('should replace all rows', () => {
-      const columns: TableColumn<Person>[] = [
-        { key: 'name', header: 'Name' },
-      ];
+      const columns: TableColumn<Person>[] = [{ key: 'name', header: 'Name' }];
       const table = new Table<Person>(columns);
       table.addRow({ name: 'John' });
       table.addRow({ name: 'Jane' });
@@ -97,9 +91,7 @@ describe('Table', () => {
     });
 
     it('should sort in descending order', () => {
-      const columns: TableColumn<Person>[] = [
-        { key: 'name', header: 'Name' },
-      ];
+      const columns: TableColumn<Person>[] = [{ key: 'name', header: 'Name' }];
       const table = new Table<Person>(columns);
       table.addRow({ name: 'Alice' });
       table.addRow({ name: 'Bob' });
@@ -127,9 +119,7 @@ describe('Table', () => {
 
   describe('getSortConfig', () => {
     it('should return sort config after sorting', () => {
-      const columns: TableColumn<Person>[] = [
-        { key: 'name', header: 'Name' },
-      ];
+      const columns: TableColumn<Person>[] = [{ key: 'name', header: 'Name' }];
       const table = new Table<Person>(columns);
       table.addRow({ name: 'Bob' });
       table.sort('name', 'asc');
@@ -141,9 +131,7 @@ describe('Table', () => {
     });
 
     it('should return undefined when not sorted', () => {
-      const columns: TableColumn<Person>[] = [
-        { key: 'name', header: 'Name' },
-      ];
+      const columns: TableColumn<Person>[] = [{ key: 'name', header: 'Name' }];
       const table = new Table<Person>(columns);
       table.addRow({ name: 'Bob' });
 
@@ -154,9 +142,7 @@ describe('Table', () => {
 
   describe('clear', () => {
     it('should clear all rows', () => {
-      const columns: TableColumn<Person>[] = [
-        { key: 'name', header: 'Name' },
-      ];
+      const columns: TableColumn<Person>[] = [{ key: 'name', header: 'Name' }];
       const table = new Table<Person>(columns);
       table.addRow({ name: 'John' });
       table.clear();
@@ -166,9 +152,7 @@ describe('Table', () => {
 
   describe('border rendering', () => {
     it('should render border when enabled', () => {
-      const columns: TableColumn<Person>[] = [
-        { key: 'name', header: 'Name' },
-      ];
+      const columns: TableColumn<Person>[] = [{ key: 'name', header: 'Name' }];
       const table = new Table<Person>(columns, { border: true, borderStyle: 'single' });
       table.addRow({ name: 'John' });
 
@@ -178,9 +162,7 @@ describe('Table', () => {
     });
 
     it('should render without border when disabled', () => {
-      const columns: TableColumn<Person>[] = [
-        { key: 'name', header: 'Name' },
-      ];
+      const columns: TableColumn<Person>[] = [{ key: 'name', header: 'Name' }];
       const table = new Table<Person>(columns, { border: false });
       table.addRow({ name: 'John' });
 
@@ -193,7 +175,7 @@ describe('Table', () => {
     it('should convert column key to string', () => {
       const columns: TableColumn<Person>[] = [
         { key: 'name', header: 'Name' },
-        { key: 'age', header: 'Age', format: (val) => String(val) },
+        { key: 'age', header: 'Age', format: val => String(val) },
       ];
       const table = new Table<Person>(columns);
       table.addRow({ name: 'John', age: '30' });

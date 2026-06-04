@@ -387,10 +387,7 @@ export function isTaskExecutionFinal(status: TaskStatus): boolean {
 /**
  * Check if task can be retried
  */
-export function canTaskRetry(
-  execution: TaskExecution,
-  task: Task
-): boolean {
+export function canTaskRetry(execution: TaskExecution, task: Task): boolean {
   if (isTaskExecutionFinal(execution.status)) {
     return false;
   }
@@ -402,10 +399,7 @@ export function canTaskRetry(
 /**
  * Calculate next retry interval
  */
-export function calculateRetryInterval(
-  execution: TaskExecution,
-  task: Task
-): number {
+export function calculateRetryInterval(execution: TaskExecution, task: Task): number {
   const policy = task.retryPolicy ?? DEFAULT_RETRY_POLICY;
   const baseInterval = policy.retryInterval;
   const multiplier = policy.backoffMultiplier ?? 1;
@@ -456,37 +450,43 @@ export function createConditionTask(
   trueTaskId?: string,
   falseTaskId?: string
 ): Task {
-  return createTask(name, TaskType.CONDITION, {
-    params: {
-      trueTaskId,
-      falseTaskId,
+  return createTask(
+    name,
+    TaskType.CONDITION,
+    {
+      params: {
+        trueTaskId,
+        falseTaskId,
+      },
     },
-  }, {
-    metadata: {
-      name,
-      description: 'Conditional task based on expression evaluation',
-    },
-  });
+    {
+      metadata: {
+        name,
+        description: 'Conditional task based on expression evaluation',
+      },
+    }
+  );
 }
 
 /**
  * Create a loop task
  */
-export function createLoopTask(
-  name: string,
-  loopConfig: LoopConfig,
-  bodyTaskId: string
-): Task {
-  return createTask(name, TaskType.LOOP, {
-    params: {
-      bodyTaskId,
+export function createLoopTask(name: string, loopConfig: LoopConfig, bodyTaskId: string): Task {
+  return createTask(
+    name,
+    TaskType.LOOP,
+    {
+      params: {
+        bodyTaskId,
+      },
     },
-  }, {
-    metadata: {
-      name,
-      description: 'Loop task with configuration',
-    },
-  });
+    {
+      metadata: {
+        name,
+        description: 'Loop task with configuration',
+      },
+    }
+  );
 }
 
 /**
@@ -497,14 +497,19 @@ export function createParallelTask(
   parallelConfig: ParallelConfig,
   branchTaskIds: string[]
 ): Task {
-  return createTask(name, TaskType.PARALLEL, {
-    params: {
-      branchTaskIds,
+  return createTask(
+    name,
+    TaskType.PARALLEL,
+    {
+      params: {
+        branchTaskIds,
+      },
     },
-  }, {
-    metadata: {
-      name,
-      description: 'Parallel execution task',
-    },
-  });
+    {
+      metadata: {
+        name,
+        description: 'Parallel execution task',
+      },
+    }
+  );
 }

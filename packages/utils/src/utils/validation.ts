@@ -114,12 +114,7 @@ export function validateLength(
 /**
  * Validate number range
  */
-export function validateRange(
-  value: number,
-  min?: number,
-  max?: number,
-  fieldName?: string
-): void {
+export function validateRange(value: number, min?: number, max?: number, fieldName?: string): void {
   if (min !== undefined && value < min) {
     throw ValidationError.outOfRange(fieldName || '', min, max);
   }
@@ -132,11 +127,7 @@ export function validateRange(
 /**
  * Validate string pattern
  */
-export function validatePattern(
-  value: string,
-  pattern: RegExp,
-  fieldName?: string
-): void {
+export function validatePattern(value: string, pattern: RegExp, fieldName?: string): void {
   if (!pattern.test(value)) {
     throw ValidationError.patternMismatch(fieldName || '', pattern.source);
   }

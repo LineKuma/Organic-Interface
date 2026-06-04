@@ -63,7 +63,17 @@ export const DEFAULT_UI_AGENT_CONFIG: UIAgentConfig = {
     deniedDomains: [],
     allowedPaths: [],
     deniedPaths: ['/etc', '/root', '/sys', '/proc'],
-    allowedOperations: ['click', 'input', 'select', 'scroll', 'hover', 'wait', 'getText', 'getAttribute', 'screenshot'],
+    allowedOperations: [
+      'click',
+      'input',
+      'select',
+      'scroll',
+      'hover',
+      'wait',
+      'getText',
+      'getAttribute',
+      'screenshot',
+    ],
     deniedOperations: [],
     maxOperationDuration: 30000,
     maxOperationsPerSession: 1000,
@@ -119,11 +129,31 @@ export interface UIAgentEvents {
   'agent:resume': { agentId: string; timestamp: number };
   'session:start': { agentId: string; sessionId: string; timestamp: number };
   'session:end': { agentId: string; sessionId: string; timestamp: number };
-  'operation:request': { agentId: string; sessionId: string; operation: UIOperationType; timestamp: number };
-  'operation:execute': { agentId: string; sessionId: string; result: UIOperationResult; timestamp: number };
+  'operation:request': {
+    agentId: string;
+    sessionId: string;
+    operation: UIOperationType;
+    timestamp: number;
+  };
+  'operation:execute': {
+    agentId: string;
+    sessionId: string;
+    result: UIOperationResult;
+    timestamp: number;
+  };
   'operation:confirm': { agentId: string; operation: UIOperationType; timestamp: number };
-  'operation:cancel': { agentId: string; operation: UIOperationType; reason: string; timestamp: number };
-  'permission:denied': { agentId: string; operation: UIOperationType; reason: string; timestamp: number };
+  'operation:cancel': {
+    agentId: string;
+    operation: UIOperationType;
+    reason: string;
+    timestamp: number;
+  };
+  'permission:denied': {
+    agentId: string;
+    operation: UIOperationType;
+    reason: string;
+    timestamp: number;
+  };
 }
 
 /**
@@ -486,7 +516,7 @@ export class UIAgent extends EventEmitter {
 
     // In a real implementation, this would wait for user input
     // For now, we return false to indicate user needs to confirm
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       // Placeholder: In production, this would be resolved by user input
       setTimeout(() => resolve(false), 100);
     });
@@ -597,15 +627,15 @@ export class UIAgent extends EventEmitter {
    * Set up operation manager events
    */
   private setupOperationManagerEvents(): void {
-    this.operationManager.on('operation:start', (data) => {
+    this.operationManager.on('operation:start', data => {
       this.logger.debug(`Operation started: ${data.type} (${data.operationId})`);
     });
 
-    this.operationManager.on('operation:complete', (data) => {
+    this.operationManager.on('operation:complete', data => {
       this.logger.debug(`Operation completed: ${data.type} (${data.operationId})`);
     });
 
-    this.operationManager.on('operation:error', (data) => {
+    this.operationManager.on('operation:error', data => {
       this.logger.error(`Operation error: ${data.type} (${data.operationId}): ${data.error}`);
     });
   }
@@ -618,7 +648,9 @@ type UIOperationHandler = {
   getType(): UIOperationType;
   supports(operation: UIOperationType): boolean;
   execute(input: unknown, context: UIOperationContext): Promise<UIOperationResult>;
-  validate(input: unknown): { path: string; message: string; expected?: string; actual?: unknown }[];
+  validate(
+    input: unknown
+  ): { path: string; message: string; expected?: string; actual?: unknown }[];
 };
 
 /**

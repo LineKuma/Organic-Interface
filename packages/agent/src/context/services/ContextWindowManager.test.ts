@@ -4,8 +4,6 @@ import {
   ContextWindowType,
   DEFAULT_CONTEXT_WINDOW_CONFIG,
   DEFAULT_CONTEXT_WINDOW_MANAGER_CONFIG,
-  type ContextWindowConfig,
-  type ContextWindow,
 } from './ContextWindowManager.js';
 import { ContentFormat, MessageType, MessageStatus } from '../Message.js';
 
@@ -110,7 +108,7 @@ describe('ContextWindowManager', () => {
       ];
 
       const window = manager.createWindow('ctx-1', messages, { includeSystemMessages: false });
-      const hasSystemMessage = window.messages.some((m) => m.type === 'system_message');
+      const hasSystemMessage = window.messages.some(m => m.type === 'system_message');
       expect(hasSystemMessage).toBe(false);
     });
 
@@ -129,7 +127,7 @@ describe('ContextWindowManager', () => {
       ];
 
       const window = manager.createWindow('ctx-1', messages, { includeToolCalls: false });
-      const hasToolCall = window.messages.some((m) => m.type === 'tool_call');
+      const hasToolCall = window.messages.some(m => m.type === 'tool_call');
       expect(hasToolCall).toBe(false);
     });
   });

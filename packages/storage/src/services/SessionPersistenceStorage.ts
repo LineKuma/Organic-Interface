@@ -134,10 +134,14 @@ export class SessionPersistenceStorage {
       if (existing) {
         await this.storage.update(session.id, entity.data as Record<string, unknown>);
       } else {
-        const result = await this.storage.create(SESSION_ENTITY_TYPE, entity.data as Record<string, unknown>, {
-          id: session.id,
-          metadata: entity.metadata,
-        });
+        const result = await this.storage.create(
+          SESSION_ENTITY_TYPE,
+          entity.data as Record<string, unknown>,
+          {
+            id: session.id,
+            metadata: entity.metadata,
+          }
+        );
 
         // If create failed due to duplicate, update instead
         if (!result.success && result.error?.includes('already exists')) {
@@ -357,7 +361,10 @@ export class SessionPersistenceStorage {
     }
 
     // Check if session is closed
-    if (session.status === SessionPersistenceStatus.CLOSED || session.status === SessionPersistenceStatus.ARCHIVED) {
+    if (
+      session.status === SessionPersistenceStatus.CLOSED ||
+      session.status === SessionPersistenceStatus.ARCHIVED
+    ) {
       return false;
     }
 

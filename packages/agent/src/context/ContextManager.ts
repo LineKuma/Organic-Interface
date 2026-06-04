@@ -7,12 +7,7 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
-import {
-  type Message,
-  MessageType,
-  ContentFormat,
-  createMessage,
-} from './Message.js';
+import { type Message, MessageType, ContentFormat, createMessage } from './Message.js';
 
 /**
  * Context status enumeration
@@ -395,7 +390,7 @@ export class ContextManager extends EventEmitter {
 
     // Filter by types
     if (options?.types && options.types.length > 0) {
-      messages = messages.filter((m) => options.types!.includes(m.type));
+      messages = messages.filter(m => options.types!.includes(m.type));
     }
 
     // Apply pagination
@@ -586,7 +581,11 @@ export class ContextManager extends EventEmitter {
   /**
    * Subscribe to state changes
    */
-  subscribe(keys: string | string[], callback: ContextChangeCallback, namespace?: string): () => void {
+  subscribe(
+    keys: string | string[],
+    callback: ContextChangeCallback,
+    namespace?: string
+  ): () => void {
     const keyList = Array.isArray(keys) ? keys : [keys];
     const ns = namespace ?? this.config.defaultNamespace;
 
@@ -634,7 +633,7 @@ export class ContextManager extends EventEmitter {
     }
 
     // Estimate token count (rough approximation: 4 chars per token)
-    const messageTexts = context.messages.map((m) => m.content.text ?? '').join('');
+    const messageTexts = context.messages.map(m => m.content.text ?? '').join('');
     const tokenEstimate = Math.ceil(messageTexts.length / 4);
 
     return {

@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   MessageType,
   MessageStatus,
@@ -460,7 +460,11 @@ describe('Message', () => {
     });
 
     it('should include failure text for failed response', () => {
-      const response: ToolResponse = { name: 'writeFile', success: false, error: 'permission denied' };
+      const response: ToolResponse = {
+        name: 'writeFile',
+        success: false,
+        error: 'permission denied',
+      };
       const msg = createToolResponseMessage('s1', 'System', response);
 
       expect(msg.content.text).toContain('failed');
@@ -626,6 +630,7 @@ describe('Message', () => {
     });
 
     it('should return false when id is missing', () => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { id: _, ...noId } = makeMsg();
       expect(isValidMessage(noId)).toBe(false);
     });
@@ -641,7 +646,9 @@ describe('Message', () => {
     });
 
     it('should return false when sender is not an object', () => {
-      expect(isValidMessage(makeMsg({ sender: 'not object' as unknown as MessageSender }))).toBe(false);
+      expect(isValidMessage(makeMsg({ sender: 'not object' as unknown as MessageSender }))).toBe(
+        false
+      );
     });
 
     it('should return false when content is missing', () => {

@@ -112,7 +112,10 @@ describe('FileTool', () => {
     });
 
     it('should execute exists for non-existent file', async () => {
-      const result = await tool.execute({ operation: 'exists', path: '/non/existent/path' }, mockContext);
+      const result = await tool.execute(
+        { operation: 'exists', path: '/non/existent/path' },
+        mockContext
+      );
       expect(result.success).toBe(true);
       expect(result.data).toBe(false);
     });
@@ -158,7 +161,10 @@ describe('FileTool', () => {
       const result = await tool.execute({ operation: 'delete', path: testFile }, mockContext);
       expect(result.success).toBe(true);
 
-      const exists = await fs.access(testFile).then(() => true).catch(() => false);
+      const exists = await fs
+        .access(testFile)
+        .then(() => true)
+        .catch(() => false);
       expect(exists).toBe(false);
     });
 
@@ -234,7 +240,10 @@ describe('FileTool', () => {
       const destContent = await fs.readFile(dest, 'utf-8');
       expect(destContent).toBe('move content');
 
-      const sourceExists = await fs.access(source).then(() => true).catch(() => false);
+      const sourceExists = await fs
+        .access(source)
+        .then(() => true)
+        .catch(() => false);
       expect(sourceExists).toBe(false);
     });
 

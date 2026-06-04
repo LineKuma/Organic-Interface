@@ -9,7 +9,6 @@ import type {
   PluginInput,
   PluginOutput,
   KernelApi,
-  ToolResult,
 } from '@organic/utils';
 import type { EventBus } from './EventBus.js';
 import type { Logger } from '@organic/utils';
@@ -84,10 +83,7 @@ export class PluginManager {
   /**
    * Register a plugin
    */
-  async register(
-    plugin: PluginInterface,
-    options: PluginInitOptions = {}
-  ): Promise<void> {
+  async register(plugin: PluginInterface, options: PluginInitOptions = {}): Promise<void> {
     const { config, autoEnable = true } = options;
 
     if (this.plugins.has(plugin.name)) {
@@ -289,15 +285,13 @@ export class PluginManager {
   async shutdownAll(): Promise<void> {
     this.logger.info('Shutting down all plugins');
 
-    const shutdownPromises = Array.from(this.plugins.values()).map(
-      async (metadata) => {
-        try {
-          await metadata.plugin.shutdown();
-        } catch (error) {
-          this.logger.error(`Error shutting down plugin ${metadata.plugin.name}:`, error);
-        }
+    const shutdownPromises = Array.from(this.plugins.values()).map(async metadata => {
+      try {
+        await metadata.plugin.shutdown();
+      } catch (error) {
+        this.logger.error(`Error shutting down plugin ${metadata.plugin.name}:`, error);
       }
-    );
+    });
 
     await Promise.allSettled(shutdownPromises);
     this.plugins.clear();

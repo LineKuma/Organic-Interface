@@ -172,10 +172,15 @@ export class AgentChannel extends EventEmitter {
     // Store in history
     this.addToHistory(message);
 
-    this.logger.debug(`Handling message: ${message.action} from ${message.source} to ${message.target}`);
+    this.logger.debug(
+      `Handling message: ${message.action} from ${message.source} to ${message.target}`
+    );
 
     // Check for response to pending request
-    if (message.metadata?.correlationId && this.pendingRequests.has(message.metadata.correlationId)) {
+    if (
+      message.metadata?.correlationId &&
+      this.pendingRequests.has(message.metadata.correlationId)
+    ) {
       return this.handlePendingResponse(message);
     }
 
@@ -333,7 +338,7 @@ export class AgentChannel extends EventEmitter {
       });
 
       // Send message
-      this.send(message).catch((error) => {
+      this.send(message).catch(error => {
         clearTimeout(timer);
         this.pendingRequests.delete(correlationId);
         reject(error);
@@ -346,10 +351,7 @@ export class AgentChannel extends EventEmitter {
   /**
    * Subscribe to messages matching filter
    */
-  subscribe(
-    filter: SubscriptionFilter,
-    handler: MessageHandler
-  ): string {
+  subscribe(filter: SubscriptionFilter, handler: MessageHandler): string {
     const subscriptionId = `sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
     this.subscriptions.set(subscriptionId, {
@@ -461,7 +463,7 @@ export class AgentChannel extends EventEmitter {
    * Sleep utility
    */
   private sleep(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**

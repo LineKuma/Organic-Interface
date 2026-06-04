@@ -1,9 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  AgentChannel,
-  createAgentChannel,
-  DEFAULT_CHANNEL_CONFIG,
-} from './AgentChannel.js';
+import { AgentChannel, createAgentChannel, DEFAULT_CHANNEL_CONFIG } from './AgentChannel.js';
 import { MessageAction, createExecuteMessage, createNotifyMessage } from './AgentMessage.js';
 
 vi.mock('@organic/utils', () => ({
@@ -110,7 +106,12 @@ describe('AgentChannel', () => {
     });
 
     it('should throw error for expired message', async () => {
-      const expiredMessage = createExecuteMessage('sender', 'test-agent', { task: 'test' }, { ttl: -1000 });
+      const expiredMessage = createExecuteMessage(
+        'sender',
+        'test-agent',
+        { task: 'test' },
+        { ttl: -1000 }
+      );
       await expect(channel.handleMessage(expiredMessage)).rejects.toThrow(/expired/);
     });
 

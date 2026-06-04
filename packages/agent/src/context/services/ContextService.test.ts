@@ -3,9 +3,8 @@ import {
   ContextService,
   PropagationMode,
   DEFAULT_CONTEXT_SERVICE_CONFIG,
-  type PropagationScope,
 } from './ContextService.js';
-import { ContextItemType, ContextItemPriority } from '../models/ContextItem.js';
+import { ContextItemType } from '../models/ContextItem.js';
 import { ContentFormat, MessageType, MessageStatus } from '../Message.js';
 
 vi.mock('@organic/utils', () => ({
@@ -22,7 +21,13 @@ describe('ContextService', () => {
 
   const createTestParticipants = () => [
     { id: 'user-1', type: 'user' as const, name: 'Test User', joinedAt: Date.now() },
-    { id: 'agent-1', type: 'agent' as const, name: 'Test Agent', role: 'assistant', joinedAt: Date.now() },
+    {
+      id: 'agent-1',
+      type: 'agent' as const,
+      name: 'Test Agent',
+      role: 'assistant',
+      joinedAt: Date.now(),
+    },
   ];
 
   beforeEach(() => {
@@ -392,12 +397,17 @@ describe('ContextService', () => {
     it('should propagate context by reference', () => {
       const context = service.createContext('session-1', createTestParticipants());
 
-      const result = service.propagateContext(context.id, 'target-agent', PropagationMode.REFERENCE, {
-        includeMessages: true,
-        includeStates: true,
-        includeToolCalls: true,
-        includeAttachments: true,
-      });
+      const result = service.propagateContext(
+        context.id,
+        'target-agent',
+        PropagationMode.REFERENCE,
+        {
+          includeMessages: true,
+          includeStates: true,
+          includeToolCalls: true,
+          includeAttachments: true,
+        }
+      );
 
       expect(result.referenceId).toBe(context.id);
     });
@@ -405,12 +415,17 @@ describe('ContextService', () => {
     it('should propagate context incrementally', () => {
       const context = service.createContext('session-1', createTestParticipants());
 
-      const result = service.propagateContext(context.id, 'target-agent', PropagationMode.INCREMENTAL, {
-        includeMessages: true,
-        includeStates: true,
-        includeToolCalls: true,
-        includeAttachments: true,
-      });
+      const result = service.propagateContext(
+        context.id,
+        'target-agent',
+        PropagationMode.INCREMENTAL,
+        {
+          includeMessages: true,
+          includeStates: true,
+          includeToolCalls: true,
+          includeAttachments: true,
+        }
+      );
 
       expect(result.incremental).toBeDefined();
       expect(result.incremental?.messages).toBeDefined();

@@ -4,7 +4,8 @@ import type {
   AgentMetadata,
   RegistryEntry,
   AgentSelector,
-  RegistryStats} from '../AgentMetadata.js';
+  RegistryStats,
+} from '../AgentMetadata.js';
 import {
   AgentType,
   AgentRegistryStatus,
@@ -310,7 +311,7 @@ describe('AgentMetadata', () => {
 
     it('should accept selector with custom filter', () => {
       const selector: AgentSelector = {
-        filter: (agent) => agent.load < 0.5,
+        filter: agent => agent.load < 0.5,
       };
       expect(selector.filter).toBeDefined();
     });

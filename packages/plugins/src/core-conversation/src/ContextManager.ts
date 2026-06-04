@@ -86,10 +86,7 @@ export class ContextManager {
    * @param config - Optional config override
    * @returns Context window
    */
-  async getContextWindow(
-    sessionId: string,
-    config?: ContextWindowConfig
-  ): Promise<ContextWindow> {
+  async getContextWindow(sessionId: string, config?: ContextWindowConfig): Promise<ContextWindow> {
     const context = this.contexts.get(sessionId);
 
     if (!context) {
@@ -126,7 +123,10 @@ export class ContextManager {
     context.lastUpdated = Date.now();
 
     // Check for auto-compression
-    if (this.options.autoCompress && context.messages.length >= this.options.maxMessages * this.options.compressionThreshold) {
+    if (
+      this.options.autoCompress &&
+      context.messages.length >= this.options.maxMessages * this.options.compressionThreshold
+    ) {
       await this.compressContext(sessionId, CompressionStrategy.TRIM_MIDDLE);
     }
   }
@@ -144,7 +144,7 @@ export class ContextManager {
       throw ContextError.notFound(sessionId);
     }
 
-    const messageIndex = context.messages.findIndex((m) => m.id === messageId);
+    const messageIndex = context.messages.findIndex(m => m.id === messageId);
 
     if (messageIndex === -1) {
       throw ContextError.messageNotFound(sessionId, messageId);
@@ -166,7 +166,7 @@ export class ContextManager {
       throw ContextError.notFound(sessionId);
     }
 
-    const index = context.messages.findIndex((m) => m.id === messageId);
+    const index = context.messages.findIndex(m => m.id === messageId);
 
     if (index === -1) {
       throw ContextError.messageNotFound(sessionId, messageId);
@@ -226,8 +226,8 @@ export class ContextManager {
     }
 
     const messages = context.messages;
-    const systemMessages = messages.filter((m) => m.sender === MessageSender.SYSTEM);
-    const toolMessages = messages.filter((m) => m.sender === MessageSender.TOOL);
+    const systemMessages = messages.filter(m => m.sender === MessageSender.SYSTEM);
+    const toolMessages = messages.filter(m => m.sender === MessageSender.TOOL);
 
     return {
       messageCount: messages.length,
@@ -352,20 +352,32 @@ export class ContextManager {
     // Filter by window type
     switch (config.windowType) {
       case ContextWindowType.RECENT_MESSAGES:
-        filtered = this.filterRecentMessages(filtered, config.windowSize, config.includeSystemMessages);
+        filtered = this.filterRecentMessages(
+          filtered,
+          config.windowSize,
+          config.includeSystemMessages
+        );
         break;
       case ContextWindowType.TOKEN_BASED:
-        filtered = this.filterByTokens(filtered, config.maxTokens ?? Infinity, config.includeSystemMessages);
+        filtered = this.filterByTokens(
+          filtered,
+          config.maxTokens ?? Infinity,
+          config.includeSystemMessages
+        );
         break;
       case ContextWindowType.SEMANTIC_BASED:
         // In a real implementation, this would use semantic similarity
-        filtered = this.filterRecentMessages(filtered, config.windowSize, config.includeSystemMessages);
+        filtered = this.filterRecentMessages(
+          filtered,
+          config.windowSize,
+          config.includeSystemMessages
+        );
         break;
     }
 
     // Filter tool calls if needed
     if (!config.includeToolCalls) {
-      filtered = filtered.filter((m) => m.sender !== MessageSender.TOOL);
+      filtered = filtered.filter(m => m.sender !== MessageSender.TOOL);
     }
 
     return filtered;
@@ -384,7 +396,7 @@ export class ContextManager {
     }
 
     // Exclude system messages from count
-    const nonSystem = messages.filter((m) => m.sender !== MessageSender.SYSTEM);
+    const nonSystem = messages.filter(m => m.sender !== MessageSender.SYSTEM);
 
     if (nonSystem.length <= windowSize) {
       // Return all messages if non-system count is within limit
@@ -393,7 +405,7 @@ export class ContextManager {
 
     // Take system messages + recent non-system messages
     const recentNonSystem = nonSystem.slice(-windowSize);
-    const systemMessages = messages.filter((m) => m.sender === MessageSender.SYSTEM);
+    const systemMessages = messages.filter(m => m.sender === MessageSender.SYSTEM);
 
     return [...systemMessages, ...recentNonSystem].sort((a, b) => a.timestamp - b.timestamp);
   }
@@ -441,13 +453,15 @@ export class ContextManager {
     const keepLast = Math.ceil(messages.length * 0.6);
 
     // Always keep system messages at the start
-    const systemMessages = messages.filter((m) => m.sender === MessageSender.SYSTEM);
-    const nonSystemMessages = messages.filter((m) => m.sender !== MessageSender.SYSTEM);
+    const systemMessages = messages.filter(m => m.sender === MessageSender.SYSTEM);
+    const nonSystemMessages = messages.filter(m => m.sender !== MessageSender.SYSTEM);
 
     if (nonSystemMessages.length > keepFirst + keepLast) {
       const first = nonSystemMessages.slice(0, keepFirst);
       const last = nonSystemMessages.slice(-keepLast);
-      context.messages = [...systemMessages, ...first, ...last].sort((a, b) => a.timestamp - b.timestamp);
+      context.messages = [...systemMessages, ...first, ...last].sort(
+        (a, b) => a.timestamp - b.timestamp
+      );
     }
   }
 

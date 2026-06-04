@@ -308,10 +308,7 @@ export function createToolResponseMessage(
 /**
  * Create a system message
  */
-export function createSystemMessage(
-  text: string,
-  contextId?: string
-): Message {
+export function createSystemMessage(text: string, contextId?: string): Message {
   return createMessage({
     sender: { id: 'system', type: 'system', name: 'System' },
     content: { text, format: ContentFormat.PLAIN_TEXT },

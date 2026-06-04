@@ -4,7 +4,7 @@
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { BasePlugin } from '@organic/plugins/base/BasePlugin';
-import type { PluginContext, PluginInput, PluginOutput, InitializeResult } from '@organic/plugins/interfaces/PluginInterface';
+import type { PluginContext, PluginInput } from '@organic/plugins/interfaces/PluginInterface';
 
 // Test plugin implementation
 class TestPlugin extends BasePlugin {
@@ -13,7 +13,7 @@ class TestPlugin extends BasePlugin {
   public onShutdownCalled = false;
   public lastInput: PluginInput | null = null;
 
-  protected async onInitialize(context: PluginContext): Promise<void> {
+  protected async onInitialize(_context: PluginContext): Promise<void> {
     this.onInitializeCalled = true;
   }
 

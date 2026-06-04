@@ -66,9 +66,7 @@ describe('EventBus', () => {
       eventBus.emit('testEvent', { data: 'second' });
 
       expect(listener).toHaveBeenCalledTimes(1);
-      expect(listener).toHaveBeenCalledWith(
-        expect.objectContaining({ data: { data: 'first' } })
-      );
+      expect(listener).toHaveBeenCalledWith(expect.objectContaining({ data: { data: 'first' } }));
     });
 
     it('should return an unsubscribe function that removes the listener', () => {
@@ -266,7 +264,7 @@ describe('EventBus', () => {
       expect(listener).toHaveBeenCalledTimes(1);
     });
 
-it('should dispatch events synchronously when async is false', () => {
+    it('should dispatch events synchronously when async is false', () => {
       const syncEventBus = new EventBus({ async: false });
       const listener = vi.fn();
       syncEventBus.on('syncEvent', listener);
@@ -289,9 +287,18 @@ it('should dispatch events synchronously when async is false', () => {
       syncEventBus.emit('user:deleted', { id: 1 });
 
       expect(listener).toHaveBeenCalledTimes(3);
-      expect(listener).toHaveBeenNthCalledWith(1, expect.objectContaining({ type: 'user:created', data: { id: 1 } }));
-      expect(listener).toHaveBeenNthCalledWith(2, expect.objectContaining({ type: 'user:updated', data: { id: 1 } }));
-      expect(listener).toHaveBeenNthCalledWith(3, expect.objectContaining({ type: 'user:deleted', data: { id: 1 } }));
+      expect(listener).toHaveBeenNthCalledWith(
+        1,
+        expect.objectContaining({ type: 'user:created', data: { id: 1 } })
+      );
+      expect(listener).toHaveBeenNthCalledWith(
+        2,
+        expect.objectContaining({ type: 'user:updated', data: { id: 1 } })
+      );
+      expect(listener).toHaveBeenNthCalledWith(
+        3,
+        expect.objectContaining({ type: 'user:deleted', data: { id: 1 } })
+      );
     });
 
     it('should not match events that do not match the pattern', () => {

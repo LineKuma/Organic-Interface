@@ -166,7 +166,8 @@ export class ContextWindowManager extends EventEmitter {
     const windowConfig: ContextWindowConfig = {
       windowSize: config?.windowSize ?? defaults.windowSize ?? 50,
       windowType: config?.windowType ?? defaults.windowType ?? ContextWindowType.RECENT_MESSAGES,
-      includeSystemMessages: config?.includeSystemMessages ?? defaults.includeSystemMessages ?? true,
+      includeSystemMessages:
+        config?.includeSystemMessages ?? defaults.includeSystemMessages ?? true,
       includeToolCalls: config?.includeToolCalls ?? defaults.includeToolCalls ?? true,
       maxTokens: config?.maxTokens ?? defaults.maxTokens ?? 4096,
       timeWindowMinutes: config?.timeWindowMinutes ?? defaults.timeWindowMinutes ?? 30,
@@ -178,11 +179,7 @@ export class ContextWindowManager extends EventEmitter {
 
     // Filter and slice messages based on window type
     const filteredMessages = this.filterMessages(allMessages, windowConfig);
-    const windowedMessages = this.createMessageSlice(
-      filteredMessages,
-      0,
-      windowConfig
-    );
+    const windowedMessages = this.createMessageSlice(filteredMessages, 0, windowConfig);
 
     // Calculate window bounds
     const startIndex = 0;
@@ -239,10 +236,7 @@ export class ContextWindowManager extends EventEmitter {
   /**
    * Slide window forward (get next messages)
    */
-  slideForward(
-    windowId: string,
-    allMessages: Message[]
-  ): ContextWindow | null {
+  slideForward(windowId: string, allMessages: Message[]): ContextWindow | null {
     const currentWindow = this.windows.get(windowId);
     if (!currentWindow) {
       return null;
@@ -280,10 +274,7 @@ export class ContextWindowManager extends EventEmitter {
   /**
    * Slide window backward (get previous messages)
    */
-  slideBackward(
-    windowId: string,
-    allMessages: Message[]
-  ): ContextWindow | null {
+  slideBackward(windowId: string, allMessages: Message[]): ContextWindow | null {
     const currentWindow = this.windows.get(windowId);
     if (!currentWindow) {
       return null;
@@ -337,10 +328,7 @@ export class ContextWindowManager extends EventEmitter {
     }
 
     // Trim messages to fit token limit
-    const optimizedMessages = this.trimToTokenLimit(
-      window.messages,
-      maxTokens
-    );
+    const optimizedMessages = this.trimToTokenLimit(window.messages, maxTokens);
 
     const optimizedWindow: ContextWindow = {
       ...window,
@@ -370,29 +358,22 @@ export class ContextWindowManager extends EventEmitter {
   /**
    * Filter messages based on window config
    */
-  private filterMessages(
-    messages: Message[],
-    config: ContextWindowConfig
-  ): Message[] {
+  private filterMessages(messages: Message[], config: ContextWindowConfig): Message[] {
     let filtered = messages;
 
     // Filter by type
     if (!config.includeSystemMessages) {
-      filtered = filtered.filter(
-        (m) => m.type !== 'system_message'
-      );
+      filtered = filtered.filter(m => m.type !== 'system_message');
     }
 
     if (!config.includeToolCalls) {
-      filtered = filtered.filter(
-        (m) => m.type !== 'tool_call' && m.type !== 'tool_response'
-      );
+      filtered = filtered.filter(m => m.type !== 'tool_call' && m.type !== 'tool_response');
     }
 
     // Filter by time window
     if (config.windowType === ContextWindowType.RECENT_MINUTES && config.timeWindowMinutes) {
       const cutoffTime = Date.now() - config.timeWindowMinutes * 60 * 1000;
-      filtered = filtered.filter((m) => m.timestamp >= cutoffTime);
+      filtered = filtered.filter(m => m.timestamp >= cutoffTime);
     }
 
     return filtered;
@@ -412,12 +393,7 @@ export class ContextWindowManager extends EventEmitter {
 
     // For token-based, calculate slice
     if (config.windowType === ContextWindowType.TOKEN_BASED) {
-      return this.sliceByTokens(
-        messages,
-        startIndex,
-        config.windowSize,
-        config.maxTokens ?? 4096
-      );
+      return this.sliceByTokens(messages, startIndex, config.windowSize, config.maxTokens ?? 4096);
     }
 
     return messages.slice(startIndex, startIndex + config.windowSize);
@@ -519,9 +495,7 @@ export class ContextWindowManager extends EventEmitter {
         this.windows.delete(windows[i].id);
       }
 
-      this.logger.debug(
-        `Cleaned up ${toRemove} old windows for context: ${contextId}`
-      );
+      this.logger.debug(`Cleaned up ${toRemove} old windows for context: ${contextId}`);
     }
   }
 
@@ -542,7 +516,7 @@ export class ContextWindowManager extends EventEmitter {
    * Delete all windows for a context
    */
   deleteWindowsForContext(contextId: string): number {
-    const windowIds = this.getWindowsForContext(contextId).map((w) => w.id);
+    const windowIds = this.getWindowsForContext(contextId).map(w => w.id);
     let count = 0;
 
     for (const windowId of windowIds) {

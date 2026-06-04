@@ -255,14 +255,10 @@ describe('DatabaseStorage', () => {
 
   describe('batch operations', () => {
     it('should handle batch operations efficiently', async () => {
-      const startTime = Date.now();
-
       // Create many entities
       for (let i = 0; i < 100; i++) {
         await storage.set(createTestEntity(`batch-${i}`, 'item', { index: i }));
       }
-
-      const setTime = Date.now() - startTime;
 
       // Query all
       const all = await storage.getAll();

@@ -62,7 +62,17 @@ export const DEFAULT_SANDBOX_CONFIG: SandboxConfig = {
   deniedDomains: [],
   allowedPaths: [],
   deniedPaths: ['/etc', '/root', '/sys', '/proc', '/var'],
-  allowedOperations: ['click', 'input', 'select', 'scroll', 'hover', 'wait', 'getText', 'getAttribute', 'screenshot'],
+  allowedOperations: [
+    'click',
+    'input',
+    'select',
+    'scroll',
+    'hover',
+    'wait',
+    'getText',
+    'getAttribute',
+    'screenshot',
+  ],
   deniedOperations: [],
   maxOperationDuration: 30000,
   maxOperationsPerSession: 1000,
@@ -289,9 +299,7 @@ export class Sandbox extends EventEmitter {
    * Get all active sessions
    */
   getActiveSessions(): SandboxSession[] {
-    return Array.from(this.sessions.values()).filter(
-      (session) => session.status === 'active'
-    );
+    return Array.from(this.sessions.values()).filter(session => session.status === 'active');
   }
 
   // ==================== Permission Checking ====================
@@ -338,8 +346,10 @@ export class Sandbox extends EventEmitter {
     const warnings: string[] = [];
 
     // Check if operation is allowed
-    if (this.config.allowedOperations.length > 0 &&
-        !this.config.allowedOperations.includes(operation)) {
+    if (
+      this.config.allowedOperations.length > 0 &&
+      !this.config.allowedOperations.includes(operation)
+    ) {
       return {
         allowed: false,
         reason: `Operation not allowed: ${operation}`,
@@ -371,8 +381,7 @@ export class Sandbox extends EventEmitter {
     // Check for sensitive operations
     const sensitiveOperations: UIOperationType[] = ['input'];
     const requiresConfirmation =
-      this.config.requireConfirmation &&
-      sensitiveOperations.includes(operation);
+      this.config.requireConfirmation && sensitiveOperations.includes(operation);
 
     // Add warnings for sensitive operations
     if (requiresConfirmation) {
@@ -408,10 +417,7 @@ export class Sandbox extends EventEmitter {
   /**
    * Check if permission level is sufficient
    */
-  private hasPermissionLevel(
-    current: UIPermissionLevel,
-    required: UIPermissionLevel
-  ): boolean {
+  private hasPermissionLevel(current: UIPermissionLevel, required: UIPermissionLevel): boolean {
     const levels: UIPermissionLevel[] = ['L1', 'L2', 'L3', 'L4'];
     return levels.indexOf(current) >= levels.indexOf(required);
   }
@@ -441,7 +447,7 @@ export class Sandbox extends EventEmitter {
    * Get operation history for session
    */
   getOperationHistory(sessionId: string): SandboxOperationContext[] {
-    return this.operationHistory.filter((op) => op.session.sessionId === sessionId);
+    return this.operationHistory.filter(op => op.session.sessionId === sessionId);
   }
 
   /**
@@ -457,7 +463,7 @@ export class Sandbox extends EventEmitter {
   clearHistory(sessionId?: string): void {
     if (sessionId) {
       this.operationHistory = this.operationHistory.filter(
-        (op) => op.session.sessionId !== sessionId
+        op => op.session.sessionId !== sessionId
       );
     } else {
       this.operationHistory = [];
@@ -485,9 +491,7 @@ export class Sandbox extends EventEmitter {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const operationsToday = sessionOperations.filter(
-      (op) => op.timestamp >= today.getTime()
-    ).length;
+    const operationsToday = sessionOperations.filter(op => op.timestamp >= today.getTime()).length;
 
     return {
       session,
@@ -501,11 +505,7 @@ export class Sandbox extends EventEmitter {
    */
   validateSelector(selector: string): { valid: boolean; reason?: string } {
     // Basic security checks for selectors
-    const dangerousPatterns = [
-      /javascript:/i,
-      /data:/i,
-      /vbscript:/i,
-    ];
+    const dangerousPatterns = [/javascript:/i, /data:/i, /vbscript:/i];
 
     for (const pattern of dangerousPatterns) {
       if (pattern.test(selector)) {
@@ -527,7 +527,12 @@ export interface SandboxEvents {
   'session:created': { session: SandboxSession; timestamp: number };
   'session:terminated': { session: SandboxSession; timestamp: number };
   'operation:recorded': { context: SandboxOperationContext; timestamp: number };
-  'permission:denied': { sessionId: string; operation: UIOperationType; reason: string; timestamp: number };
+  'permission:denied': {
+    sessionId: string;
+    operation: UIOperationType;
+    reason: string;
+    timestamp: number;
+  };
 }
 
 /**

@@ -85,26 +85,31 @@
 ### 层级详细说明
 
 **Level 1 - 默认配置**：
+
 - 在代码中以常量和默认值形式定义
 - 提供最基本的功能保障
 - 不可修改，随代码版本更新
 
 **Level 2 - 系统级配置**：
+
 - 存储在系统配置目录（如 /etc/organic）
 - 影响所有用户和项目
 - 通常由系统管理员管理
 
 **Level 3 - 项目级配置**：
+
 - 存储在项目根目录的配置文件
 - 团队成员共享
 - 纳入版本控制
 
 **Level 4 - 用户级配置**：
+
 - 存储在用户主目录
 - 个性化设置
 - 不影响其他用户
 
 **Level 5 - 环境变量**：
+
 - 通过环境变量设置
 - 最高优先级
 - 适合开发和测试场景
@@ -132,7 +137,7 @@ enum ConfigSourcePriority {
   /** 用户配置 */
   USER = 30,
   /** 环境变量，优先级最高 */
-  ENVIRONMENT = 40
+  ENVIRONMENT = 40,
 }
 
 /**
@@ -163,13 +168,13 @@ interface ConfigSource {
  * 配置源类型
  */
 enum ConfigSourceType {
-  DEFAULT = "default",
-  SYSTEM = "system",
-  PROJECT = "project",
-  USER = "user",
-  ENVIRONMENT = "environment",
-  COMMAND_LINE = "command_line",
-  REMOTE = "remote"
+  DEFAULT = 'default',
+  SYSTEM = 'system',
+  PROJECT = 'project',
+  USER = 'user',
+  ENVIRONMENT = 'environment',
+  COMMAND_LINE = 'command_line',
+  REMOTE = 'remote',
 }
 ```
 
@@ -208,11 +213,11 @@ interface MergeOptions {
  */
 enum MergeStrategy {
   /** 深度合并 */
-  DEEP = "deep",
+  DEEP = 'deep',
   /** 浅合并 */
-  SHALLOW = "shallow",
+  SHALLOW = 'shallow',
   /** 仅覆盖高级配置 */
-  OVERWRITE = "overwrite"
+  OVERWRITE = 'overwrite',
 }
 
 /**
@@ -220,11 +225,11 @@ enum MergeStrategy {
  */
 enum NullHandling {
   /** 保留null值 */
-  PRESERVE = "preserve",
+  PRESERVE = 'preserve',
   /** 忽略null值 */
-  IGNORE = "ignore",
+  IGNORE = 'ignore',
   /** 删除低级配置中的值 */
-  DELETE = "delete"
+  DELETE = 'delete',
 }
 ```
 
@@ -414,7 +419,7 @@ interface ConfigHotReloader {
  */
 interface ConfigSchema {
   /** 配置类型 */
-  type: "object";
+  type: 'object';
 
   /** 配置属性定义 */
   properties: {
@@ -483,7 +488,7 @@ interface ConfigPropertySchema {
 /**
  * 配置类型
  */
-type ConfigType = "string" | "number" | "boolean" | "array" | "object" | "null";
+type ConfigType = 'string' | 'number' | 'boolean' | 'array' | 'object' | 'null';
 
 /**
  * 验证结果
@@ -520,18 +525,18 @@ interface ValidationError {
  * 验证错误代码
  */
 enum ValidationErrorCode {
-  INVALID_TYPE = "invalid_type",
-  REQUIRED = "required",
-  MINIMUM = "minimum",
-  MAXIMUM = "maximum",
-  PATTERN = "pattern",
-  ENUM = "enum",
-  MIN_LENGTH = "min_length",
-  MAX_LENGTH = "max_length",
-  MIN_ITEMS = "min_items",
-  MAX_ITEMS = "max_items",
-  UNKNOWN_PROPERTY = "unknown_property",
-  INVALID_FORMAT = "invalid_format"
+  INVALID_TYPE = 'invalid_type',
+  REQUIRED = 'required',
+  MINIMUM = 'minimum',
+  MAXIMUM = 'maximum',
+  PATTERN = 'pattern',
+  ENUM = 'enum',
+  MIN_LENGTH = 'min_length',
+  MAX_LENGTH = 'max_length',
+  MIN_ITEMS = 'min_items',
+  MAX_ITEMS = 'max_items',
+  UNKNOWN_PROPERTY = 'unknown_property',
+  INVALID_FORMAT = 'invalid_format',
 }
 ```
 
@@ -567,7 +572,7 @@ class ConfigTypeConverter {
   /**
    * 转换为对象
    */
-  static toObject(value: string, format?: "json" | "yaml"): object;
+  static toObject(value: string, format?: 'json' | 'yaml'): object;
 
   /**
    * 智能转换
@@ -657,29 +662,23 @@ interface ConfigService {
   /**
    * 导出配置到指定格式
    */
-  export(format: "json" | "yaml" | "env"): string;
+  export(format: 'json' | 'yaml' | 'env'): string;
 
   /**
    * 从外部导入配置
    */
-  import(source: string, format: "json" | "yaml" | "env"): ImportResult;
+  import(source: string, format: 'json' | 'yaml' | 'env'): ImportResult;
 
   // ==================== 观察者模式 ====================
   /**
    * 监听配置变更
    */
-  watch(
-    key: string | string[],
-    callback: ConfigChangeCallback
-  ): () => void;
+  watch(key: string | string[], callback: ConfigChangeCallback): () => void;
 
   /**
    * 监听命名空间变更
    */
-  watchNamespace(
-    namespace: string,
-    callback: (change: ConfigChange) => void
-  ): () => void;
+  watchNamespace(namespace: string, callback: (change: ConfigChange) => void): () => void;
 }
 
 /**
@@ -784,15 +783,15 @@ interface ConfigSource {
  */
 enum ConfigSourceStatus {
   /** 未加载 */
-  UNLOADED = "unloaded",
+  UNLOADED = 'unloaded',
   /** 加载中 */
-  LOADING = "loading",
+  LOADING = 'loading',
   /** 已加载 */
-  LOADED = "loaded",
+  LOADED = 'loaded',
   /** 加载失败 */
-  FAILED = "failed",
+  FAILED = 'failed',
   /** 已禁用 */
-  DISABLED = "disabled"
+  DISABLED = 'disabled',
 }
 
 /**
@@ -861,7 +860,7 @@ class MemoryConfigStorage implements ConfigStorage {
  * 文件配置存储
  */
 class FileConfigStorage implements ConfigStorage {
-  constructor(filePath: string, format?: "json" | "yaml");
+  constructor(filePath: string, format?: 'json' | 'yaml');
 
   read(): Promise<Record<string, any>>;
   write(data: Record<string, any>): Promise<void>;
@@ -886,20 +885,20 @@ class EnvConfigStorage implements ConfigStorage {
 
 ## 验收条件
 
-| 序号 | 验收项 | 验收标准 |
-|------|--------|----------|
-| 1 | 配置层级定义 | 系统支持DEFAULT、SYSTEM、PROJECT、USER、ENVIRONMENT五个配置层级 |
-| 2 | 优先级机制 | 高优先级配置覆盖低优先级配置，ENVIRONMENT最高，DEFAULT最低 |
-| 3 | 深度合并策略 | 嵌套对象执行深度合并，数组执行替换操作 |
-| 4 | 启动加载流程 | 包含默认值加载、配置源发现、按优先级加载、合并验证、分发流程 |
-| 5 | 热更新支持 | 运行时配置变更能触发监听器回调，无需重启 |
-| 6 | Schema验证 | 配置项定义包含类型、约束等Schema信息，验证失败返回详细错误 |
-| 7 | 类型转换 | 支持字符串到number、boolean、array、object的类型转换 |
-| 8 | ConfigService接口 | 包含get、set、getNamespace、watch、export、import等核心方法 |
-| 9 | ConfigSource数据模型 | 包含id、type、path、priority、status等完整字段 |
-| 10 | ConfigValue数据模型 | 包含value、type、source、readonly等完整字段 |
-| 11 | 环境变量前缀 | 支持自定义环境变量前缀，默认前缀为ORGANIC_ |
-| 12 | 文档编号 | 文档编号为DOC-010，与feature-006保持一致的结构风格 |
+| 序号 | 验收项               | 验收标准                                                        |
+| ---- | -------------------- | --------------------------------------------------------------- |
+| 1    | 配置层级定义         | 系统支持DEFAULT、SYSTEM、PROJECT、USER、ENVIRONMENT五个配置层级 |
+| 2    | 优先级机制           | 高优先级配置覆盖低优先级配置，ENVIRONMENT最高，DEFAULT最低      |
+| 3    | 深度合并策略         | 嵌套对象执行深度合并，数组执行替换操作                          |
+| 4    | 启动加载流程         | 包含默认值加载、配置源发现、按优先级加载、合并验证、分发流程    |
+| 5    | 热更新支持           | 运行时配置变更能触发监听器回调，无需重启                        |
+| 6    | Schema验证           | 配置项定义包含类型、约束等Schema信息，验证失败返回详细错误      |
+| 7    | 类型转换             | 支持字符串到number、boolean、array、object的类型转换            |
+| 8    | ConfigService接口    | 包含get、set、getNamespace、watch、export、import等核心方法     |
+| 9    | ConfigSource数据模型 | 包含id、type、path、priority、status等完整字段                  |
+| 10   | ConfigValue数据模型  | 包含value、type、source、readonly等完整字段                     |
+| 11   | 环境变量前缀         | 支持自定义环境变量前缀，默认前缀为ORGANIC\_                     |
+| 12   | 文档编号             | 文档编号为DOC-010，与feature-006保持一致的结构风格              |
 
 ---
 
@@ -908,6 +907,7 @@ class EnvConfigStorage implements ConfigStorage {
 ### 与Plugin系统的协作
 
 配置系统为Plugin提供配置支持：
+
 - Plugin可以声明自己的配置Schema
 - Plugin配置遵循多级覆盖规则
 - Plugin可以监听配置变更实现热更新
@@ -915,6 +915,7 @@ class EnvConfigStorage implements ConfigStorage {
 ### 与任务调度的集成
 
 任务调度使用配置控制行为：
+
 - 调度策略可配置
 - 并发限制可配置
 - 超时设置可配置
@@ -922,6 +923,7 @@ class EnvConfigStorage implements ConfigStorage {
 ### 与安全系统的配合
 
 安全系统读取安全相关配置：
+
 - 权限策略从配置读取
 - 审计规则可配置
 - IP白名单可配置
@@ -930,13 +932,13 @@ class EnvConfigStorage implements ConfigStorage {
 
 ## 术语定义
 
-| 术语 | 定义 |
-|------|------|
-| ConfigSource | 配置源，配置的存储位置和层级 |
-| ConfigValue | 配置值，包含值本身及其元数据 |
-| ConfigSchema | 配置Schema，配置项的类型和约束定义 |
-| MergeStrategy | 合并策略，多层级配置合并的方式 |
-| HotReload | 热更新，无需重启即可生效的配置更新 |
+| 术语          | 定义                               |
+| ------------- | ---------------------------------- |
+| ConfigSource  | 配置源，配置的存储位置和层级       |
+| ConfigValue   | 配置值，包含值本身及其元数据       |
+| ConfigSchema  | 配置Schema，配置项的类型和约束定义 |
+| MergeStrategy | 合并策略，多层级配置合并的方式     |
+| HotReload     | 热更新，无需重启即可生效的配置更新 |
 
 ---
 

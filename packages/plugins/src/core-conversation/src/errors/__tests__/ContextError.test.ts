@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { ContextError } from '../ContextError.js';
 import { ConversationError, ConversationErrorCode } from '../ConversationError.js';
 
@@ -147,7 +147,7 @@ describe('ContextError', () => {
         expect(error.sessionId).toBe('session-123');
         expect(error.details).toEqual({
           messageId: 'msg-789',
-          reason: 'Message does not exist'
+          reason: 'Message does not exist',
         });
       });
 
@@ -157,7 +157,7 @@ describe('ContextError', () => {
 
         expect(error.details).toEqual({
           messageId: msgId,
-          reason: 'Message does not exist'
+          reason: 'Message does not exist',
         });
       });
     });

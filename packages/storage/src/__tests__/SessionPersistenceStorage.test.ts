@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import type {
   SessionPersistenceStorageConfig,
-  SessionPersistence} from '../services/SessionPersistenceStorage.js';
+  SessionPersistence,
+} from '../services/SessionPersistenceStorage.js';
 import {
   SessionPersistenceStorage,
   SessionPersistenceStatus,
-  SessionPersistenceContextWindow,
   SessionAdapter,
 } from '../services/SessionPersistenceStorage.js';
 import { StorageService } from '../services/StorageService.js';

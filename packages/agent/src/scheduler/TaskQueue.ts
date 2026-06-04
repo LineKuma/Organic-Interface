@@ -264,7 +264,7 @@ export class TaskQueue {
     }
 
     // Remove from queue
-    const index = this.queue.findIndex((t) => t.id === taskId);
+    const index = this.queue.findIndex(t => t.id === taskId);
     if (index > -1) {
       this.queue.splice(index, 1);
     }
@@ -347,7 +347,7 @@ export class TaskQueue {
     task.completedAt = Date.now();
 
     // Remove from queue
-    const index = this.queue.findIndex((t) => t.id === taskId);
+    const index = this.queue.findIndex(t => t.id === taskId);
     if (index > -1) {
       this.queue.splice(index, 1);
     }
@@ -361,7 +361,7 @@ export class TaskQueue {
    * Get queue size
    */
   size(): number {
-    return this.queue.filter((t) => t.status === TaskStatus.PENDING).length;
+    return this.queue.filter(t => t.status === TaskStatus.PENDING).length;
   }
 
   /**
@@ -382,7 +382,7 @@ export class TaskQueue {
    * Get pending tasks
    */
   getPendingTasks(): Task[] {
-    return this.queue.filter((t) => t.status === TaskStatus.PENDING);
+    return this.queue.filter(t => t.status === TaskStatus.PENDING);
   }
 
   /**

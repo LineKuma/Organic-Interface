@@ -3,8 +3,6 @@ import {
   TaskQueue,
   TaskPriority,
   TaskStatus,
-  TaskOptions,
-  TaskQueueConfig,
   DEFAULT_QUEUE_CONFIG,
   createTask,
 } from '../TaskQueue.js';

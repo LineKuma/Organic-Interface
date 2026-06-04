@@ -7,12 +7,7 @@ import * as path from 'path';
 import * as https from 'https';
 import * as http from 'http';
 
-import type {
-  PluginInterface,
-  PluginMetadata,
-  PluginConfig,
-  PluginLifecycleState,
-} from '../interfaces/PluginInterface.js';
+import type { PluginMetadata, PluginConfig } from '../interfaces/PluginInterface.js';
 import type {
   PluginLoaderInterface,
   PluginLoadResult,
@@ -20,14 +15,8 @@ import type {
   RemotePluginSource,
   RemotePluginLoadResult,
   CompatibilityResult,
-  CompatibilityIssue,
 } from '../interfaces/PluginLoaderInterface.js';
 import { PluginLoader } from './PluginLoader.js';
-
-/**
- * Remote plugin source type
- */
-type SourceType = 'npm' | 'git' | 'http' | 'file';
 
 /**
  * Remote plugin loader options
@@ -52,16 +41,6 @@ const DEFAULT_OPTIONS: Required<RemotePluginLoaderOptions> = {
   timeout: 30000,
   verifySsl: true,
 };
-
-/**
- * Parse source type from URL
- */
-function parseSourceType(source: string): SourceType {
-  if (source.startsWith('npm:')) return 'npm';
-  if (source.startsWith('git:') || source.startsWith('git+')) return 'git';
-  if (source.startsWith('http://') || source.startsWith('https://')) return 'http';
-  return 'file';
-}
 
 /**
  * RemotePluginLoader - Loads plugins from remote sources
@@ -216,12 +195,16 @@ export class RemotePluginLoader implements PluginLoaderInterface {
    * Download plugin from HTTP/HTTPS URL
    */
   private async downloadPlugin(source: RemotePluginSource): Promise<RemotePluginLoadResult> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const protocol = source.url.startsWith('https') ? https : http;
 
-      const req = protocol.get(source.url, { timeout: this.options.timeout }, (res) => {
+      const req = protocol.get(source.url, { timeout: this.options.timeout }, res => {
         // Handle redirects
-        if (res.statusCode && [301, 302, 303, 307, 308].includes(res.statusCode) && res.headers.location) {
+        if (
+          res.statusCode &&
+          [301, 302, 303, 307, 308].includes(res.statusCode) &&
+          res.headers.location
+        ) {
           const redirectSource = { ...source, url: res.headers.location };
           this.downloadPlugin(redirectSource).then(resolve);
           return;
@@ -267,7 +250,7 @@ export class RemotePluginLoader implements PluginLoaderInterface {
         });
       });
 
-      req.on('error', (error) => {
+      req.on('error', error => {
         resolve({
           success: false,
           error: error.message,

@@ -8,18 +8,10 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { ContextManager } from '../ContextManager.js';
 import { ContextError } from '../errors/index.js';
-import {
-  MessageSender,
-  ContextWindowType,
-  CompressionStrategy,
-} from '../types/index.js';
+import { MessageSender, ContextWindowType, CompressionStrategy } from '../types/index.js';
 
 // Helper to create test messages
-function createMessage(
-  id: string,
-  content: string,
-  sender: MessageSender = MessageSender.USER
-) {
+function createMessage(id: string, content: string, sender: MessageSender = MessageSender.USER) {
   return {
     id,
     content,
@@ -96,9 +88,7 @@ describe('ContextManager', () => {
     });
 
     it('should throw for non-existent session', async () => {
-      await expect(manager.getContextWindow('non-existent')).rejects.toThrow(
-        ContextError
-      );
+      await expect(manager.getContextWindow('non-existent')).rejects.toThrow(ContextError);
     });
 
     it('should respect window size configuration', async () => {
@@ -145,7 +135,7 @@ describe('ContextManager', () => {
       const context1 = manager.getContext(sessionId);
       const originalTime = context1.lastUpdated;
 
-      await new Promise((resolve) => setTimeout(resolve, 5));
+      await new Promise(resolve => setTimeout(resolve, 5));
       await manager.addMessage(sessionId, createMessage('m1', 'Test'));
 
       const context2 = manager.getContext(sessionId);
@@ -156,8 +146,14 @@ describe('ContextManager', () => {
       const sessionId = 'session-1';
 
       await manager.addMessage(sessionId, createMessage('m1', 'User message', MessageSender.USER));
-      await manager.addMessage(sessionId, createMessage('m2', 'Assistant message', MessageSender.ASSISTANT));
-      await manager.addMessage(sessionId, createMessage('m3', 'System message', MessageSender.SYSTEM));
+      await manager.addMessage(
+        sessionId,
+        createMessage('m2', 'Assistant message', MessageSender.ASSISTANT)
+      );
+      await manager.addMessage(
+        sessionId,
+        createMessage('m3', 'System message', MessageSender.SYSTEM)
+      );
       await manager.addMessage(sessionId, createMessage('m4', 'Tool message', MessageSender.TOOL));
 
       const context = manager.getContext(sessionId);
@@ -198,21 +194,21 @@ describe('ContextManager', () => {
     });
 
     it('should throw for non-existent session', async () => {
-      await expect(
-        manager.updateMessage('non-existent', 'm1', 'New content')
-      ).rejects.toThrow(ContextError);
+      await expect(manager.updateMessage('non-existent', 'm1', 'New content')).rejects.toThrow(
+        ContextError
+      );
     });
 
     it('should throw for non-existent message', async () => {
       const sessionId = 'session-1';
       await manager.addMessage(sessionId, createMessage('m1', 'Test'));
 
-      await expect(
-        manager.updateMessage(sessionId, 'non-existent', 'New content')
-      ).rejects.toThrow(ContextError);
-      await expect(
-        manager.updateMessage(sessionId, 'non-existent', 'New content')
-      ).rejects.toThrow('not found');
+      await expect(manager.updateMessage(sessionId, 'non-existent', 'New content')).rejects.toThrow(
+        ContextError
+      );
+      await expect(manager.updateMessage(sessionId, 'non-existent', 'New content')).rejects.toThrow(
+        'not found'
+      );
     });
   });
 
@@ -227,16 +223,14 @@ describe('ContextManager', () => {
 
       const context = manager.getContext(sessionId);
       expect(context.messages).toHaveLength(2);
-      expect(context.messages.find((m) => m.id === 'm2')).toBeUndefined();
+      expect(context.messages.find(m => m.id === 'm2')).toBeUndefined();
     });
 
     it('should throw for non-existent message', async () => {
       const sessionId = 'session-1';
       await manager.addMessage(sessionId, createMessage('m1', 'Test'));
 
-      await expect(
-        manager.deleteMessage(sessionId, 'non-existent')
-      ).rejects.toThrow(ContextError);
+      await expect(manager.deleteMessage(sessionId, 'non-existent')).rejects.toThrow(ContextError);
     });
   });
 
@@ -253,9 +247,7 @@ describe('ContextManager', () => {
     });
 
     it('should throw for non-existent session', async () => {
-      await expect(manager.clearContext('non-existent')).rejects.toThrow(
-        ContextError
-      );
+      await expect(manager.clearContext('non-existent')).rejects.toThrow(ContextError);
     });
   });
 
@@ -285,9 +277,7 @@ describe('ContextManager', () => {
     });
 
     it('should return empty array for non-existent session', async () => {
-      await expect(manager.getHistory('non-existent')).rejects.toThrow(
-        ContextError
-      );
+      await expect(manager.getHistory('non-existent')).rejects.toThrow(ContextError);
     });
   });
 
@@ -296,8 +286,14 @@ describe('ContextManager', () => {
       const sessionId = 'session-1';
 
       await manager.addMessage(sessionId, createMessage('m1', 'User message', MessageSender.USER));
-      await manager.addMessage(sessionId, createMessage('m2', 'Assistant message', MessageSender.ASSISTANT));
-      await manager.addMessage(sessionId, createMessage('m3', 'System message', MessageSender.SYSTEM));
+      await manager.addMessage(
+        sessionId,
+        createMessage('m2', 'Assistant message', MessageSender.ASSISTANT)
+      );
+      await manager.addMessage(
+        sessionId,
+        createMessage('m3', 'System message', MessageSender.SYSTEM)
+      );
       await manager.addMessage(sessionId, createMessage('m4', 'Tool call', MessageSender.TOOL));
 
       const stats = await manager.getContextStats(sessionId);
@@ -385,10 +381,7 @@ describe('ContextManager', () => {
 
       // Add many messages
       for (let i = 0; i < 20; i++) {
-        await manager.addMessage(
-          sessionId,
-          createMessage(`m${i}`, `Message ${i}`)
-        );
+        await manager.addMessage(sessionId, createMessage(`m${i}`, `Message ${i}`));
       }
 
       await manager.compressContext(sessionId, CompressionStrategy.TRIM_MIDDLE);
@@ -401,10 +394,7 @@ describe('ContextManager', () => {
       const sessionId = 'session-1';
 
       for (let i = 0; i < 30; i++) {
-        await manager.addMessage(
-          sessionId,
-          createMessage(`m${i}`, `Message ${i}`)
-        );
+        await manager.addMessage(sessionId, createMessage(`m${i}`, `Message ${i}`));
       }
 
       await manager.compressContext(sessionId, CompressionStrategy.SELECTIVE);
@@ -417,17 +407,14 @@ describe('ContextManager', () => {
       const sessionId = 'session-1';
 
       for (let i = 0; i < 30; i++) {
-        await manager.addMessage(
-          sessionId,
-          createMessage(`m${i}`, `Message ${i}`)
-        );
+        await manager.addMessage(sessionId, createMessage(`m${i}`, `Message ${i}`));
       }
 
       await manager.compressContext(sessionId, CompressionStrategy.SELECTIVE);
 
       const context = manager.getContext(sessionId);
       // First messages should be preserved
-      expect(context.messages.find((m) => m.id === 'm0')).toBeDefined();
+      expect(context.messages.find(m => m.id === 'm0')).toBeDefined();
     });
   });
 
@@ -478,10 +465,7 @@ describe('ContextManager', () => {
       const sessionId = 'session-1';
 
       for (let i = 0; i < 20; i++) {
-        await manager.addMessage(
-          sessionId,
-          createMessage(`m${i}`, `Message ${i}`)
-        );
+        await manager.addMessage(sessionId, createMessage(`m${i}`, `Message ${i}`));
       }
 
       const window = await manager.getContextWindow(sessionId, {
@@ -522,7 +506,10 @@ describe('ContextManager', () => {
 
       await manager.addMessage(sessionId, createMessage('m1', 'User message', MessageSender.USER));
       await manager.addMessage(sessionId, createMessage('m2', 'Tool call', MessageSender.TOOL));
-      await manager.addMessage(sessionId, createMessage('m3', 'Another message', MessageSender.USER));
+      await manager.addMessage(
+        sessionId,
+        createMessage('m3', 'Another message', MessageSender.USER)
+      );
 
       const window = await manager.getContextWindow(sessionId, {
         windowSize: 10,
@@ -531,7 +518,7 @@ describe('ContextManager', () => {
         includeToolCalls: false,
       });
 
-      expect(window.messages.find((m) => m.sender === MessageSender.TOOL)).toBeUndefined();
+      expect(window.messages.find(m => m.sender === MessageSender.TOOL)).toBeUndefined();
     });
   });
 });

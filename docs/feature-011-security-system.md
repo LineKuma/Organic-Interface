@@ -96,15 +96,15 @@ interface Principal {
  */
 enum PrincipalType {
   /** 用户 */
-  USER = "user",
+  USER = 'user',
   /** Agent */
-  AGENT = "agent",
+  AGENT = 'agent',
   /** Plugin */
-  PLUGIN = "plugin",
+  PLUGIN = 'plugin',
   /** 系统服务 */
-  SERVICE = "service",
+  SERVICE = 'service',
   /** 匿名主体 */
-  ANONYMOUS = "anonymous"
+  ANONYMOUS = 'anonymous',
 }
 
 /**
@@ -112,13 +112,13 @@ enum PrincipalType {
  */
 enum PrincipalStatus {
   /** 活跃 */
-  ACTIVE = "active",
+  ACTIVE = 'active',
   /** 禁用 */
-  DISABLED = "disabled",
+  DISABLED = 'disabled',
   /** 已删除 */
-  DELETED = "deleted",
+  DELETED = 'deleted',
   /** 锁定 */
-  LOCKED = "locked"
+  LOCKED = 'locked',
 }
 
 /**
@@ -158,13 +158,13 @@ interface Role {
  */
 enum RoleType {
   /** 系统预定义角色 */
-  SYSTEM = "system",
+  SYSTEM = 'system',
   /** 组织级别角色 */
-  ORGANIZATION = "organization",
+  ORGANIZATION = 'organization',
   /** 项目级别角色 */
-  PROJECT = "project",
+  PROJECT = 'project',
   /** 自定义角色 */
-  CUSTOM = "custom"
+  CUSTOM = 'custom',
 }
 
 /**
@@ -207,13 +207,13 @@ interface Permission {
  */
 enum PermissionType {
   /** 直接权限 */
-  DIRECT = "direct",
+  DIRECT = 'direct',
   /** 角色继承权限 */
-  INHERITED = "inherited",
+  INHERITED = 'inherited',
   /** 组权限 */
-  GROUP = "group",
+  GROUP = 'group',
   /** 临时权限 */
-  TEMPORARY = "temporary"
+  TEMPORARY = 'temporary',
 }
 
 /**
@@ -221,21 +221,21 @@ enum PermissionType {
  */
 enum PermissionAction {
   /** 读取操作 */
-  READ = "read",
+  READ = 'read',
   /** 写入操作 */
-  WRITE = "write",
+  WRITE = 'write',
   /** 删除操作 */
-  DELETE = "delete",
+  DELETE = 'delete',
   /** 执行操作 */
-  EXECUTE = "execute",
+  EXECUTE = 'execute',
   /** 创建操作 */
-  CREATE = "create",
+  CREATE = 'create',
   /** 管理操作 */
-  MANAGE = "manage",
+  MANAGE = 'manage',
   /** 授予权限 */
-  GRANT = "grant",
+  GRANT = 'grant',
   /** 撤销权限 */
-  REVOKE = "revoke"
+  REVOKE = 'revoke',
 }
 
 /**
@@ -243,9 +243,9 @@ enum PermissionAction {
  */
 enum PermissionEffect {
   /** 允许 */
-  ALLOW = "allow",
+  ALLOW = 'allow',
   /** 拒绝 */
-  DENY = "deny"
+  DENY = 'deny',
 }
 
 /**
@@ -270,28 +270,28 @@ interface PermissionCondition {
  */
 enum ConditionType {
   /** 时间条件 */
-  TIME = "time",
+  TIME = 'time',
   /** IP条件 */
-  IP = "ip",
+  IP = 'ip',
   /** 资源状态条件 */
-  RESOURCE_STATE = "resource_state",
+  RESOURCE_STATE = 'resource_state',
   /** 自定义条件 */
-  CUSTOM = "custom"
+  CUSTOM = 'custom',
 }
 
 /**
  * 条件操作符枚举
  */
 enum ConditionOperator {
-  EQUALS = "equals",
-  NOT_EQUALS = "not_equals",
-  IN = "in",
-  NOT_IN = "not_in",
-  GREATER_THAN = "greater_than",
-  LESS_THAN = "less_than",
-  BETWEEN = "between",
-  CONTAINS = "contains",
-  REGEX = "regex"
+  EQUALS = 'equals',
+  NOT_EQUALS = 'not_equals',
+  IN = 'in',
+  NOT_IN = 'not_in',
+  GREATER_THAN = 'greater_than',
+  LESS_THAN = 'less_than',
+  BETWEEN = 'between',
+  CONTAINS = 'contains',
+  REGEX = 'regex',
 }
 ```
 
@@ -405,21 +405,21 @@ interface AccessControlResult {
  */
 enum DenialCode {
   /** 主体不存在 */
-  PRINCIPAL_NOT_FOUND = "principal_not_found",
+  PRINCIPAL_NOT_FOUND = 'principal_not_found',
   /** 主体被禁用 */
-  PRINCIPAL_DISABLED = "principal_disabled",
+  PRINCIPAL_DISABLED = 'principal_disabled',
   /** 权限不足 */
-  PERMISSION_DENIED = "permission_denied",
+  PERMISSION_DENIED = 'permission_denied',
   /** 资源不存在 */
-  RESOURCE_NOT_FOUND = "resource_not_found",
+  RESOURCE_NOT_FOUND = 'resource_not_found',
   /** 资源不可访问 */
-  RESOURCE_UNAVAILABLE = "resource_unavailable",
+  RESOURCE_UNAVAILABLE = 'resource_unavailable',
   /** 操作不允许 */
-  ACTION_NOT_ALLOWED = "action_not_allowed",
+  ACTION_NOT_ALLOWED = 'action_not_allowed',
   /** 条件不满足 */
-  CONDITIONS_NOT_MET = "conditions_not_met",
+  CONDITIONS_NOT_MET = 'conditions_not_met',
   /** 系统错误 */
-  SYSTEM_ERROR = "system_error"
+  SYSTEM_ERROR = 'system_error',
 }
 ```
 
@@ -454,9 +454,7 @@ class PermissionEvaluator {
   /**
    * 批量权限检查
    */
-  async checkPermissions(
-    requests: AccessControlRequest[]
-  ): Promise<AccessControlResult[]>;
+  async checkPermissions(requests: AccessControlRequest[]): Promise<AccessControlResult[]>;
 }
 ```
 
@@ -612,19 +610,19 @@ interface AuditAction {
  */
 enum AuditCategory {
   /** 认证相关 */
-  AUTHENTICATION = "authentication",
+  AUTHENTICATION = 'authentication',
   /** 授权相关 */
-  AUTHORIZATION = "authorization",
+  AUTHORIZATION = 'authorization',
   /** 资源访问 */
-  RESOURCE_ACCESS = "resource_access",
+  RESOURCE_ACCESS = 'resource_access',
   /** 配置变更 */
-  CONFIG_CHANGE = "config_change",
+  CONFIG_CHANGE = 'config_change',
   /** 安全策略 */
-  SECURITY_POLICY = "security_policy",
+  SECURITY_POLICY = 'security_policy',
   /** 系统管理 */
-  ADMINISTRATION = "administration",
+  ADMINISTRATION = 'administration',
   /** 数据操作 */
-  DATA_OPERATION = "data_operation"
+  DATA_OPERATION = 'data_operation',
 }
 
 /**
@@ -662,10 +660,10 @@ interface AuditResult {
  * 审计状态枚举
  */
 enum AuditStatus {
-  SUCCESS = "success",
-  FAILURE = "failure",
-  PARTIAL = "partial",
-  PENDING = "pending"
+  SUCCESS = 'success',
+  FAILURE = 'failure',
+  PARTIAL = 'partial',
+  PENDING = 'pending',
 }
 
 /**
@@ -735,7 +733,11 @@ interface AuditLogService {
   /**
    * 获取资源操作历史
    */
-  getByResource(resourceType: string, resourceId: string, options?: QueryOptions): Promise<AuditLog[]>;
+  getByResource(
+    resourceType: string,
+    resourceId: string,
+    options?: QueryOptions
+  ): Promise<AuditLog[]>;
 
   /**
    * 导出审计日志
@@ -827,9 +829,9 @@ interface AuditStatistics {
  * 导出格式枚举
  */
 enum ExportFormat {
-  JSON = "json",
-  CSV = "csv",
-  JSONL = "jsonl"
+  JSON = 'json',
+  CSV = 'csv',
+  JSONL = 'jsonl',
 }
 ```
 
@@ -880,17 +882,17 @@ interface SecurityPolicy {
  */
 enum SecurityPolicyType {
   /** 访问控制策略 */
-  ACCESS_CONTROL = "access_control",
+  ACCESS_CONTROL = 'access_control',
   /** 密码策略 */
-  PASSWORD_POLICY = "password_policy",
+  PASSWORD_POLICY = 'password_policy',
   /** 会话策略 */
-  SESSION_POLICY = "session_policy",
+  SESSION_POLICY = 'session_policy',
   /** 审计策略 */
-  AUDIT_POLICY = "audit_policy",
+  AUDIT_POLICY = 'audit_policy',
   /** 网络安全策略 */
-  NETWORK_POLICY = "network_policy",
+  NETWORK_POLICY = 'network_policy',
   /** 数据保护策略 */
-  DATA_PROTECTION = "data_protection"
+  DATA_PROTECTION = 'data_protection',
 }
 
 /**
@@ -922,25 +924,25 @@ interface RuleCondition {
  * 规则条件类型枚举
  */
 enum RuleConditionType {
-  ALWAYS = "always",
-  NEVER = "never",
-  TIME_RANGE = "time_range",
-  IP_ADDRESS = "ip_address",
-  USER_AGENT = "user_agent",
-  REQUEST_HEADER = "request_header",
-  RESOURCE_TYPE = "resource_type",
-  PRINCIPAL_ROLE = "principal_role"
+  ALWAYS = 'always',
+  NEVER = 'never',
+  TIME_RANGE = 'time_range',
+  IP_ADDRESS = 'ip_address',
+  USER_AGENT = 'user_agent',
+  REQUEST_HEADER = 'request_header',
+  RESOURCE_TYPE = 'resource_type',
+  PRINCIPAL_ROLE = 'principal_role',
 }
 
 /**
  * 规则动作枚举
  */
 enum RuleAction {
-  ALLOW = "allow",
-  DENY = "deny",
-  LOG = "log",
-  CHALLENGE = "challenge",
-  REDIRECT = "redirect"
+  ALLOW = 'allow',
+  DENY = 'deny',
+  LOG = 'log',
+  CHALLENGE = 'challenge',
+  REDIRECT = 'redirect',
 }
 
 /**
@@ -961,10 +963,10 @@ interface PolicyScope {
  * 范围级别枚举
  */
 enum ScopeLevel {
-  SYSTEM = "system",
-  ORGANIZATION = "organization",
-  PROJECT = "project",
-  RESOURCE = "resource"
+  SYSTEM = 'system',
+  ORGANIZATION = 'organization',
+  PROJECT = 'project',
+  RESOURCE = 'resource',
 }
 ```
 
@@ -988,18 +990,12 @@ interface SecurityService {
   /**
    * 授予权限
    */
-  grantPermission(
-    principalId: string,
-    permission: Permission
-  ): Promise<void>;
+  grantPermission(principalId: string, permission: Permission): Promise<void>;
 
   /**
    * 撤销权限
    */
-  revokePermission(
-    principalId: string,
-    permissionId: string
-  ): Promise<void>;
+  revokePermission(principalId: string, permissionId: string): Promise<void>;
 
   /**
    * 获取主体权限
@@ -1255,25 +1251,25 @@ interface AuditLog {
  */
 enum AuditEventType {
   /** 登录事件 */
-  LOGIN = "login",
+  LOGIN = 'login',
   /** 登出事件 */
-  LOGOUT = "logout",
+  LOGOUT = 'logout',
   /** 权限变更 */
-  PERMISSION_CHANGE = "permission_change",
+  PERMISSION_CHANGE = 'permission_change',
   /** 角色变更 */
-  ROLE_CHANGE = "role_change",
+  ROLE_CHANGE = 'role_change',
   /** 资源访问 */
-  RESOURCE_ACCESS = "resource_access",
+  RESOURCE_ACCESS = 'resource_access',
   /** 配置变更 */
-  CONFIG_CHANGE = "config_change",
+  CONFIG_CHANGE = 'config_change',
   /** 安全策略变更 */
-  POLICY_CHANGE = "policy_change",
+  POLICY_CHANGE = 'policy_change',
   /** 敏感操作 */
-  SENSITIVE_OPERATION = "sensitive_operation",
+  SENSITIVE_OPERATION = 'sensitive_operation',
   /** 认证失败 */
-  AUTH_FAILURE = "auth_failure",
+  AUTH_FAILURE = 'auth_failure',
   /** 授权失败 */
-  AUTHZ_FAILURE = "authz_failure"
+  AUTHZ_FAILURE = 'authz_failure',
 }
 
 /**
@@ -1336,20 +1332,20 @@ interface AuditContextInfo {
 
 ## 验收条件
 
-| 序号 | 验收项 | 验收标准 |
-|------|--------|----------|
-| 1 | RBAC权限模型 | 包含Principal、Role、Permission三个核心实体 |
-| 2 | 主体类型分类 | 支持USER、AGENT、PLUGIN、SERVICE、ANONYMOUS五种主体类型 |
-| 3 | 权限操作类型 | 支持READ、WRITE、DELETE、EXECUTE、CREATE、MANAGE、GRANT、REVOKE操作 |
-| 4 | 权限验证流程 | 包含主体状态检查、资源存在性检查、权限匹配、条件评估、合并决策流程 |
-| 5 | Deny优先规则 | 多个权限冲突时，Deny效果优先于Allow效果 |
-| 6 | 审计日志结构 | AuditLog包含id、actor、action、resource、result、timestamp完整字段 |
-| 7 | 审计分类 | 支持AUTHENTICATION、AUTHORIZATION、RESOURCE_ACCESS、CONFIG_CHANGE等分类 |
-| 8 | 安全策略类型 | 支持ACCESS_CONTROL、PASSWORD_POLICY、SESSION_POLICY、AUDIT_POLICY等策略 |
-| 9 | SecurityService接口 | 包含checkPermission、grantPermission、revokePermission、logAudit等核心方法 |
-| 10 | Permission数据模型 | 包含id、name、type、principal_id、resource_type、action、effect等完整字段 |
-| 11 | AuditLog数据模型 | 包含id、timestamp、event_type、actor、target、operation、result完整字段 |
-| 12 | 文档编号 | 文档编号为DOC-011，与feature-006保持一致的结构风格 |
+| 序号 | 验收项              | 验收标准                                                                   |
+| ---- | ------------------- | -------------------------------------------------------------------------- |
+| 1    | RBAC权限模型        | 包含Principal、Role、Permission三个核心实体                                |
+| 2    | 主体类型分类        | 支持USER、AGENT、PLUGIN、SERVICE、ANONYMOUS五种主体类型                    |
+| 3    | 权限操作类型        | 支持READ、WRITE、DELETE、EXECUTE、CREATE、MANAGE、GRANT、REVOKE操作        |
+| 4    | 权限验证流程        | 包含主体状态检查、资源存在性检查、权限匹配、条件评估、合并决策流程         |
+| 5    | Deny优先规则        | 多个权限冲突时，Deny效果优先于Allow效果                                    |
+| 6    | 审计日志结构        | AuditLog包含id、actor、action、resource、result、timestamp完整字段         |
+| 7    | 审计分类            | 支持AUTHENTICATION、AUTHORIZATION、RESOURCE_ACCESS、CONFIG_CHANGE等分类    |
+| 8    | 安全策略类型        | 支持ACCESS_CONTROL、PASSWORD_POLICY、SESSION_POLICY、AUDIT_POLICY等策略    |
+| 9    | SecurityService接口 | 包含checkPermission、grantPermission、revokePermission、logAudit等核心方法 |
+| 10   | Permission数据模型  | 包含id、name、type、principal_id、resource_type、action、effect等完整字段  |
+| 11   | AuditLog数据模型    | 包含id、timestamp、event_type、actor、target、operation、result完整字段    |
+| 12   | 文档编号            | 文档编号为DOC-011，与feature-006保持一致的结构风格                         |
 
 ---
 
@@ -1358,6 +1354,7 @@ interface AuditContextInfo {
 ### 与Plugin系统的协作
 
 安全系统为Plugin提供权限控制：
+
 - Plugin需要声明所需权限
 - Plugin调用受权限验证保护
 - Plugin可以注册自定义安全策略
@@ -1365,6 +1362,7 @@ interface AuditContextInfo {
 ### 与Agent架构的集成
 
 Agent操作受安全系统管控：
+
 - Agent需要拥有相应权限才能执行操作
 - Agent的操作被完整审计记录
 - Agent可以使用安全系统验证其他Agent权限
@@ -1372,6 +1370,7 @@ Agent操作受安全系统管控：
 ### 与工具系统的配合
 
 工具调用受安全系统保护：
+
 - 工具权限分级管理
 - 高危工具需要特殊权限
 - 工具调用被完整审计
@@ -1380,14 +1379,14 @@ Agent操作受安全系统管控：
 
 ## 术语定义
 
-| 术语 | 定义 |
-|------|------|
-| RBAC | 基于角色的访问控制，通过角色聚合权限简化权限管理 |
-| Principal | 权限主体，执行操作的用户、Agent或Plugin |
-| Permission | 权限，对特定资源的特定操作的许可 |
-| AuditLog | 审计日志，记录安全相关操作的日志条目 |
-| SecurityPolicy | 安全策略，定义安全规则的控制机制 |
-| DenialCode | 拒绝原因代码，表示访问被拒绝的具体原因 |
+| 术语           | 定义                                             |
+| -------------- | ------------------------------------------------ |
+| RBAC           | 基于角色的访问控制，通过角色聚合权限简化权限管理 |
+| Principal      | 权限主体，执行操作的用户、Agent或Plugin          |
+| Permission     | 权限，对特定资源的特定操作的许可                 |
+| AuditLog       | 审计日志，记录安全相关操作的日志条目             |
+| SecurityPolicy | 安全策略，定义安全规则的控制机制                 |
+| DenialCode     | 拒绝原因代码，表示访问被拒绝的具体原因           |
 
 ---
 

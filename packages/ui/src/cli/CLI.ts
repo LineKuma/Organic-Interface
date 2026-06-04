@@ -3,13 +3,8 @@
  */
 
 import { createLogger, type Logger } from '@organic/utils';
-import {
-  type Command,
-  type CommandResult,
-  createCommand,
-  addSubcommand,
-} from './Command.js';
-import type { CommandParser} from './CommandParser.js';
+import { type Command, type CommandResult, createCommand, addSubcommand } from './Command.js';
+import type { CommandParser } from './CommandParser.js';
 import { defaultParser } from './CommandParser.js';
 
 /**
@@ -67,12 +62,12 @@ export interface OperationLog {
  */
 export class CLI {
   private readonly config: CLIConfig & {
-  name: string;
-  version: string;
-  description: string;
-  interactive: boolean;
-  historyPath: string;
-};
+    name: string;
+    version: string;
+    description: string;
+    interactive: boolean;
+    historyPath: string;
+  };
   private readonly logger: Logger;
   private readonly parser: CommandParser;
   private readonly rootCommand: Command;
@@ -143,7 +138,6 @@ export class CLI {
       // Find and execute command
       const result = await this.executeCommand(parseResult.parsed);
       return result;
-
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`CLI error: ${errorMessage}`);
@@ -260,97 +254,121 @@ export class CLI {
    */
   private registerBuiltInCommands(): void {
     // Help command
-    this.register(createCommand({
-      name: 'help',
-      description: 'Show help information',
-      aliases: ['h', '?'],
-      arguments: [
-        { name: 'command', description: 'Command to show help for', required: false },
-      ],
-      handler: async (args) => {
-        const cmd = args.command as string | undefined;
-        const subcommands = this.rootCommand.subcommands ?? new Map();
-        if (cmd && subcommands.has(cmd)) {
-          const command = subcommands.get(cmd)!;
-          return {
-            success: true,
-            code: 0,
-            message: this.parser.formatHelp(command),
-          };
-        }
-        return this.showHelp([]);
-      },
-    }));
+    this.register(
+      createCommand({
+        name: 'help',
+        description: 'Show help information',
+        aliases: ['h', '?'],
+        arguments: [{ name: 'command', description: 'Command to show help for', required: false }],
+        handler: async args => {
+          const cmd = args.command as string | undefined;
+          const subcommands = this.rootCommand.subcommands ?? new Map();
+          if (cmd && subcommands.has(cmd)) {
+            const command = subcommands.get(cmd)!;
+            return {
+              success: true,
+              code: 0,
+              message: this.parser.formatHelp(command),
+            };
+          }
+          return this.showHelp([]);
+        },
+      })
+    );
 
     // History command
-    this.register(createCommand({
-      name: 'history',
-      description: 'Show command history',
-      aliases: ['hist'],
-      options: [
-        { short: 'c', long: 'clear', description: 'Clear history', valueType: 'boolean' },
-        { short: 'n', long: 'limit', description: 'Limit number of entries', valueType: 'number' },
-      ],
-      handler: async (args, logger) => {
-        if (args.clear) {
-          this.operationHistory = [];
-          logger.info('History cleared');
-          return { success: true, code: 0, message: 'History cleared' };
-        }
+    this.register(
+      createCommand({
+        name: 'history',
+        description: 'Show command history',
+        aliases: ['hist'],
+        options: [
+          { short: 'c', long: 'clear', description: 'Clear history', valueType: 'boolean' },
+          {
+            short: 'n',
+            long: 'limit',
+            description: 'Limit number of entries',
+            valueType: 'number',
+          },
+        ],
+        handler: async (args, logger) => {
+          if (args.clear) {
+            this.operationHistory = [];
+            logger.info('History cleared');
+            return { success: true, code: 0, message: 'History cleared' };
+          }
 
-        const limit = (args.limit as number) ?? this.operationHistory.length;
-        const entries = this.operationHistory.slice(-limit);
+          const limit = (args.limit as number) ?? this.operationHistory.length;
+          const entries = this.operationHistory.slice(-limit);
 
-        if (entries.length === 0) {
-          return { success: true, code: 0, message: 'No history entries' };
-        }
+          if (entries.length === 0) {
+            return { success: true, code: 0, message: 'No history entries' };
+          }
 
-        const output = entries
-          .map((entry, i) => `[${i + 1}] ${entry.timestamp.toISOString()} - ${entry.operation_type}`)
-          .join('\n');
+          const output = entries
+            .map(
+              (entry, i) => `[${i + 1}] ${entry.timestamp.toISOString()} - ${entry.operation_type}`
+            )
+            .join('\n');
 
-        return { success: true, code: 0, message: output };
-      },
-    }));
+          return { success: true, code: 0, message: output };
+        },
+      })
+    );
 
     // Log command for audit
-    this.register(createCommand({
-      name: 'log',
-      description: 'Show operation logs',
-      aliases: ['logs'],
-      options: [
-        { short: 'a', long: 'agent', description: 'Filter by agent ID', valueType: 'string' },
-        { short: 't', long: 'type', description: 'Filter by operation type', valueType: 'string' },
-        { short: 's', long: 'status', description: 'Filter by status', valueType: 'string' },
-        { short: 'n', long: 'limit', description: 'Limit number of entries', valueType: 'number' },
-      ],
-      handler: async (args) => {
-        let logs = [...this.operationHistory];
+    this.register(
+      createCommand({
+        name: 'log',
+        description: 'Show operation logs',
+        aliases: ['logs'],
+        options: [
+          { short: 'a', long: 'agent', description: 'Filter by agent ID', valueType: 'string' },
+          {
+            short: 't',
+            long: 'type',
+            description: 'Filter by operation type',
+            valueType: 'string',
+          },
+          { short: 's', long: 'status', description: 'Filter by status', valueType: 'string' },
+          {
+            short: 'n',
+            long: 'limit',
+            description: 'Limit number of entries',
+            valueType: 'number',
+          },
+        ],
+        handler: async args => {
+          let logs = [...this.operationHistory];
 
-        if (args.agent) {
-          logs = logs.filter(l => l.agent_id === args.agent);
-        }
-        if (args.type) {
-          logs = logs.filter(l => l.operation_type === args.type);
-        }
-        if (args.status) {
-          logs = logs.filter(l => l.status === args.status);
-        }
+          if (args.agent) {
+            logs = logs.filter(l => l.agent_id === args.agent);
+          }
+          if (args.type) {
+            logs = logs.filter(l => l.operation_type === args.type);
+          }
+          if (args.status) {
+            logs = logs.filter(l => l.status === args.status);
+          }
 
-        const limit = (args.limit as number) ?? logs.length;
-        const entries = logs.slice(-limit);
+          const limit = (args.limit as number) ?? logs.length;
+          const entries = logs.slice(-limit);
 
-        if (entries.length === 0) {
-          return { success: true, code: 0, message: 'No matching log entries' };
-        }
+          if (entries.length === 0) {
+            return { success: true, code: 0, message: 'No matching log entries' };
+          }
 
-        const output = entries
-          .map(entry => `[${entry.log_id}] ${entry.agent_id} - ${entry.operation_type} (${entry.status})`)
-          .join('\n');
+          const output = entries
+            .map(
+              entry =>
+                `[${entry.log_id}] ${entry.agent_id} - ${entry.operation_type} (${entry.status})`
+            )
+            .join('\n');
 
-        return { success: true, code: 0, message: output };
-      },
-    }));
+          return { success: true, code: 0, message: output };
+        },
+      })
+    );
   }
 
   /**

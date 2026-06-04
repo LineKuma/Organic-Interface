@@ -122,7 +122,7 @@ class MyPlugin extends BasePlugin {
       name: 'my-plugin',
       version: '1.0.0',
       description: 'My custom plugin',
-      defaultConfig: { option: 'value' }
+      defaultConfig: { option: 'value' },
     });
   }
 
@@ -213,17 +213,17 @@ const installed = await registry.listInstalled();
 
 #### 支持的操作
 
-| 操作 | 描述 | 参数 |
-|------|------|------|
-| `create_session` | 创建新会话 | `userId?: string`, `config?: SessionConfig` |
-| `send_message` | 发送消息 | `text: string`, `sessionId?: string` |
-| `resume_session` | 恢复会话 | `sessionId: string` |
-| `close_session` | 关闭会话 | `sessionId?: string` |
-| `list_sessions` | 列出所有会话 | `filter?: SessionFilter` |
-| `get_session` | 获取会话信息 | `sessionId?: string` |
-| `get_context` | 获取上下文窗口 | `sessionId?: string` |
-| `clear_context` | 清除上下文 | `sessionId?: string` |
-| `update_context` | 更新上下文 | `sessionId?: string`, `updates: Record<string, unknown>` |
+| 操作             | 描述           | 参数                                                     |
+| ---------------- | -------------- | -------------------------------------------------------- |
+| `create_session` | 创建新会话     | `userId?: string`, `config?: SessionConfig`              |
+| `send_message`   | 发送消息       | `text: string`, `sessionId?: string`                     |
+| `resume_session` | 恢复会话       | `sessionId: string`                                      |
+| `close_session`  | 关闭会话       | `sessionId?: string`                                     |
+| `list_sessions`  | 列出所有会话   | `filter?: SessionFilter`                                 |
+| `get_session`    | 获取会话信息   | `sessionId?: string`                                     |
+| `get_context`    | 获取上下文窗口 | `sessionId?: string`                                     |
+| `clear_context`  | 清除上下文     | `sessionId?: string`                                     |
+| `update_context` | 更新上下文     | `sessionId?: string`, `updates: Record<string, unknown>` |
 
 #### 使用示例
 
@@ -236,13 +236,13 @@ const plugin = new CoreConversationPlugin();
 // 初始化
 await plugin.initialize({
   kernel: kernelApi,
-  config: { maxSessions: 50 }
+  config: { maxSessions: 50 },
 });
 
 // 创建会话
 const result = await plugin.execute({
   action: 'create_session',
-  params: { userId: 'user-123' }
+  params: { userId: 'user-123' },
 });
 
 // 发送消息
@@ -250,14 +250,14 @@ const messageResult = await plugin.execute({
   action: 'send_message',
   params: {
     text: 'Hello, world!',
-    sessionId: result.data.session.id
-  }
+    sessionId: result.data.session.id,
+  },
 });
 
 // 关闭会话
 await plugin.execute({
   action: 'close_session',
-  params: { sessionId: result.data.session.id }
+  params: { sessionId: result.data.session.id },
 });
 
 // 关闭插件
@@ -278,11 +278,11 @@ await plugin.shutdown();
 
 ### 错误类型
 
-| 错误类型 | 描述 |
-|----------|------|
-| `ConversationError` | 对话相关错误 |
-| `SessionError` | 会话相关错误 |
-| `ContextError` | 上下文相关错误 |
+| 错误类型            | 描述           |
+| ------------------- | -------------- |
+| `ConversationError` | 对话相关错误   |
+| `SessionError`      | 会话相关错误   |
+| `ContextError`      | 上下文相关错误 |
 
 ### 错误代码
 
@@ -291,7 +291,7 @@ enum ConversationErrorCode {
   SESSION_NOT_FOUND = 'SESSION_NOT_FOUND',
   INVALID_INPUT = 'INVALID_INPUT',
   SESSION_LIMIT_EXCEEDED = 'SESSION_LIMIT_EXCEEDED',
-  TIMEOUT = 'TIMEOUT'
+  TIMEOUT = 'TIMEOUT',
 }
 ```
 
@@ -310,7 +310,13 @@ packages/plugins/src/my-plugin/
 ### 步骤 2: 实现 PluginInterface
 
 ```typescript
-import type { PluginInterface, PluginContext, PluginInput, PluginOutput, InitializeResult } from '@organic/utils';
+import type {
+  PluginInterface,
+  PluginContext,
+  PluginInput,
+  PluginOutput,
+  InitializeResult,
+} from '@organic/utils';
 
 export class MyPlugin implements PluginInterface {
   readonly name = 'my-plugin';
@@ -344,7 +350,7 @@ export const METADATA = {
   apiVersion: '1.0.0',
   minKernelVersion: '1.0.0',
   dependencies: [],
-  defaultConfig: {}
+  defaultConfig: {},
 };
 ```
 
@@ -390,7 +396,7 @@ export type {
   PluginContext,
   PluginInput,
   PluginOutput,
-  InitializeResult
+  InitializeResult,
 };
 
 // Loader 相关类型
@@ -402,17 +408,11 @@ export type {
   CompatibilityResult,
   CompatibilityIssue,
   RemotePluginSource,
-  RemotePluginLoadResult
+  RemotePluginLoadResult,
 };
 
 // Registry 相关类型
-export type {
-  PluginInfo,
-  PluginSearchOptions,
-  InstallResult,
-  UpgradeResult,
-  RegistryEvent
-};
+export type { PluginInfo, PluginSearchOptions, InstallResult, UpgradeResult, RegistryEvent };
 ```
 
 ### 导出类

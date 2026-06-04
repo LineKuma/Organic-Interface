@@ -4,7 +4,6 @@
 
 import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { TextService } from '../services/TextService.js';
-import type { TextServiceConfig } from '../services/TextService.js';
 
 describe('TextService', () => {
   let textService: TextService;
@@ -57,9 +56,7 @@ describe('TextService', () => {
       const svc = new TextService({
         defaultTableOptions: { borders: false, align: 'center' },
       });
-      const result = svc.formatTable(
-        { headers: ['A', 'B'], rows: [['1', '2']] }
-      );
+      const result = svc.formatTable({ headers: ['A', 'B'], rows: [['1', '2']] });
       // No borders means no box-drawing chars
       expect(result).not.toContain('┌');
       expect(result).not.toContain('│');
@@ -161,7 +158,10 @@ describe('TextService', () => {
   describe('formatTable()', () => {
     const tableData = {
       headers: ['Name', 'Value'],
-      rows: [['foo', 'bar'], ['hello', 'world']],
+      rows: [
+        ['foo', 'bar'],
+        ['hello', 'world'],
+      ],
     };
 
     it('should format a table with borders by default', () => {
@@ -578,8 +578,8 @@ describe('TextService', () => {
       const spinner = svc.spinner('dots');
       spinner.start('Loading');
       spinner.success('Completed');
-      const successCall = stdoutWriteSpy.mock.calls.find(
-        (call: unknown[]) => (call[0] as string).includes('Completed')
+      const successCall = stdoutWriteSpy.mock.calls.find((call: unknown[]) =>
+        (call[0] as string).includes('Completed')
       );
       expect(successCall).toBeDefined();
     });
@@ -589,8 +589,8 @@ describe('TextService', () => {
       const spinner = svc.spinner('dots');
       spinner.start('Loading');
       spinner.error('Crashed');
-      const errorCall = stdoutWriteSpy.mock.calls.find(
-        (call: unknown[]) => (call[0] as string).includes('Crashed')
+      const errorCall = stdoutWriteSpy.mock.calls.find((call: unknown[]) =>
+        (call[0] as string).includes('Crashed')
       );
       expect(errorCall).toBeDefined();
     });
@@ -601,8 +601,8 @@ describe('TextService', () => {
       spinner.start('Loading');
       spinner.stopWithMessage('Warning text', 'warning');
 
-      const warningCall = stdoutWriteSpy.mock.calls.find(
-        (call: unknown[]) => (call[0] as string).includes('Warning text')
+      const warningCall = stdoutWriteSpy.mock.calls.find((call: unknown[]) =>
+        (call[0] as string).includes('Warning text')
       );
       expect(warningCall).toBeDefined();
     });

@@ -6,11 +6,7 @@
  */
 
 // Plugin main class
-export {
-  CoreConversationPlugin,
-  METADATA,
-  CONFIG_SCHEMA,
-} from './CoreConversationPlugin.js';
+export { CoreConversationPlugin, METADATA, CONFIG_SCHEMA } from './CoreConversationPlugin.js';
 
 // Session manager
 export {
@@ -20,16 +16,10 @@ export {
 } from './SessionManager.js';
 
 // Context manager
-export {
-  ContextManager,
-  type ContextManagerOptions,
-} from './ContextManager.js';
+export { ContextManager, type ContextManagerOptions } from './ContextManager.js';
 
 // Input parser
-export {
-  InputParser,
-  type InputParserOptions,
-} from './InputParser.js';
+export { InputParser, type InputParserOptions } from './InputParser.js';
 
 // Output formatter
 export {

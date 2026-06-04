@@ -4,7 +4,13 @@
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { Kernel } from '../kernel/Kernel.js';
-import type { KernelConfig, PluginInterface, PluginContext, PluginInput, PluginOutput, InitializeResult } from '@organic/utils';
+import type {
+  KernelConfig,
+  PluginInterface,
+  PluginInput,
+  PluginOutput,
+  InitializeResult,
+} from '@organic/utils';
 
 // Mock plugin for testing
 const createMockPlugin = (
@@ -16,10 +22,12 @@ const createMockPlugin = (
   version,
   description,
   initialize: vi.fn(async (): Promise<InitializeResult> => ({ success: true })),
-  execute: vi.fn(async (input: PluginInput): Promise<PluginOutput> => ({
-    success: true,
-    data: { action: input.action, result: 'executed' },
-  })),
+  execute: vi.fn(
+    async (input: PluginInput): Promise<PluginOutput> => ({
+      success: true,
+      data: { action: input.action, result: 'executed' },
+    })
+  ),
   shutdown: vi.fn(async () => {}),
 });
 
@@ -188,9 +196,7 @@ describe('Kernel', () => {
     it('should throw when kernel is not running', async () => {
       await kernel.initialize();
 
-      await expect(
-        kernel.executeTool('test-tool', {})
-      ).rejects.toThrow(/Invalid kernel state/);
+      await expect(kernel.executeTool('test-tool', {})).rejects.toThrow(/Invalid kernel state/);
     });
 
     it('should return error result for non-existent tool', async () => {
@@ -213,7 +219,7 @@ describe('Kernel', () => {
     });
 
     it('should emit kernel:init event', async () => {
-      const eventData = await new Promise<any>((resolve) => {
+      const eventData = await new Promise<any>(resolve => {
         kernel.onEvent('kernel:init', resolve);
         kernel.initialize();
       });
@@ -242,7 +248,7 @@ describe('Kernel', () => {
     it('should emit kernel:start event', async () => {
       await kernel.initialize();
 
-      const eventData = await new Promise<any>((resolve) => {
+      const eventData = await new Promise<any>(resolve => {
         kernel.onceEvent('kernel:start', resolve);
         kernel.start();
       });
@@ -278,7 +284,7 @@ describe('Kernel', () => {
       await kernel.initialize();
       await kernel.start();
 
-      const eventData = await new Promise<any>((resolve) => {
+      const eventData = await new Promise<any>(resolve => {
         kernel.onceEvent('kernel:stop', resolve);
         kernel.stop();
       });
@@ -316,7 +322,7 @@ describe('Kernel', () => {
     });
 
     it('should emit config:update event', async () => {
-      const eventData = await new Promise<any>((resolve) => {
+      const eventData = await new Promise<any>(resolve => {
         kernel.onEvent('config:update', resolve);
         kernel.updateConfig({ name: 'updated-kernel' });
       });

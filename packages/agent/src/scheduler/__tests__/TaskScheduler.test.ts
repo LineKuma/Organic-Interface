@@ -1,9 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  TaskScheduler,
-  type TaskExecutor,
-} from '../TaskScheduler.js';
-import { TaskPriority, TaskStatus, Task } from '../TaskQueue.js';
+import { TaskScheduler, type TaskExecutor } from '../TaskScheduler.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
@@ -166,13 +162,13 @@ describe('TaskScheduler', () => {
     it('should return running task count', async () => {
       scheduler.start();
       const executor: TaskExecutor = vi.fn().mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 100));
         return 'result';
       });
       scheduler.setExecutor(executor);
 
       scheduler.schedule({ name: 'Task1' });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       expect(scheduler.getRunningCount()).toBeGreaterThanOrEqual(0);
     });
   });
@@ -192,8 +188,8 @@ describe('TaskScheduler', () => {
       const executor: TaskExecutor = vi.fn().mockResolvedValue('result');
       scheduler.setExecutor(executor);
 
-      const task = scheduler.schedule({ name: 'Task1' });
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      scheduler.schedule({ name: 'Task1' });
+      await new Promise(resolve => setTimeout(resolve, 50));
       const completed = scheduler.getCompletedTasks();
       expect(completed.length).toBeGreaterThanOrEqual(0);
     });
@@ -209,13 +205,13 @@ describe('TaskScheduler', () => {
       const limitedScheduler = new TaskScheduler({ maxParallelTasks: 1 });
       limitedScheduler.start();
       const executor: TaskExecutor = vi.fn().mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 500));
         return 'result';
       });
       limitedScheduler.setExecutor(executor);
 
       limitedScheduler.schedule({ name: 'Task1' });
-      await new Promise((resolve) => setTimeout(resolve, 10));
+      await new Promise(resolve => setTimeout(resolve, 10));
       expect(limitedScheduler.hasCapacity()).toBe(false);
     });
   });
@@ -248,7 +244,7 @@ describe('TaskScheduler', () => {
       scheduler.on('task:completed', handler);
 
       scheduler.schedule({ name: 'TestTask' });
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       if (handler.mock.calls.length > 0) {
         expect(handler).toHaveBeenCalled();

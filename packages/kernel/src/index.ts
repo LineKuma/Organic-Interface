@@ -26,8 +26,17 @@ export { createLogger, type Logger, type LogLevel } from '@organic/utils';
 
 // Kernel core components
 export { Kernel, type KernelOptions } from './kernel/Kernel.js';
-export { EventBus, KernelEvents, type EventSubscription, type KernelEvent } from './kernel/EventBus.js';
-export { LifecycleManager, LifecycleState, type LifecycleTransition } from './kernel/LifecycleManager.js';
+export {
+  EventBus,
+  KernelEvents,
+  type EventSubscription,
+  type KernelEvent,
+} from './kernel/EventBus.js';
+export {
+  LifecycleManager,
+  LifecycleState,
+  type LifecycleTransition,
+} from './kernel/LifecycleManager.js';
 export { PluginManager, type PluginMetadata } from './kernel/PluginManager.js';
 
 // Kernel services

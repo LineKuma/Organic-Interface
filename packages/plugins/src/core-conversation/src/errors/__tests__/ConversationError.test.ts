@@ -213,7 +213,7 @@ describe('ConversationError', () => {
 
     it('should have all codes as string values', () => {
       const codes = Object.values(ConversationErrorCode);
-      codes.forEach((code) => {
+      codes.forEach(code => {
         expect(typeof code).toBe('string');
       });
     });

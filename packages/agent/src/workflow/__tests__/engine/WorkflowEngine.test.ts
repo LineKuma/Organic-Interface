@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { WorkflowEngine } from '../../engine/WorkflowEngine.js';
-import { WorkflowStatus, createWorkflow, createSimpleEdge } from '../../models/Workflow.js';
+import { createWorkflow } from '../../models/Workflow.js';
 import { TaskType, createTask } from '../../models/Task.js';
 
 vi.mock('@organic/utils', () => ({

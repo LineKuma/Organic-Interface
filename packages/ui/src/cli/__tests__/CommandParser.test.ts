@@ -75,9 +75,7 @@ describe('CommandParser', () => {
       const cmd = createCommand({
         name: 'test',
         description: 'Test',
-        arguments: [
-          { name: 'input', description: 'Input file', required: true },
-        ],
+        arguments: [{ name: 'input', description: 'Input file', required: true }],
       });
 
       const parsed = parser.parse('test');
@@ -90,9 +88,7 @@ describe('CommandParser', () => {
       const cmd = createCommand({
         name: 'test',
         description: 'Test',
-        options: [
-          { long: 'required', description: 'Required option', required: true },
-        ],
+        options: [{ long: 'required', description: 'Required option', required: true }],
       });
 
       const parsed = parser.parse('test');
@@ -105,12 +101,8 @@ describe('CommandParser', () => {
       const cmd = createCommand({
         name: 'test',
         description: 'Test',
-        arguments: [
-          { name: 'input', description: 'Input file' },
-        ],
-        options: [
-          { long: 'verbose', description: 'Verbose mode' },
-        ],
+        arguments: [{ name: 'input', description: 'Input file' }],
+        options: [{ long: 'verbose', description: 'Verbose mode' }],
       });
 
       const parsed = parser.parse('test file.txt --verbose');
@@ -124,9 +116,7 @@ describe('CommandParser', () => {
       const cmd = createCommand({
         name: 'test',
         description: 'Test',
-        arguments: [
-          { name: 'input', description: 'Input file', defaultValue: 'default.txt' },
-        ],
+        arguments: [{ name: 'input', description: 'Input file', defaultValue: 'default.txt' }],
       });
 
       const parsed = parser.parse('test');
@@ -154,9 +144,7 @@ describe('CommandParser', () => {
       const cmd = createCommand({
         name: 'test',
         description: 'Test',
-        options: [
-          { long: 'verbose', description: 'Verbose', defaultValue: false },
-        ],
+        options: [{ long: 'verbose', description: 'Verbose', defaultValue: false }],
       });
 
       const parsed = parser.parse('test');
@@ -196,9 +184,7 @@ describe('CommandParser', () => {
       const cmd = createCommand({
         name: 'test',
         description: 'Test command',
-        options: [
-          { short: 'v', long: 'verbose', description: 'Verbose mode' },
-        ],
+        options: [{ short: 'v', long: 'verbose', description: 'Verbose mode' }],
       });
 
       const help = parser.formatHelp(cmd);

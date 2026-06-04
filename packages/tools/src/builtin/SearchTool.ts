@@ -105,7 +105,8 @@ export class SearchTool implements Tool {
     this.definition = {
       id: 'builtin:search',
       name: 'SearchTool',
-      description: 'Built-in tool for searching files, text patterns, and maintaining search indices',
+      description:
+        'Built-in tool for searching files, text patterns, and maintaining search indices',
       category: 'search',
       inputSchema: {
         type: 'object',
@@ -167,9 +168,7 @@ export class SearchTool implements Tool {
       },
       enabled: true,
       timeout: 30000,
-      permissions: [
-        { type: 'read', scope: 'filesystem', granted: true },
-      ],
+      permissions: [{ type: 'read', scope: 'filesystem', granted: true }],
     };
   }
 
@@ -242,11 +241,7 @@ export class SearchTool implements Tool {
           break;
 
         case 'index':
-          result = await this.indexDocument(
-            data.index!,
-            data.documentId!,
-            data.document!
-          );
+          result = await this.indexDocument(data.index!, data.documentId!, data.document!);
           break;
 
         case 'suggest':
@@ -311,7 +306,10 @@ export class SearchTool implements Tool {
 
                 if (options?.context) {
                   result.before = lines.slice(Math.max(0, i - options.context), i);
-                  result.after = lines.slice(i + 1, Math.min(lines.length, i + options.context + 1));
+                  result.after = lines.slice(
+                    i + 1,
+                    Math.min(lines.length, i + options.context + 1)
+                  );
                 }
 
                 results.push(result);
@@ -339,8 +337,7 @@ export class SearchTool implements Tool {
     paths: string[],
     options?: SearchOptions
   ): Promise<{ files: string[]; count: number }> {
-
-    const pathModule = await import("path");
+    const pathModule = await import('path');
     const files: string[] = [];
     const regex = this.createRegex(pattern, true, options?.caseSensitive);
     const limit = options?.limit ?? 1000;
@@ -371,7 +368,11 @@ export class SearchTool implements Tool {
   /**
    * Query: Search indexed documents
    */
-  private query(query: string, indexName: string, options?: SearchOptions): {
+  private query(
+    query: string,
+    indexName: string,
+    options?: SearchOptions
+  ): {
     results: Array<{ id: string; score: number; content: string }>;
     count: number;
   } {
@@ -447,7 +448,7 @@ export class SearchTool implements Tool {
     const suggestions = new Set<string>();
     const queryLower = query.toLowerCase();
 
-    for (const [docId, content] of index) {
+    for (const [, content] of index) {
       const contentStr = typeof content === 'string' ? content : '';
 
       // Extract words that start with query
@@ -481,14 +482,12 @@ export class SearchTool implements Tool {
   /**
    * Get files from path
    */
-  private async getFiles(
-    searchPath: string,
-    options?: SearchOptions
-  ): Promise<string[]> {
-    const pathModule = await import("path"); const { readdir, stat } = await import("fs/promises");
+  private async getFiles(searchPath: string, options?: SearchOptions): Promise<string[]> {
+    const pathModule = await import('path');
+    const { readdir } = await import('fs/promises');
 
     const files: string[] = [];
-    const extensions = options?.extensions?.map((ext) => ext.toLowerCase()) ?? [];
+    const extensions = options?.extensions?.map(ext => ext.toLowerCase()) ?? [];
     const excludeDirs = options?.excludeDirs ?? ['node_modules', '.git', 'dist', 'build'];
 
     const walk = async (dir: string): Promise<void> => {

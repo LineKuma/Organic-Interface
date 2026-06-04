@@ -8,10 +8,7 @@
 
 import {
   type ResponseMessage,
-  ResponseType,
-  type MessageSender,
   type ToolCall,
-  type StreamInfo,
   type ConversationResult,
   type ToolCallResult,
   type FormattedOutput,
@@ -22,8 +19,7 @@ import {
   type ContextWindow,
   ContentFormat,
 } from './types/index.js';
-import type { ConversationError} from './errors/index.js';
-import { ConversationErrorCode } from './errors/index.js';
+import type { ConversationError } from './errors/index.js';
 
 /**
  * Output formatter options
@@ -67,13 +63,13 @@ export interface OutputTheme {
  * Default terminal theme
  */
 const DEFAULT_THEME: OutputTheme = {
-  primary: '\x1b[37m',      // White
-  secondary: '\x1b[90m',    // Bright black (gray)
-  success: '\x1b[32m',      // Green
-  error: '\x1b[31m',        // Red
-  warning: '\x1b[33m',      // Yellow
-  info: '\x1b[36m',         // Cyan
-  muted: '\x1b[2m',         // Dim
+  primary: '\x1b[37m', // White
+  secondary: '\x1b[90m', // Bright black (gray)
+  success: '\x1b[32m', // Green
+  error: '\x1b[31m', // Red
+  warning: '\x1b[33m', // Yellow
+  info: '\x1b[36m', // Cyan
+  muted: '\x1b[2m', // Dim
 };
 
 /**
@@ -145,7 +141,6 @@ export class OutputFormatter {
     const startTime = Date.now();
 
     let text = '';
-    const code = error.code;
     const message = error.message;
 
     if (this.options.enableColors) {
@@ -166,9 +161,10 @@ export class OutputFormatter {
       metadata: {
         executionTime: Date.now() - startTime,
         pluginVersion: '1.0.0',
-        sessionId: error.details && typeof error.details === 'object' && 'sessionId' in error.details
-          ? (error.details as { sessionId?: string }).sessionId
-          : undefined,
+        sessionId:
+          error.details && typeof error.details === 'object' && 'sessionId' in error.details
+            ? (error.details as { sessionId?: string }).sessionId
+            : undefined,
       },
     };
   }
@@ -345,9 +341,7 @@ export class OutputFormatter {
 
     // Add tool calls if present
     if (message.toolCalls && message.toolCalls.length > 0) {
-      const toolText = message.toolCalls.map((tc) =>
-        this.formatToolCallShort(tc)
-      ).join('\n');
+      const toolText = message.toolCalls.map(tc => this.formatToolCallShort(tc)).join('\n');
       text += `\n\n${toolText}`;
     }
 
@@ -363,7 +357,10 @@ export class OutputFormatter {
 
     return {
       text,
-      format: message.content.format === ContentFormat.MARKDOWN ? OutputFormat.MARKDOWN : this.options.defaultFormat,
+      format:
+        message.content.format === ContentFormat.MARKDOWN
+          ? OutputFormat.MARKDOWN
+          : this.options.defaultFormat,
       metadata: {
         executionTime: Date.now() - startTime,
         pluginVersion: '1.0.0',
@@ -382,14 +379,16 @@ export class OutputFormatter {
   formatSession(session: Session, startTime: number): FormattedOutput {
     const lines: string[] = [];
 
-    lines.push(this.formatSection('Session Information', [
-      `ID: ${session.id ?? 'N/A'}`,
-      `Title: ${session.title ?? 'Untitled'}`,
-      `Status: ${session.status ?? 'unknown'}`,
-      `Created: ${session.createdAt ? new Date(session.createdAt).toISOString() : 'N/A'}`,
-      `Last Active: ${session.lastActiveAt ? new Date(session.lastActiveAt).toISOString() : 'N/A'}`,
-      `Messages: ${session.messageCount ?? 0}`,
-    ]));
+    lines.push(
+      this.formatSection('Session Information', [
+        `ID: ${session.id ?? 'N/A'}`,
+        `Title: ${session.title ?? 'Untitled'}`,
+        `Status: ${session.status ?? 'unknown'}`,
+        `Created: ${session.createdAt ? new Date(session.createdAt).toISOString() : 'N/A'}`,
+        `Last Active: ${session.lastActiveAt ? new Date(session.lastActiveAt).toISOString() : 'N/A'}`,
+        `Messages: ${session.messageCount ?? 0}`,
+      ])
+    );
 
     if (session.tags && session.tags.length > 0) {
       lines.push(`Tags: ${session.tags.join(', ')}`);
@@ -446,20 +445,24 @@ export class OutputFormatter {
   formatContext(context: ContextWindow, startTime: number): FormattedOutput {
     const lines: string[] = [];
 
-    lines.push(this.formatSection('Context Window', [
-      `ID: ${context.id ?? 'N/A'}`,
-      `Session: ${context.sessionId ?? 'N/A'}`,
-      `Messages: ${context.messageCount ?? 0}`,
-      `Tokens: ${context.tokenCount ?? 'N/A'}`,
-    ]));
+    lines.push(
+      this.formatSection('Context Window', [
+        `ID: ${context.id ?? 'N/A'}`,
+        `Session: ${context.sessionId ?? 'N/A'}`,
+        `Messages: ${context.messageCount ?? 0}`,
+        `Tokens: ${context.tokenCount ?? 'N/A'}`,
+      ])
+    );
 
     if (context.config) {
-      lines.push(this.formatSection('Configuration', [
-        `Window Size: ${context.config.windowSize ?? 'N/A'}`,
-        `Window Type: ${context.config.windowType ?? 'N/A'}`,
-        `Include System: ${context.config.includeSystemMessages ?? true}`,
-        `Include Tool Calls: ${context.config.includeToolCalls ?? true}`,
-      ]));
+      lines.push(
+        this.formatSection('Configuration', [
+          `Window Size: ${context.config.windowSize ?? 'N/A'}`,
+          `Window Type: ${context.config.windowType ?? 'N/A'}`,
+          `Include System: ${context.config.includeSystemMessages ?? true}`,
+          `Include Tool Calls: ${context.config.includeToolCalls ?? true}`,
+        ])
+      );
     }
 
     return {

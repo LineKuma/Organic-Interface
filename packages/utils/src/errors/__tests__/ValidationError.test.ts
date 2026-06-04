@@ -301,9 +301,7 @@ describe('ValidationError', () => {
 
   describe('ValidationErrorCode', () => {
     it('should have REQUIRED_FIELD_MISSING', () => {
-      expect(ValidationErrorCode.REQUIRED_FIELD_MISSING).toBe(
-        'VALIDATION_REQUIRED_FIELD_MISSING'
-      );
+      expect(ValidationErrorCode.REQUIRED_FIELD_MISSING).toBe('VALIDATION_REQUIRED_FIELD_MISSING');
     });
 
     it('should have INVALID_TYPE', () => {

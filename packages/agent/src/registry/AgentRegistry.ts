@@ -7,8 +7,7 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
-import type {
-  AgentType} from './AgentMetadata.js';
+import type { AgentType } from './AgentMetadata.js';
 import {
   type AgentMetadata,
   type AgentSelector,
@@ -235,14 +234,14 @@ export class AgentRegistry extends EventEmitter {
    * List all agents
    */
   list(): AgentMetadata[] {
-    return Array.from(this.entries.values()).map((e) => e.agent);
+    return Array.from(this.entries.values()).map(e => e.agent);
   }
 
   /**
    * List agents matching selector
    */
   find(selector: AgentSelector): AgentMetadata[] {
-    return this.list().filter((agent) => {
+    return this.list().filter(agent => {
       // Type filter
       if (selector.type && agent.type !== selector.type) {
         return false;
@@ -255,9 +254,7 @@ export class AgentRegistry extends EventEmitter {
 
       // Capability filter
       if (selector.capability) {
-        const hasCapability = agent.capabilities.some(
-          (c) => c.id === selector.capability
-        );
+        const hasCapability = agent.capabilities.some(c => c.id === selector.capability);
         if (!hasCapability) {
           return false;
         }
@@ -270,7 +267,7 @@ export class AgentRegistry extends EventEmitter {
 
       // Tags filter
       if (selector.tags && selector.tags.length > 0) {
-        const hasAllTags = selector.tags.every((tag) => agent.tags.includes(tag));
+        const hasAllTags = selector.tags.every(tag => agent.tags.includes(tag));
         if (!hasAllTags) {
           return false;
         }
@@ -288,10 +285,13 @@ export class AgentRegistry extends EventEmitter {
   /**
    * Discover agents by capability
    */
-  discover(capability: string, options?: {
-    maxLoad?: number;
-    status?: AgentRegistryStatus;
-  }): AgentMetadata[] {
+  discover(
+    capability: string,
+    options?: {
+      maxLoad?: number;
+      status?: AgentRegistryStatus;
+    }
+  ): AgentMetadata[] {
     return this.find({
       capability,
       maxLoad: options?.maxLoad,
@@ -304,11 +304,14 @@ export class AgentRegistry extends EventEmitter {
   /**
    * Record heartbeat from agent
    */
-  heartbeat(agentId: string, stats?: {
-    load: number;
-    activeTaskCount: number;
-    completedTasks?: number;
-  }): boolean {
+  heartbeat(
+    agentId: string,
+    stats?: {
+      load: number;
+      activeTaskCount: number;
+      completedTasks?: number;
+    }
+  ): boolean {
     const entry = this.entries.get(agentId);
     if (!entry) {
       this.logger.warn(`Heartbeat from unknown agent: ${agentId}`);
@@ -394,7 +397,7 @@ export class AgentRegistry extends EventEmitter {
       ? this.discover(capability, { status: AgentRegistryStatus.ONLINE })
       : this.find({ status: AgentRegistryStatus.ONLINE });
 
-    return agents.filter((agent) => canAgentAcceptTasks(agent));
+    return agents.filter(agent => canAgentAcceptTasks(agent));
   }
 
   /**
@@ -416,7 +419,7 @@ export class AgentRegistry extends EventEmitter {
     // Filter by max load if specified
     let filtered = candidates;
     if (options?.maxLoad !== undefined) {
-      filtered = candidates.filter((a) => a.load <= options.maxLoad!);
+      filtered = candidates.filter(a => a.load <= options.maxLoad!);
     }
 
     if (filtered.length === 0) {
@@ -436,10 +439,7 @@ export class AgentRegistry extends EventEmitter {
   /**
    * Select multiple agents for parallel execution
    */
-  selectAgents(
-    capability: string,
-    count: number
-  ): AgentMetadata[] {
+  selectAgents(capability: string, count: number): AgentMetadata[] {
     const candidates = this.getAvailableAgents(capability);
 
     // Sort by load
@@ -567,11 +567,7 @@ export class AgentRegistry extends EventEmitter {
         if (entry.agent.status !== AgentRegistryStatus.OFFLINE) {
           entry.agent.status = AgentRegistryStatus.OFFLINE;
 
-          const result = createHealthCheckResult(
-            false,
-            undefined,
-            'Heartbeat timeout'
-          );
+          const result = createHealthCheckResult(false, undefined, 'Heartbeat timeout');
           entry.agent.healthCheck = result;
 
           this.emit('agent:health-check', { agentId, result });

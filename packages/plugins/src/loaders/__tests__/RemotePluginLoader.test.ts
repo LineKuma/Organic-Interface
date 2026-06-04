@@ -132,9 +132,7 @@ describe('RemotePluginLoader', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         apiVersion: '1.0.0',
-        dependencies: [
-          { pluginName: 'missing-dep', versionRange: '1.0.0', optional: false },
-        ],
+        dependencies: [{ pluginName: 'missing-dep', versionRange: '1.0.0', optional: false }],
       };
 
       const result = await loader.validateCompatibility(metadata);
