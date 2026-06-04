@@ -346,19 +346,26 @@ export class PluginLoader implements PluginLoaderInterface {
       return this.pluginPaths.get(pluginId);
     }
 
-    // Check standard locations
+    // Security: prevent path traversal attacks
+    if (pluginId.includes('..') || pluginId.includes('/') || pluginId.includes('\\')) {
+      return undefined;
+    }
+
+    // Check standard locations (all constrained to baseDir)
     const locations = [
       path.join(this.options.baseDir, pluginId, 'dist', 'index.js'),
       path.join(this.options.baseDir, pluginId, 'src', 'index.ts'),
       path.join(this.options.baseDir, pluginId, 'index.js'),
-      path.resolve(pluginId, 'dist', 'index.js'),
-      path.resolve(pluginId, 'src', 'index.ts'),
-      path.resolve(pluginId),
     ];
 
     for (const loc of locations) {
       if (fs.existsSync(loc)) {
-        return loc;
+        // Verify resolved path is still within baseDir
+        const resolved = path.resolve(loc);
+        if (!resolved.startsWith(path.resolve(this.options.baseDir))) {
+          continue;
+        }
+        return resolved;
       }
     }
 
