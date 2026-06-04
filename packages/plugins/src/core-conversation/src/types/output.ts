@@ -2,8 +2,7 @@
  * Output types for core conversation plugin
  */
 
-import type { Message } from './input.js';
-import type { ContextWindow, ConversationContext } from './context.js';
+import type { ContextWindow } from './context.js';
 import type { Session } from './session.js';
 
 /**

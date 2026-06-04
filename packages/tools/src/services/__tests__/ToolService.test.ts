@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ToolService } from '../ToolService.js';
-import type { Tool, ToolDefinition, ToolExecutionContext } from '../../types/index.js';
+import type { Tool } from '../../types/index.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({

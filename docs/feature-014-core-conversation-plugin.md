@@ -215,21 +215,21 @@ interface CoreConversationPluginInput extends PluginInput {
  */
 enum ConversationAction {
   /** 创建会话 */
-  CREATE_SESSION = "create_session",
+  CREATE_SESSION = 'create_session',
   /** 发送消息 */
-  SEND_MESSAGE = "send_message",
+  SEND_MESSAGE = 'send_message',
   /** 获取会话 */
-  GET_SESSION = "get_session",
+  GET_SESSION = 'get_session',
   /** 关闭会话 */
-  CLOSE_SESSION = "close_session",
+  CLOSE_SESSION = 'close_session',
   /** 列表会话 */
-  LIST_SESSIONS = "list_sessions",
+  LIST_SESSIONS = 'list_sessions',
   /** 获取上下文 */
-  GET_CONTEXT = "get_context",
+  GET_CONTEXT = 'get_context',
   /** 更新上下文 */
-  UPDATE_CONTEXT = "update_context",
+  UPDATE_CONTEXT = 'update_context',
   /** 清除上下文 */
-  CLEAR_CONTEXT = "clear_context"
+  CLEAR_CONTEXT = 'clear_context',
 }
 
 /**
@@ -259,10 +259,10 @@ interface ConversationParameters {
  * 输入格式枚举
  */
 enum InputFormat {
-  PLAIN_TEXT = "plain_text",
-  MARKDOWN = "markdown",
-  JSON = "json",
-  COMMAND = "command"
+  PLAIN_TEXT = 'plain_text',
+  MARKDOWN = 'markdown',
+  JSON = 'json',
+  COMMAND = 'command',
 }
 
 /**
@@ -292,10 +292,10 @@ interface ConversationMetadata extends PluginInputMetadata {
  * 请求来源枚举
  */
 enum RequestSource {
-  CLI = "cli",
-  API = "api",
-  GUI = "gui",
-  WEBHOOK = "webhook"
+  CLI = 'cli',
+  API = 'api',
+  GUI = 'gui',
+  WEBHOOK = 'webhook',
 }
 ```
 
@@ -317,12 +317,7 @@ interface CoreConversationPluginOutput extends PluginOutput {
 /**
  * 对话结果联合类型
  */
-type ConversationResult =
-  | SessionResult
-  | MessageResult
-  | ContextResult
-  | ListResult
-  | ErrorResult;
+type ConversationResult = SessionResult | MessageResult | ContextResult | ListResult | ErrorResult;
 
 /**
  * 会话创建结果
@@ -537,19 +532,19 @@ interface SessionInfo {
  */
 enum SessionStatus {
   /** 创建中 */
-  CREATING = "creating",
+  CREATING = 'creating',
   /** 活跃状态 */
-  ACTIVE = "active",
+  ACTIVE = 'active',
   /** 空闲状态 */
-  IDLE = "idle",
+  IDLE = 'idle',
   /** 暂停状态 */
-  PAUSED = "paused",
+  PAUSED = 'paused',
   /** 关闭中 */
-  CLOSING = "closing",
+  CLOSING = 'closing',
   /** 已关闭 */
-  CLOSED = "closed",
+  CLOSED = 'closed',
   /** 归档状态 */
-  ARCHIVED = "archived"
+  ARCHIVED = 'archived',
 }
 
 /**
@@ -669,18 +664,18 @@ interface SessionFilter {
  * 会话排序字段枚举
  */
 enum SessionSortField {
-  CREATED_AT = "created_at",
-  LAST_ACTIVE_AT = "last_active_at",
-  MESSAGE_COUNT = "message_count",
-  NAME = "name"
+  CREATED_AT = 'created_at',
+  LAST_ACTIVE_AT = 'last_active_at',
+  MESSAGE_COUNT = 'message_count',
+  NAME = 'name',
 }
 
 /**
  * 排序方向枚举
  */
 enum SortOrder {
-  ASC = "asc",
-  DESC = "desc"
+  ASC = 'asc',
+  DESC = 'desc',
 }
 
 /**
@@ -729,10 +724,7 @@ interface ContextManager {
    * @param config 窗口配置
    * @returns 上下文窗口
    */
-  getContextWindow(
-    sessionId: string,
-    config: ContextWindowConfig
-  ): Promise<ContextWindow>;
+  getContextWindow(sessionId: string, config: ContextWindowConfig): Promise<ContextWindow>;
 
   // ==================== 上下文更新 ====================
   /**
@@ -778,10 +770,7 @@ interface ContextManager {
    * @param metadata 元数据更新
    * @returns 更新后的上下文
    */
-  updateMetadata(
-    sessionId: string,
-    metadata: Record<string, any>
-  ): Promise<ConversationContext>;
+  updateMetadata(sessionId: string, metadata: Record<string, any>): Promise<ConversationContext>;
 
   // ==================== 上下文操作 ====================
   /**
@@ -797,10 +786,7 @@ interface ContextManager {
    * @param strategy 压缩策略
    * @returns 压缩后的上下文
    */
-  compressContext(
-    sessionId: string,
-    strategy?: CompressionStrategy
-  ): Promise<ConversationContext>;
+  compressContext(sessionId: string, strategy?: CompressionStrategy): Promise<ConversationContext>;
 
   /**
    * 生成上下文摘要
@@ -816,10 +802,7 @@ interface ContextManager {
    * @param query 搜索查询
    * @returns 匹配的片段
    */
-  searchContext(
-    sessionId: string,
-    query: ContextSearchQuery
-  ): Promise<ContextSearchResult[]>;
+  searchContext(sessionId: string, query: ContextSearchQuery): Promise<ContextSearchResult[]>;
 
   /**
    * 获取上下文统计
@@ -854,13 +837,13 @@ interface ContextWindowConfig {
  */
 enum ContextWindowType {
   /** 最近N条消息 */
-  RECENT_MESSAGES = "recent_messages",
+  RECENT_MESSAGES = 'recent_messages',
   /** 最近N分钟内 */
-  RECENT_MINUTES = "recent_minutes",
+  RECENT_MINUTES = 'recent_minutes',
   /** 基于Token数量 */
-  TOKEN_BASED = "token_based",
+  TOKEN_BASED = 'token_based',
   /** 基于语义相关性 */
-  SEMANTIC_BASED = "semantic_based"
+  SEMANTIC_BASED = 'semantic_based',
 }
 
 /**
@@ -880,13 +863,13 @@ interface ClearContextOptions {
  */
 enum ClearMode {
   /** 全部清除 */
-  ALL = "all",
+  ALL = 'all',
   /** 保留系统消息 */
-  KEEP_SYSTEM = "keep_system",
+  KEEP_SYSTEM = 'keep_system',
   /** 保留最近消息 */
-  KEEP_RECENT = "keep_recent",
+  KEEP_RECENT = 'keep_recent',
   /** 自定义清除 */
-  CUSTOM = "custom"
+  CUSTOM = 'custom',
 }
 
 /**
@@ -894,13 +877,13 @@ enum ClearMode {
  */
 enum CompressionStrategy {
   /** 摘要压缩 */
-  SUMMARY = "summary",
+  SUMMARY = 'summary',
   /** 移除旧消息 */
-  REMOVE_OLD = "remove_old",
+  REMOVE_OLD = 'remove_old',
   /** 合并相似消息 */
-  MERGE = "merge",
+  MERGE = 'merge',
   /** 混合策略 */
-  HYBRID = "hybrid"
+  HYBRID = 'hybrid',
 }
 
 /**
@@ -935,9 +918,9 @@ interface ContextSearchQuery {
  * 搜索类型枚举
  */
 enum SearchType {
-  KEYWORD = "keyword",
-  SEMANTIC = "semantic",
-  REGEX = "regex"
+  KEYWORD = 'keyword',
+  SEMANTIC = 'semantic',
+  REGEX = 'regex',
 }
 
 /**
@@ -952,10 +935,10 @@ interface TimeRange {
  * 发送者类型枚举
  */
 enum SenderType {
-  USER = "user",
-  ASSISTANT = "assistant",
-  SYSTEM = "system",
-  TOOL = "tool"
+  USER = 'user',
+  ASSISTANT = 'assistant',
+  SYSTEM = 'system',
+  TOOL = 'tool',
 }
 
 /**
@@ -1033,48 +1016,48 @@ interface ConversationPluginStateMachine {
  */
 enum ConversationPluginState {
   /** 初始状态 */
-  INITIAL = "initial",
+  INITIAL = 'initial',
   /** 初始化中 */
-  INITIALIZING = "initializing",
+  INITIALIZING = 'initializing',
   /** 就绪状态 */
-  READY = "ready",
+  READY = 'ready',
   /** 处理消息中 */
-  PROCESSING = "processing",
+  PROCESSING = 'processing',
   /** 等待响应 */
-  WAITING = "waiting",
+  WAITING = 'waiting',
   /** 响应完成 */
-  RESPONDING = "responding",
+  RESPONDING = 'responding',
   /** 错误状态 */
-  ERROR = "error",
+  ERROR = 'error',
   /** 恢复中 */
-  RECOVERING = "recovering",
+  RECOVERING = 'recovering',
   /** 关闭中 */
-  SHUTTING_DOWN = "shutting_down",
+  SHUTTING_DOWN = 'shutting_down',
   /** 已关闭 */
-  SHUTDOWN = "shutdown"
+  SHUTDOWN = 'shutdown',
 }
 
 /**
  * 状态事件枚举
  */
 enum StateEvent {
-  INITIALIZE = "initialize",
-  INITIALIZE_COMPLETE = "initialize_complete",
-  INITIALIZE_FAILED = "initialize_failed",
-  RECEIVE_MESSAGE = "receive_message",
-  PROCESS_START = "process_start",
-  PROCESS_COMPLETE = "process_complete",
-  PROCESS_FAILED = "process_failed",
-  TOOL_CALL_START = "tool_call_start",
-  TOOL_CALL_COMPLETE = "tool_call_complete",
-  TOOL_CALL_FAILED = "tool_call_failed",
-  SEND_RESPONSE = "send_response",
-  RESPONSE_COMPLETE = "response_complete",
-  ERROR_OCCURRED = "error_occurred",
-  RECOVERY_START = "recovery_start",
-  RECOVERY_COMPLETE = "recovery_complete",
-  SHUTDOWN_REQUEST = "shutdown_request",
-  SHUTDOWN_COMPLETE = "shutdown_complete"
+  INITIALIZE = 'initialize',
+  INITIALIZE_COMPLETE = 'initialize_complete',
+  INITIALIZE_FAILED = 'initialize_failed',
+  RECEIVE_MESSAGE = 'receive_message',
+  PROCESS_START = 'process_start',
+  PROCESS_COMPLETE = 'process_complete',
+  PROCESS_FAILED = 'process_failed',
+  TOOL_CALL_START = 'tool_call_start',
+  TOOL_CALL_COMPLETE = 'tool_call_complete',
+  TOOL_CALL_FAILED = 'tool_call_failed',
+  SEND_RESPONSE = 'send_response',
+  RESPONSE_COMPLETE = 'response_complete',
+  ERROR_OCCURRED = 'error_occurred',
+  RECOVERY_START = 'recovery_start',
+  RECOVERY_COMPLETE = 'recovery_complete',
+  SHUTDOWN_REQUEST = 'shutdown_request',
+  SHUTDOWN_COMPLETE = 'shutdown_complete',
 }
 
 /**
@@ -1115,44 +1098,47 @@ type StateListener = (transition: StateTransition) => void;
 /**
  * 状态转换规则定义
  */
-const STATE_TRANSITIONS: Record<ConversationPluginState, Map<StateEvent, ConversationPluginState>> = {
+const STATE_TRANSITIONS: Record<
+  ConversationPluginState,
+  Map<StateEvent, ConversationPluginState>
+> = {
   [ConversationPluginState.INITIAL]: new Map([
-    [StateEvent.INITIALIZE, ConversationPluginState.INITIALIZING]
+    [StateEvent.INITIALIZE, ConversationPluginState.INITIALIZING],
   ]),
   [ConversationPluginState.INITIALIZING]: new Map([
     [StateEvent.INITIALIZE_COMPLETE, ConversationPluginState.READY],
-    [StateEvent.INITIALIZE_FAILED, ConversationPluginState.ERROR]
+    [StateEvent.INITIALIZE_FAILED, ConversationPluginState.ERROR],
   ]),
   [ConversationPluginState.READY]: new Map([
     [StateEvent.RECEIVE_MESSAGE, ConversationPluginState.PROCESSING],
-    [StateEvent.SHUTDOWN_REQUEST, ConversationPluginState.SHUTTING_DOWN]
+    [StateEvent.SHUTDOWN_REQUEST, ConversationPluginState.SHUTTING_DOWN],
   ]),
   [ConversationPluginState.PROCESSING]: new Map([
     [StateEvent.PROCESS_COMPLETE, ConversationPluginState.RESPONDING],
     [StateEvent.PROCESS_FAILED, ConversationPluginState.ERROR],
-    [StateEvent.TOOL_CALL_START, ConversationPluginState.WAITING]
+    [StateEvent.TOOL_CALL_START, ConversationPluginState.WAITING],
   ]),
   [ConversationPluginState.WAITING]: new Map([
     [StateEvent.TOOL_CALL_COMPLETE, ConversationPluginState.PROCESSING],
-    [StateEvent.TOOL_CALL_FAILED, ConversationPluginState.PROCESSING]
+    [StateEvent.TOOL_CALL_FAILED, ConversationPluginState.PROCESSING],
   ]),
   [ConversationPluginState.RESPONDING]: new Map([
     [StateEvent.RESPONSE_COMPLETE, ConversationPluginState.READY],
-    [StateEvent.RECEIVE_MESSAGE, ConversationPluginState.PROCESSING]
+    [StateEvent.RECEIVE_MESSAGE, ConversationPluginState.PROCESSING],
   ]),
   [ConversationPluginState.ERROR]: new Map([
     [StateEvent.RECOVERY_START, ConversationPluginState.RECOVERING],
-    [StateEvent.SHUTDOWN_REQUEST, ConversationPluginState.SHUTTING_DOWN]
+    [StateEvent.SHUTDOWN_REQUEST, ConversationPluginState.SHUTTING_DOWN],
   ]),
   [ConversationPluginState.RECOVERING]: new Map([
     [StateEvent.RECOVERY_COMPLETE, ConversationPluginState.READY],
     [StateEvent.ERROR_OCCURRED, ConversationPluginState.ERROR],
-    [StateEvent.SHUTDOWN_REQUEST, ConversationPluginState.SHUTTING_DOWN]
+    [StateEvent.SHUTDOWN_REQUEST, ConversationPluginState.SHUTTING_DOWN],
   ]),
   [ConversationPluginState.SHUTTING_DOWN]: new Map([
-    [StateEvent.SHUTDOWN_COMPLETE, ConversationPluginState.SHUTDOWN]
+    [StateEvent.SHUTDOWN_COMPLETE, ConversationPluginState.SHUTDOWN],
   ]),
-  [ConversationPluginState.SHUTDOWN]: new Map()
+  [ConversationPluginState.SHUTDOWN]: new Map(),
 };
 ```
 
@@ -1358,11 +1344,11 @@ interface ConversationConfig {
  * 功能标志枚举
  */
 enum FeatureFlag {
-  STREAMING = "streaming",
-  TOOL_CALLS = "tool_calls",
-  CONTEXT_COMPRESSION = "context_compression",
-  HISTORY_SUMMARY = "history_summary",
-  MULTIMODAL = "multimodal"
+  STREAMING = 'streaming',
+  TOOL_CALLS = 'tool_calls',
+  CONTEXT_COMPRESSION = 'context_compression',
+  HISTORY_SUMMARY = 'history_summary',
+  MULTIMODAL = 'multimodal',
 }
 
 /**
@@ -1381,9 +1367,9 @@ interface SystemStatus {
  * 系统状态类型枚举
  */
 enum SystemStatusType {
-  HEALTHY = "healthy",
-  DEGRADED = "degraded",
-  UNHEALTHY = "unhealthy"
+  HEALTHY = 'healthy',
+  DEGRADED = 'degraded',
+  UNHEALTHY = 'unhealthy',
 }
 
 /**
@@ -1439,11 +1425,7 @@ interface EventService {
    * @param payload 事件数据
    * @param options 发布选项
    */
-  publish<T = any>(
-    topic: EventTopic,
-    payload: T,
-    options?: PublishOptions
-  ): EventId;
+  publish<T = any>(topic: EventTopic, payload: T, options?: PublishOptions): EventId;
 
   /**
    * 发布请求-响应事件
@@ -1472,10 +1454,7 @@ interface EventService {
    * @param options 查询选项
    * @returns 事件列表
    */
-  getEventHistory(
-    topic: EventTopic,
-    options?: HistoryQueryOptions
-  ): EventRecord[];
+  getEventHistory(topic: EventTopic, options?: HistoryQueryOptions): EventRecord[];
 }
 
 /**
@@ -1483,30 +1462,30 @@ interface EventService {
  */
 enum EventTopic {
   // 会话事件
-  SESSION_CREATED = "session.created",
-  SESSION_CLOSED = "session.closed",
-  SESSION_ACTIVATED = "session.activated",
-  SESSION_IDLE = "session.idle",
+  SESSION_CREATED = 'session.created',
+  SESSION_CLOSED = 'session.closed',
+  SESSION_ACTIVATED = 'session.activated',
+  SESSION_IDLE = 'session.idle',
 
   // 消息事件
-  MESSAGE_RECEIVED = "message.received",
-  MESSAGE_PROCESSING = "message.processing",
-  MESSAGE_PROCESSED = "message.processed",
-  MESSAGE_FAILED = "message.failed",
+  MESSAGE_RECEIVED = 'message.received',
+  MESSAGE_PROCESSING = 'message.processing',
+  MESSAGE_PROCESSED = 'message.processed',
+  MESSAGE_FAILED = 'message.failed',
 
   // 工具事件
-  TOOL_CALLED = "tool.called",
-  TOOL_COMPLETED = "tool.completed",
-  TOOL_FAILED = "tool.failed",
+  TOOL_CALLED = 'tool.called',
+  TOOL_COMPLETED = 'tool.completed',
+  TOOL_FAILED = 'tool.failed',
 
   // 上下文事件
-  CONTEXT_UPDATED = "context.updated",
-  CONTEXT_CLEARED = "context.cleared",
-  CONTEXT_COMPRESSED = "context.compressed",
+  CONTEXT_UPDATED = 'context.updated',
+  CONTEXT_CLEARED = 'context.cleared',
+  CONTEXT_COMPRESSED = 'context.compressed',
 
   // 系统事件
-  SYSTEM_ERROR = "system.error",
-  SYSTEM_STATUS_CHANGED = "system.status_changed"
+  SYSTEM_ERROR = 'system.error',
+  SYSTEM_STATUS_CHANGED = 'system.status_changed',
 }
 
 /**
@@ -1529,7 +1508,7 @@ interface Event<T = any> {
  * 事件来源
  */
 interface EventSource {
-  type: "plugin" | "kernel" | "system";
+  type: 'plugin' | 'kernel' | 'system';
   id: string;
 }
 
@@ -1616,7 +1595,7 @@ interface EventRecord {
 
 ### 输入解析器规范
 
-```typescript
+````typescript
 /**
  * 输入解析器接口
  * 将CLI文字输入转换为标准化的内部格式
@@ -1677,11 +1656,11 @@ interface ParseError {
  * 解析错误代码枚举
  */
 enum ParseErrorCode {
-  EMPTY_INPUT = "empty_input",
-  INVALID_FORMAT = "invalid_format",
-  INVALID_ENCODING = "invalid_encoding",
-  TOO_LONG = "too_long",
-  INVALID_CHARACTER = "invalid_character"
+  EMPTY_INPUT = 'empty_input',
+  INVALID_FORMAT = 'invalid_format',
+  INVALID_ENCODING = 'invalid_encoding',
+  TOO_LONG = 'too_long',
+  INVALID_CHARACTER = 'invalid_character',
 }
 
 /**
@@ -1738,11 +1717,11 @@ interface Entity {
  * 实体类型枚举
  */
 enum EntityType {
-  FILE_PATH = "file_path",
-  CODE = "code",
-  URL = "url",
-  COMMAND = "command",
-  KEYWORD = "keyword"
+  FILE_PATH = 'file_path',
+  CODE = 'code',
+  URL = 'url',
+  COMMAND = 'command',
+  KEYWORD = 'keyword',
 }
 
 /**
@@ -1757,7 +1736,7 @@ class DefaultInputParser implements InputParser {
     this.supportedFormats = config.supported_formats || [
       InputFormat.PLAIN_TEXT,
       InputFormat.MARKDOWN,
-      InputFormat.COMMAND
+      InputFormat.COMMAND,
     ];
   }
 
@@ -1768,8 +1747,8 @@ class DefaultInputParser implements InputParser {
         success: false,
         error: {
           code: ParseErrorCode.EMPTY_INPUT,
-          message: "输入不能为空"
-        }
+          message: '输入不能为空',
+        },
       };
     }
 
@@ -1779,8 +1758,8 @@ class DefaultInputParser implements InputParser {
         success: false,
         error: {
           code: ParseErrorCode.TOO_LONG,
-          message: `输入长度超过限制（最大${this.maxInputLength}字符）`
-        }
+          message: `输入长度超过限制（最大${this.maxInputLength}字符）`,
+        },
       };
     }
 
@@ -1794,8 +1773,8 @@ class DefaultInputParser implements InputParser {
       metadata: {
         original_length: rawInput.length,
         trimmed_length: rawInput.trim().length,
-        timestamp: Date.now()
-      }
+        timestamp: Date.now(),
+      },
     };
 
     return { success: true, input };
@@ -1803,7 +1782,7 @@ class DefaultInputParser implements InputParser {
 
   detectFormat(input: string): InputFormat {
     // JSON格式检测
-    if (input.trim().startsWith("{") && input.trim().endsWith("}")) {
+    if (input.trim().startsWith('{') && input.trim().endsWith('}')) {
       try {
         JSON.parse(input);
         return InputFormat.JSON;
@@ -1831,17 +1810,17 @@ class DefaultInputParser implements InputParser {
 
     if (!input.text || input.text.trim().length === 0) {
       errors.push({
-        field: "text",
-        message: "文本内容不能为空",
-        code: "EMPTY_TEXT"
+        field: 'text',
+        message: '文本内容不能为空',
+        code: 'EMPTY_TEXT',
       });
     }
 
     if (!this.supportedFormats.includes(input.format)) {
       errors.push({
-        field: "format",
+        field: 'format',
         message: `不支持的格式：${input.format}`,
-        code: "UNSUPPORTED_FORMAT"
+        code: 'UNSUPPORTED_FORMAT',
       });
     }
 
@@ -1855,8 +1834,8 @@ class DefaultInputParser implements InputParser {
       metadata: {
         original_text: input.text,
         normalized_text: input.text.trim(),
-        detected_language: this.detectLanguage(input.text)
-      }
+        detected_language: this.detectLanguage(input.text),
+      },
     };
   }
 
@@ -1864,12 +1843,12 @@ class DefaultInputParser implements InputParser {
     // 简化实现，实际应使用语言检测库
     const chineseRegex = /[\u4e00-\u9fa5]/;
     if (chineseRegex.test(text)) {
-      return "zh";
+      return 'zh';
     }
-    return "en";
+    return 'en';
   }
 }
-```
+````
 
 ### 输出格式化器规范
 
@@ -1930,22 +1909,22 @@ interface FormatOptions {
  */
 enum OutputFormat {
   /** 纯文本格式 */
-  PLAIN_TEXT = "plain_text",
+  PLAIN_TEXT = 'plain_text',
   /** Markdown格式 */
-  MARKDOWN = "markdown",
+  MARKDOWN = 'markdown',
   /** JSON格式 */
-  JSON = "json",
+  JSON = 'json',
   /** CLI格式化输出 */
-  CLI = "cli"
+  CLI = 'cli',
 }
 
 /**
  * 颜色方案枚举
  */
 enum ColorScheme {
-  NONE = "none",
-  BASIC = "basic",
-  ANSI = "ansi"
+  NONE = 'none',
+  BASIC = 'basic',
+  ANSI = 'ansi',
 }
 
 /**
@@ -2005,8 +1984,8 @@ class DefaultOutputFormatter implements OutputFormatter {
       message: this.getErrorMessage(error),
       metadata: {
         timestamp: Date.now(),
-        type: "error"
-      }
+        type: 'error',
+      },
     };
 
     return this.format(errorResult, options);
@@ -2037,24 +2016,24 @@ class DefaultOutputFormatter implements OutputFormatter {
       format: OutputFormat.JSON,
       metadata: {
         timestamp: Date.now(),
-        processingTime: result.metadata?.processingTime || 0
-      }
+        processingTime: result.metadata?.processingTime || 0,
+      },
     };
   }
 
   private formatAsMarkdown(result: ConversationOutput, options?: FormatOptions): FormattedOutput {
-    let text = "";
+    let text = '';
 
     if (result.message) {
       text += `${result.message}\n\n`;
     }
 
     if (result.metadata?.toolCalls?.length) {
-      text += "### 工具调用\n\n";
+      text += '### 工具调用\n\n';
       for (const tool of result.metadata.toolCalls) {
         text += `- **${tool.name}**: ${JSON.stringify(tool.args)}\n`;
       }
-      text += "\n";
+      text += '\n';
     }
 
     if (!result.success && result.error) {
@@ -2066,16 +2045,16 @@ class DefaultOutputFormatter implements OutputFormatter {
       format: OutputFormat.MARKDOWN,
       metadata: {
         timestamp: Date.now(),
-        processingTime: result.metadata?.processingTime || 0
-      }
+        processingTime: result.metadata?.processingTime || 0,
+      },
     };
   }
 
   private formatAsPlainText(result: ConversationOutput, options?: FormatOptions): FormattedOutput {
-    let text = result.message || "";
+    let text = result.message || '';
 
     if (result.metadata?.toolCalls?.length) {
-      text += "\n\n[工具调用]\n";
+      text += '\n\n[工具调用]\n';
       for (const tool of result.metadata.toolCalls) {
         text += `${tool.name}: ${JSON.stringify(tool.args)}\n`;
       }
@@ -2090,14 +2069,14 @@ class DefaultOutputFormatter implements OutputFormatter {
       format: OutputFormat.PLAIN_TEXT,
       metadata: {
         timestamp: Date.now(),
-        processingTime: result.metadata?.processingTime || 0
-      }
+        processingTime: result.metadata?.processingTime || 0,
+      },
     };
   }
 
   private formatAsCli(result: ConversationOutput, options?: FormatOptions): FormattedOutput {
     const colorScheme = options?.colorScheme || ColorScheme.ANSI;
-    let text = "";
+    let text = '';
 
     // 输出消息
     if (result.message) {
@@ -2110,7 +2089,7 @@ class DefaultOutputFormatter implements OutputFormatter {
 
     // 输出工具调用
     if (result.metadata?.toolCalls?.length) {
-      text += "\n[工具调用]\n";
+      text += '\n[工具调用]\n';
       for (const tool of result.metadata.toolCalls) {
         text += `  - ${tool.name}: ${JSON.stringify(tool.args)}\n`;
       }
@@ -2136,8 +2115,8 @@ class DefaultOutputFormatter implements OutputFormatter {
       format: OutputFormat.CLI,
       metadata: {
         timestamp: Date.now(),
-        processingTime: result.metadata?.processingTime || 0
-      }
+        processingTime: result.metadata?.processingTime || 0,
+      },
     };
   }
 
@@ -2194,11 +2173,11 @@ interface StreamingConfig {
  */
 enum StreamingType {
   /** SSE服务端推送 */
-  SSE = "sse",
+  SSE = 'sse',
   /** WebSocket */
-  WEBSOCKET = "websocket",
+  WEBSOCKET = 'websocket',
   /** 轮询 */
-  POLLING = "polling"
+  POLLING = 'polling',
 }
 
 /**
@@ -2222,17 +2201,17 @@ interface StreamChunk {
  */
 enum StreamChunkType {
   /** 文本内容 */
-  TEXT = "text",
+  TEXT = 'text',
   /** 工具调用开始 */
-  TOOL_CALL_START = "tool_call_start",
+  TOOL_CALL_START = 'tool_call_start',
   /** 工具调用完成 */
-  TOOL_CALL_COMPLETE = "tool_call_complete",
+  TOOL_CALL_COMPLETE = 'tool_call_complete',
   /** 状态更新 */
-  STATUS = "status",
+  STATUS = 'status',
   /** 错误信息 */
-  ERROR = "error",
+  ERROR = 'error',
   /** 元数据 */
-  METADATA = "metadata"
+  METADATA = 'metadata',
 }
 
 /**
@@ -2311,89 +2290,89 @@ interface StreamingResult {
 enum ConversationErrorCode {
   // ==================== 会话错误 (SESSION_*) ====================
   /** 会话不存在 */
-  SESSION_NOT_FOUND = "SESSION_NOT_FOUND",
+  SESSION_NOT_FOUND = 'SESSION_NOT_FOUND',
   /** 会话已存在 */
-  SESSION_ALREADY_EXISTS = "SESSION_ALREADY_EXISTS",
+  SESSION_ALREADY_EXISTS = 'SESSION_ALREADY_EXISTS',
   /** 会话已关闭 */
-  SESSION_CLOSED = "SESSION_CLOSED",
+  SESSION_CLOSED = 'SESSION_CLOSED',
   /** 会话已满 */
-  SESSION_LIMIT_EXCEEDED = "SESSION_LIMIT_EXCEEDED",
+  SESSION_LIMIT_EXCEEDED = 'SESSION_LIMIT_EXCEEDED',
   /** 会话超时 */
-  SESSION_TIMEOUT = "SESSION_TIMEOUT",
+  SESSION_TIMEOUT = 'SESSION_TIMEOUT',
   /** 会话创建失败 */
-  SESSION_CREATE_FAILED = "SESSION_CREATE_FAILED",
+  SESSION_CREATE_FAILED = 'SESSION_CREATE_FAILED',
   /** 会话恢复失败 */
-  SESSION_RESUME_FAILED = "SESSION_RESUME_FAILED",
+  SESSION_RESUME_FAILED = 'SESSION_RESUME_FAILED',
 
   // ==================== 上下文错误 (CONTEXT_*) ====================
   /** 上下文不存在 */
-  CONTEXT_NOT_FOUND = "CONTEXT_NOT_FOUND",
+  CONTEXT_NOT_FOUND = 'CONTEXT_NOT_FOUND',
   /** 上下文已满 */
-  CONTEXT_OVERFLOW = "CONTEXT_OVERFLOW",
+  CONTEXT_OVERFLOW = 'CONTEXT_OVERFLOW',
   /** 上下文过期 */
-  CONTEXT_EXPIRED = "CONTEXT_EXPIRED",
+  CONTEXT_EXPIRED = 'CONTEXT_EXPIRED',
   /** 上下文锁定 */
-  CONTEXT_LOCKED = "CONTEXT_LOCKED",
+  CONTEXT_LOCKED = 'CONTEXT_LOCKED',
   /** 上下文压缩失败 */
-  CONTEXT_COMPRESSION_FAILED = "CONTEXT_COMPRESSION_FAILED",
+  CONTEXT_COMPRESSION_FAILED = 'CONTEXT_COMPRESSION_FAILED',
   /** 上下文保存失败 */
-  CONTEXT_SAVE_FAILED = "CONTEXT_SAVE_FAILED",
+  CONTEXT_SAVE_FAILED = 'CONTEXT_SAVE_FAILED',
 
   // ==================== 消息错误 (MESSAGE_*) ====================
   /** 消息为空 */
-  MESSAGE_EMPTY = "MESSAGE_EMPTY",
+  MESSAGE_EMPTY = 'MESSAGE_EMPTY',
   /** 消息格式错误 */
-  MESSAGE_FORMAT_INVALID = "MESSAGE_FORMAT_INVALID",
+  MESSAGE_FORMAT_INVALID = 'MESSAGE_FORMAT_INVALID',
   /** 消息太长 */
-  MESSAGE_TOO_LONG = "MESSAGE_TOO_LONG",
+  MESSAGE_TOO_LONG = 'MESSAGE_TOO_LONG',
   /** 消息处理失败 */
-  MESSAGE_PROCESS_FAILED = "MESSAGE_PROCESS_FAILED",
+  MESSAGE_PROCESS_FAILED = 'MESSAGE_PROCESS_FAILED',
   /** 消息发送失败 */
-  MESSAGE_SEND_FAILED = "MESSAGE_SEND_FAILED",
+  MESSAGE_SEND_FAILED = 'MESSAGE_SEND_FAILED',
 
   // ==================== 工具错误 (TOOL_*) ====================
   /** 工具不存在 */
-  TOOL_NOT_FOUND = "TOOL_NOT_FOUND",
+  TOOL_NOT_FOUND = 'TOOL_NOT_FOUND',
   /** 工具调用失败 */
-  TOOL_CALL_FAILED = "TOOL_CALL_FAILED",
+  TOOL_CALL_FAILED = 'TOOL_CALL_FAILED',
   /** 工具权限不足 */
-  TOOL_PERMISSION_DENIED = "TOOL_PERMISSION_DENIED",
+  TOOL_PERMISSION_DENIED = 'TOOL_PERMISSION_DENIED',
   /** 工具调用超时 */
-  TOOL_CALL_TIMEOUT = "TOOL_CALL_TIMEOUT",
+  TOOL_CALL_TIMEOUT = 'TOOL_CALL_TIMEOUT',
   /** 工具参数错误 */
-  TOOL_INVALID_ARGS = "TOOL_INVALID_ARGS",
+  TOOL_INVALID_ARGS = 'TOOL_INVALID_ARGS',
 
   // ==================== 状态错误 (STATE_*) ====================
   /** Plugin未初始化 */
-  PLUGIN_NOT_INITIALIZED = "PLUGIN_NOT_INITIALIZED",
+  PLUGIN_NOT_INITIALIZED = 'PLUGIN_NOT_INITIALIZED',
   /** Plugin已关闭 */
-  PLUGIN_SHUTDOWN = "PLUGIN_SHUTDOWN",
+  PLUGIN_SHUTDOWN = 'PLUGIN_SHUTDOWN',
   /** Plugin忙 */
-  PLUGIN_BUSY = "PLUGIN_BUSY",
+  PLUGIN_BUSY = 'PLUGIN_BUSY',
   /** 状态转换无效 */
-  STATE_TRANSITION_INVALID = "STATE_TRANSITION_INVALID",
+  STATE_TRANSITION_INVALID = 'STATE_TRANSITION_INVALID',
 
   // ==================== 配置错误 (CONFIG_*) ====================
   /** 配置不存在 */
-  CONFIG_NOT_FOUND = "CONFIG_NOT_FOUND",
+  CONFIG_NOT_FOUND = 'CONFIG_NOT_FOUND',
   /** 配置无效 */
-  CONFIG_INVALID = "CONFIG_INVALID",
+  CONFIG_INVALID = 'CONFIG_INVALID',
   /** 配置更新失败 */
-  CONFIG_UPDATE_FAILED = "CONFIG_UPDATE_FAILED",
+  CONFIG_UPDATE_FAILED = 'CONFIG_UPDATE_FAILED',
 
   // ==================== 通用错误 (GENERAL_*) ====================
   /** 未知错误 */
-  UNKNOWN_ERROR = "UNKNOWN_ERROR",
+  UNKNOWN_ERROR = 'UNKNOWN_ERROR',
   /** 操作失败 */
-  OPERATION_FAILED = "OPERATION_FAILED",
+  OPERATION_FAILED = 'OPERATION_FAILED',
   /** 操作取消 */
-  OPERATION_CANCELLED = "OPERATION_CANCELLED",
+  OPERATION_CANCELLED = 'OPERATION_CANCELLED',
   /** 操作超时 */
-  OPERATION_TIMEOUT = "OPERATION_TIMEOUT",
+  OPERATION_TIMEOUT = 'OPERATION_TIMEOUT',
   /** 内部错误 */
-  INTERNAL_ERROR = "INTERNAL_ERROR",
+  INTERNAL_ERROR = 'INTERNAL_ERROR',
   /** 服务不可用 */
-  SERVICE_UNAVAILABLE = "SERVICE_UNAVAILABLE"
+  SERVICE_UNAVAILABLE = 'SERVICE_UNAVAILABLE',
 }
 
 /**
@@ -2450,19 +2429,19 @@ interface ErrorContext {
  */
 enum ErrorCategory {
   /** 会话相关错误 */
-  SESSION = "session",
+  SESSION = 'session',
   /** 上下文相关错误 */
-  CONTEXT = "context",
+  CONTEXT = 'context',
   /** 消息处理错误 */
-  MESSAGE = "message",
+  MESSAGE = 'message',
   /** 工具调用错误 */
-  TOOL = "tool",
+  TOOL = 'tool',
   /** 状态管理错误 */
-  STATE = "state",
+  STATE = 'state',
   /** 配置错误 */
-  CONFIG = "config",
+  CONFIG = 'config',
   /** 系统错误 */
-  SYSTEM = "system"
+  SYSTEM = 'system',
 }
 
 /**
@@ -2502,13 +2481,13 @@ interface FallbackStrategy {
  */
 enum FallbackType {
   /** 返回错误信息 */
-  ERROR_MESSAGE = "error_message",
+  ERROR_MESSAGE = 'error_message',
   /** 返回缓存结果 */
-  CACHED_RESULT = "cached_result",
+  CACHED_RESULT = 'cached_result',
   /** 返回默认响应 */
-  DEFAULT_RESPONSE = "default_response",
+  DEFAULT_RESPONSE = 'default_response',
   /** 降级到简化处理 */
-  SIMPLIFIED = "simplified"
+  SIMPLIFIED = 'simplified',
 }
 
 /**
@@ -2525,8 +2504,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.ERROR_MESSAGE,
-      fallbackResponse: "会话不存在或已过期，请创建新会话"
-    }
+      fallbackResponse: '会话不存在或已过期，请创建新会话',
+    },
   },
   [ConversationErrorCode.SESSION_LIMIT_EXCEEDED]: {
     errorCode: ConversationErrorCode.SESSION_LIMIT_EXCEEDED,
@@ -2537,8 +2516,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.ERROR_MESSAGE,
-      fallbackResponse: "会话数量已达上限，请关闭一些会话后再试"
-    }
+      fallbackResponse: '会话数量已达上限，请关闭一些会话后再试',
+    },
   },
   [ConversationErrorCode.SESSION_TIMEOUT]: {
     errorCode: ConversationErrorCode.SESSION_TIMEOUT,
@@ -2549,8 +2528,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.DEFAULT_RESPONSE,
-      fallbackResponse: "会话已超时，正在重新连接..."
-    }
+      fallbackResponse: '会话已超时，正在重新连接...',
+    },
   },
 
   // 上下文错误
@@ -2563,8 +2542,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.SIMPLIFIED,
-      params: { compression: true }
-    }
+      params: { compression: true },
+    },
   },
   [ConversationErrorCode.CONTEXT_COMPRESSION_FAILED]: {
     errorCode: ConversationErrorCode.CONTEXT_COMPRESSION_FAILED,
@@ -2575,8 +2554,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.SIMPLIFIED,
-      params: { clearOldMessages: true }
-    }
+      params: { clearOldMessages: true },
+    },
   },
 
   // 消息错误
@@ -2589,8 +2568,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.ERROR_MESSAGE,
-      fallbackResponse: "请输入消息内容"
-    }
+      fallbackResponse: '请输入消息内容',
+    },
   },
   [ConversationErrorCode.MESSAGE_TOO_LONG]: {
     errorCode: ConversationErrorCode.MESSAGE_TOO_LONG,
@@ -2600,8 +2579,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     retryEnabled: true,
     fallbackStrategy: {
       type: FallbackType.ERROR_MESSAGE,
-      fallbackResponse: "消息过长，请缩短后重试"
-    }
+      fallbackResponse: '消息过长，请缩短后重试',
+    },
   },
 
   // 工具错误
@@ -2614,8 +2593,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.ERROR_MESSAGE,
-      fallbackResponse: "请求的工具不存在"
-    }
+      fallbackResponse: '请求的工具不存在',
+    },
   },
   [ConversationErrorCode.TOOL_CALL_TIMEOUT]: {
     errorCode: ConversationErrorCode.TOOL_CALL_TIMEOUT,
@@ -2626,8 +2605,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.ERROR_MESSAGE,
-      fallbackResponse: "工具执行超时，请稍后重试"
-    }
+      fallbackResponse: '工具执行超时，请稍后重试',
+    },
   },
   [ConversationErrorCode.TOOL_PERMISSION_DENIED]: {
     errorCode: ConversationErrorCode.TOOL_PERMISSION_DENIED,
@@ -2638,8 +2617,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.ERROR_MESSAGE,
-      fallbackResponse: "权限不足，无法调用此工具"
-    }
+      fallbackResponse: '权限不足，无法调用此工具',
+    },
   },
 
   // 状态错误
@@ -2649,7 +2628,7 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     retryable: false,
     maxRetries: 0,
     retryDelay: 0,
-    fallbackEnabled: false
+    fallbackEnabled: false,
   },
   [ConversationErrorCode.PLUGIN_BUSY]: {
     errorCode: ConversationErrorCode.PLUGIN_BUSY,
@@ -2660,8 +2639,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.DEFAULT_RESPONSE,
-      fallbackResponse: "系统繁忙，请稍后重试"
-    }
+      fallbackResponse: '系统繁忙，请稍后重试',
+    },
   },
 
   // 通用错误
@@ -2674,8 +2653,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.ERROR_MESSAGE,
-      fallbackResponse: "发生未知错误，请稍后重试"
-    }
+      fallbackResponse: '发生未知错误，请稍后重试',
+    },
   },
   [ConversationErrorCode.INTERNAL_ERROR]: {
     errorCode: ConversationErrorCode.INTERNAL_ERROR,
@@ -2686,8 +2665,8 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.ERROR_MESSAGE,
-      fallbackResponse: "系统内部错误，请联系管理员"
-    }
+      fallbackResponse: '系统内部错误，请联系管理员',
+    },
   },
   [ConversationErrorCode.SERVICE_UNAVAILABLE]: {
     errorCode: ConversationErrorCode.SERVICE_UNAVAILABLE,
@@ -2698,9 +2677,9 @@ const ERROR_HANDLING_STRATEGIES: Record<ConversationErrorCode, ErrorHandlingStra
     fallbackEnabled: true,
     fallbackStrategy: {
       type: FallbackType.DEFAULT_RESPONSE,
-      fallbackResponse: "服务暂不可用，请稍后重试"
-    }
-  }
+      fallbackResponse: '服务暂不可用，请稍后重试',
+    },
+  },
 };
 
 /**
@@ -2739,10 +2718,10 @@ class ConversationErrorHandler {
         sessionId: options?.sessionId,
         requestId: options?.requestId,
         operation: options?.operation,
-        timestamp: Date.now()
+        timestamp: Date.now(),
       },
       recoverySuggestion: this.getRecoverySuggestion(code),
-      retryable: strategy.retryable
+      retryable: strategy.retryable,
     };
   }
 
@@ -2772,7 +2751,7 @@ class ConversationErrorHandler {
     return {
       success: false,
       error,
-      handled: true
+      handled: true,
     };
   }
 
@@ -2786,26 +2765,26 @@ class ConversationErrorHandler {
       fallbackEnabled: true,
       fallbackStrategy: {
         type: FallbackType.ERROR_MESSAGE,
-        fallbackResponse: "发生错误，请稍后重试"
-      }
+        fallbackResponse: '发生错误，请稍后重试',
+      },
     };
   }
 
   private getRecoverySuggestion(code: ConversationErrorCode): string {
     const suggestions: Record<ConversationErrorCode, string> = {
-      [ConversationErrorCode.SESSION_NOT_FOUND]: "请创建新会话或检查会话ID是否正确",
-      [ConversationErrorCode.SESSION_LIMIT_EXCEEDED]: "请关闭一些会话后再试",
-      [ConversationErrorCode.CONTEXT_OVERFLOW]: "请清除部分对话历史或等待系统自动压缩",
-      [ConversationErrorCode.TOOL_PERMISSION_DENIED]: "请检查权限配置或联系管理员",
-      [ConversationErrorCode.SERVICE_UNAVAILABLE]: "请稍后重试或联系管理员"
+      [ConversationErrorCode.SESSION_NOT_FOUND]: '请创建新会话或检查会话ID是否正确',
+      [ConversationErrorCode.SESSION_LIMIT_EXCEEDED]: '请关闭一些会话后再试',
+      [ConversationErrorCode.CONTEXT_OVERFLOW]: '请清除部分对话历史或等待系统自动压缩',
+      [ConversationErrorCode.TOOL_PERMISSION_DENIED]: '请检查权限配置或联系管理员',
+      [ConversationErrorCode.SERVICE_UNAVAILABLE]: '请稍后重试或联系管理员',
     };
-    return suggestions[code] || "请稍后重试";
+    return suggestions[code] || '请稍后重试';
   }
 
   private logError(error: ConversationError): void {
     console.error(`[ConversationError] ${error.code}: ${error.message}`, {
       context: error.context,
-      retryable: error.retryable
+      retryable: error.retryable,
     });
   }
 
@@ -2829,7 +2808,7 @@ class ConversationErrorHandler {
       error,
       handled: true,
       fallbackApplied: true,
-      fallbackResponse: strategy.fallbackResponse
+      fallbackResponse: strategy.fallbackResponse,
     };
   }
 
@@ -2947,28 +2926,28 @@ interface CoreConversationPluginConfig extends PluginConfig {
  */
 enum ConversationFeature {
   /** 会话管理 */
-  SESSION_MANAGEMENT = "session_management",
+  SESSION_MANAGEMENT = 'session_management',
   /** 上下文压缩 */
-  CONTEXT_COMPRESSION = "context_compression",
+  CONTEXT_COMPRESSION = 'context_compression',
   /** 历史摘要 */
-  HISTORY_SUMMARY = "history_summary",
+  HISTORY_SUMMARY = 'history_summary',
   /** 流式输出 */
-  STREAMING = "streaming",
+  STREAMING = 'streaming',
   /** 工具调用 */
-  TOOL_CALLS = "tool_calls",
+  TOOL_CALLS = 'tool_calls',
   /** 多模态支持 */
-  MULTIMODAL = "multimodal",
+  MULTIMODAL = 'multimodal',
   /** 会话搜索 */
-  SESSION_SEARCH = "session_search"
+  SESSION_SEARCH = 'session_search',
 }
 
 /**
  * 存储类型枚举
  */
 enum StorageType {
-  MEMORY = "memory",
-  FILE = "file",
-  DATABASE = "database"
+  MEMORY = 'memory',
+  FILE = 'file',
+  DATABASE = 'database',
 }
 ```
 
@@ -2979,137 +2958,137 @@ enum StorageType {
  * 配置Schema定义
  */
 const CORE_CONVERSATION_PLUGIN_CONFIG_SCHEMA: ConfigSchema = {
-  type: "object",
+  type: 'object',
   properties: {
     // 会话配置
     max_sessions: {
-      type: "number",
+      type: 'number',
       default: 100,
       minimum: 1,
       maximum: 1000,
-      description: "最大并发会话数量"
+      description: '最大并发会话数量',
     },
     default_session_timeout: {
-      type: "number",
+      type: 'number',
       default: 3600000, // 1小时
-      minimum: 60000,   // 最小1分钟
-      description: "默认会话超时时间（毫秒）"
+      minimum: 60000, // 最小1分钟
+      description: '默认会话超时时间（毫秒）',
     },
     default_idle_timeout: {
-      type: "number",
+      type: 'number',
       default: 1800000, // 30分钟
       minimum: 60000,
-      description: "默认空闲超时时间（毫秒）"
+      description: '默认空闲超时时间（毫秒）',
     },
 
     // 上下文配置
     default_window_size: {
-      type: "number",
+      type: 'number',
       default: 50,
       minimum: 10,
       maximum: 200,
-      description: "默认上下文窗口大小（消息数）"
+      description: '默认上下文窗口大小（消息数）',
     },
     max_context_tokens: {
-      type: "number",
+      type: 'number',
       default: 128000,
       minimum: 1000,
       maximum: 1000000,
-      description: "最大上下文token数"
+      description: '最大上下文token数',
     },
     enable_auto_compression: {
-      type: "boolean",
+      type: 'boolean',
       default: true,
-      description: "是否启用自动上下文压缩"
+      description: '是否启用自动上下文压缩',
     },
     auto_compression_threshold: {
-      type: "number",
+      type: 'number',
       default: 0.8,
       minimum: 0.5,
       maximum: 0.95,
-      description: "自动压缩触发阈值（0-1）"
+      description: '自动压缩触发阈值（0-1）',
     },
 
     // 输入输出配置
     max_input_length: {
-      type: "number",
+      type: 'number',
       default: 10000,
       minimum: 1,
       maximum: 100000,
-      description: "最大输入长度（字符数）"
+      description: '最大输入长度（字符数）',
     },
     max_output_length: {
-      type: "number",
+      type: 'number',
       default: 50000,
       minimum: 1,
       maximum: 500000,
-      description: "最大输出长度（字符数）"
+      description: '最大输出长度（字符数）',
     },
     default_output_format: {
-      type: "string",
-      default: "cli",
-      enum: ["plain_text", "markdown", "json", "cli"],
-      description: "默认输出格式"
+      type: 'string',
+      default: 'cli',
+      enum: ['plain_text', 'markdown', 'json', 'cli'],
+      description: '默认输出格式',
     },
     enable_streaming: {
-      type: "boolean",
+      type: 'boolean',
       default: true,
-      description: "是否启用流式输出"
+      description: '是否启用流式输出',
     },
     streaming_type: {
-      type: "string",
-      default: "sse",
-      enum: ["sse", "websocket", "polling"],
-      description: "流式输出传输类型"
+      type: 'string',
+      default: 'sse',
+      enum: ['sse', 'websocket', 'polling'],
+      description: '流式输出传输类型',
     },
 
     // 错误处理配置
     max_retry_attempts: {
-      type: "number",
+      type: 'number',
       default: 3,
       minimum: 0,
       maximum: 10,
-      description: "最大重试次数"
+      description: '最大重试次数',
     },
     default_retry_delay: {
-      type: "number",
+      type: 'number',
       default: 1000,
       minimum: 100,
       maximum: 60000,
-      description: "默认重试延迟（毫秒）"
+      description: '默认重试延迟（毫秒）',
     },
     verbose_error_logging: {
-      type: "boolean",
+      type: 'boolean',
       default: false,
-      description: "是否记录详细错误日志"
+      description: '是否记录详细错误日志',
     },
 
     // 存储配置
     session_storage_type: {
-      type: "string",
-      default: "memory",
-      enum: ["memory", "file", "database"],
-      description: "会话存储类型"
+      type: 'string',
+      default: 'memory',
+      enum: ['memory', 'file', 'database'],
+      description: '会话存储类型',
     },
     context_storage_type: {
-      type: "string",
-      default: "memory",
-      enum: ["memory", "file", "database"],
-      description: "上下文存储类型"
+      type: 'string',
+      default: 'memory',
+      enum: ['memory', 'file', 'database'],
+      description: '上下文存储类型',
     },
     enable_persistence: {
-      type: "boolean",
+      type: 'boolean',
       default: true,
-      description: "是否启用数据持久化"
+      description: '是否启用数据持久化',
     },
     persistence_interval: {
-      type: "number",
+      type: 'number',
       default: 30000,
       minimum: 5000,
       maximum: 300000,
-      description: "持久化间隔（毫秒）"
-    }
-  }
+      description: '持久化间隔（毫秒）',
+    },
+  },
 };
 
 /**
@@ -3150,9 +3129,9 @@ const DEFAULT_CORE_CONVERSATION_PLUGIN_CONFIG: CoreConversationPluginConfig = {
     ConversationFeature.SESSION_MANAGEMENT,
     ConversationFeature.CONTEXT_COMPRESSION,
     ConversationFeature.STREAMING,
-    ConversationFeature.TOOL_CALLS
+    ConversationFeature.TOOL_CALLS,
   ],
-  disabled_features: []
+  disabled_features: [],
 };
 ```
 
@@ -3161,10 +3140,10 @@ const DEFAULT_CORE_CONVERSATION_PLUGIN_CONFIG: CoreConversationPluginConfig = {
 配置按以下优先级加载（从低到高）：
 
 1. **Plugin默认配置** - 代码中定义的DEFAULT_CORE_CONVERSATION_PLUGIN_CONFIG
-2. **系统级配置** - Kernel配置文件中的plugin.conversation.*配置项
+2. **系统级配置** - Kernel配置文件中的plugin.conversation.\*配置项
 3. **项目级配置** - 项目根目录下的.organic/conversation.config.json
 4. **用户级配置** - 用户目录下的.organic/conversation.config.json
-5. **环境变量** - OC_PLUGIN_*前缀的环境变量
+5. **环境变量** - OC*PLUGIN*\*前缀的环境变量
 6. **运行时配置** - Plugin初始化时传入的config参数
 
 ```typescript
@@ -3176,12 +3155,12 @@ class ConfigLoader {
 
   constructor() {
     this.configSources = [
-      { name: "default", priority: 1, load: () => DEFAULT_CORE_CONVERSATION_PLUGIN_CONFIG },
-      { name: "system", priority: 2, load: () => this.loadSystemConfig() },
-      { name: "project", priority: 3, load: () => this.loadProjectConfig() },
-      { name: "user", priority: 4, load: () => this.loadUserConfig() },
-      { name: "env", priority: 5, load: () => this.loadEnvConfig() },
-      { name: "runtime", priority: 6, load: () => null } // 运行时配置单独处理
+      { name: 'default', priority: 1, load: () => DEFAULT_CORE_CONVERSATION_PLUGIN_CONFIG },
+      { name: 'system', priority: 2, load: () => this.loadSystemConfig() },
+      { name: 'project', priority: 3, load: () => this.loadProjectConfig() },
+      { name: 'user', priority: 4, load: () => this.loadUserConfig() },
+      { name: 'env', priority: 5, load: () => this.loadEnvConfig() },
+      { name: 'runtime', priority: 6, load: () => null }, // 运行时配置单独处理
     ];
   }
 
@@ -3221,7 +3200,7 @@ class ConfigLoader {
       ...base,
       ...override,
       enabled_features: override.enabled_features || base.enabled_features,
-      disabled_features: override.disabled_features || base.disabled_features
+      disabled_features: override.disabled_features || base.disabled_features,
     };
   }
 
@@ -3233,11 +3212,11 @@ class ConfigLoader {
 
     // 验证数值范围
     if (config.max_sessions < 1 || config.max_sessions > 1000) {
-      errors.push("max_sessions必须在1-1000之间");
+      errors.push('max_sessions必须在1-1000之间');
     }
 
     if (config.default_window_size < 10 || config.default_window_size > 200) {
-      errors.push("default_window_size必须在10-200之间");
+      errors.push('default_window_size必须在10-200之间');
     }
 
     // 验证逻辑一致性
@@ -3246,7 +3225,7 @@ class ConfigLoader {
     }
 
     if (errors.length > 0) {
-      throw new Error(`配置验证失败: ${errors.join(", ")}`);
+      throw new Error(`配置验证失败: ${errors.join(', ')}`);
     }
 
     return config;
@@ -3258,66 +3237,66 @@ class ConfigLoader {
 
 ## 验收条件
 
-| 序号 | 验收项 | 验收标准 | 检查方法 |
-|------|--------|----------|----------|
-| 1 | PluginInterface接口 | 定义完整的CoreConversationPluginInterface，包含会话管理、消息处理、上下文管理核心方法 | 代码审查 |
-| 2 | PluginContext上下文 | 定义PluginContext包含Kernel API、工具服务、信息服务等必需接口 | 代码审查 |
-| 3 | 会话管理接口 | 定义createSession/getSession/resumeSession/closeSession/listSessions接口 | 代码审查 |
-| 4 | 上下文管理接口 | 定义getContext/updateContext/clearContext/compressContext接口 | 代码审查 |
-| 5 | Kernel工具调用 | 定义ToolCallService封装Kernel工具服务，支持同步/异步/批量调用 | 代码审查 |
-| 6 | 输入解析器 | 定义InputParser接口和DefaultInputParser默认实现 | 代码审查 |
-| 7 | 输出格式化器 | 定义OutputFormatter接口和DefaultOutputFormatter，支持CLI/Markdown/JSON格式 | 代码审查 |
-| 8 | 流式输出支持 | 定义StreamingConfig和StreamChunk结构，支持SSE/WebSocket流式输出 | 代码审查 |
-| 9 | 错误码体系 | 定义至少15个错误代码，覆盖会话、上下文、消息、工具、状态、配置类型 | 代码审查 |
-| 10 | 错误处理策略 | 定义错误分类、处理策略和降级机制，支持重试和降级处理 | 代码审查 |
-| 11 | 配置项清单 | 定义CoreConversationPluginConfig包含至少20个配置项 | 代码审查 |
-| 12 | 配置Schema | 定义ConfigSchema，包含类型、默认值、范围限制和描述 | 代码审查 |
-| 13 | 配置加载优先级 | 定义6级配置加载优先级：默认/系统/项目/用户/环境/运行时 | 代码审查 |
-| 14 | 状态机定义 | 定义ConversationPluginStateMachine和状态转换规则 | 代码审查 |
-| 15 | 事件订阅机制 | 定义EventService支持会话/消息/工具/系统事件订阅 | 代码审查 |
-| 16 | 文档格式规范 | 文档格式符合feature文档模板，包含所有必需章节 | 格式检查 |
+| 序号 | 验收项              | 验收标准                                                                              | 检查方法 |
+| ---- | ------------------- | ------------------------------------------------------------------------------------- | -------- |
+| 1    | PluginInterface接口 | 定义完整的CoreConversationPluginInterface，包含会话管理、消息处理、上下文管理核心方法 | 代码审查 |
+| 2    | PluginContext上下文 | 定义PluginContext包含Kernel API、工具服务、信息服务等必需接口                         | 代码审查 |
+| 3    | 会话管理接口        | 定义createSession/getSession/resumeSession/closeSession/listSessions接口              | 代码审查 |
+| 4    | 上下文管理接口      | 定义getContext/updateContext/clearContext/compressContext接口                         | 代码审查 |
+| 5    | Kernel工具调用      | 定义ToolCallService封装Kernel工具服务，支持同步/异步/批量调用                         | 代码审查 |
+| 6    | 输入解析器          | 定义InputParser接口和DefaultInputParser默认实现                                       | 代码审查 |
+| 7    | 输出格式化器        | 定义OutputFormatter接口和DefaultOutputFormatter，支持CLI/Markdown/JSON格式            | 代码审查 |
+| 8    | 流式输出支持        | 定义StreamingConfig和StreamChunk结构，支持SSE/WebSocket流式输出                       | 代码审查 |
+| 9    | 错误码体系          | 定义至少15个错误代码，覆盖会话、上下文、消息、工具、状态、配置类型                    | 代码审查 |
+| 10   | 错误处理策略        | 定义错误分类、处理策略和降级机制，支持重试和降级处理                                  | 代码审查 |
+| 11   | 配置项清单          | 定义CoreConversationPluginConfig包含至少20个配置项                                    | 代码审查 |
+| 12   | 配置Schema          | 定义ConfigSchema，包含类型、默认值、范围限制和描述                                    | 代码审查 |
+| 13   | 配置加载优先级      | 定义6级配置加载优先级：默认/系统/项目/用户/环境/运行时                                | 代码审查 |
+| 14   | 状态机定义          | 定义ConversationPluginStateMachine和状态转换规则                                      | 代码审查 |
+| 15   | 事件订阅机制        | 定义EventService支持会话/消息/工具/系统事件订阅                                       | 代码审查 |
+| 16   | 文档格式规范        | 文档格式符合feature文档模板，包含所有必需章节                                         | 格式检查 |
 
 ---
 
 ## 术语定义
 
-| 术语 | 定义 |
-|------|------|
-| CoreConversationPlugin | 核心对话Plugin，系统与用户交互的主要入口 |
-| Session | 会话，用户与系统之间的一次完整对话交互过程 |
-| Context | 对话上下文，存储会话中的消息历史和相关信息 |
-| ContextWindow | 上下文窗口，控制Agent一次处理的消息范围 |
-| PluginContext | Plugin上下文，Plugin初始化时由Kernel注入的运行时环境 |
-| PluginInput | Plugin输入，所有execute方法的输入参数结构 |
-| PluginOutput | Plugin输出，所有execute方法的返回结果结构 |
-| ToolCall | 工具调用，通过Kernel API执行的具体工具操作 |
-| StreamChunk | 流式片段，流式输出中的单个数据片段 |
-| ErrorHandlingStrategy | 错误处理策略，定义错误发生时的处理方式和降级方案 |
-| InputParser | 输入解析器，将CLI文字输入转换为标准化内部格式 |
-| OutputFormatter | 输出格式化器，将处理结果转换为可读输出格式 |
+| 术语                   | 定义                                                 |
+| ---------------------- | ---------------------------------------------------- |
+| CoreConversationPlugin | 核心对话Plugin，系统与用户交互的主要入口             |
+| Session                | 会话，用户与系统之间的一次完整对话交互过程           |
+| Context                | 对话上下文，存储会话中的消息历史和相关信息           |
+| ContextWindow          | 上下文窗口，控制Agent一次处理的消息范围              |
+| PluginContext          | Plugin上下文，Plugin初始化时由Kernel注入的运行时环境 |
+| PluginInput            | Plugin输入，所有execute方法的输入参数结构            |
+| PluginOutput           | Plugin输出，所有execute方法的返回结果结构            |
+| ToolCall               | 工具调用，通过Kernel API执行的具体工具操作           |
+| StreamChunk            | 流式片段，流式输出中的单个数据片段                   |
+| ErrorHandlingStrategy  | 错误处理策略，定义错误发生时的处理方式和降级方案     |
+| InputParser            | 输入解析器，将CLI文字输入转换为标准化内部格式        |
+| OutputFormatter        | 输出格式化器，将处理结果转换为可读输出格式           |
 
 ---
 
 ## 相关文档
 
-| 文档编号 | 文档名称 | 关联说明 |
-|----------|----------|----------|
-| feature-001 | feature-001-agent-architecture.md | Agent架构设计，核心对话Plugin的调用方 |
-| feature-006 | feature-006-plugin-spec.md | Plugin系统架构，CoreConversationPlugin的基础规范 |
-| feature-007 | feature-007-tool-system.md | 工具系统规范，核心对话Plugin调用工具服务的接口定义 |
-| feature-008 | feature-008-context-management.md | 上下文管理服务，核心对话Plugin管理上下文的基础 |
-| requirements | requirements.md | 需求规格说明，核心对话Plugin的需求来源 |
-| kernel-api | Kernel API规范 | Kernel提供的核心服务接口定义 |
+| 文档编号     | 文档名称                          | 关联说明                                           |
+| ------------ | --------------------------------- | -------------------------------------------------- |
+| feature-001  | feature-001-agent-architecture.md | Agent架构设计，核心对话Plugin的调用方              |
+| feature-006  | feature-006-plugin-spec.md        | Plugin系统架构，CoreConversationPlugin的基础规范   |
+| feature-007  | feature-007-tool-system.md        | 工具系统规范，核心对话Plugin调用工具服务的接口定义 |
+| feature-008  | feature-008-context-management.md | 上下文管理服务，核心对话Plugin管理上下文的基础     |
+| requirements | requirements.md                   | 需求规格说明，核心对话Plugin的需求来源             |
+| kernel-api   | Kernel API规范                    | Kernel提供的核心服务接口定义                       |
 
 ---
 
 ## 版本兼容性
 
-| Kernel API版本 | Plugin版本 | 兼容性说明 |
-|----------------|------------|------------|
-| 1.0.0 | 1.0.0 | 初始版本，完全兼容 |
-| 1.1.0 | 1.0.0+ | 向后兼容，新增可选接口 |
-| 2.0.0 | 2.0.0 | 可能不兼容旧版本，需要迁移 |
+| Kernel API版本 | Plugin版本 | 兼容性说明                 |
+| -------------- | ---------- | -------------------------- |
+| 1.0.0          | 1.0.0      | 初始版本，完全兼容         |
+| 1.1.0          | 1.0.0+     | 向后兼容，新增可选接口     |
+| 2.0.0          | 2.0.0      | 可能不兼容旧版本，需要迁移 |
 
 ---
 
@@ -3329,5 +3308,5 @@ class ConfigLoader {
 
 ---
 
-*文档版本: 1.0.0*
-*最后更新: 2026-04-25*
+_文档版本: 1.0.0_
+_最后更新: 2026-04-25_

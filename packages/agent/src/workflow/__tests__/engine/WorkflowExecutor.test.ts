@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { WorkflowExecutor, defaultNodeExecutor, type NodeExecutor } from '../../engine/WorkflowExecutor.js';
+import { WorkflowExecutor, defaultNodeExecutor } from '../../engine/WorkflowExecutor.js';
 import { TaskType, createTask, createTaskExecution } from '../../models/Task.js';
 
 vi.mock('@organic/utils', () => ({
@@ -25,17 +25,24 @@ describe('WorkflowExecutor', () => {
     });
 
     it('should accept custom config', () => {
-      const customExecutor = new WorkflowExecutor(vi.fn(async () => ({ success: true, output: {}, duration: 100 })), {
-        maxConcurrency: 5,
-        autoRetry: false,
-      });
+      const customExecutor = new WorkflowExecutor(
+        vi.fn(async () => ({ success: true, output: {}, duration: 100 })),
+        {
+          maxConcurrency: 5,
+          autoRetry: false,
+        }
+      );
       expect(customExecutor).toBeDefined();
     });
   });
 
   describe('executeTask', () => {
     it('should execute task successfully', async () => {
-      const mockFn = vi.fn(async () => ({ success: true, output: { result: 'success' }, duration: 100 }));
+      const mockFn = vi.fn(async () => ({
+        success: true,
+        output: { result: 'success' },
+        duration: 100,
+      }));
       executor = new WorkflowExecutor(mockFn);
 
       const task = createTask('TestTask', TaskType.TASK, { handler: 'test' });
@@ -47,7 +54,11 @@ describe('WorkflowExecutor', () => {
     });
 
     it('should handle task failure', async () => {
-      const mockFn = vi.fn(async () => ({ success: false, error: { code: 'ERR_001', message: 'Task failed' }, duration: 100 }));
+      const mockFn = vi.fn(async () => ({
+        success: false,
+        error: { code: 'ERR_001', message: 'Task failed' },
+        duration: 100,
+      }));
       executor = new WorkflowExecutor(mockFn);
 
       const task = createTask('TestTask', TaskType.TASK, { handler: 'test' });
@@ -59,7 +70,9 @@ describe('WorkflowExecutor', () => {
     });
 
     it('should handle executor error', async () => {
-      const mockFn = vi.fn(async () => { throw new Error('Execution error'); });
+      const mockFn = vi.fn(async () => {
+        throw new Error('Execution error');
+      });
       executor = new WorkflowExecutor(mockFn);
 
       const task = createTask('TestTask', TaskType.TASK, { handler: 'test' });

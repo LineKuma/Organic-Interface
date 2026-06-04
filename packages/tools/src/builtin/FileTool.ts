@@ -51,7 +51,8 @@ export class FileTool implements Tool {
     this.definition = {
       id: 'builtin:file',
       name: 'FileTool',
-      description: 'Built-in tool for file system operations including read, write, delete, and list',
+      description:
+        'Built-in tool for file system operations including read, write, delete, and list',
       category: 'file',
       inputSchema: {
         type: 'object',
@@ -124,7 +125,11 @@ export class FileTool implements Tool {
         expected: 'string',
         actual: data.operation,
       });
-    } else if (!['read', 'write', 'delete', 'exists', 'list', 'stat', 'mkdir', 'copy', 'move'].includes(data.operation)) {
+    } else if (
+      !['read', 'write', 'delete', 'exists', 'list', 'stat', 'mkdir', 'copy', 'move'].includes(
+        data.operation
+      )
+    ) {
       errors.push({
         path: 'operation',
         message: 'Invalid operation',
@@ -136,7 +141,10 @@ export class FileTool implements Tool {
     const operation = data.operation;
 
     // Validate operation-specific requirements
-    if (['read', 'write', 'delete', 'exists', 'stat', 'mkdir'].includes(operation as string) && !(data as FileToolInput).path) {
+    if (
+      ['read', 'write', 'delete', 'exists', 'stat', 'mkdir'].includes(operation as string) &&
+      !(data as FileToolInput).path
+    ) {
       errors.push({
         path: 'path',
         message: 'Path is required for this operation',
@@ -242,7 +250,11 @@ export class FileTool implements Tool {
     return fs.readFile(filePath, 'utf-8');
   }
 
-  private async writeFile(filePath: string, content: string, createDirs?: boolean): Promise<{ path: string; bytes: number }> {
+  private async writeFile(
+    filePath: string,
+    content: string,
+    createDirs?: boolean
+  ): Promise<{ path: string; bytes: number }> {
     if (createDirs) {
       await fs.mkdir(path.dirname(filePath), { recursive: true });
     }
@@ -250,7 +262,10 @@ export class FileTool implements Tool {
     return { path: filePath, bytes: Buffer.byteLength(content, 'utf-8') };
   }
 
-  private async deleteFile(filePath: string, recursive?: boolean): Promise<{ deleted: boolean; path: string }> {
+  private async deleteFile(
+    filePath: string,
+    recursive?: boolean
+  ): Promise<{ deleted: boolean; path: string }> {
     const stat = await fs.stat(filePath);
     if (stat.isDirectory()) {
       await fs.rm(filePath, { recursive: recursive ?? false });
@@ -269,7 +284,11 @@ export class FileTool implements Tool {
     }
   }
 
-  private async listDirectory(dirPath: string, recursive?: boolean, pattern?: string): Promise<string[]> {
+  private async listDirectory(
+    dirPath: string,
+    recursive?: boolean,
+    pattern?: string
+  ): Promise<string[]> {
     const entries = await fs.readdir(dirPath, { withFileTypes: true });
     const results: string[] = [];
 
@@ -313,19 +332,28 @@ export class FileTool implements Tool {
     };
   }
 
-  private async makeDirectory(dirPath: string, createParents?: boolean): Promise<{ path: string; created: boolean }> {
+  private async makeDirectory(
+    dirPath: string,
+    createParents?: boolean
+  ): Promise<{ path: string; created: boolean }> {
     await fs.mkdir(dirPath, { recursive: createParents ?? true });
     return { path: dirPath, created: true };
   }
 
-  private async copyFile(source: string, destination: string): Promise<{ source: string; destination: string }> {
+  private async copyFile(
+    source: string,
+    destination: string
+  ): Promise<{ source: string; destination: string }> {
     const destDir = path.dirname(destination);
     await fs.mkdir(destDir, { recursive: true });
     await fs.copyFile(source, destination);
     return { source, destination };
   }
 
-  private async moveFile(source: string, destination: string): Promise<{ source: string; destination: string }> {
+  private async moveFile(
+    source: string,
+    destination: string
+  ): Promise<{ source: string; destination: string }> {
     const destDir = path.dirname(destination);
     await fs.mkdir(destDir, { recursive: true });
     await fs.rename(source, destination);

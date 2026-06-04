@@ -95,9 +95,7 @@ describe('ExecutionCoordinator', () => {
 
   describe('executeWithPlan', () => {
     it('should execute with plan', async () => {
-      const plan = coordinator.createPlan([
-        { requestId: 'req-1', taskName: 'task1', payload: {} },
-      ]);
+      const plan = coordinator.createPlan([{ requestId: 'req-1', taskName: 'task1', payload: {} }]);
 
       const results = await coordinator.executeWithPlan(plan);
       expect(Array.isArray(results)).toBe(true);

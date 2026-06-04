@@ -3,15 +3,7 @@ import {
   WorkflowStatus,
   WorkflowExecutionStatus,
   EdgeConditionType,
-  EdgeCondition,
-  WorkflowEdge,
-  WorkflowConfig,
   DEFAULT_WORKFLOW_CONFIG,
-  WorkflowVariable,
-  Workflow,
-  WorkflowExecution,
-  WorkflowExecutionSnapshot,
-  WorkflowVersion,
   createWorkflow,
   createWorkflowEdge,
   createSimpleEdge,
@@ -210,7 +202,13 @@ describe('Workflow', () => {
     });
 
     it('should return false for missing id', () => {
-      const wf = { name: 'Test', version: '1.0.0', status: WorkflowStatus.DRAFT, nodes: [], edges: [] };
+      const wf = {
+        name: 'Test',
+        version: '1.0.0',
+        status: WorkflowStatus.DRAFT,
+        nodes: [],
+        edges: [],
+      };
       expect(isValidWorkflow(wf)).toBe(false);
     });
   });
@@ -300,10 +298,7 @@ describe('Workflow', () => {
       const task2 = createTask('task2', TaskType.TASK);
       const workflow = createWorkflow('Test', '1.0.0', { config: {} });
       workflow.nodes = [task1, task2];
-      workflow.edges = [
-        createSimpleEdge(task1.id, task2.id),
-        createSimpleEdge(task2.id, task1.id),
-      ];
+      workflow.edges = [createSimpleEdge(task1.id, task2.id), createSimpleEdge(task2.id, task1.id)];
 
       const result = isValidDAG(workflow);
       expect(result.valid).toBe(false);

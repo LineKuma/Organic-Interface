@@ -3,7 +3,14 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { createLogger, createChildLogger, defaultLogger, type LoggerOptions, type LogLevel, type LogEntry } from '@organic/utils';
+import {
+  createLogger,
+  createChildLogger,
+  defaultLogger,
+  type LoggerOptions,
+  type LogLevel,
+  type LogEntry,
+} from '@organic/utils';
 
 describe('Logger', () => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -41,9 +48,7 @@ describe('Logger', () => {
 
       logger.info('Test message');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[test]')
-      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[test]'));
     });
 
     it('should create a logger without timestamp', () => {
@@ -106,12 +111,8 @@ describe('Logger', () => {
 
       logger.debug('Debug message');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[DEBUG]')
-      );
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('Debug message')
-      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[DEBUG]'));
+      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('Debug message'));
     });
 
     it('should output info messages at info level', () => {
@@ -119,9 +120,7 @@ describe('Logger', () => {
 
       logger.info('Info message');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[INFO]')
-      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[INFO]'));
     });
 
     it('should output warn messages at warn level', () => {
@@ -129,9 +128,7 @@ describe('Logger', () => {
 
       logger.warn('Warn message');
 
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[WARN]')
-      );
+      expect(consoleWarnSpy).toHaveBeenCalledWith(expect.stringContaining('[WARN]'));
     });
 
     it('should output error messages at error level', () => {
@@ -139,9 +136,7 @@ describe('Logger', () => {
 
       logger.error('Error message');
 
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[ERROR]')
-      );
+      expect(consoleErrorSpy).toHaveBeenCalledWith(expect.stringContaining('[ERROR]'));
     });
   });
 
@@ -226,9 +221,7 @@ describe('Logger', () => {
 
       childLogger.info('Child message');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[child]')
-      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[child]'));
     });
 
     it('should use only child prefix when parent is null', () => {
@@ -236,9 +229,7 @@ describe('Logger', () => {
 
       childLogger.info('Message');
 
-      expect(consoleLogSpy).toHaveBeenCalledWith(
-        expect.stringContaining('[standalone]')
-      );
+      expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining('[standalone]'));
     });
   });
 
@@ -248,7 +239,7 @@ describe('Logger', () => {
       const logger = createLogger({
         level: 'info',
         prefix: 'test-prefix',
-        logFn: (entry) => {
+        logFn: entry => {
           capturedEntry = entry;
         },
       });
@@ -266,16 +257,14 @@ describe('Logger', () => {
     it('should include timestamp in ISO format', () => {
       let capturedEntry: LogEntry | null = null;
       const logger = createLogger({
-        logFn: (entry) => {
+        logFn: entry => {
           capturedEntry = entry;
         },
       });
 
       logger.info('Test');
 
-      expect(capturedEntry!.timestamp).toMatch(
-        /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/
-      );
+      expect(capturedEntry!.timestamp).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     });
   });
 
@@ -329,7 +318,7 @@ describe('Logger', () => {
     it('should accept valid log levels', () => {
       const levels: LogLevel[] = ['debug', 'info', 'warn', 'error'];
 
-      levels.forEach((level) => {
+      levels.forEach(level => {
         const logger = createLogger({ level });
         expect(() => logger.info('test')).not.toThrow();
       });

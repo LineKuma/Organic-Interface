@@ -15,7 +15,11 @@ describe('MemoryStorage', () => {
     await storage.close();
   });
 
-  function createTestEntity(id: string, type: string, data: Record<string, unknown>): StorageEntity {
+  function createTestEntity(
+    id: string,
+    type: string,
+    data: Record<string, unknown>
+  ): StorageEntity {
     return {
       id,
       type,
@@ -198,7 +202,9 @@ describe('MemoryStorage', () => {
 
     it('should throw error when not initialized', async () => {
       const uninitStorage = new MemoryStorage();
-      await expect(uninitStorage.set(createTestEntity('test', 'user', {}))).rejects.toThrow('Memory storage is not initialized');
+      await expect(uninitStorage.set(createTestEntity('test', 'user', {}))).rejects.toThrow(
+        'Memory storage is not initialized'
+      );
     });
   });
 
@@ -243,7 +249,9 @@ describe('MemoryStorage', () => {
 
     it('should throw error when not initialized', async () => {
       const uninitStorage = new MemoryStorage();
-      await expect(uninitStorage.delete('test')).rejects.toThrow('Memory storage is not initialized');
+      await expect(uninitStorage.delete('test')).rejects.toThrow(
+        'Memory storage is not initialized'
+      );
     });
   });
 
@@ -325,7 +333,9 @@ describe('MemoryStorage', () => {
 
     it('should throw error when not initialized', async () => {
       const uninitStorage = new MemoryStorage();
-      await expect(uninitStorage.getByType('user')).rejects.toThrow('Memory storage is not initialized');
+      await expect(uninitStorage.getByType('user')).rejects.toThrow(
+        'Memory storage is not initialized'
+      );
     });
   });
 
@@ -363,7 +373,9 @@ describe('MemoryStorage', () => {
 
     it('should throw error when not initialized', async () => {
       const uninitStorage = new MemoryStorage();
-      await expect(uninitStorage.query({ type: 'user' })).rejects.toThrow('Memory storage is not initialized');
+      await expect(uninitStorage.query({ type: 'user' })).rejects.toThrow(
+        'Memory storage is not initialized'
+      );
     });
   });
 

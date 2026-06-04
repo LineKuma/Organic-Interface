@@ -68,12 +68,15 @@ export class Prompt {
   /**
    * Render a text input prompt
    */
-  renderText(message: string, options: {
-    defaultValue?: string;
-    placeholder?: string;
-    required?: boolean;
-    validate?: (value: unknown) => string | null;
-  } = {}): string {
+  renderText(
+    message: string,
+    options: {
+      defaultValue?: string;
+      placeholder?: string;
+      required?: boolean;
+      validate?: (value: unknown) => string | null;
+    } = {}
+  ): string {
     const input = this.render(message, {
       type: 'text',
       defaultValue: options.defaultValue,
@@ -88,10 +91,13 @@ export class Prompt {
   /**
    * Render a password prompt (masked input)
    */
-  renderPassword(message: string, options: {
-    required?: boolean;
-    validate?: (value: unknown) => string | null;
-  } = {}): string {
+  renderPassword(
+    message: string,
+    options: {
+      required?: boolean;
+      validate?: (value: unknown) => string | null;
+    } = {}
+  ): string {
     const input = this.render(message, {
       type: 'password',
       required: options.required,
@@ -104,9 +110,13 @@ export class Prompt {
   /**
    * Render a confirmation prompt (yes/no)
    */
-  renderConfirm(message: string, defaultValue: boolean = false, options?: {
-    validate?: (value: unknown) => string | null;
-  }): boolean {
+  renderConfirm(
+    message: string,
+    defaultValue: boolean = false,
+    options?: {
+      validate?: (value: unknown) => string | null;
+    }
+  ): boolean {
     const suffix = defaultValue ? ' [Y/n]' : ' [y/N]';
     const input = this.render(message + suffix, {
       type: 'confirm',
@@ -114,18 +124,24 @@ export class Prompt {
       validate: options?.validate,
     });
 
-    const inputStr = typeof input === 'string' ? input : input.value?.toString() ?? '';
+    const inputStr = typeof input === 'string' ? input : (input.value?.toString() ?? '');
     return this.parseConfirm(inputStr);
   }
 
   /**
    * Render a single-select prompt
    */
-  renderSelect(message: string, options: SelectOption[], validate?: (value: unknown) => string | null): string {
-    const formattedOptions = options.map((opt, i) => {
-      const disabled = opt.disabled ? ' (disabled)' : '';
-      return `  ${i + 1}. ${opt.label}${disabled}`;
-    }).join('\n');
+  renderSelect(
+    message: string,
+    options: SelectOption[],
+    validate?: (value: unknown) => string | null
+  ): string {
+    const formattedOptions = options
+      .map((opt, i) => {
+        const disabled = opt.disabled ? ' (disabled)' : '';
+        return `  ${i + 1}. ${opt.label}${disabled}`;
+      })
+      .join('\n');
 
     this.logger.info(`${message}:\n${formattedOptions}`);
 
@@ -135,18 +151,25 @@ export class Prompt {
       validate,
     });
 
-    const inputStr = typeof input === 'string' ? input : (typeof input.value === 'string' ? input.value : '');
+    const inputStr =
+      typeof input === 'string' ? input : typeof input.value === 'string' ? input.value : '';
     return this.parseSelect(inputStr, options);
   }
 
   /**
    * Render a multi-select prompt
    */
-  renderMultiselect(message: string, options: SelectOption[], validate?: (value: unknown) => string | null): string[] {
-    const formattedOptions = options.map((opt, i) => {
-      const disabled = opt.disabled ? ' (disabled)' : '';
-      return `  ${i + 1}. ${opt.label}${disabled}`;
-    }).join('\n');
+  renderMultiselect(
+    message: string,
+    options: SelectOption[],
+    validate?: (value: unknown) => string | null
+  ): string[] {
+    const formattedOptions = options
+      .map((opt, i) => {
+        const disabled = opt.disabled ? ' (disabled)' : '';
+        return `  ${i + 1}. ${opt.label}${disabled}`;
+      })
+      .join('\n');
 
     this.logger.info(`${message}:\n${formattedOptions}`);
     this.logger.info('Enter numbers separated by commas (e.g., 1,3,5)');
@@ -157,7 +180,7 @@ export class Prompt {
       validate,
     });
 
-    const inputStr = typeof input === 'string' ? input : input.value?.toString() ?? '';
+    const inputStr = typeof input === 'string' ? input : (input.value?.toString() ?? '');
     return this.parseMultiselect(inputStr, options);
   }
 
@@ -190,10 +213,12 @@ export class Prompt {
     // For select types, show numbered options
     if (type === 'select' || type === 'multiselect') {
       if (options) {
-        const formatted = options.map((opt, i) => {
-          const marker = opt.disabled ? '   ' : `${i + 1}. `;
-          return `${marker}${opt.label}${opt.disabled ? ' (disabled)' : ''}`;
-        }).join('\n');
+        const formatted = options
+          .map((opt, i) => {
+            const marker = opt.disabled ? '   ' : `${i + 1}. `;
+            return `${marker}${opt.label}${opt.disabled ? ' (disabled)' : ''}`;
+          })
+          .join('\n');
         this.logger.info(formatted);
       }
     }
@@ -243,10 +268,12 @@ export class Prompt {
     }
 
     if (config.options && config.options.length > 0) {
-      const optionStr = config.options.map((opt, i) => {
-        const disabled = opt.disabled ? ' (disabled)' : '';
-        return `${i + 1}. ${opt.label}${disabled}`;
-      }).join(' ');
+      const optionStr = config.options
+        .map((opt, i) => {
+          const disabled = opt.disabled ? ' (disabled)' : '';
+          return `${i + 1}. ${opt.label}${disabled}`;
+        })
+        .join(' ');
       parts.push(optionStr);
     }
 
@@ -310,9 +337,10 @@ export class Prompt {
     }
 
     // Try exact match
-    const match = options.find(opt =>
-      opt.label.toLowerCase() === input.toLowerCase() ||
-      opt.value.toLowerCase() === input.toLowerCase()
+    const match = options.find(
+      opt =>
+        opt.label.toLowerCase() === input.toLowerCase() ||
+        opt.value.toLowerCase() === input.toLowerCase()
     );
 
     if (match && !match.disabled) {
@@ -327,7 +355,10 @@ export class Prompt {
    * Parse multiselect input
    */
   private parseMultiselect(input: string, options: SelectOption[]): string[] {
-    const parts = input.split(',').map(s => s.trim()).filter(Boolean);
+    const parts = input
+      .split(',')
+      .map(s => s.trim())
+      .filter(Boolean);
     const selected: string[] = [];
 
     for (const part of parts) {
@@ -342,9 +373,10 @@ export class Prompt {
       }
 
       // Try exact match
-      const match = options.find(opt =>
-        opt.label.toLowerCase() === part.toLowerCase() ||
-        opt.value.toLowerCase() === part.toLowerCase()
+      const match = options.find(
+        opt =>
+          opt.label.toLowerCase() === part.toLowerCase() ||
+          opt.value.toLowerCase() === part.toLowerCase()
       );
 
       if (match && !match.disabled) {

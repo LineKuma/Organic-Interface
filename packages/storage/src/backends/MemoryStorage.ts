@@ -3,12 +3,8 @@
  * In-memory storage implementation for temporary data and caching
  */
 
-import type {
-  IStorageBackend,
-  StorageBackendInfo} from './IStorageBackend.js';
-import {
-  StorageBackendType,
-} from './IStorageBackend.js';
+import type { IStorageBackend, StorageBackendInfo } from './IStorageBackend.js';
+import { StorageBackendType } from './IStorageBackend.js';
 import type { StorageEntity } from '../models/StorageEntity.js';
 
 /**

@@ -21,7 +21,6 @@ import {
  * Regular expression patterns for command parsing
  */
 const JSON_PATTERN = /^\s*[\[{]/;
-const QUOTED_PATTERN = /^"(?:[^"\\]|\\.)*"|'(?:[^'\\]|\\.)*'/;
 
 /**
  * Input parser options
@@ -135,11 +134,18 @@ export class InputParser {
       }
     }
 
-    return this.createParsedInput(normalized, type, {
-      timestamp: startTime,
-      originalLength: rawInput.length,
-      tokenEstimate: this.estimateTokens(normalized),
-    }, command, arguments_, options);
+    return this.createParsedInput(
+      normalized,
+      type,
+      {
+        timestamp: startTime,
+        originalLength: rawInput.length,
+        tokenEstimate: this.estimateTokens(normalized),
+      },
+      command,
+      arguments_,
+      options
+    );
   }
 
   /**
@@ -188,7 +194,7 @@ export class InputParser {
 
     // Validate arguments
     if (input.arguments !== undefined) {
-      for (const [key, value] of Object.entries(input.arguments)) {
+      for (const [key] of Object.entries(input.arguments)) {
         if (typeof key !== 'string') {
           errors.push({
             code: 'INVALID_ARGUMENT_KEY',
@@ -321,7 +327,9 @@ Usage:
   /**
    * Parse command-style input
    */
-  private parseCommand(text: string): { command: string; arguments: Record<string, unknown>; options: InputOptions } | null {
+  private parseCommand(
+    text: string
+  ): { command: string; arguments: Record<string, unknown>; options: InputOptions } | null {
     for (const prefix of this.options.commandPrefixes) {
       if (text.startsWith(prefix)) {
         const match = text.match(new RegExp(`^${prefix.replace('/', '\\/')}(\\w+)(?:\\s+(.*))?$`));
@@ -343,7 +351,10 @@ Usage:
   /**
    * Parse argument string into key-value pairs
    */
-  private parseArguments(argsStr: string): { args: Record<string, unknown>; options: InputOptions } {
+  private parseArguments(argsStr: string): {
+    args: Record<string, unknown>;
+    options: InputOptions;
+  } {
     const args: Record<string, unknown> = {};
     const options: InputOptions = {};
 
@@ -367,7 +378,7 @@ Usage:
         args[key] = value;
       } else {
         // Positional argument
-        const existingPositional = Object.keys(args).filter((k) => k.startsWith('_pos')).length;
+        const existingPositional = Object.keys(args).filter(k => k.startsWith('_pos')).length;
         args[`_pos${existingPositional}`] = this.parseValue(token);
       }
     }

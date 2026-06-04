@@ -207,7 +207,8 @@ export class SessionManager {
     // Apply updates
     if (updates.title !== undefined) session.title = updates.title;
     if (updates.tags !== undefined) session.tags = updates.tags;
-    if (updates.metadata !== undefined) session.metadata = { ...session.metadata, ...updates.metadata };
+    if (updates.metadata !== undefined)
+      session.metadata = { ...session.metadata, ...updates.metadata };
     if (updates.status !== undefined) session.status = updates.status;
     if (updates.contextWindow !== undefined) session.contextWindow = updates.contextWindow;
 
@@ -257,7 +258,7 @@ export class SessionManager {
 
     // Apply filters
     if (filter) {
-      sessions = sessions.filter((session) => this.matchesFilter(session, filter));
+      sessions = sessions.filter(session => this.matchesFilter(session, filter));
     }
 
     // Sort by last active time (newest first)
@@ -400,7 +401,7 @@ export class SessionManager {
 
     // Tags filter
     if (filter.tags && filter.tags.length > 0) {
-      if (!filter.tags.some((tag) => session.tags.includes(tag))) {
+      if (!filter.tags.some(tag => session.tags.includes(tag))) {
         return false;
       }
     }
@@ -464,6 +465,6 @@ class InMemorySessionStorage implements SessionStorage {
   }
 
   async list(): Promise<Session[]> {
-    return Array.from(this.sessions.values()).map((s) => ({ ...s }));
+    return Array.from(this.sessions.values()).map(s => ({ ...s }));
   }
 }

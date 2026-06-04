@@ -32,17 +32,14 @@ export interface RetryOptions {
 /**
  * Execute a function with retry logic
  */
-export async function withRetry<T>(
-  fn: () => Promise<T>,
-  options: RetryOptions = {}
-): Promise<T> {
+export async function withRetry<T>(fn: () => Promise<T>, options: RetryOptions = {}): Promise<T> {
   const {
     maxAttempts = 3,
     initialDelay = 1000,
     maxDelay = 30000,
     multiplier = 2,
     jitter = true,
-    onRetry
+    onRetry,
   } = options;
 
   let lastError: Error | undefined;
@@ -89,17 +86,12 @@ export interface TimeoutOptions {
 /**
  * Execute a function with a timeout
  */
-export async function withTimeout<T>(
-  promise: Promise<T>,
-  options: TimeoutOptions
-): Promise<T> {
+export async function withTimeout<T>(promise: Promise<T>, options: TimeoutOptions): Promise<T> {
   const { timeout, message = 'Operation timed out' } = options;
 
   return Promise.race([
     promise,
-    new Promise<T>((_, reject) =>
-      setTimeout(() => reject(new Error(message)), timeout)
-    )
+    new Promise<T>((_, reject) => setTimeout(() => reject(new Error(message)), timeout)),
   ]);
 }
 

@@ -43,8 +43,19 @@ interface QueueItem {
 export interface ToolExecutorEvents {
   'execution:queued': { toolId: string; queueLength: number; timestamp: number };
   'execution:started': { toolId: string; executionId: string; timestamp: number };
-  'execution:completed': { toolId: string; executionId: string; duration: number; timestamp: number };
-  'execution:failed': { toolId: string; executionId: string; error: string; duration: number; timestamp: number };
+  'execution:completed': {
+    toolId: string;
+    executionId: string;
+    duration: number;
+    timestamp: number;
+  };
+  'execution:failed': {
+    toolId: string;
+    executionId: string;
+    error: string;
+    duration: number;
+    timestamp: number;
+  };
   'execution:cancelled': { toolId: string; executionId: string; timestamp: number };
   'queue:empty': { timestamp: number };
   'queue:full': { timestamp: number };
@@ -174,10 +185,7 @@ export class ToolExecutor extends EventEmitter {
     }
 
     // Check queue size
-    if (
-      this.config.maxQueueSize > 0 &&
-      this.executionQueue.length >= this.config.maxQueueSize
-    ) {
+    if (this.config.maxQueueSize > 0 && this.executionQueue.length >= this.config.maxQueueSize) {
       this.emit('queue:full', { timestamp: Date.now() });
       return {
         success: false,
@@ -199,9 +207,7 @@ export class ToolExecutor extends EventEmitter {
       };
 
       // Insert in priority order
-      const insertIndex = this.executionQueue.findIndex(
-        (item) => item.priority < priority
-      );
+      const insertIndex = this.executionQueue.findIndex(item => item.priority < priority);
       if (insertIndex === -1) {
         this.executionQueue.push(queueItem);
       } else {
@@ -240,9 +246,7 @@ export class ToolExecutor extends EventEmitter {
 
     try {
       // Apply sandbox if enabled
-      const effectiveContext = this.config.enableSandbox
-        ? this.applySandbox(context)
-        : context;
+      const effectiveContext = this.config.enableSandbox ? this.applySandbox(context) : context;
 
       // Apply timeout
       const timeout = options.timeout ?? this.config.defaultTimeout;
@@ -265,10 +269,7 @@ export class ToolExecutor extends EventEmitter {
       }
 
       // Execute
-      const result = await Promise.race([
-        tool.execute(input, effectiveContext),
-        timeoutPromise,
-      ]);
+      const result = await Promise.race([tool.execute(input, effectiveContext), timeoutPromise]);
 
       const duration = Date.now() - startTime;
 
@@ -300,7 +301,9 @@ export class ToolExecutor extends EventEmitter {
       this.activeExecutions.delete(executionId);
 
       // Clear timeout timer if exists
-      const timeoutTimer = context.metadata?._timeoutTimer as ReturnType<typeof setTimeout> | undefined;
+      const timeoutTimer = context.metadata?._timeoutTimer as
+        | ReturnType<typeof setTimeout>
+        | undefined;
       if (timeoutTimer) {
         clearTimeout(timeoutTimer);
       }
@@ -360,9 +363,7 @@ export class ToolExecutor extends EventEmitter {
     const filtered: Record<string, string> = {};
 
     for (const [key, value] of Object.entries(env)) {
-      const isSensitive = sensitive.some((s) =>
-        key.toUpperCase().includes(s)
-      );
+      const isSensitive = sensitive.some(s => key.toUpperCase().includes(s));
       if (!isSensitive) {
         filtered[key] = value;
       }
@@ -439,7 +440,7 @@ export class ToolExecutor extends EventEmitter {
    * Wait for all active executions to complete
    */
   private waitForActiveExecutions(): Promise<void> {
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const check = () => {
         if (this.activeExecutions.size === 0) {
           resolve();

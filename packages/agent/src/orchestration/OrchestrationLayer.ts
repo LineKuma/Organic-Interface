@@ -8,7 +8,7 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
-import type { AgentRegistry} from '../registry/index.js';
+import type { AgentRegistry } from '../registry/index.js';
 import { type AgentMetadata } from '../registry/index.js';
 import {
   ExecutionCoordinator,
@@ -185,10 +185,13 @@ export class OrchestrationLayer extends EventEmitter {
   private config: Required<OrchestrationLayerConfig>;
   private plans: Map<string, OrchestrationLayerPlan> = new Map();
   private pausedPlans: Set<string> = new Set();
-  private activeOrchestrations: Map<string, {
-    request: OrchestrationRequest;
-    startTime: number;
-  }> = new Map();
+  private activeOrchestrations: Map<
+    string,
+    {
+      request: OrchestrationRequest;
+      startTime: number;
+    }
+  > = new Map();
 
   /**
    * Create a new OrchestrationLayer
@@ -224,31 +227,40 @@ export class OrchestrationLayer extends EventEmitter {
       this.emit('orchestration:step-start', data);
     });
 
-    this.coordinator.on('execution:step-complete', (data: { requestId: string; stepId: string; result: ExecutionResult }) => {
-      this.emit('orchestration:step-complete', data);
-    });
-
-    this.coordinator.on('execution:step-failed', (data: { requestId: string; stepId: string; error: string }) => {
-      this.emit('orchestration:step-failed', data);
-    });
-
-    this.coordinator.on('execution:complete', (data: { requestId: string; results: ExecutionResult[] }) => {
-      const active = this.activeOrchestrations.get(data.requestId);
-      if (active) {
-        const duration = Date.now() - active.startTime;
-        const success = data.results.every((r) => r.success);
-        this.emit('orchestration:complete', {
-          requestId: data.requestId,
-          result: {
-            success,
-            data: data.results,
-            duration,
-            stepResults: data.results,
-          },
-        });
-        this.activeOrchestrations.delete(data.requestId);
+    this.coordinator.on(
+      'execution:step-complete',
+      (data: { requestId: string; stepId: string; result: ExecutionResult }) => {
+        this.emit('orchestration:step-complete', data);
       }
-    });
+    );
+
+    this.coordinator.on(
+      'execution:step-failed',
+      (data: { requestId: string; stepId: string; error: string }) => {
+        this.emit('orchestration:step-failed', data);
+      }
+    );
+
+    this.coordinator.on(
+      'execution:complete',
+      (data: { requestId: string; results: ExecutionResult[] }) => {
+        const active = this.activeOrchestrations.get(data.requestId);
+        if (active) {
+          const duration = Date.now() - active.startTime;
+          const success = data.results.every(r => r.success);
+          this.emit('orchestration:complete', {
+            requestId: data.requestId,
+            result: {
+              success,
+              data: data.results,
+              duration,
+              stepResults: data.results,
+            },
+          });
+          this.activeOrchestrations.delete(data.requestId);
+        }
+      }
+    );
 
     this.coordinator.on('execution:failed', (data: { requestId: string; error: string }) => {
       const active = this.activeOrchestrations.get(data.requestId);
@@ -301,9 +313,7 @@ export class OrchestrationLayer extends EventEmitter {
   /**
    * Orchestrate a request
    */
-  async orchestrate<T = unknown>(
-    request: OrchestrationRequest
-  ): Promise<OrchestrationResult<T>> {
+  async orchestrate<T = unknown>(request: OrchestrationRequest): Promise<OrchestrationResult<T>> {
     const startTime = Date.now();
 
     if (this.activeOrchestrations.size >= this.config.maxConcurrentOrchestrations) {
@@ -341,7 +351,7 @@ export class OrchestrationLayer extends EventEmitter {
         results = [result];
       } else {
         // Multiple tasks - use coordinator
-        const executionRequests = tasks.map((t) => this.convertToExecutionRequest(t));
+        const executionRequests = tasks.map(t => this.convertToExecutionRequest(t));
 
         if (strategy === OrchestrationStrategy.SEQUENTIAL) {
           results = await this.coordinator.executeSequential(executionRequests);
@@ -355,11 +365,11 @@ export class OrchestrationLayer extends EventEmitter {
       }
 
       const duration = Date.now() - startTime;
-      const success = results.every((r) => r.success);
+      const success = results.every(r => r.success);
 
       return {
         success,
-        data: success ? this.aggregateResults(results) as T : undefined,
+        data: success ? (this.aggregateResults(results) as T) : undefined,
         error: success ? undefined : this.findError(results),
         duration,
         stepResults: results,
@@ -399,8 +409,7 @@ export class OrchestrationLayer extends EventEmitter {
    */
   private shouldDecompose(request: OrchestrationRequest): boolean {
     return (
-      Array.isArray(request.payload?.subTasks) &&
-      (request.payload.subTasks as unknown[]).length > 0
+      Array.isArray(request.payload?.subTasks) && (request.payload.subTasks as unknown[]).length > 0
     );
   }
 
@@ -429,9 +438,9 @@ export class OrchestrationLayer extends EventEmitter {
   private aggregateResults(results: ExecutionResult[]): Record<string, unknown> {
     return {
       totalCount: results.length,
-      successCount: results.filter((r) => r.success).length,
-      failedCount: results.filter((r) => !r.success).length,
-      results: results.map((r) => r.data),
+      successCount: results.filter(r => r.success).length,
+      failedCount: results.filter(r => !r.success).length,
+      results: results.map(r => r.data),
     };
   }
 
@@ -439,7 +448,7 @@ export class OrchestrationLayer extends EventEmitter {
    * Find error from results
    */
   private findError(results: ExecutionResult[]): string {
-    const failed = results.find((r) => !r.success);
+    const failed = results.find(r => !r.success);
     return failed?.error ?? 'Unknown error';
   }
 
@@ -451,7 +460,7 @@ export class OrchestrationLayer extends EventEmitter {
   createPlan(requests: OrchestrationRequest[]): OrchestrationLayerPlan {
     const planId = `orchestration_plan_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
-    const executionRequests = requests.map((r) => this.convertToExecutionRequest(r));
+    const executionRequests = requests.map(r => this.convertToExecutionRequest(r));
     const executionPlan = this.coordinator.createPlan(executionRequests);
 
     const plan: OrchestrationLayerPlan = {
@@ -576,10 +585,7 @@ export class OrchestrationLayer extends EventEmitter {
   /**
    * Select agent for capability
    */
-  selectAgent(
-    capability?: string,
-    strategy?: AgentSelectionStrategy
-  ): AgentMetadata | null {
+  selectAgent(capability?: string, strategy?: AgentSelectionStrategy): AgentMetadata | null {
     return this.registry.selectAgent(capability, {
       preferIdle: strategy?.preferIdle ?? true,
     });

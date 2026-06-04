@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import type { CommandOption, CommandArgument, CommandResult} from '../Command.js';
-import { Command, createCommand, addSubcommand, findCommand } from '../Command.js';
+import type { CommandOption, CommandArgument, CommandResult } from '../Command.js';
+import { createCommand, addSubcommand, findCommand } from '../Command.js';
 
 describe('Command', () => {
   describe('CommandOption', () => {
@@ -92,9 +92,7 @@ describe('Command', () => {
       const cmd = createCommand({
         name: 'test',
         description: 'Test command',
-        arguments: [
-          { name: 'input', description: 'Input file' },
-        ],
+        arguments: [{ name: 'input', description: 'Input file' }],
       });
       expect(cmd.arguments).toHaveLength(1);
     });
@@ -103,9 +101,7 @@ describe('Command', () => {
       const cmd = createCommand({
         name: 'test',
         description: 'Test command',
-        options: [
-          { long: 'verbose', description: 'Verbose mode' },
-        ],
+        options: [{ long: 'verbose', description: 'Verbose mode' }],
       });
       expect(cmd.options).toHaveLength(1);
     });

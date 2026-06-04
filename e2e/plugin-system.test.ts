@@ -252,8 +252,12 @@ describe('Plugin System', () => {
         dependencies: [],
       };
 
-      async initialize() { return { success: true }; }
-      async shutdown() { return { success: true }; }
+      async initialize() {
+        return { success: true };
+      }
+      async shutdown() {
+        return { success: true };
+      }
     }
 
     class MultiPlugin2 extends BasePlugin {
@@ -267,12 +271,20 @@ describe('Plugin System', () => {
         dependencies: [],
       };
 
-      async initialize() { return { success: true }; }
-      async shutdown() { return { success: true }; }
+      async initialize() {
+        return { success: true };
+      }
+      async shutdown() {
+        return { success: true };
+      }
     }
 
-    await kernel.registerPlugin(new MultiPlugin1({ name: 'multi-plugin-1', version: '1.0.0', enabled: true }));
-    await kernel.registerPlugin(new MultiPlugin2({ name: 'multi-plugin-2', version: '1.0.0', enabled: true }));
+    await kernel.registerPlugin(
+      new MultiPlugin1({ name: 'multi-plugin-1', version: '1.0.0', enabled: true })
+    );
+    await kernel.registerPlugin(
+      new MultiPlugin2({ name: 'multi-plugin-2', version: '1.0.0', enabled: true })
+    );
 
     const plugin1 = kernel.getPlugin('multi-plugin-1');
     const plugin2 = kernel.getPlugin('multi-plugin-2');
@@ -293,8 +305,12 @@ describe('Plugin System', () => {
         dependencies: [],
       };
 
-      async initialize() { return { success: true }; }
-      async shutdown() { return { success: true }; }
+      async initialize() {
+        return { success: true };
+      }
+      async shutdown() {
+        return { success: true };
+      }
     }
 
     const plugin = new PriorityPlugin({ name: 'priority-plugin', version: '1.0.0', enabled: true });

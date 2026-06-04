@@ -152,10 +152,7 @@ export class WorkflowEngine extends EventEmitter {
   /**
    * Start workflow execution
    */
-  async startExecution(
-    workflowId: string,
-    input: Record<string, unknown> = {}
-  ): Promise<string> {
+  async startExecution(workflowId: string, input: Record<string, unknown> = {}): Promise<string> {
     const workflow = this.workflows.get(workflowId);
     if (!workflow) {
       throw new Error(`Workflow not found: ${workflowId}`);
@@ -265,9 +262,7 @@ export class WorkflowEngine extends EventEmitter {
    * Get execution history for a workflow
    */
   getExecutionHistory(workflowId: string): WorkflowExecution[] {
-    return Array.from(this.executions.values()).filter(
-      (e) => e.workflowId === workflowId
-    );
+    return Array.from(this.executions.values()).filter(e => e.workflowId === workflowId);
   }
 
   // ==================== Node State Management ====================
@@ -275,10 +270,7 @@ export class WorkflowEngine extends EventEmitter {
   /**
    * Initialize node states for execution
    */
-  private initializeNodeStates(
-    executionId: string,
-    workflow: Workflow
-  ): void {
+  private initializeNodeStates(executionId: string, workflow: Workflow): void {
     const nodeStates = new Map<string, NodeExecutionState>();
 
     for (const task of workflow.nodes) {
@@ -296,10 +288,7 @@ export class WorkflowEngine extends EventEmitter {
   /**
    * Get node state
    */
-  private getNodeState(
-    executionId: string,
-    nodeId: string
-  ): NodeExecutionState | undefined {
+  private getNodeState(executionId: string, nodeId: string): NodeExecutionState | undefined {
     return this.nodeStates.get(executionId)?.get(nodeId);
   }
 
@@ -329,10 +318,7 @@ export class WorkflowEngine extends EventEmitter {
   /**
    * Schedule next nodes for execution
    */
-  private async scheduleNextNodes(
-    executionId: string,
-    workflow: Workflow
-  ): Promise<void> {
+  private async scheduleNextNodes(executionId: string, workflow: Workflow): Promise<void> {
     let execution = this.executions.get(executionId);
     if (!execution) {
       return;
@@ -344,11 +330,7 @@ export class WorkflowEngine extends EventEmitter {
     }
 
     // Get executable nodes
-    const executableNodes = this.getExecutableNodes(
-      executionId,
-      workflow,
-      nodeStates
-    );
+    const executableNodes = this.getExecutableNodes(executionId, workflow, nodeStates);
 
     if (executableNodes.length === 0) {
       // Check if workflow is complete
@@ -358,7 +340,7 @@ export class WorkflowEngine extends EventEmitter {
 
     // Update current nodes
     execution = updateWorkflowExecution(execution, {
-      currentNodeIds: executableNodes.map((n) => n.task.id),
+      currentNodeIds: executableNodes.map(n => n.task.id),
     });
 
     // Execute nodes
@@ -429,10 +411,7 @@ export class WorkflowEngine extends EventEmitter {
       executionId,
       updateWorkflowExecution(execution, {
         status: WorkflowExecutionStatus.RUNNING,
-        nodeExecutions: new Map(execution.nodeExecutions).set(
-          task.id,
-          taskExecution.id
-        ),
+        nodeExecutions: new Map(execution.nodeExecutions).set(task.id, taskExecution.id),
       })
     );
 
@@ -449,12 +428,7 @@ export class WorkflowEngine extends EventEmitter {
       await this.processNodeResult(executionId, workflow, task, result);
     } catch (error) {
       // Handle execution error
-      await this.processNodeError(
-        executionId,
-        workflow,
-        task,
-        error as Error
-      );
+      await this.processNodeError(executionId, workflow, task, error as Error);
     }
   }
 
@@ -478,9 +452,7 @@ export class WorkflowEngine extends EventEmitter {
     }
 
     // Update state based on result
-    const newState: NodeExecutionState['status'] = result.success
-      ? 'completed'
-      : 'failed';
+    const newState: NodeExecutionState['status'] = result.success ? 'completed' : 'failed';
 
     this.updateNodeState(executionId, task.id, {
       status: newState,
@@ -500,9 +472,7 @@ export class WorkflowEngine extends EventEmitter {
     });
 
     // Update execution record
-    const currentNodeIds = execution.currentNodeIds.filter(
-      (id) => id !== task.id
-    );
+    const currentNodeIds = execution.currentNodeIds.filter(id => id !== task.id);
     const completedNodeIds = [...execution.completedNodeIds];
 
     if (result.success) {
@@ -584,7 +554,7 @@ export class WorkflowEngine extends EventEmitter {
 
       // Check if this node depends on the completed node
       const dependsOnCompleted = state.task.dependencies.some(
-        (dep) => dep.taskId === completedNodeId
+        dep => dep.taskId === completedNodeId
       );
 
       if (!dependsOnCompleted) {
@@ -592,7 +562,7 @@ export class WorkflowEngine extends EventEmitter {
       }
 
       // Check if all dependencies are now completed
-      const allDependenciesCompleted = state.task.dependencies.every((dep) => {
+      const allDependenciesCompleted = state.task.dependencies.every(dep => {
         const depState = nodeStates.get(dep.taskId);
         if (!depState) {
           return false;
@@ -617,10 +587,7 @@ export class WorkflowEngine extends EventEmitter {
   /**
    * Check if workflow is complete
    */
-  private checkWorkflowCompletion(
-    executionId: string,
-    workflow: Workflow
-  ): void {
+  private checkWorkflowCompletion(executionId: string, workflow: Workflow): void {
     const execution = this.executions.get(executionId);
     if (!execution) {
       return;
@@ -719,10 +686,7 @@ export class WorkflowEngine extends EventEmitter {
   /**
    * Collect results from all completed nodes
    */
-  private collectResults(
-    executionId: string,
-    workflow: Workflow
-  ): Record<string, unknown> {
+  private collectResults(executionId: string, _workflow: Workflow): Record<string, unknown> {
     const results: Record<string, unknown> = {};
     const nodeStates = this.nodeStates.get(executionId);
 
@@ -756,9 +720,7 @@ export class WorkflowEngine extends EventEmitter {
   /**
    * Recover execution from snapshot
    */
-  async recoverFromSnapshot(
-    snapshot: WorkflowExecutionSnapshot
-  ): Promise<boolean> {
+  async recoverFromSnapshot(snapshot: WorkflowExecutionSnapshot): Promise<boolean> {
     const workflow = this.workflows.get(snapshot.data.status as unknown as string);
     if (!workflow) {
       // Need to restore from workflow ID stored in snapshot
@@ -839,23 +801,23 @@ export class WorkflowEngine extends EventEmitter {
    * Forward executor events
    */
   private forwardExecutorEvents(): void {
-    this.executor.on('task:start', (data) => {
+    this.executor.on('task:start', data => {
       this.emit('task:start', data);
     });
 
-    this.executor.on('task:complete', (data) => {
+    this.executor.on('task:complete', data => {
       this.emit('task:complete', data);
     });
 
-    this.executor.on('task:error', (data) => {
+    this.executor.on('task:error', data => {
       this.emit('task:error', data);
     });
 
-    this.executor.on('task:timeout', (data) => {
+    this.executor.on('task:timeout', data => {
       this.emit('task:timeout', data);
     });
 
-    this.executor.on('task:cancelled', (data) => {
+    this.executor.on('task:cancelled', data => {
       this.emit('task:cancelled', data);
     });
   }

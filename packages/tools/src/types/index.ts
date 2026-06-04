@@ -83,13 +83,7 @@ export interface ToolDefinition {
 /**
  * Tool categories
  */
-export type ToolCategory =
-  | 'file'
-  | 'shell'
-  | 'search'
-  | 'http'
-  | 'database'
-  | 'custom';
+export type ToolCategory = 'file' | 'shell' | 'search' | 'http' | 'database' | 'custom';
 
 /**
  * Tool retry configuration
@@ -128,12 +122,7 @@ export interface ToolPermission {
 /**
  * Tool permission types
  */
-export type ToolPermissionType =
-  | 'read'
-  | 'write'
-  | 'execute'
-  | 'network'
-  | 'filesystem';
+export type ToolPermissionType = 'read' | 'write' | 'execute' | 'network' | 'filesystem';
 
 /**
  * Tool execution context

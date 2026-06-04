@@ -73,11 +73,12 @@ export class ValidationError extends BaseError {
    * Create error for out of range value
    */
   static outOfRange(fieldName: string, min?: number, max?: number): ValidationError {
-    const rangeStr = min !== undefined && max !== undefined
-      ? `between ${min} and ${max}`
-      : min !== undefined
-        ? `at least ${min}`
-        : `at most ${max}`;
+    const rangeStr =
+      min !== undefined && max !== undefined
+        ? `between ${min} and ${max}`
+        : min !== undefined
+          ? `at least ${min}`
+          : `at most ${max}`;
     return new ValidationError(
       `Field '${fieldName}' value is out of range (${rangeStr})`,
       fieldName,

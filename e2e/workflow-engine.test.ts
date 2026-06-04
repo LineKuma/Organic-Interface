@@ -1,11 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Kernel, LifecycleState, type KernelConfig } from '@organic/kernel';
-import {
-  WorkflowEngine,
-  createWorkflow,
-  createSimpleTask,
-  TaskType,
-} from '@organic/agent';
+import { WorkflowEngine, createWorkflow, createSimpleTask, TaskType } from '@organic/agent';
 import { createTask } from '@organic/agent/workflow/models/Task.js';
 
 describe('Workflow Engine', () => {
@@ -78,9 +73,14 @@ describe('Workflow Engine', () => {
 
   it('should create task with dependencies', async () => {
     const task1 = createSimpleTask('task-1', 'handler-1');
-    const task2 = createTask('task-2', TaskType.TASK, {}, {
-      dependencies: [{ taskId: task1.id }],
-    });
+    const task2 = createTask(
+      'task-2',
+      TaskType.TASK,
+      {},
+      {
+        dependencies: [{ taskId: task1.id }],
+      }
+    );
 
     expect(task2.dependencies.length).toBe(1);
     expect(task2.dependencies[0].taskId).toBe(task1.id);
@@ -88,9 +88,7 @@ describe('Workflow Engine', () => {
 
   it('should handle workflow execution lifecycle', async () => {
     const workflow = createWorkflow('lifecycle-wf', 'Lifecycle Test', {
-      nodes: [
-        createSimpleTask('start-task', 'test-handler'),
-      ],
+      nodes: [createSimpleTask('start-task', 'test-handler')],
     });
 
     engine.registerWorkflow(workflow);
@@ -104,9 +102,7 @@ describe('Workflow Engine', () => {
 
   it('should verify workflow execution completes with COMPLETED status', async () => {
     const workflow = createWorkflow('complete-wf', 'Complete Test', {
-      nodes: [
-        createSimpleTask('task-1', 'test-handler', { value: 'test' }),
-      ],
+      nodes: [createSimpleTask('task-1', 'test-handler', { value: 'test' })],
     });
 
     engine.registerWorkflow(workflow);
@@ -120,9 +116,7 @@ describe('Workflow Engine', () => {
 
   it('should cancel workflow and set status to CANCELLED', async () => {
     const workflow = createWorkflow('cancel-wf', 'Cancel Test', {
-      nodes: [
-        createSimpleTask('long-task', 'long-handler'),
-      ],
+      nodes: [createSimpleTask('long-task', 'long-handler')],
     });
 
     engine.registerWorkflow(workflow);
@@ -136,9 +130,14 @@ describe('Workflow Engine', () => {
 
   it('should execute tasks with dependencies in order', async () => {
     const task1 = createSimpleTask('dep-task-1', 'handler-1');
-    const task2 = createTask('dep-task-2', TaskType.TASK, { value: 'after' }, {
-      dependencies: [{ taskId: task1.id }],
-    });
+    const task2 = createTask(
+      'dep-task-2',
+      TaskType.TASK,
+      { value: 'after' },
+      {
+        dependencies: [{ taskId: task1.id }],
+      }
+    );
 
     expect(task2.dependencies.length).toBe(1);
     expect(task2.dependencies[0].taskId).toBe(task1.id);

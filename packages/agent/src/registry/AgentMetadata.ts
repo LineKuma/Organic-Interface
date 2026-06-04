@@ -241,9 +241,7 @@ export function isAgentHealthy(agent: AgentMetadata, heartbeatTimeout: number = 
  */
 export function canAgentAcceptTasks(agent: AgentMetadata): boolean {
   return (
-    isAgentHealthy(agent) &&
-    agent.load < 1 &&
-    agent.activeTaskCount < agent.maxConcurrentTasks
+    isAgentHealthy(agent) && agent.load < 1 && agent.activeTaskCount < agent.maxConcurrentTasks
   );
 }
 
@@ -262,8 +260,8 @@ export function compareByCapability(
   b: AgentMetadata,
   requiredCapability: string
 ): number {
-  const aHas = a.capabilities.some((c) => c.id === requiredCapability);
-  const bHas = b.capabilities.some((c) => c.id === requiredCapability);
+  const aHas = a.capabilities.some(c => c.id === requiredCapability);
+  const bHas = b.capabilities.some(c => c.id === requiredCapability);
 
   if (aHas && !bHas) return -1;
   if (!aHas && bHas) return 1;

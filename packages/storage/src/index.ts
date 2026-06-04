@@ -8,11 +8,7 @@
  */
 
 // Re-export logger from utils
-export {
-  createLogger,
-  type Logger,
-  type LogLevel,
-} from '@organic/utils';
+export { createLogger, type Logger, type LogLevel } from '@organic/utils';
 
 // Model exports
 export {

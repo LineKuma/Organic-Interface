@@ -24,10 +24,7 @@ export {
   StorageInfo,
 } from './StorageService.js';
 
-export {
-  StorageManager,
-  StorageManagerConfig,
-} from './StorageManager.js';
+export { StorageManager, StorageManagerConfig } from './StorageManager.js';
 
 export {
   SessionPersistenceStorage,

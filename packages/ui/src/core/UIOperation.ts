@@ -335,7 +335,7 @@ export class UIOperationManager extends EventEmitter {
         operationId,
         type,
         success: false,
-        error: `Validation failed: ${errors.map((e) => e.message).join(', ')}`,
+        error: `Validation failed: ${errors.map(e => e.message).join(', ')}`,
         executionTime: Date.now() - startTime,
         status: 'failed',
         timestamp: Date.now(),
@@ -371,7 +371,9 @@ export class UIOperationManager extends EventEmitter {
           lastError = error instanceof Error ? error : new Error(String(error));
 
           if (attempt < maxRetries) {
-            this.logger.warn(`Operation failed, retrying (${attempt + 1}/${maxRetries}): ${lastError.message}`);
+            this.logger.warn(
+              `Operation failed, retrying (${attempt + 1}/${maxRetries}): ${lastError.message}`
+            );
             await this.delay(100 * (attempt + 1)); // Exponential backoff
           }
         }
@@ -436,7 +438,7 @@ export class UIOperationManager extends EventEmitter {
    * Delay helper
    */
   private delay(ms: number): Promise<void> {
-    return new Promise((resolve) => setTimeout(resolve, ms));
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
 
@@ -445,7 +447,17 @@ export class UIOperationManager extends EventEmitter {
  */
 export interface UIOperationEvents {
   'operation:start': { operationId: string; type: UIOperationType; timestamp: number };
-  'operation:complete': { operationId: string; type: UIOperationType; result: UIOperationResult; timestamp: number };
-  'operation:error': { operationId: string; type: UIOperationType; error: string; timestamp: number };
+  'operation:complete': {
+    operationId: string;
+    type: UIOperationType;
+    result: UIOperationResult;
+    timestamp: number;
+  };
+  'operation:error': {
+    operationId: string;
+    type: UIOperationType;
+    error: string;
+    timestamp: number;
+  };
   'operation:cancelled': { operationId: string; timestamp: number };
 }

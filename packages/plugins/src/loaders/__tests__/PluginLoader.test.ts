@@ -4,7 +4,6 @@ import * as path from 'path';
 import { PluginLoader } from '../PluginLoader.js';
 import type { PluginInterface, PluginMetadata } from '../../interfaces/PluginInterface.js';
 import { PluginLifecycleState } from '../../interfaces/PluginInterface.js';
-import type { PluginConfig, PluginLoadResult } from '../../interfaces/PluginLoaderInterface.js';
 
 const createMockPlugin = (id: string = 'mock-plugin'): PluginInterface => ({
   name: 'Mock Plugin',
@@ -23,8 +22,6 @@ const createMockPlugin = (id: string = 'mock-plugin'): PluginInterface => ({
 });
 
 describe('PluginLoader', () => {
-  const testDir = '/tmp/test-plugins';
-
   describe('constructor', () => {
     it('should create loader with default options', () => {
       const loader = new PluginLoader();
@@ -146,9 +143,7 @@ describe('PluginLoader', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         apiVersion: '1.0.0',
-        dependencies: [
-          { pluginName: 'missing-dep', versionRange: '1.0.0', optional: false },
-        ],
+        dependencies: [{ pluginName: 'missing-dep', versionRange: '1.0.0', optional: false }],
       };
 
       const result = await loader.validateCompatibility(metadata);
@@ -169,9 +164,7 @@ describe('PluginLoader', () => {
         name: 'Test Plugin',
         version: '1.0.0',
         apiVersion: '1.0.0',
-        dependencies: [
-          { pluginName: 'missing-dep', versionRange: '1.0.0', optional: true },
-        ],
+        dependencies: [{ pluginName: 'missing-dep', versionRange: '1.0.0', optional: true }],
       };
 
       const result = await loader.validateCompatibility(metadata);
@@ -252,7 +245,9 @@ describe('PluginLoader', () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
       // 让 shutdown 抛出错误
-      (mockPlugin.shutdown as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('Shutdown failed'));
+      (mockPlugin.shutdown as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Shutdown failed')
+      );
 
       const cache = (testLoader as any).cache as Map<string, any>;
       cache.set('error-shutdown-plugin', {
@@ -307,7 +302,10 @@ describe('PluginLoader', () => {
       await testLoader.reload('reload-test');
 
       expect(unloadSpy).toHaveBeenCalledWith('reload-test');
-      expect(loadSpy).toHaveBeenCalledWith('reload-test', { enabled: true, customSetting: 'value' });
+      expect(loadSpy).toHaveBeenCalledWith('reload-test', {
+        enabled: true,
+        customSetting: 'value',
+      });
     });
 
     it('should handle reload with config', async () => {
@@ -325,7 +323,7 @@ describe('PluginLoader', () => {
         config: { priority: 10, featureFlag: true },
       } as any);
 
-      const unloadSpy = vi.spyOn(testLoader, 'unload').mockResolvedValue(undefined);
+      vi.spyOn(testLoader, 'unload').mockResolvedValue(undefined);
       const loadSpy = vi.spyOn(testLoader, 'load').mockResolvedValue({
         success: false,
         error: 'Plugin not found: reload-config-test',
@@ -334,7 +332,10 @@ describe('PluginLoader', () => {
       const result = await testLoader.reload('reload-config-test');
 
       expect(result.success).toBe(false);
-      expect(loadSpy).toHaveBeenCalledWith('reload-config-test', { priority: 10, featureFlag: true });
+      expect(loadSpy).toHaveBeenCalledWith('reload-config-test', {
+        priority: 10,
+        featureFlag: true,
+      });
     });
 
     it('should pass undefined config when no _config cache entry exists', async () => {
@@ -350,7 +351,7 @@ describe('PluginLoader', () => {
         config: undefined,
       });
 
-      const unloadSpy = vi.spyOn(testLoader, 'unload').mockResolvedValue(undefined);
+      vi.spyOn(testLoader, 'unload').mockResolvedValue(undefined);
       const loadSpy = vi.spyOn(testLoader, 'load').mockResolvedValue({
         success: false,
         error: 'not found',
@@ -367,7 +368,8 @@ describe('PluginLoader', () => {
     let tempBaseDir: string;
 
     beforeEach(() => {
-      tempBaseDir = '/tmp/test-discover-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+      tempBaseDir =
+        '/tmp/test-discover-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
 
       // 创建临时目录结构
       fs.mkdirSync(path.join(tempBaseDir, 'plugin-a'), { recursive: true });
@@ -403,10 +405,7 @@ describe('PluginLoader', () => {
 
       // plugin-c 有无效的 JSON
       fs.mkdirSync(path.join(tempBaseDir, 'plugin-c'), { recursive: true });
-      fs.writeFileSync(
-        path.join(tempBaseDir, 'plugin-c', 'package.json'),
-        'invalid json content'
-      );
+      fs.writeFileSync(path.join(tempBaseDir, 'plugin-c', 'package.json'), 'invalid json content');
     });
 
     afterEach(() => {
@@ -427,7 +426,7 @@ describe('PluginLoader', () => {
       expect(results.length).toBeGreaterThanOrEqual(3);
 
       // 找到成功的发现结果
-      const successResults = results.filter((r) => r.success);
+      const successResults = results.filter(r => r.success);
       expect(successResults.length).toBeGreaterThanOrEqual(2);
     });
 
@@ -435,7 +434,7 @@ describe('PluginLoader', () => {
       const loader = new PluginLoader({ baseDir: tempBaseDir! });
 
       const results = await loader.discover();
-      const pluginA = results.find((r) => r.pluginId === 'plugin-a');
+      const pluginA = results.find(r => r.pluginId === 'plugin-a');
 
       expect(pluginA).toBeDefined();
       expect(pluginA!.success).toBe(true);
@@ -447,7 +446,7 @@ describe('PluginLoader', () => {
       const loader = new PluginLoader({ baseDir: tempBaseDir! });
 
       const results = await loader.discover();
-      const pluginA = results.find((r) => r.pluginId === 'plugin-a');
+      const pluginA = results.find(r => r.pluginId === 'plugin-a');
 
       expect(pluginA!.metadata!.dependencies).toHaveLength(2);
       expect(pluginA!.metadata!.dependencies![0]).toEqual({
@@ -464,7 +463,7 @@ describe('PluginLoader', () => {
       const loader = new PluginLoader({ baseDir: tempBaseDir! });
 
       const results = await loader.discover();
-      const pluginC = results.find((r) => r.pluginId === 'plugin-c');
+      const pluginC = results.find(r => r.pluginId === 'plugin-c');
 
       expect(pluginC).toBeDefined();
       expect(pluginC!.success).toBe(false);
@@ -475,7 +474,7 @@ describe('PluginLoader', () => {
       const loader = new PluginLoader({ baseDir: tempBaseDir! });
 
       const results = await loader.discover();
-      const noPackageResult = results.find((r) => r.pluginId === 'no-package');
+      const noPackageResult = results.find(r => r.pluginId === 'no-package');
 
       // no-package 目录没有 package.json，不应出现在结果中
       expect(noPackageResult).toBeUndefined();
@@ -498,7 +497,7 @@ describe('PluginLoader', () => {
       const loader = new PluginLoader({ baseDir: tempBaseDir! });
 
       const results = await loader.discover();
-      const pluginA = results.find((r) => r.pluginId === 'plugin-a');
+      const pluginA = results.find(r => r.pluginId === 'plugin-a');
 
       expect(pluginA!.source).toBe(path.join(tempBaseDir!, 'plugin-a'));
     });
@@ -580,7 +579,11 @@ describe('PluginLoader', () => {
       });
 
       // 模拟 updateStatus 调用（状态变更但保留 stats）
-      (testLoader as any).updateStatus.call(testLoader, 'preserve-plugin', PluginLifecycleState.RUNNING);
+      (testLoader as any).updateStatus.call(
+        testLoader,
+        'preserve-plugin',
+        PluginLifecycleState.RUNNING
+      );
 
       const status = testLoader.getStatus('preserve-plugin');
       expect(status?.state).toBe(PluginLifecycleState.RUNNING);
@@ -776,7 +779,6 @@ describe('PluginLoader', () => {
   describe('createKernelApi - 内核 API 创建', () => {
     it('should provide kernel API methods through createKernelApi', async () => {
       const testLoader = new PluginLoader({ baseDir: '/tmp/test-kernel-api' });
-      const mockPlugin = createMockPlugin('kernel-api-test');
 
       const cache = (testLoader as any).cache as Map<string, any>;
       cache.set('other-plugin', {
@@ -828,8 +830,18 @@ describe('PluginLoader', () => {
       const plugin2 = createMockPlugin('list-2');
 
       const cache = (testLoader as any).cache as Map<string, any>;
-      cache.set('list-1', { plugin: plugin1, metadata: plugin1.getMetadata(), loadedAt: Date.now(), config: undefined });
-      cache.set('list-2', { plugin: plugin2, metadata: plugin2.getMetadata(), loadedAt: Date.now(), config: undefined });
+      cache.set('list-1', {
+        plugin: plugin1,
+        metadata: plugin1.getMetadata(),
+        loadedAt: Date.now(),
+        config: undefined,
+      });
+      cache.set('list-2', {
+        plugin: plugin2,
+        metadata: plugin2.getMetadata(),
+        loadedAt: Date.now(),
+        config: undefined,
+      });
 
       const kernelApi = (testLoader as any).createKernelApi.call(testLoader, 'caller');
       const plugins = kernelApi.listPlugins();
@@ -901,7 +913,8 @@ describe('PluginLoader', () => {
     let tempDir: string;
 
     beforeEach(() => {
-      tempDir = '/tmp/test-extract-pkg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+      tempDir =
+        '/tmp/test-extract-pkg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
       // 创建包含 package.json 的目录结构
       fs.mkdirSync(path.join(tempDir, 'my-plugin', 'dist'), { recursive: true });
       fs.writeFileSync(path.join(tempDir, 'my-plugin', 'dist', 'index.js'), '// test');
@@ -915,7 +928,7 @@ describe('PluginLoader', () => {
           organic: {
             api_version: '4.0.0',
             dependencies: {
-              'dep1': '^1.0.0',
+              dep1: '^1.0.0',
             },
           },
         })
@@ -965,9 +978,9 @@ describe('PluginLoader', () => {
         organic: {
           api_version: '3.0.0',
           dependencies: {
-            'core': '^2.0.0',
-            'utils': '^1.5.0',
-            'db': '~1.0.0',
+            core: '^2.0.0',
+            utils: '^1.5.0',
+            db: '~1.0.0',
           },
         },
       };

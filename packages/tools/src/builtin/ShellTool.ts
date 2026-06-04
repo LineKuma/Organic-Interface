@@ -64,7 +64,8 @@ export class ShellTool implements Tool {
     this.definition = {
       id: 'builtin:shell',
       name: 'ShellTool',
-      description: 'Built-in tool for executing shell commands with controlled environment and timeout',
+      description:
+        'Built-in tool for executing shell commands with controlled environment and timeout',
       category: 'shell',
       inputSchema: {
         type: 'object',
@@ -120,9 +121,7 @@ export class ShellTool implements Tool {
       },
       enabled: true,
       timeout: 60000,
-      permissions: [
-        { type: 'execute', scope: 'shell', granted: true },
-      ],
+      permissions: [{ type: 'execute', scope: 'shell', granted: true }],
     };
   }
 
@@ -177,7 +176,7 @@ export class ShellTool implements Tool {
       };
     }
 
-    return new Promise((resolve) => {
+    return new Promise(resolve => {
       const stdoutChunks: string[] = [];
       const stderrChunks: string[] = [];
 
@@ -230,7 +229,7 @@ export class ShellTool implements Tool {
         });
       });
 
-      proc.on('error', (error) => {
+      proc.on('error', error => {
         clearTimeout(timeoutId);
 
         resolve({

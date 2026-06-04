@@ -152,9 +152,7 @@ describe('CoreConversationPlugin', () => {
         await plugin.execute(createPluginInput('create_session'));
 
         // Then send message
-        const result = await plugin.execute(
-          createPluginInput('send_message', { text: 'Hello!' })
-        );
+        const result = await plugin.execute(createPluginInput('send_message', { text: 'Hello!' }));
 
         expect(result.success).toBe(true);
         const data = result.data as ConversationResult;
@@ -163,9 +161,7 @@ describe('CoreConversationPlugin', () => {
       });
 
       it('should fail without active session', async () => {
-        const result = await plugin.execute(
-          createPluginInput('send_message', { text: 'Hello!' })
-        );
+        const result = await plugin.execute(createPluginInput('send_message', { text: 'Hello!' }));
 
         expect(result.success).toBe(false);
         expect(result.error).toContain('No active session');
@@ -174,9 +170,7 @@ describe('CoreConversationPlugin', () => {
       it('should fail with empty message', async () => {
         await plugin.execute(createPluginInput('create_session'));
 
-        const result = await plugin.execute(
-          createPluginInput('send_message', { text: '' })
-        );
+        const result = await plugin.execute(createPluginInput('send_message', { text: '' }));
 
         expect(result.success).toBe(false);
       });
@@ -185,9 +179,7 @@ describe('CoreConversationPlugin', () => {
         await plugin.execute(createPluginInput('create_session'));
 
         // This might fail due to validation depending on parser config
-        const result = await plugin.execute(
-          createPluginInput('send_message', { text: '   ' })
-        );
+        const result = await plugin.execute(createPluginInput('send_message', { text: '   ' }));
 
         // Should either succeed with trimmed input or fail with validation error
         expect(result.success === true || result.error?.includes('Invalid')).toBe(true);
@@ -197,9 +189,7 @@ describe('CoreConversationPlugin', () => {
         await plugin.execute(createPluginInput('create_session'));
         await plugin.execute(createPluginInput('send_message', { text: 'Hello' }));
 
-        const session = await plugin.getSessionManager().getSession(
-          plugin.getActiveSessionId()!
-        );
+        const session = await plugin.getSessionManager().getSession(plugin.getActiveSessionId()!);
         expect(session!.messageCount).toBeGreaterThanOrEqual(1);
       });
     });
@@ -213,12 +203,9 @@ describe('CoreConversationPlugin', () => {
 
         // Close the current active session by creating a new one
         await plugin.execute(createPluginInput('create_session'));
-        const originalActiveId = plugin.getActiveSessionId();
 
         // Resume the original session
-        const result = await plugin.execute(
-          createPluginInput('resume_session', { sessionId })
-        );
+        const result = await plugin.execute(createPluginInput('resume_session', { sessionId }));
 
         expect(result.success).toBe(true);
         const data = result.data as ConversationResult;
@@ -246,7 +233,6 @@ describe('CoreConversationPlugin', () => {
     describe('close_session action', () => {
       it('should close the active session', async () => {
         await plugin.execute(createPluginInput('create_session'));
-        const sessionId = plugin.getActiveSessionId();
 
         const result = await plugin.execute(createPluginInput('close_session'));
 
@@ -324,9 +310,7 @@ describe('CoreConversationPlugin', () => {
         const createData = createResult.data as ConversationResult;
         const sessionId = createData.session!.id;
 
-        const result = await plugin.execute(
-          createPluginInput('get_session', { sessionId })
-        );
+        const result = await plugin.execute(createPluginInput('get_session', { sessionId }));
 
         expect(result.success).toBe(true);
         const data = result.data as ConversationResult;
@@ -360,9 +344,7 @@ describe('CoreConversationPlugin', () => {
         const createData = createResult.data as ConversationResult;
         const sessionId = createData.session!.id;
 
-        const result = await plugin.execute(
-          createPluginInput('get_context', { sessionId })
-        );
+        const result = await plugin.execute(createPluginInput('get_context', { sessionId }));
 
         expect(result.success).toBe(true);
         const data = result.data as ConversationResult;
@@ -561,7 +543,7 @@ describe('CoreConversationPlugin', () => {
       await plugin.execute(createPluginInput('create_session'));
 
       // Create parser with very short max length
-      const shortParser = plugin.parseInput('x'.repeat(20000));
+      plugin.parseInput('x'.repeat(20000));
       // This should be handled gracefully
     });
   });
@@ -629,7 +611,7 @@ describe('CoreConversationPlugin', () => {
         plugin.execute(createPluginInput('send_message', { text: 'Test' })),
       ]);
 
-      expect(results.every((r) => r.success)).toBe(true);
+      expect(results.every(r => r.success)).toBe(true);
     });
   });
 });

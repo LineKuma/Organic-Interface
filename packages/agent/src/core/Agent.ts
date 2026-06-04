@@ -8,11 +8,7 @@
 import type { KernelApi } from '@organic/kernel';
 import { createLogger, type Logger } from '@organic/utils';
 import { EventEmitter } from 'events';
-import {
-  type AgentConfig,
-  type AgentConfigOptions,
-  createAgentConfig,
-} from './AgentConfig.js';
+import { type AgentConfig, type AgentConfigOptions, createAgentConfig } from './AgentConfig.js';
 import {
   type AgentState,
   type AgentStats,
@@ -114,7 +110,7 @@ export interface AgentEvents {
   'status:change': { oldStatus: AgentStatus; newStatus: AgentStatus; timestamp: number };
   'child:register': { childId: string; timestamp: number };
   'child:unregister': { childId: string; timestamp: number };
-  'heartbeat': { timestamp: number; load: number };
+  heartbeat: { timestamp: number; load: number };
 }
 
 /**
@@ -407,21 +403,18 @@ export class Agent extends EventEmitter {
   /**
    * Execute task with timeout
    */
-  private async executeWithTimeout<T>(
-    fn: () => Promise<T>,
-    timeout: number
-  ): Promise<T> {
+  private async executeWithTimeout<T>(fn: () => Promise<T>, timeout: number): Promise<T> {
     return new Promise((resolve, reject) => {
       const timer = setTimeout(() => {
         reject(new Error(`Task execution timed out after ${timeout}ms`));
       }, timeout);
 
       fn()
-        .then((result) => {
+        .then(result => {
           clearTimeout(timer);
           resolve(result);
         })
-        .catch((error) => {
+        .catch(error => {
           clearTimeout(timer);
           reject(error);
         });
@@ -499,9 +492,7 @@ export class Agent extends EventEmitter {
    * Shutdown all child agents
    */
   private async shutdownChildren(): Promise<void> {
-    const shutdownPromises = Array.from(this.childAgents.values()).map((agent) =>
-      agent.shutdown()
-    );
+    const shutdownPromises = Array.from(this.childAgents.values()).map(agent => agent.shutdown());
     await Promise.all(shutdownPromises);
     this.childAgents.clear();
     this.state.childIds = [];

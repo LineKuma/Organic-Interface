@@ -7,7 +7,6 @@ import os from 'os';
 
 describe('SearchTool', () => {
   let tempDir: string;
-  let testFiles: string[];
 
   const mockContext: ToolExecutionContext = {
     toolId: 'builtin:search',
@@ -21,7 +20,6 @@ describe('SearchTool', () => {
 
   beforeEach(async () => {
     tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'searchtool-test-'));
-    testFiles = [];
   });
 
   describe('constructor', () => {
@@ -291,12 +289,15 @@ describe('SearchTool', () => {
 
   describe('execute - grep operation', () => {
     beforeEach(async () => {
-      await fs.writeFile(path.join(tempDir, 'test.txt'), `line one
+      await fs.writeFile(
+        path.join(tempDir, 'test.txt'),
+        `line one
 line two hello
 line three world
 line four hello world
 line five
-`);
+`
+      );
     });
 
     it('should execute grep and return results with count', async () => {
@@ -477,7 +478,9 @@ line five
       expect(result.success).toBe(true);
       const data = result.data as any;
       // Should not contain files from node_modules or dist
-      expect(data.files.every((f: string) => !f.includes('node_modules') && !f.includes('dist'))).toBe(true);
+      expect(
+        data.files.every((f: string) => !f.includes('node_modules') && !f.includes('dist'))
+      ).toBe(true);
     });
   });
 

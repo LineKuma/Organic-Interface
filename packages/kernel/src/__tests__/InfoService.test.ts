@@ -3,7 +3,6 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import os from 'node:os';
 import process from 'node:process';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -132,7 +131,7 @@ describe('InfoService', () => {
 
     it('should cache project context after first load', () => {
       vi.spyOn(fs, 'existsSync').mockReturnValue(true);
-      const readSpy = vi.spyOn(fs, 'readFileSync').mockReturnValue(
+      vi.spyOn(fs, 'readFileSync').mockReturnValue(
         JSON.stringify({ name: 'cached-pkg', version: '1.0.0' })
       );
 
@@ -142,6 +141,8 @@ describe('InfoService', () => {
 
       // readFileSync should only be called once (during construction)
       // Then getProjectContext returns cached value
+      expect(context1.name).toBe('cached-pkg');
+      expect(context1.version).toBe('1.0.0');
       expect(context2.name).toBe('cached-pkg');
       expect(context2.version).toBe('1.0.0');
     });

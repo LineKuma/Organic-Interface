@@ -38,7 +38,12 @@ export interface ToolServiceEvents {
   'tool:enabled': { toolId: string; timestamp: number };
   'tool:disabled': { toolId: string; timestamp: number };
   'execution:start': { toolId: string; executionId: string; timestamp: number };
-  'execution:complete': { toolId: string; executionId: string; result: ToolResult; timestamp: number };
+  'execution:complete': {
+    toolId: string;
+    executionId: string;
+    result: ToolResult;
+    timestamp: number;
+  };
   'execution:error': { toolId: string; executionId: string; error: Error; timestamp: number };
 }
 
@@ -112,7 +117,7 @@ export class ToolService extends EventEmitter {
     }
 
     // Check if tool is currently executing
-    for (const [executionId, execution] of this.activeExecutions) {
+    for (const execution of this.activeExecutions.values()) {
       if (execution.toolId === toolId) {
         this.logger.warn(`Cannot unregister tool while executing: ${toolId}`);
         return false;
@@ -143,14 +148,14 @@ export class ToolService extends EventEmitter {
    * Get all registered tools
    */
   getAllTools(): ToolDefinition[] {
-    return Array.from(this.tools.values()).map((entry) => entry.definition);
+    return Array.from(this.tools.values()).map(entry => entry.definition);
   }
 
   /**
    * Get tools by category
    */
   getToolsByCategory(category: string): ToolDefinition[] {
-    return this.getAllTools().filter((tool) => tool.category === category);
+    return this.getAllTools().filter(tool => tool.category === category);
   }
 
   /**
@@ -222,7 +227,7 @@ export class ToolService extends EventEmitter {
       if (errors.length > 0) {
         return {
           success: false,
-          error: `Validation failed: ${errors.map((e) => e.message).join(', ')}`,
+          error: `Validation failed: ${errors.map(e => e.message).join(', ')}`,
           executionTime: 0,
           metadata: { validationErrors: errors },
         };
@@ -331,7 +336,7 @@ export class ToolService extends EventEmitter {
 
     return {
       totalTools: this.tools.size,
-      enabledTools: this.getAllTools().filter((t) => t.enabled).length,
+      enabledTools: this.getAllTools().filter(t => t.enabled).length,
       activeExecutions: this.activeExecutions.size,
       totalExecutions,
       avgExecutionTime: totalExecutions > 0 ? totalTime / totalExecutions : 0,
@@ -349,8 +354,7 @@ export class ToolService extends EventEmitter {
 
     entry.stats.totalExecutions++;
     entry.stats.totalExecutionTime += executionTime;
-    entry.stats.avgExecutionTime =
-      entry.stats.totalExecutionTime / entry.stats.totalExecutions;
+    entry.stats.avgExecutionTime = entry.stats.totalExecutionTime / entry.stats.totalExecutions;
     entry.stats.lastExecutionAt = Date.now();
 
     if (result.success) {

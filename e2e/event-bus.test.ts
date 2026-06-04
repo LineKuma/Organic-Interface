@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Kernel, LifecycleState, type KernelConfig, EventBus } from '@organic/kernel';
+import { Kernel, LifecycleState, type KernelConfig, type EventBus } from '@organic/kernel';
 
 describe('Event Bus', () => {
   let kernel: Kernel;
@@ -25,7 +25,7 @@ describe('Event Bus', () => {
     let callCount = 0;
     const testPayload = { message: 'hello' };
 
-    const subscription = eventBus.on('test-event', (event) => {
+    const subscription = eventBus.on('test-event', event => {
       callCount++;
       expect(event.type).toBe('test-event');
       expect(event.data).toEqual(testPayload);
@@ -43,7 +43,7 @@ describe('Event Bus', () => {
     let callCount = 0;
     const testPayload = { message: 'once-data' };
 
-    const subscription = eventBus.once('once-event', (event) => {
+    eventBus.once('once-event', event => {
       callCount++;
       expect(event.data).toEqual(testPayload);
     });
@@ -109,7 +109,7 @@ describe('Event Bus', () => {
     let errorReceived = false;
     const errorPayload = { code: 'TEST_ERROR', message: 'Test error occurred' };
 
-    eventBus.on('error', (event) => {
+    eventBus.on('error', event => {
       errorReceived = true;
       expect(event.data).toEqual(errorPayload);
     });
@@ -123,11 +123,11 @@ describe('Event Bus', () => {
   it('should support event subscription', async () => {
     const events: string[] = [];
 
-    eventBus.on('user:created', (event) => {
+    eventBus.on('user:created', event => {
       events.push(event.type);
     });
 
-    eventBus.on('user:updated', (event) => {
+    eventBus.on('user:updated', event => {
       events.push(event.type);
     });
 
@@ -163,7 +163,7 @@ describe('Event Bus', () => {
   it('should emit events with timestamp and source', async () => {
     let receivedEvent: any = null;
 
-    eventBus.on('timestamp-test', (event) => {
+    eventBus.on('timestamp-test', event => {
       receivedEvent = event;
     });
 
@@ -180,7 +180,7 @@ describe('Event Bus', () => {
   it('should handle event with metadata', async () => {
     let receivedData: any = null;
 
-    eventBus.on('metadata-test', (event) => {
+    eventBus.on('metadata-test', event => {
       receivedData = event.data;
     });
 

@@ -247,7 +247,7 @@ export abstract class BasePlugin implements PluginInterface {
    * OnInitialize callback - override in subclass
    * @param context - Plugin context
    */
-  protected async onInitialize(context: PluginContext): Promise<void> {
+  protected async onInitialize(_context: PluginContext): Promise<void> {
     // Override in subclass
   }
 
@@ -272,7 +272,6 @@ export abstract class BasePlugin implements PluginInterface {
    * @param config - New configuration
    */
   protected updateConfig(config: Record<string, unknown>): void {
-    const oldConfig = { ...this.config };
     this.config = { ...this.config, ...config };
 
     // Call onConfigChange hook

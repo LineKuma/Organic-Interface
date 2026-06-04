@@ -51,12 +51,7 @@ export interface LoggerOptions {
  * Create a logger instance
  */
 export function createLogger(options: LoggerOptions = {}): Logger {
-  const {
-    prefix = '',
-    level = 'info',
-    timestamp = true,
-    logFn
-  } = options;
+  const { prefix = '', level = 'info', timestamp = true, logFn } = options;
 
   const levels: LogLevel[] = ['debug', 'info', 'warn', 'error'];
   const minLevel = levels.indexOf(level);
@@ -81,9 +76,7 @@ export function createLogger(options: LoggerOptions = {}): Logger {
     parts.push(message);
 
     if (args.length > 0) {
-      parts.push(...args.map(arg =>
-        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-      ));
+      parts.push(...args.map(arg => (typeof arg === 'object' ? JSON.stringify(arg) : String(arg))));
     }
 
     return parts.join(' ');
@@ -97,7 +90,7 @@ export function createLogger(options: LoggerOptions = {}): Logger {
       level: lvl,
       message,
       context: args,
-      prefix
+      prefix,
     };
 
     if (logFn) {
@@ -133,6 +126,6 @@ export const defaultLogger = createLogger({ level: 'info' });
 export function createChildLogger(parent: Logger, childPrefix: string): Logger {
   return createLogger({
     prefix: parent ? `${childPrefix}` : childPrefix,
-    level: 'info'
+    level: 'info',
   });
 }

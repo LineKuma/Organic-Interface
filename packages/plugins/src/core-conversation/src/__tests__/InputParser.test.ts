@@ -269,7 +269,7 @@ describe('InputParser', () => {
       });
 
       expect(result.valid).toBe(false);
-      expect(result.errors!.some((e) => e.code === 'INVALID_COMMAND')).toBe(true);
+      expect(result.errors!.some(e => e.code === 'INVALID_COMMAND')).toBe(true);
     });
   });
 
@@ -291,7 +291,7 @@ describe('InputParser', () => {
 
   describe('extractParameters', () => {
     it('should extract parameters using registered patterns', () => {
-      parser.registerIntent(/download (\w+)/, 'download', (match) => ({
+      parser.registerIntent(/download (\w+)/, 'download', match => ({
         filename: match[1],
       }));
 

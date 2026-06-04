@@ -4,11 +4,7 @@ import { NotFoundError, NotFoundErrorCode } from '../NotFoundError.js';
 describe('NotFoundError', () => {
   describe('constructor', () => {
     it('should create error with message', () => {
-      const error = new NotFoundError(
-        'Resource not found',
-        'user',
-        '123'
-      );
+      const error = new NotFoundError('Resource not found', 'user', '123');
 
       expect(error.message).toBe('Resource not found');
       expect(error.name).toBe('NotFoundError');
@@ -41,11 +37,7 @@ describe('NotFoundError', () => {
     });
 
     it('should default code to NOT_FOUND', () => {
-      const error = new NotFoundError(
-        'Generic not found',
-        'resource',
-        'id-123'
-      );
+      const error = new NotFoundError('Generic not found', 'resource', 'id-123');
 
       expect(error.code).toBe(NotFoundErrorCode.NOT_FOUND);
     });

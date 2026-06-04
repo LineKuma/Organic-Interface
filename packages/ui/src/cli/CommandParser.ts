@@ -74,10 +74,7 @@ export class CommandParser {
   /**
    * Validate parsed input against command definition
    */
-  validate(
-    parsed: ParsedInput,
-    command: Command
-  ): { valid: boolean; error?: string } {
+  validate(parsed: ParsedInput, command: Command): { valid: boolean; error?: string } {
     // Check required arguments
     if (command.arguments) {
       for (const arg of command.arguments) {
@@ -102,10 +99,7 @@ export class CommandParser {
   /**
    * Extract arguments for command handler
    */
-  extractArgs(
-    parsed: ParsedInput,
-    command: Command
-  ): Record<string, unknown> {
+  extractArgs(parsed: ParsedInput, command: Command): Record<string, unknown> {
     const result: Record<string, unknown> = {};
 
     // Add positional arguments
@@ -299,9 +293,8 @@ export class CommandParser {
     // Usage
     let usage = `Usage: ${command.name}`;
     if (command.arguments && command.arguments.length > 0) {
-      usage += ' ' + command.arguments
-        .map(a => a.required ? `<${a.name}>` : `[${a.name}]`)
-        .join(' ');
+      usage +=
+        ' ' + command.arguments.map(a => (a.required ? `<${a.name}>` : `[${a.name}]`)).join(' ');
     }
     if (command.options && command.options.length > 0) {
       usage += ' [options]';

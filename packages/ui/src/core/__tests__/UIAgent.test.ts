@@ -116,10 +116,12 @@ describe('UIAgent', () => {
     it('should throw error when no session', async () => {
       const agent = new UIAgent();
       await agent.start();
-      await expect(agent.execute({
-        type: 'click',
-        input: { selector: '#button' },
-      })).rejects.toThrow('No active session');
+      await expect(
+        agent.execute({
+          type: 'click',
+          input: { selector: '#button' },
+        })
+      ).rejects.toThrow('No active session');
     });
 
     it('should return permission denied result', async () => {
@@ -169,7 +171,14 @@ describe('UIAgent', () => {
       const mockHandler = {
         getType: () => 'click' as UIOperationType,
         supports: (op: UIOperationType) => op === 'click',
-        execute: async () => ({ success: true, operationId: '', type: 'click' as UIOperationType, status: 'completed' as UIOperationStatus, executionTime: 0, timestamp: Date.now() }),
+        execute: async () => ({
+          success: true,
+          operationId: '',
+          type: 'click' as UIOperationType,
+          status: 'completed' as UIOperationStatus,
+          executionTime: 0,
+          timestamp: Date.now(),
+        }),
         validate: () => [],
       };
       agent.registerOperationHandler(mockHandler);

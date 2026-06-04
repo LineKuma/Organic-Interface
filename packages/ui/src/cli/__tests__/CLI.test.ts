@@ -1,6 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CLI, createCLI, type CLIConfig, type OperationLog } from '../CLI.js';
-import type { CommandResult } from '../Command.js';
+import { CLI, createCLI, type CLIConfig } from '../CLI.js';
 
 describe('CLI', () => {
   let cli: CLI;
@@ -393,7 +392,9 @@ describe('CLI', () => {
     it('should handle exceptions in run', async () => {
       const cliWithError = new CLI({
         parser: {
-          parse: () => { throw new Error('Parser error'); },
+          parse: () => {
+            throw new Error('Parser error');
+          },
         } as any,
       });
 

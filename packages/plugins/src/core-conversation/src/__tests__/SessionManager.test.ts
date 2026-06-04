@@ -2,13 +2,8 @@
  * SessionManager Tests
  */
 
-import { describe, it, expect, beforeEach, afterEach, beforeAll } from 'vitest';
-import {
-  SessionManager,
-  type SessionManagerOptions,
-  type SessionStorage,
-  type Session,
-} from '../SessionManager.js';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { SessionManager, type SessionStorage, type Session } from '../SessionManager.js';
 import { SessionStatus } from '../types/session.js';
 
 // Mock session storage for testing
@@ -192,9 +187,7 @@ describe('SessionManager', () => {
     });
 
     it('should throw for non-existent session', async () => {
-      await expect(
-        manager.updateSession('non-existent', { title: 'Test' })
-      ).rejects.toThrow();
+      await expect(manager.updateSession('non-existent', { title: 'Test' })).rejects.toThrow();
     });
   });
 
@@ -274,7 +267,7 @@ describe('SessionManager', () => {
     });
 
     it('should sort by last active time', async () => {
-      const session1 = await manager.createSession();
+      await manager.createSession();
       await new Promise(resolve => setTimeout(resolve, 10));
       await manager.createSession();
 

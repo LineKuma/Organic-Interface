@@ -1,12 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import type {
-  AgentState,
-  AgentStats} from '../AgentState.js';
-import {
-  AgentStatus,
-  createAgentState,
-  getAgentStats,
-} from '../AgentState.js';
+import type { AgentState, AgentStats } from '../AgentState.js';
+import { AgentStatus, createAgentState, getAgentStats } from '../AgentState.js';
 
 describe('AgentState', () => {
   describe('AgentStatus enum', () => {

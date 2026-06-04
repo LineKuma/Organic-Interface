@@ -2,7 +2,12 @@
  * Plugin Loader Interface - Contract for plugin loading mechanisms
  */
 
-import type { PluginInterface, PluginMetadata, PluginConfig, PluginStatus } from './PluginInterface.js';
+import type {
+  PluginInterface,
+  PluginMetadata,
+  PluginConfig,
+  PluginStatus,
+} from './PluginInterface.js';
 
 /**
  * Plugin loader options

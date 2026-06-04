@@ -2,7 +2,7 @@
  * Storage Entity for Organic Interface Storage
  */
 
-import type { EntityMetadata} from './EntityMetadata.js';
+import type { EntityMetadata } from './EntityMetadata.js';
 import { createDefaultMetadata, cloneMetadata, isMetadataExpired } from './EntityMetadata.js';
 
 /**
@@ -141,7 +141,12 @@ export class StorageEntityImpl implements StorageEntity {
    * Clone the entity
    */
   clone(): StorageEntityImpl {
-    const cloned = new StorageEntityImpl(this.type, { ...this.data }, this.id, cloneMetadata(this.metadata));
+    const cloned = new StorageEntityImpl(
+      this.type,
+      { ...this.data },
+      this.id,
+      cloneMetadata(this.metadata)
+    );
     cloned.created_at = this.created_at;
     cloned.updated_at = this.updated_at;
     cloned.version = this.version;

@@ -8,7 +8,6 @@ import type {
   PluginInterface,
   PluginInput,
   PluginOutput,
-  PluginConfig,
   ToolResult,
   ToolError,
   ToolErrorCode,
@@ -17,7 +16,12 @@ import { createLogger, type Logger } from '@organic/utils';
 import { EventBus, KernelEvents } from './EventBus.js';
 import { LifecycleManager, LifecycleState } from './LifecycleManager.js';
 import { PluginManager } from './PluginManager.js';
-import { TextService, InfoService, type TextServiceConfig, type InfoServiceConfig } from '../services/index.js';
+import {
+  TextService,
+  InfoService,
+  type TextServiceConfig,
+  type InfoServiceConfig,
+} from '../services/index.js';
 
 /**
  * Kernel options for creation
@@ -148,30 +152,16 @@ export class Kernel implements KernelApi {
         }
       }
 
-      return this.createToolResult(
-        name,
-        requestId,
-        startTime,
-        false,
-        undefined,
-        {
-          code: 'TOOL_NOT_FOUND' as ToolErrorCode,
-          message: `Tool ${name} not found`,
-        }
-      );
+      return this.createToolResult(name, requestId, startTime, false, undefined, {
+        code: 'TOOL_NOT_FOUND' as ToolErrorCode,
+        message: `Tool ${name} not found`,
+      });
     } catch (error) {
       this.logger.error(`Tool execution error: ${name}`, error);
-      return this.createToolResult(
-        name,
-        requestId,
-        startTime,
-        false,
-        undefined,
-        {
-          code: 'EXECUTION_ERROR' as ToolErrorCode,
-          message: error instanceof Error ? error.message : String(error),
-        }
-      );
+      return this.createToolResult(name, requestId, startTime, false, undefined, {
+        code: 'EXECUTION_ERROR' as ToolErrorCode,
+        message: error instanceof Error ? error.message : String(error),
+      });
     }
   }
 
@@ -181,8 +171,10 @@ export class Kernel implements KernelApi {
    * Initialize the kernel
    */
   async initialize(): Promise<void> {
-    if (this.lifecycle.isState(LifecycleState.INITIALIZED) ||
-        this.lifecycle.isState(LifecycleState.RUNNING)) {
+    if (
+      this.lifecycle.isState(LifecycleState.INITIALIZED) ||
+      this.lifecycle.isState(LifecycleState.RUNNING)
+    ) {
       this.logger.warn('Kernel already initialized');
       return;
     }
@@ -326,21 +318,15 @@ export class Kernel implements KernelApi {
   /**
    * Subscribe to an event
    */
-  onEvent<T = unknown>(
-    event: string,
-    listener: (data: T) => void
-  ): { unsubscribe: () => void } {
-    return this.eventBus.on(event, (e) => listener(e.data as T));
+  onEvent<T = unknown>(event: string, listener: (data: T) => void): { unsubscribe: () => void } {
+    return this.eventBus.on(event, e => listener(e.data as T));
   }
 
   /**
    * Subscribe to an event once
    */
-  onceEvent<T = unknown>(
-    event: string,
-    listener: (data: T) => void
-  ): { unsubscribe: () => void } {
-    return this.eventBus.once(event, (e) => listener(e.data as T));
+  onceEvent<T = unknown>(event: string, listener: (data: T) => void): { unsubscribe: () => void } {
+    return this.eventBus.once(event, e => listener(e.data as T));
   }
 
   // ==================== Status Methods ====================

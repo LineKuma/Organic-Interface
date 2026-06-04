@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest';
 import {
-  EntityMetadata,
   createDefaultMetadata,
   isMetadataExpired,
   cloneMetadata,
 } from '../models/EntityMetadata.js';
+import type { EntityMetadata } from '../models/EntityMetadata.js';
 
 describe('EntityMetadata', () => {
   describe('createDefaultMetadata', () => {

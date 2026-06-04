@@ -17,11 +17,7 @@ import {
   type StateItem,
   type ContextMetadata,
 } from '../ContextManager.js';
-import type {
-  ContextItem,
-  ContextItemFilter,
-  ContextItemUpdate,
-} from '../models/ContextItem.js';
+import type { ContextItem, ContextItemFilter, ContextItemUpdate } from '../models/ContextItem.js';
 import {
   createMessageContextItem,
   createStateContextItem,
@@ -200,10 +196,10 @@ export class ContextService extends EventEmitter {
     }
 
     // Forward events from context manager
-    this.contextManager.on('message:added', (data) => {
+    this.contextManager.on('message:added', data => {
       this.emit('message:added', data);
     });
-    this.contextManager.on('state:changed', (data) => {
+    this.contextManager.on('state:changed', data => {
       this.emit('state:changed', data);
     });
   }
@@ -283,9 +279,7 @@ export class ContextService extends EventEmitter {
 
     if (result) {
       // Also add as context item
-      this.addContextItem(
-        createMessageContextItem(contextId, message)
-      );
+      this.addContextItem(createMessageContextItem(contextId, message));
     }
 
     return result;
@@ -338,10 +332,7 @@ export class ContextService extends EventEmitter {
   /**
    * Get context item
    */
-  getContextItem<T>(
-    contextId: string,
-    itemId: string
-  ): ContextItem<T> | null {
+  getContextItem<T>(contextId: string, itemId: string): ContextItem<T> | null {
     const store = this.contextItems.get(contextId);
     if (!store) {
       return null;
@@ -368,10 +359,7 @@ export class ContextService extends EventEmitter {
   /**
    * Get all context items
    */
-  getContextItems(
-    contextId: string,
-    filter?: ContextItemFilter
-  ): ContextItem[] {
+  getContextItems(contextId: string, filter?: ContextItemFilter): ContextItem[] {
     const store = this.contextItems.get(contextId);
     if (!store) {
       return [];
@@ -382,36 +370,28 @@ export class ContextService extends EventEmitter {
     // Apply filters
     if (filter) {
       if (filter.types && filter.types.length > 0) {
-        items = items.filter((item) =>
-          filter.types!.includes(item.type)
-        );
+        items = items.filter(item => filter.types!.includes(item.type));
       }
 
       if (filter.contextIds && filter.contextIds.length > 0) {
-        items = items.filter((item) =>
-          filter.contextIds!.includes(item.contextId)
-        );
+        items = items.filter(item => filter.contextIds!.includes(item.contextId));
       }
 
       if (filter.tags && filter.tags.length > 0) {
-        items = items.filter((item) =>
-          filter.tags!.some((tag) => item.metadata.tags?.includes(tag))
-        );
+        items = items.filter(item => filter.tags!.some(tag => item.metadata.tags?.includes(tag)));
       }
 
       if (filter.timeRange) {
-        items = items.filter((item) => {
+        items = items.filter(item => {
           const inRange =
-            (!filter.timeRange!.start ||
-              item.createdAt >= filter.timeRange!.start) &&
-            (!filter.timeRange!.end ||
-              item.createdAt <= filter.timeRange!.end);
+            (!filter.timeRange!.start || item.createdAt >= filter.timeRange!.start) &&
+            (!filter.timeRange!.end || item.createdAt <= filter.timeRange!.end);
           return inRange;
         });
       }
 
       if (!filter.includeExpired) {
-        items = items.filter((item) => !isContextItemExpired(item));
+        items = items.filter(item => !isContextItemExpired(item));
       }
     }
 
@@ -513,10 +493,7 @@ export class ContextService extends EventEmitter {
   /**
    * Push execution frame
    */
-  pushExecutionFrame(
-    contextId: string,
-    agentId: string
-  ): ExecutionFrame | null {
+  pushExecutionFrame(contextId: string, agentId: string): ExecutionFrame | null {
     let stack = this.executionStacks.get(contextId);
 
     if (!stack) {
@@ -679,12 +656,10 @@ export class ContextService extends EventEmitter {
       let messages = this.getMessages(contextId);
 
       if (scope.messageTimeRange) {
-        messages = messages.filter((m) => {
+        messages = messages.filter(m => {
           const inRange =
-            (!scope.messageTimeRange!.start ||
-              m.timestamp >= scope.messageTimeRange!.start) &&
-            (!scope.messageTimeRange!.end ||
-              m.timestamp <= scope.messageTimeRange!.end);
+            (!scope.messageTimeRange!.start || m.timestamp >= scope.messageTimeRange!.start) &&
+            (!scope.messageTimeRange!.end || m.timestamp <= scope.messageTimeRange!.end);
           return inRange;
         });
       }

@@ -127,7 +127,7 @@ export class MessageQueue extends EventEmitter {
     };
 
     // Insert based on priority (lower number = higher priority)
-    const insertIndex = this.queue.findIndex((e) => e.priority > entry.priority);
+    const insertIndex = this.queue.findIndex(e => e.priority > entry.priority);
     if (insertIndex === -1) {
       this.queue.push(entry);
     } else {
@@ -186,7 +186,7 @@ export class MessageQueue extends EventEmitter {
    * Get message by ID
    */
   get(messageId: string): AgentMessage | null {
-    const entry = this.queue.find((e) => e.message.id === messageId);
+    const entry = this.queue.find(e => e.message.id === messageId);
     return entry?.message ?? null;
   }
 
@@ -194,7 +194,7 @@ export class MessageQueue extends EventEmitter {
    * Remove a specific message
    */
   remove(messageId: string): boolean {
-    const index = this.queue.findIndex((e) => e.message.id === messageId);
+    const index = this.queue.findIndex(e => e.message.id === messageId);
     if (index === -1) {
       return false;
     }
@@ -222,7 +222,7 @@ export class MessageQueue extends EventEmitter {
    */
   filter(filter: QueueFilter): AgentMessage[] {
     return this.queue
-      .filter((entry) => {
+      .filter(entry => {
         const msg = entry.message;
 
         if (filter.source && msg.source !== filter.source) {
@@ -243,14 +243,14 @@ export class MessageQueue extends EventEmitter {
 
         return true;
       })
-      .map((entry) => entry.message);
+      .map(entry => entry.message);
   }
 
   /**
    * Get all messages (without removing)
    */
   getAll(): AgentMessage[] {
-    return this.queue.map((entry) => entry.message);
+    return this.queue.map(entry => entry.message);
   }
 
   // ==================== Dead Letter Queue ====================
@@ -299,7 +299,7 @@ export class MessageQueue extends EventEmitter {
    * Retry a dead letter message
    */
   retryDeadLetter(messageId: string): boolean {
-    const index = this.deadLetterQueue.findIndex((m) => m.id === messageId);
+    const index = this.deadLetterQueue.findIndex(m => m.id === messageId);
     if (index === -1) {
       return false;
     }
@@ -354,7 +354,7 @@ export class MessageQueue extends EventEmitter {
 
     // Check for expired messages
     const now = Date.now();
-    this.queue = this.queue.filter((entry) => {
+    this.queue = this.queue.filter(entry => {
       if (entry.message.expiresAt && entry.message.expiresAt < now) {
         this.stats.expiredCount++;
         this.handleDeadLetter(entry.message, 'EXPIRED');

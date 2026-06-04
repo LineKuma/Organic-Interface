@@ -2,13 +2,7 @@
  * Plugin Interface - Core plugin contract for Organic Interface
  */
 
-import type {
-  PluginInterface as BasePluginInterface,
-  PluginContext,
-  PluginInput,
-  PluginOutput,
-  InitializeResult,
-} from '@organic/utils';
+import type { PluginInterface as BasePluginInterface } from '@organic/utils';
 
 /**
  * Plugin metadata interface

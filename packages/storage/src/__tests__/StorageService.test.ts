@@ -3,9 +3,9 @@
  */
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { StorageService, StorageError, StorageErrorCode, IsolationLevel } from '../services/StorageService.js';
+import { StorageService, StorageError, StorageErrorCode } from '../services/StorageService.js';
 import { MemoryStorage } from '../backends/MemoryStorage.js';
-import type { StorageEntity } from '../models/StorageEntity.js';
+import { IndexType } from '../models/index.js';
 
 describe('StorageService', () => {
   let storage: StorageService;
@@ -238,12 +238,20 @@ describe('StorageService', () => {
 
   describe('clearExpired', () => {
     it('should clear expired entities', async () => {
-      await storage.create('test', { name: 'expired' }, {
-        metadata: { expires_at: Date.now() - 1000 },
-      });
-      await storage.create('test', { name: 'valid' }, {
-        metadata: { expires_at: Date.now() + 60000 },
-      });
+      await storage.create(
+        'test',
+        { name: 'expired' },
+        {
+          metadata: { expires_at: Date.now() - 1000 },
+        }
+      );
+      await storage.create(
+        'test',
+        { name: 'valid' },
+        {
+          metadata: { expires_at: Date.now() + 60000 },
+        }
+      );
 
       const result = await storage.clearExpired();
 
@@ -347,7 +355,6 @@ describe('StorageService', () => {
     it('should filter by createdAfter timestamp', async () => {
       const beforeCreate = Date.now();
       await storage.create('test', { name: 'entity1' });
-      const afterCreate = Date.now();
 
       const result = await storage.query({ createdAfter: beforeCreate });
 
@@ -357,9 +364,8 @@ describe('StorageService', () => {
 
     it('should filter by createdBefore timestamp', async () => {
       await storage.create('test', { name: 'entity1' });
-      const afterCreate = Date.now();
 
-      const result = await storage.query({ createdBefore: afterCreate + 1 });
+      const result = await storage.query({ createdBefore: Date.now() + 1 });
 
       expect(result.success).toBe(true);
       expect(result.entities.length).toBe(1);
@@ -417,7 +423,7 @@ describe('StorageService', () => {
     });
 
     it('batchUpdate should handle non-existent IDs', async () => {
-      const created = await storage.create('test', { name: 'existing' }, { id: 'exist-id' });
+      await storage.create('test', { name: 'existing' }, { id: 'exist-id' });
 
       const result = await storage.batchUpdate([
         { id: 'exist-id', data: { name: 'updated' } as Partial<Record<string, unknown>> },
@@ -444,15 +450,36 @@ describe('StorageService', () => {
 
   describe('findByTags', () => {
     it('should find entities by tags', async () => {
-      await storage.create('article', { title: 'Post 1' }, {
-        metadata: { tags: ['javascript', 'typescript'] } as unknown as { expires_at?: number; [key: string]: unknown },
-      });
-      await storage.create('article', { title: 'Post 2' }, {
-        metadata: { tags: ['python', 'rust'] } as unknown as { expires_at?: number; [key: string]: unknown },
-      });
-      await storage.create('article', { title: 'Post 3' }, {
-        metadata: { tags: ['typescript', 'nodejs'] } as unknown as { expires_at?: number; [key: string]: unknown },
-      });
+      await storage.create(
+        'article',
+        { title: 'Post 1' },
+        {
+          metadata: { tags: ['javascript', 'typescript'] } as unknown as {
+            expires_at?: number;
+            [key: string]: unknown;
+          },
+        }
+      );
+      await storage.create(
+        'article',
+        { title: 'Post 2' },
+        {
+          metadata: { tags: ['python', 'rust'] } as unknown as {
+            expires_at?: number;
+            [key: string]: unknown;
+          },
+        }
+      );
+      await storage.create(
+        'article',
+        { title: 'Post 3' },
+        {
+          metadata: { tags: ['typescript', 'nodejs'] } as unknown as {
+            expires_at?: number;
+            [key: string]: unknown;
+          },
+        }
+      );
 
       const results = await storage.findByTags(['typescript']);
 
@@ -460,9 +487,16 @@ describe('StorageService', () => {
     });
 
     it('should return empty array when no matching tags', async () => {
-      await storage.create('article', { title: 'Post 1' }, {
-        metadata: { tags: ['java'] } as unknown as { expires_at?: number; [key: string]: unknown },
-      });
+      await storage.create(
+        'article',
+        { title: 'Post 1' },
+        {
+          metadata: { tags: ['java'] } as unknown as {
+            expires_at?: number;
+            [key: string]: unknown;
+          },
+        }
+      );
 
       const results = await storage.findByTags(['nonexistent-tag']);
 
@@ -506,7 +540,9 @@ describe('StorageService', () => {
 
     it('rollback should throw StorageError when no active transaction', async () => {
       await expect(storage.rollbackTransaction()).rejects.toThrow(StorageError);
-      await expect(storage.rollbackTransaction()).rejects.toThrow('No active transaction to rollback');
+      await expect(storage.rollbackTransaction()).rejects.toThrow(
+        'No active transaction to rollback'
+      );
     });
   });
 
@@ -514,8 +550,9 @@ describe('StorageService', () => {
     it('should register an index', () => {
       storage.registerIndex({
         name: 'test-unique-index',
-        type: 'unique',
+        type: IndexType.UNIQUE,
         fields: ['data.email'],
+        unique: true,
       });
 
       // Verify index was registered via getStorageInfo
@@ -525,13 +562,15 @@ describe('StorageService', () => {
     it('should register multiple indexes', () => {
       storage.registerIndex({
         name: 'index-1',
-        type: 'normal',
+        type: IndexType.MULTI,
         fields: ['data.field1'],
+        unique: false,
       });
       storage.registerIndex({
         name: 'index-2',
-        type: 'unique',
+        type: IndexType.UNIQUE,
         fields: ['data.field2'],
+        unique: true,
       });
 
       // Should not throw
@@ -543,8 +582,9 @@ describe('StorageService', () => {
     it('should include registered indexes in storage info', async () => {
       storage.registerIndex({
         name: 'my-index',
-        type: 'unique',
+        type: IndexType.UNIQUE,
         fields: ['data.email'],
+        unique: true,
       });
 
       const info = await storage.getStorageInfo();
@@ -581,9 +621,16 @@ describe('StorageService', () => {
 
   describe('create with metadata', () => {
     it('should create entity with metadata', async () => {
-      const result = await storage.create('document', { content: 'hello' }, {
-        metadata: { author: 'test-user', version: 1 } as unknown as { expires_at?: number; [key: string]: unknown },
-      });
+      const result = await storage.create(
+        'document',
+        { content: 'hello' },
+        {
+          metadata: { author: 'test-user', version: 1 } as unknown as {
+            expires_at?: number;
+            [key: string]: unknown;
+          },
+        }
+      );
 
       expect(result.success).toBe(true);
       expect(result.entity).toBeDefined();
@@ -591,9 +638,13 @@ describe('StorageService', () => {
     });
 
     it('should create entity with expires_at in metadata', async () => {
-      const result = await storage.create('temp', { data: 'value' }, {
-        metadata: { expires_at: Date.now() + 3600000 },
-      });
+      const result = await storage.create(
+        'temp',
+        { data: 'value' },
+        {
+          metadata: { expires_at: Date.now() + 3600000 },
+        }
+      );
 
       expect(result.success).toBe(true);
       expect(result.entity!.metadata.expires_at).toBeDefined();
@@ -603,11 +654,7 @@ describe('StorageService', () => {
   describe('update with updatedBy', () => {
     it('should update entity and record updater', async () => {
       const created = await storage.create('test', { name: 'original' });
-      const result = await storage.update(
-        created.entity!.id,
-        { name: 'updated' },
-        'admin-user'
-      );
+      const result = await storage.update(created.entity!.id, { name: 'updated' }, 'admin-user');
 
       expect(result.success).toBe(true);
       expect(result.entity?.data.name).toBe('updated');

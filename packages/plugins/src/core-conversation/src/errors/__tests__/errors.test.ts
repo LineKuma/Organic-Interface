@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ConversationError, ConversationErrorCode, ConversationErrorCodeType } from '../ConversationError.js';
+import { ConversationError, ConversationErrorCode } from '../ConversationError.js';
 import { SessionError } from '../SessionError.js';
 import { ContextError } from '../ContextError.js';
 
@@ -104,7 +104,9 @@ describe('ConversationError', () => {
     });
 
     it('should reconstruct with all error codes', () => {
-      const original = new ConversationError('Full test', ConversationErrorCode.INTERNAL, { info: 'test' });
+      const original = new ConversationError('Full test', ConversationErrorCode.INTERNAL, {
+        info: 'test',
+      });
       const json = original.toJSON();
       const reconstructed = ConversationError.fromJSON(json);
 

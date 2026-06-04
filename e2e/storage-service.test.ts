@@ -1,9 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { Kernel, LifecycleState, type KernelConfig } from '@organic/kernel';
-import {
-  StorageManager,
-  StorageBackendType,
-} from '@organic/storage';
+import { StorageManager, StorageBackendType } from '@organic/storage';
 
 describe('Storage Service', () => {
   let kernel: Kernel;
@@ -137,7 +134,10 @@ describe('Storage Service', () => {
 
   describe('StorageService', () => {
     it('should create entity', async () => {
-      const storage = await storageManager.createStorage('entity-storage', StorageBackendType.MEMORY);
+      const storage = await storageManager.createStorage(
+        'entity-storage',
+        StorageBackendType.MEMORY
+      );
 
       const result = await storage.create('user', { name: 'Alice' });
 
@@ -157,7 +157,10 @@ describe('Storage Service', () => {
     });
 
     it('should update entity', async () => {
-      const storage = await storageManager.createStorage('update-storage', StorageBackendType.MEMORY);
+      const storage = await storageManager.createStorage(
+        'update-storage',
+        StorageBackendType.MEMORY
+      );
       const created = await storage.create('user', { name: 'Charlie' });
 
       const result = await storage.update(created.entity!.id, { name: 'Chuck' });
@@ -167,7 +170,10 @@ describe('Storage Service', () => {
     });
 
     it('should delete entity', async () => {
-      const storage = await storageManager.createStorage('delete-storage', StorageBackendType.MEMORY);
+      const storage = await storageManager.createStorage(
+        'delete-storage',
+        StorageBackendType.MEMORY
+      );
       const created = await storage.create('user', { name: 'Dave' });
 
       const result = await storage.delete(created.entity!.id);
@@ -179,7 +185,10 @@ describe('Storage Service', () => {
     });
 
     it('should batch create entities', async () => {
-      const storage = await storageManager.createStorage('batch-create-storage', StorageBackendType.MEMORY);
+      const storage = await storageManager.createStorage(
+        'batch-create-storage',
+        StorageBackendType.MEMORY
+      );
 
       const result = await storage.batchCreate([
         { type: 'user', data: { name: 'Eve' } },
@@ -191,7 +200,10 @@ describe('Storage Service', () => {
     });
 
     it('should find entities by type', async () => {
-      const storage = await storageManager.createStorage('find-type-storage', StorageBackendType.MEMORY);
+      const storage = await storageManager.createStorage(
+        'find-type-storage',
+        StorageBackendType.MEMORY
+      );
 
       await storage.create('item', { name: 'Item1' });
       await storage.create('item', { name: 'Item2' });

@@ -21,12 +21,7 @@ export class ContextError extends ConversationError {
    * @param contextId - Context window ID
    * @param details - Additional error details
    */
-  constructor(
-    message: string,
-    sessionId?: string,
-    contextId?: string,
-    details?: unknown
-  ) {
+  constructor(message: string, sessionId?: string, contextId?: string, details?: unknown) {
     super(message, ConversationErrorCode.CONTEXT_NOT_FOUND, details);
     this.name = 'ContextError';
     this.sessionId = sessionId;
@@ -55,36 +50,28 @@ export class ContextError extends ConversationError {
    * Create context expired error
    */
   static expired(sessionId: string, reason?: string): ContextError {
-    return new ContextError(
-      `Context expired for session: ${sessionId}`,
-      sessionId,
-      undefined,
-      { reason: reason || 'Context window expired' }
-    );
+    return new ContextError(`Context expired for session: ${sessionId}`, sessionId, undefined, {
+      reason: reason || 'Context window expired',
+    });
   }
 
   /**
    * Create context full error
    */
   static full(sessionId: string, maxSize: number): ContextError {
-    return new ContextError(
-      `Context full for session: ${sessionId}`,
-      sessionId,
-      undefined,
-      { reason: 'Context window is full', maxSize }
-    );
+    return new ContextError(`Context full for session: ${sessionId}`, sessionId, undefined, {
+      reason: 'Context window is full',
+      maxSize,
+    });
   }
 
   /**
    * Create context invalid error
    */
   static invalid(sessionId: string, reason: string): ContextError {
-    return new ContextError(
-      `Invalid context for session: ${sessionId}`,
-      sessionId,
-      undefined,
-      { reason }
-    );
+    return new ContextError(`Invalid context for session: ${sessionId}`, sessionId, undefined, {
+      reason,
+    });
   }
 
   /**

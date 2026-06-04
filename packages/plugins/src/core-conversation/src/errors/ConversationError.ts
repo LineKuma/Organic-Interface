@@ -51,11 +51,7 @@ export class ConversationError extends Error {
    * Create error from plain object
    */
   static fromJSON(obj: Record<string, unknown>): ConversationError {
-    const error = new ConversationError(
-      obj.message as string,
-      obj.code as string,
-      obj.details
-    );
+    const error = new ConversationError(obj.message as string, obj.code as string, obj.details);
     return error;
   }
 }
@@ -99,4 +95,5 @@ export const ConversationErrorCode = {
 /**
  * Error code type
  */
-export type ConversationErrorCodeType = typeof ConversationErrorCode[keyof typeof ConversationErrorCode];
+export type ConversationErrorCodeType =
+  (typeof ConversationErrorCode)[keyof typeof ConversationErrorCode];

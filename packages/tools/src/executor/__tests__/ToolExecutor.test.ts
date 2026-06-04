@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { ToolExecutor } from '../ToolExecutor.js';
-import type { Tool, ToolResult, ToolExecutionContext, ToolDefinition } from '../../types/index.js';
+import type { Tool, ToolResult, ToolExecutionContext } from '../../types/index.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
@@ -89,7 +89,7 @@ describe('ToolExecutor', () => {
       const context = createMockContext();
 
       let resolveExecution: (value: unknown) => void;
-      const executionPromise = new Promise((resolve) => {
+      const executionPromise = new Promise(resolve => {
         resolveExecution = resolve;
       });
 
@@ -99,7 +99,7 @@ describe('ToolExecutor', () => {
       const executePromise = limitedExecutor.execute(tool, { input: 'test' }, context);
 
       // Give it a moment to start
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Stop should wait for the active execution
       const stopPromise = limitedExecutor.stop();
@@ -131,7 +131,7 @@ describe('ToolExecutor', () => {
 
       const mockExecute = tool1.execute as ReturnType<typeof vi.fn>;
       mockExecute.mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 50));
         return { success: true, data: {}, executionTime: 50 };
       });
 
@@ -157,7 +157,7 @@ describe('ToolExecutor', () => {
       // Make first tool run slowly to occupy the slot
       const mockExecute = tool1.execute as ReturnType<typeof vi.fn>;
       mockExecute.mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 200));
         return { success: true, data: {}, executionTime: 200 };
       });
 
@@ -165,16 +165,24 @@ describe('ToolExecutor', () => {
       limitedExecutor.execute(tool1, { input: 'test' }, context);
 
       // Wait for it to start
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Queue second execution (fills the queue)
-      const queuePromise = limitedExecutor.execute(tool2, { input: 'test' }, { ...context, executionId: 'exec-2' });
+      const queuePromise = limitedExecutor.execute(
+        tool2,
+        { input: 'test' },
+        { ...context, executionId: 'exec-2' }
+      );
 
       // Wait for queuing
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Try third execution - should fail with queue full
-      const result = await limitedExecutor.execute(tool3, { input: 'test' }, { ...context, executionId: 'exec-3' });
+      const result = await limitedExecutor.execute(
+        tool3,
+        { input: 'test' },
+        { ...context, executionId: 'exec-3' }
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toBe('Execution queue is full');
@@ -242,7 +250,7 @@ describe('ToolExecutor', () => {
 
       const mockExecute = tool1.execute as ReturnType<typeof vi.fn>;
       mockExecute.mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 100));
         return { success: true, data: {}, executionTime: 100 };
       });
 
@@ -250,13 +258,13 @@ describe('ToolExecutor', () => {
       limitedExecutor.execute(tool1, { input: 'test' }, context);
 
       // Wait for it to start
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Second execution should be queued
       const queuePromise = limitedExecutor.execute(tool2, { input: 'test' }, context);
 
       // Wait for queue event
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(handler).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -286,7 +294,7 @@ describe('ToolExecutor', () => {
 
       const mockExecute = tool1.execute as ReturnType<typeof vi.fn>;
       mockExecute.mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 200));
+        await new Promise(resolve => setTimeout(resolve, 200));
         return { success: true, data: {}, executionTime: 200 };
       });
 
@@ -294,16 +302,24 @@ describe('ToolExecutor', () => {
       limitedExecutor.execute(tool1, { input: 'test' }, context);
 
       // Wait for it to start
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Queue second execution (fills the queue)
-      const queuePromise = limitedExecutor.execute(tool2, { input: 'test' }, { ...context, executionId: 'exec-2' });
+      const queuePromise = limitedExecutor.execute(
+        tool2,
+        { input: 'test' },
+        { ...context, executionId: 'exec-2' }
+      );
 
       // Wait for queuing
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Try to add third - should trigger queue:full
-      await limitedExecutor.execute(tool3, { input: 'test' }, { ...context, executionId: 'exec-3' });
+      await limitedExecutor.execute(
+        tool3,
+        { input: 'test' },
+        { ...context, executionId: 'exec-3' }
+      );
 
       expect(handler).toHaveBeenCalled();
 
@@ -318,7 +334,7 @@ describe('ToolExecutor', () => {
       const tool = createMockTool();
       (tool.execute as ReturnType<typeof vi.fn>).mockImplementation(
         () =>
-          new Promise((resolve) => {
+          new Promise(resolve => {
             setTimeout(() => {
               resolve({ success: true, data: {}, executionTime: 100000 });
             }, 10000);
@@ -326,12 +342,7 @@ describe('ToolExecutor', () => {
       );
 
       const context = createMockContext();
-      const result = await executor.execute(
-        tool,
-        { input: 'test' },
-        context,
-        { timeout: 10 }
-      );
+      const result = await executor.execute(tool, { input: 'test' }, context, { timeout: 10 });
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('timed out');
@@ -349,7 +360,7 @@ describe('ToolExecutor', () => {
 
       (tool1.execute as ReturnType<typeof vi.fn>).mockImplementation(async () => {
         executionOrder.push('tool-1');
-        await new Promise((resolve) => setTimeout(resolve, 50));
+        await new Promise(resolve => setTimeout(resolve, 50));
         return { success: true, data: {}, executionTime: 50 };
       });
 
@@ -411,7 +422,7 @@ describe('ToolExecutor', () => {
       const context = createMockContext();
 
       let resolveExecution: (value: unknown) => void;
-      const executionPromise = new Promise((resolve) => {
+      const executionPromise = new Promise(resolve => {
         resolveExecution = resolve;
       });
 
@@ -421,7 +432,7 @@ describe('ToolExecutor', () => {
       const executePromise = executor.execute(tool, { input: 'test' }, context);
 
       // Wait for it to start
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Cancel the execution
       const cancelResult = executor.cancelExecution(context.executionId);
@@ -443,7 +454,7 @@ describe('ToolExecutor', () => {
       executor.on('execution:cancelled', handler);
 
       let resolveExecution: (value: unknown) => void;
-      const executionPromise = new Promise((resolve) => {
+      const executionPromise = new Promise(resolve => {
         resolveExecution = resolve;
       });
 
@@ -453,7 +464,7 @@ describe('ToolExecutor', () => {
       const executePromise = executor.execute(tool, { input: 'test' }, context);
 
       // Wait for it to start
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Cancel the execution
       executor.cancelExecution(context.executionId);
@@ -487,7 +498,7 @@ describe('ToolExecutor', () => {
       const context = createMockContext();
 
       let resolveExecution: (value: unknown) => void;
-      const executionPromise = new Promise((resolve) => {
+      const executionPromise = new Promise(resolve => {
         resolveExecution = resolve;
       });
 
@@ -497,7 +508,7 @@ describe('ToolExecutor', () => {
       executor.execute(tool, { input: 'test' }, context);
 
       // Wait for it to start
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       const status = executor.getStatus();
       expect(status.running).toBe(true);
@@ -523,7 +534,7 @@ describe('ToolExecutor', () => {
       const context = createMockContext();
 
       let resolveExecution: (value: unknown) => void;
-      const executionPromise = new Promise((resolve) => {
+      const executionPromise = new Promise(resolve => {
         resolveExecution = resolve;
       });
 
@@ -533,7 +544,7 @@ describe('ToolExecutor', () => {
       executor.execute(tool, { input: 'test' }, context);
 
       // Wait for it to start
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(executor.isIdle()).toBe(false);
 
@@ -552,7 +563,7 @@ describe('ToolExecutor', () => {
 
       const mockExecute = tool1.execute as ReturnType<typeof vi.fn>;
       mockExecute.mockImplementation(async () => {
-        await new Promise((resolve) => setTimeout(resolve, 100));
+        await new Promise(resolve => setTimeout(resolve, 100));
         return { success: true, data: {}, executionTime: 100 };
       });
 
@@ -560,13 +571,17 @@ describe('ToolExecutor', () => {
       limitedExecutor.execute(tool1, { input: 'test' }, context);
 
       // Wait for it to start
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       // Queue second execution
-      const queuePromise = limitedExecutor.execute(tool2, { input: 'test' }, { ...context, executionId: 'exec-2' });
+      const queuePromise = limitedExecutor.execute(
+        tool2,
+        { input: 'test' },
+        { ...context, executionId: 'exec-2' }
+      );
 
       // Wait for queuing
-      await new Promise((resolve) => setTimeout(resolve, 50));
+      await new Promise(resolve => setTimeout(resolve, 50));
 
       expect(limitedExecutor.isIdle()).toBe(false);
 
@@ -580,7 +595,7 @@ describe('ToolExecutor', () => {
     it('should filter sensitive environment variables when sandbox enabled', async () => {
       const sandboxExecutor = new ToolExecutor({
         enableSandbox: true,
-        sandboxConfig: { enabled: true },
+        sandboxConfig: { enabled: true, allowedDirectories: [], deniedPatterns: [] },
       });
       sandboxExecutor.start();
 
@@ -624,7 +639,7 @@ describe('ToolExecutor', () => {
     it('should filter PRIVATE_KEY environment variable', async () => {
       const sandboxExecutor = new ToolExecutor({
         enableSandbox: true,
-        sandboxConfig: { enabled: true },
+        sandboxConfig: { enabled: true, allowedDirectories: [], deniedPatterns: [] },
       });
       sandboxExecutor.start();
 
@@ -659,7 +674,7 @@ describe('ToolExecutor', () => {
     it('should downgrade L4 permission to L3 in sandbox', async () => {
       const sandboxExecutor = new ToolExecutor({
         enableSandbox: true,
-        sandboxConfig: { enabled: true },
+        sandboxConfig: { enabled: true, allowedDirectories: [], deniedPatterns: [] },
       });
       sandboxExecutor.start();
 
@@ -688,7 +703,7 @@ describe('ToolExecutor', () => {
     it('should keep L2 permission unchanged in sandbox', async () => {
       const sandboxExecutor = new ToolExecutor({
         enableSandbox: true,
-        sandboxConfig: { enabled: true },
+        sandboxConfig: { enabled: true, allowedDirectories: [], deniedPatterns: [] },
       });
       sandboxExecutor.start();
 

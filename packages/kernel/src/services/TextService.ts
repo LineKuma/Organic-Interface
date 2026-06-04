@@ -300,10 +300,8 @@ export class TextService {
     const { borders, align, maxWidth, columnWidths } = opts;
 
     // Calculate column widths
-    const calculatedWidths = columnWidths ?? this.calculateColumnWidths(
-      [headers, ...rows],
-      maxWidth ?? 80
-    );
+    const calculatedWidths =
+      columnWidths ?? this.calculateColumnWidths([headers, ...rows], maxWidth ?? 80);
 
     const lines: string[] = [];
 
@@ -350,12 +348,7 @@ export class TextService {
    * Format items as a list
    */
   formatList(items: string[], options: ListOptions = {}): string {
-    const {
-      bullet = '•',
-      indent = 0,
-      numbered = false,
-      startNumber = 1,
-    } = options;
+    const { bullet = '•', indent = 0, numbered = false, startNumber = 1 } = options;
 
     const indentStr = ' '.repeat(indent);
     const lines = items.map((item, index) => {
@@ -459,11 +452,7 @@ export class TextService {
    * Create a text stream for continuous output
    */
   createStream(options: StreamOptions = {}): TextStream {
-    const {
-      flush = false,
-      endWithNewline = true,
-      prefix = '',
-    } = options;
+    const { endWithNewline = true, prefix = '' } = options;
 
     let buffer = '';
     let isActive = true;
@@ -502,7 +491,12 @@ export class TextService {
   /**
    * Generate a progress bar string
    */
-  progress(current: number, total: number, message = '', options: { width?: number; showPercent?: boolean } = {}): string {
+  progress(
+    current: number,
+    total: number,
+    message = '',
+    options: { width?: number; showPercent?: boolean } = {}
+  ): string {
     const { width = 40, showPercent = true } = options;
     const percent = total > 0 ? Math.min((current / total) * 100, 100) : 0;
     const filled = Math.round((percent / 100) * width);
@@ -573,13 +567,14 @@ export class TextService {
 
       stopWithMessage(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
         this.stop();
-        const styledMsg = type === 'success'
-          ? self.success(`✓ ${message}`)
-          : type === 'error'
-          ? self.error(`✗ ${message}`)
-          : type === 'warning'
-          ? self.warning(`⚠ ${message}`)
-          : self.info(`ℹ ${message}`);
+        const styledMsg =
+          type === 'success'
+            ? self.success(`✓ ${message}`)
+            : type === 'error'
+              ? self.error(`✗ ${message}`)
+              : type === 'warning'
+                ? self.warning(`⚠ ${message}`)
+                : self.info(`ℹ ${message}`);
         process.stdout.write(styledMsg + '\n');
       },
     };
@@ -621,7 +616,11 @@ export class TextService {
   /**
    * Align text within a column
    */
-  private alignText(text: string, width: number, align: 'left' | 'center' | 'right' = 'left'): string {
+  private alignText(
+    text: string,
+    width: number,
+    align: 'left' | 'center' | 'right' = 'left'
+  ): string {
     const cleanText = this.stripAnsi(text);
     const padding = Math.max(0, width - cleanText.length);
 

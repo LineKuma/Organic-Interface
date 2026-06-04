@@ -4,16 +4,14 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import { fileURLToPath } from 'url';
 
 import type {
   PluginInterface,
   PluginMetadata,
   PluginConfig,
-  PluginStatus} from '../interfaces/PluginInterface.js';
-import {
-  PluginLifecycleState,
+  PluginStatus,
 } from '../interfaces/PluginInterface.js';
+import { PluginLifecycleState } from '../interfaces/PluginInterface.js';
 import type {
   PluginLoaderInterface,
   PluginLoaderOptions,
@@ -124,8 +122,8 @@ export class PluginLoader implements PluginLoaderInterface {
       const compatibility = await this.validateCompatibility(metadata);
       if (!compatibility.compatible) {
         const issues = compatibility.issues
-          ?.filter((i) => i.severity === 'error')
-          .map((i) => i.message)
+          ?.filter(i => i.severity === 'error')
+          .map(i => i.message)
           .join(', ');
         return {
           success: false,
@@ -171,7 +169,11 @@ export class PluginLoader implements PluginLoaderInterface {
         metadata,
       };
     } catch (error) {
-      this.updateStatus(pluginId, PluginLifecycleState.ERROR, error instanceof Error ? error.message : String(error));
+      this.updateStatus(
+        pluginId,
+        PluginLifecycleState.ERROR,
+        error instanceof Error ? error.message : String(error)
+      );
       return {
         success: false,
         error: error instanceof Error ? error.message : String(error),
@@ -328,7 +330,7 @@ export class PluginLoader implements PluginLoaderInterface {
     }
 
     return {
-      compatible: !issues.some((i) => i.severity === 'error'),
+      compatible: !issues.some(i => i.severity === 'error'),
       issues,
     };
   }
@@ -398,23 +400,17 @@ export class PluginLoader implements PluginLoaderInterface {
       description: pkg.description,
       apiVersion: pkg.organic?.api_version || '1.0.0',
       author: pkg.author,
-      dependencies: Object.entries(pkg.organic?.dependencies || {}).map(
-        ([name, version]) => ({
-          pluginName: name,
-          versionRange: version as string,
-        })
-      ),
+      dependencies: Object.entries(pkg.organic?.dependencies || {}).map(([name, version]) => ({
+        pluginName: name,
+        versionRange: version as string,
+      })),
     };
   }
 
   /**
    * Update plugin status
    */
-  private updateStatus(
-    pluginId: string,
-    state: PluginLifecycleState,
-    error?: string
-  ): void {
+  private updateStatus(pluginId: string, state: PluginLifecycleState, error?: string): void {
     const existing = this.status.get(pluginId);
     this.status.set(pluginId, {
       pluginId,
@@ -429,14 +425,14 @@ export class PluginLoader implements PluginLoaderInterface {
   /**
    * Create a minimal kernel API for plugin initialization
    */
-  private createKernelApi(pluginId: string): any {
+  private createKernelApi(_pluginId: string): any {
     return {
       getConfig: () => ({}),
       getVersion: () => '0.1.0',
       registerPlugin: async () => {},
       unregisterPlugin: async () => {},
       getPlugin: (name: string) => this.cache.get(name)?.plugin,
-      listPlugins: () => Array.from(this.cache.values()).map((e) => e.plugin),
+      listPlugins: () => Array.from(this.cache.values()).map(e => e.plugin),
       executeTool: async () => ({ success: false, error: 'Not implemented' }),
     };
   }

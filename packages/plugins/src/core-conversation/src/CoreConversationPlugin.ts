@@ -33,10 +33,9 @@ import type {
   ParsedInput,
   ConversationResult,
   ResponseMessage,
-  FormattedOutput} from './types/index.js';
+  FormattedOutput,
+} from './types/index.js';
 import {
-  Session,
-  Message,
   ResponseType,
   ResultType,
   ContextWindowType,
@@ -244,8 +243,6 @@ export class CoreConversationPlugin implements PluginInterface {
       };
     }
 
-    const startTime = Date.now();
-
     try {
       const action = input.action as ConversationAction;
       const params = input.params ?? {};
@@ -378,7 +375,7 @@ export class CoreConversationPlugin implements PluginInterface {
     const validation = this.inputParser!.validate(parsedInput);
     if (!validation.valid) {
       throw new ConversationError(
-        `Invalid input: ${validation.errors?.map((e) => e.message).join(', ')}`,
+        `Invalid input: ${validation.errors?.map(e => e.message).join(', ')}`,
         ConversationErrorCode.INVALID_INPUT,
         { errors: validation.errors }
       );
@@ -421,7 +418,7 @@ export class CoreConversationPlugin implements PluginInterface {
     return {
       type: ResultType.MESSAGE,
       message: responseMessage,
-      session: await this.sessionManager!.getSession(sessionId) || undefined,
+      session: (await this.sessionManager!.getSession(sessionId)) || undefined,
       contextWindow,
     };
   }
@@ -433,10 +430,7 @@ export class CoreConversationPlugin implements PluginInterface {
     const sessionId = params.sessionId as string;
 
     if (!sessionId) {
-      throw new ConversationError(
-        'Session ID is required',
-        ConversationErrorCode.INVALID_INPUT
-      );
+      throw new ConversationError('Session ID is required', ConversationErrorCode.INVALID_INPUT);
     }
 
     const session = await this.sessionManager!.resumeSession(sessionId);
@@ -466,10 +460,7 @@ export class CoreConversationPlugin implements PluginInterface {
     const sessionId = (params.sessionId as string) || this.activeSessionId;
 
     if (!sessionId) {
-      throw new ConversationError(
-        'No session to close',
-        ConversationErrorCode.INVALID_INPUT
-      );
+      throw new ConversationError('No session to close', ConversationErrorCode.INVALID_INPUT);
     }
 
     await this.sessionManager!.closeSession(sessionId);
@@ -513,10 +504,7 @@ export class CoreConversationPlugin implements PluginInterface {
     const sessionId = (params.sessionId as string) || this.activeSessionId;
 
     if (!sessionId) {
-      throw new ConversationError(
-        'Session ID is required',
-        ConversationErrorCode.INVALID_INPUT
-      );
+      throw new ConversationError('Session ID is required', ConversationErrorCode.INVALID_INPUT);
     }
 
     const session = await this.sessionManager!.getSession(sessionId);
@@ -541,10 +529,7 @@ export class CoreConversationPlugin implements PluginInterface {
     const sessionId = (params.sessionId as string) || this.activeSessionId;
 
     if (!sessionId) {
-      throw new ConversationError(
-        'Session ID is required',
-        ConversationErrorCode.INVALID_INPUT
-      );
+      throw new ConversationError('Session ID is required', ConversationErrorCode.INVALID_INPUT);
     }
 
     const contextWindow = await this.contextManager!.getContextWindow(sessionId);
@@ -562,10 +547,7 @@ export class CoreConversationPlugin implements PluginInterface {
     const sessionId = (params.sessionId as string) || this.activeSessionId;
 
     if (!sessionId) {
-      throw new ConversationError(
-        'Session ID is required',
-        ConversationErrorCode.INVALID_INPUT
-      );
+      throw new ConversationError('Session ID is required', ConversationErrorCode.INVALID_INPUT);
     }
 
     await this.contextManager!.clearContext(sessionId);
@@ -593,10 +575,7 @@ export class CoreConversationPlugin implements PluginInterface {
     const updates = params.updates as Record<string, unknown>;
 
     if (!sessionId) {
-      throw new ConversationError(
-        'Session ID is required',
-        ConversationErrorCode.INVALID_INPUT
-      );
+      throw new ConversationError('Session ID is required', ConversationErrorCode.INVALID_INPUT);
     }
 
     await this.contextManager!.updateContext(sessionId, updates as any);

@@ -99,10 +99,7 @@ describe('ShellTool', () => {
 
     it('should handle command with args', async () => {
       const tool = new ShellTool();
-      const result = await tool.execute(
-        { command: 'printf', args: ['hello'] },
-        mockContext
-      );
+      const result = await tool.execute({ command: 'printf', args: ['hello'] }, mockContext);
       expect(result.success).toBe(true);
     });
 
@@ -117,10 +114,7 @@ describe('ShellTool', () => {
 
     it('should handle custom working directory', async () => {
       const tool = new ShellTool();
-      const result = await tool.execute(
-        { command: 'pwd', cwd: '/tmp' },
-        mockContext
-      );
+      const result = await tool.execute({ command: 'pwd', cwd: '/tmp' }, mockContext);
       expect(result.success).toBe(true);
     });
 

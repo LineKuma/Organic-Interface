@@ -123,7 +123,7 @@ export class EventBus {
    * Subscribe to an event once
    */
   once<T = unknown>(type: string, listener: EventListener<T>): EventSubscription {
-    const wrappedListener: EventListener<T> = (event) => {
+    const wrappedListener: EventListener<T> = event => {
       listener(event);
       this.off(type, wrappedListener);
     };
@@ -224,7 +224,10 @@ export class EventBus {
   offWildcard<T = unknown>(pattern: string, listener: EventListener<T>): void {
     const listeners = this.wildcardListeners.get(pattern);
     if (listeners) {
-      this.wildcardListeners.set(pattern, listeners.filter(l => l !== listener));
+      this.wildcardListeners.set(
+        pattern,
+        listeners.filter(l => l !== listener)
+      );
       if (this.wildcardListeners.get(pattern)!.length === 0) {
         this.wildcardListeners.delete(pattern);
       }

@@ -59,10 +59,7 @@ describe('async utilities', () => {
     });
 
     it('should call onRetry callback', async () => {
-      const fn = vi
-        .fn()
-        .mockRejectedValueOnce(new Error('fail 1'))
-        .mockResolvedValue('success');
+      const fn = vi.fn().mockRejectedValueOnce(new Error('fail 1')).mockResolvedValue('success');
 
       const onRetry = vi.fn();
 
@@ -73,10 +70,7 @@ describe('async utilities', () => {
     });
 
     it('should work without jitter', async () => {
-      const fn = vi
-        .fn()
-        .mockRejectedValueOnce(new Error('fail 1'))
-        .mockResolvedValue('success');
+      const fn = vi.fn().mockRejectedValueOnce(new Error('fail 1')).mockResolvedValue('success');
 
       const result = await withRetry(fn, { jitter: false });
       expect(result).toBe('success');
@@ -97,15 +91,15 @@ describe('async utilities', () => {
     });
 
     it('should reject if timeout exceeded', async () => {
-      const promise = new Promise((resolve) => setTimeout(() => resolve('delayed'), 100));
+      const promise = new Promise(resolve => setTimeout(() => resolve('delayed'), 100));
       await expect(withTimeout(promise, { timeout: 10 })).rejects.toThrow('Operation timed out');
     });
 
     it('should use custom error message', async () => {
-      const promise = new Promise((resolve) => setTimeout(() => resolve('delayed'), 100));
-      await expect(withTimeout(promise, { timeout: 10, message: 'Custom timeout' })).rejects.toThrow(
-        'Custom timeout'
-      );
+      const promise = new Promise(resolve => setTimeout(() => resolve('delayed'), 100));
+      await expect(
+        withTimeout(promise, { timeout: 10, message: 'Custom timeout' })
+      ).rejects.toThrow('Custom timeout');
     });
 
     it('should work with rejected promise', async () => {
@@ -116,10 +110,12 @@ describe('async utilities', () => {
 
   describe('withConcurrencyLimit', () => {
     it('should execute single promise', async () => {
-      const tasks = [async () => {
-        await sleep(10);
-        return 1;
-      }];
+      const tasks = [
+        async () => {
+          await sleep(10);
+          return 1;
+        },
+      ];
       const result = await withConcurrencyLimit(tasks, 2);
       expect(result).toEqual([1]);
     });

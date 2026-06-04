@@ -43,7 +43,10 @@ export type {
 
 // Re-export loaders
 export { PluginLoader } from './loaders/PluginLoader.js';
-export { RemotePluginLoader, type RemotePluginLoaderOptions } from './loaders/RemotePluginLoader.js';
+export {
+  RemotePluginLoader,
+  type RemotePluginLoaderOptions,
+} from './loaders/RemotePluginLoader.js';
 
 // Re-export registry
 export { PluginRegistry } from './registry/PluginRegistry.js';

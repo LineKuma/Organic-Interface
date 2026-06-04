@@ -205,7 +205,12 @@ describe('ContextManager', () => {
   describe('addAssistantMessage', () => {
     it('should create and add assistant message', () => {
       const context = manager.create('session-1', createTestParticipants());
-      const message = manager.addAssistantMessage(context.id, 'agent-1', 'TestAgent', 'Hello to you too');
+      const message = manager.addAssistantMessage(
+        context.id,
+        'agent-1',
+        'TestAgent',
+        'Hello to you too'
+      );
 
       expect(message).toBeDefined();
       expect(message?.sender.id).toBe('agent-1');

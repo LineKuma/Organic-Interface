@@ -117,7 +117,12 @@ describe('validation utilities', () => {
     });
 
     it('should throw for missing required fields', () => {
-      expect(() => validateRequired({ name: 'test', value: 123 } as Record<string, unknown>, ['name', 'missing'])).toThrow(ValidationError);
+      expect(() =>
+        validateRequired({ name: 'test', value: 123 } as Record<string, unknown>, [
+          'name',
+          'missing',
+        ])
+      ).toThrow(ValidationError);
     });
 
     it('should throw for empty required fields', () => {
@@ -206,7 +211,9 @@ describe('validation utilities', () => {
     });
 
     it('should throw for invalid enum value', () => {
-      expect(() => validateEnum('yellow', ['red', 'green', 'blue'], 'field')).toThrow(ValidationError);
+      expect(() => validateEnum('yellow', ['red', 'green', 'blue'], 'field')).toThrow(
+        ValidationError
+      );
     });
   });
 
@@ -273,12 +280,8 @@ describe('validation utilities', () => {
             age: { type: 'number', required: true },
           },
         };
-        expect(() =>
-          validateSchema({ name: 'John', age: 30 }, schema, 'field')
-        ).not.toThrow();
-        expect(() =>
-          validateSchema({ name: 'John' }, schema, 'field')
-        ).toThrow();
+        expect(() => validateSchema({ name: 'John', age: 30 }, schema, 'field')).not.toThrow();
+        expect(() => validateSchema({ name: 'John' }, schema, 'field')).toThrow();
       });
 
       it('should validate nested objects', () => {
@@ -293,9 +296,7 @@ describe('validation utilities', () => {
             },
           },
         };
-        expect(() =>
-          validateSchema({ user: { name: 'John' } }, schema, 'field')
-        ).not.toThrow();
+        expect(() => validateSchema({ user: { name: 'John' } }, schema, 'field')).not.toThrow();
       });
 
       it('should skip validation for undefined properties', () => {
