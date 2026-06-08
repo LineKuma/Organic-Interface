@@ -22,7 +22,6 @@ Thumbs.db
 *.log
 npm-debug.log*
 coverage/
-worktrees/
 .pnpm-store/
 
 # Core dumps

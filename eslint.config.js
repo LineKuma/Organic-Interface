@@ -44,7 +44,6 @@ export default [
       'coverage/**',
       '*.min.js',
       '**/dist/**',
-      'worktrees/**',
     ],
   },
 ];
