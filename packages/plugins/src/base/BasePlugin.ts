@@ -12,6 +12,7 @@ import type {
   ValidateResult,
   ValidationError,
 } from '../interfaces/PluginInterface.js';
+import type { KernelApi } from '@organic/utils';
 
 /**
  * Base plugin options
@@ -58,7 +59,7 @@ export abstract class BasePlugin implements PluginInterface {
   protected config: Record<string, unknown> = {};
 
   /** Kernel API interface */
-  protected kernel: any = null;
+  protected kernel: KernelApi | null = null;
 
   /** Whether plugin is initialized */
   protected initialized: boolean = false;

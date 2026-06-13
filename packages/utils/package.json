@@ -13,8 +13,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "echo \"No tests configured\"",
-    "lint": "echo \"No linter configured\"",
+    "test": "cd ../.. && pnpm exec vitest run",
+    "lint": "cd ../.. && pnpm exec eslint .",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },

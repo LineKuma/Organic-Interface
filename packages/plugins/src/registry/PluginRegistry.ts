@@ -358,7 +358,7 @@ export class PluginRegistry {
    * @param event - Event name
    * @param data - Event data
    */
-  private emit(event: string, data: Record<string, any>): void {
+  private emit(event: string, data: Record<string, unknown>): void {
     const listeners = this.listeners.get(event);
     if (listeners) {
       const registryEvent: RegistryEvent = {
@@ -430,5 +430,5 @@ export interface RegistryEvent {
   /** Event timestamp */
   timestamp: number;
   /** Event data */
-  data: Record<string, any>;
+  data: Record<string, unknown>;
 }

@@ -14,7 +14,7 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "test": "cd ../.. && pnpm exec vitest run --config ./vitest.config.ts",
-    "lint": "echo \"No linter configured\"",
+    "lint": "cd ../.. && pnpm exec eslint .",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"
   },

@@ -5,8 +5,8 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Enable corepack and install specific pnpm version
-RUN corepack enable && corepack prepare pnpm@9.1.0 --activate
+# Install specific pnpm version
+RUN npm install -g pnpm@10.28.1
 
 # Copy workspace configuration files
 COPY pnpm-workspace.yaml pnpm-lock.yaml turbo.json package.json tsconfig.base.json ./
@@ -29,7 +29,7 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-RUN npm install -g pnpm@9.1.0
+RUN npm install -g pnpm@10.28.1
 
 # Copy node_modules from builder (pnpm workspace dependencies)
 COPY --from=builder /app/node_modules ./node_modules

@@ -472,7 +472,7 @@ export class SessionAdapter {
     return {
       id: session.id,
       title: session.title,
-      status: { toString: () => session.status } as any,
+      status: { toString: (): string => session.status },
       tags: session.tags,
       metadata: session.metadata,
       contextWindow: session.contextWindow,

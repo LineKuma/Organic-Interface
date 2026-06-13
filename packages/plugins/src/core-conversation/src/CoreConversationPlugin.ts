@@ -34,6 +34,7 @@ import type {
   ConversationResult,
   ResponseMessage,
   FormattedOutput,
+  ContextUpdates,
 } from './types/index.js';
 import {
   ResponseType,
@@ -410,7 +411,7 @@ export class CoreConversationPlugin implements PluginInterface {
     await this.contextManager!.addMessage(sessionId, {
       id: responseMessage.id,
       content: responseMessage.content.text,
-      sender: 'assistant' as any,
+      sender: MessageSender.ASSISTANT,
       timestamp: responseMessage.timestamp,
       sessionId,
     });
@@ -578,7 +579,7 @@ export class CoreConversationPlugin implements PluginInterface {
       throw new ConversationError('Session ID is required', ConversationErrorCode.INVALID_INPUT);
     }
 
-    await this.contextManager!.updateContext(sessionId, updates as any);
+    await this.contextManager!.updateContext(sessionId, updates as ContextUpdates);
     const contextWindow = await this.contextManager!.getContextWindow(sessionId);
 
     return {

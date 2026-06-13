@@ -10,6 +10,7 @@ import type {
   PluginMetadata,
   PluginConfig,
   PluginStatus,
+  PluginContext,
 } from '../interfaces/PluginInterface.js';
 import { PluginLifecycleState } from '../interfaces/PluginInterface.js';
 import type {
@@ -20,6 +21,14 @@ import type {
   CompatibilityResult,
   CompatibilityIssue,
 } from '../interfaces/PluginLoaderInterface.js';
+import type {
+  KernelApi,
+  KernelConfig,
+  ToolResult,
+  TextServiceInterface,
+  InfoServiceInterface,
+  ToolMetadata,
+} from '@organic/utils';
 
 /**
  * Default plugin loader options
@@ -133,12 +142,16 @@ export class PluginLoader implements PluginLoaderInterface {
 
       // Initialize plugin if not already initialized
       if (plugin.initialize) {
-        const context = {
+        const context: PluginContext = {
           kernel: this.createKernelApi(pluginId),
-          config: config as any,
+          config: {
+            name: pluginId,
+            enabled: config?.enabled ?? true,
+            options: config?.config,
+          },
         };
 
-        const initResult = await plugin.initialize(context as any);
+        const initResult = await plugin.initialize(context);
         if (!initResult.success) {
           return {
             success: false,
@@ -399,17 +412,19 @@ export class PluginLoader implements PluginLoaderInterface {
   /**
    * Parse metadata from package.json
    */
-  private parsePackageMetadata(pkg: any): PluginMetadata {
+  private parsePackageMetadata(pkg: Record<string, unknown>): PluginMetadata {
+    const organic = pkg.organic as Record<string, unknown> | undefined;
+    const deps = (organic?.dependencies ?? {}) as Record<string, string>;
     return {
-      id: pkg.name,
-      name: pkg.name,
-      version: pkg.version || '0.0.0',
-      description: pkg.description,
-      apiVersion: pkg.organic?.api_version || '1.0.0',
-      author: pkg.author,
-      dependencies: Object.entries(pkg.organic?.dependencies || {}).map(([name, version]) => ({
+      id: pkg.name as string,
+      name: pkg.name as string,
+      version: (pkg.version as string) || '0.0.0',
+      description: pkg.description as string | undefined,
+      apiVersion: (organic?.api_version as string) || '1.0.0',
+      author: pkg.author as string | undefined,
+      dependencies: Object.entries(deps).map(([name, version]) => ({
         pluginName: name,
-        versionRange: version as string,
+        versionRange: version,
       })),
     };
   }
@@ -432,15 +447,56 @@ export class PluginLoader implements PluginLoaderInterface {
   /**
    * Create a minimal kernel API for plugin initialization
    */
-  private createKernelApi(_pluginId: string): any {
+  private createKernelApi(_pluginId: string): KernelApi {
+    const emptyMetadata: ToolMetadata = {
+      tool_name: '',
+      start_time: 0,
+      end_time: 0,
+      execution_time: 0,
+      request_id: '',
+    };
+
     return {
-      getConfig: () => ({}),
+      getConfig: () => ({}) as KernelConfig,
       getVersion: () => '0.1.0',
+      text: {
+        print: () => {},
+        println: () => {},
+        formatTable: () => '',
+        formatList: () => '',
+        formatSection: () => '',
+        styled: (text: string) => text,
+        success: (text: string) => text,
+        error: (text: string) => text,
+        warning: (text: string) => text,
+        info: (text: string) => text,
+        createStream: () => ({}),
+        progress: () => '',
+        spinner: () => ({}),
+      } as TextServiceInterface,
+      info: {
+        getConfig: () => undefined,
+        getAllConfigs: () => ({}),
+        getRuntimeInfo: () => ({}),
+        getProjectContext: () => ({}),
+        getProjectRoot: () => '',
+        getProjectName: () => '',
+        getProjectVersion: () => '',
+        getSystemInfo: () => ({}),
+        getPlatformInfo: () => ({}),
+        getEnv: () => undefined,
+        getAllEnvs: () => ({}),
+      } as InfoServiceInterface,
       registerPlugin: async () => {},
       unregisterPlugin: async () => {},
       getPlugin: (name: string) => this.cache.get(name)?.plugin,
       listPlugins: () => Array.from(this.cache.values()).map(e => e.plugin),
-      executeTool: async () => ({ success: false, error: 'Not implemented' }),
-    };
+      executeTool: async () =>
+        ({
+          success: false,
+          error: { code: 'execution_error' as const, message: 'Not implemented' },
+          metadata: emptyMetadata,
+        }) as ToolResult,
+    } as KernelApi;
   }
 }
