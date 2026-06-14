@@ -32,3 +32,4 @@ core.*
 
 # Heap dumps
 *.heap
+worktrees/
