@@ -69,9 +69,9 @@ e2e/                    - 端到端测试
 
 ## 已知问题与注意事项
 
-- 测试文件中存在 179 个 `no-explicit-any` warnings（仅测试文件，源码已清理），属于测试代码中的合理实践
-- `PluginRegistry.ts` 测试覆盖率为 0%（测试使用 mock 的 PluginLoaderInterface），建议后续补充直接测试
-- `PluginLoader.ts` 中 `createKernelApi()` 返回的 stub 方法为占位符实现，需确保与真实 Kernel 行为一致
+- 测试文件中存在 198 个 `no-explicit-any` warnings（仅测试文件，源码已清理），属于测试代码中的合理实践
+- `PluginRegistry.ts` 测试覆盖率已从 0% 提升至 99.02%（P-OI-006 已关闭）
+- `PluginLoader.ts` 中 `createKernelApi()` 的 executeTool 已从 stub 替换为真实实现，行为与 Kernel.executeTool 一致（P-OI-007 已关闭）
 - @typescript-eslint 不完全支持当前 TypeScript 5.9.3 版本（支持范围 4.7.4-5.6.0），运行时会有警告提示但不影响功能
 - 详见 `PROBLEM_INVENTORY.md`
 
