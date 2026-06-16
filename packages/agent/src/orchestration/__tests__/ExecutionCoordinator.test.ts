@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { ExecutionCoordinator, type ExecutionRequest, type ExecutionResult } from '../ExecutionCoordinator.js';
+import { ExecutionCoordinator, type ExecutionRequest } from '../ExecutionCoordinator.js';
 import { AgentRegistry } from '../../registry/AgentRegistry.js';
 import { AgentType, createAgentMetadata } from '../../registry/AgentMetadata.js';
 

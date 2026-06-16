@@ -450,13 +450,11 @@ describe('RemotePluginLoader', () => {
       mockState.status = 301;
       mockState.headers = { location: 'https://redirected.example.com/plugin.js' };
       // 第一次调用返回 301，第二次调用返回 200
-      let callCount = 0;
       mockHttpsGet.mockImplementationOnce((_url: string, _opts: unknown, callback: Function) => {
-        callCount++;
         const response = {
           statusCode: 301,
           headers: { location: 'https://redirected.example.com/plugin.js' },
-          on: vi.fn((event: string, cb: Function) => {
+          on: vi.fn((_event: string, _cb: Function) => {
             // 重定向响应不发送 data/end
             return response;
           }),
