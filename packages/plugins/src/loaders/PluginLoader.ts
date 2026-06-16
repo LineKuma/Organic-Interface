@@ -27,8 +27,8 @@ import type {
   ToolResult,
   TextServiceInterface,
   InfoServiceInterface,
-  ToolMetadata,
 } from '@organic/utils';
+import { ToolErrorCode } from '@organic/utils';
 
 /**
  * Default plugin loader options
@@ -448,14 +448,6 @@ export class PluginLoader implements PluginLoaderInterface {
    * Create a minimal kernel API for plugin initialization
    */
   private createKernelApi(_pluginId: string): KernelApi {
-    const emptyMetadata: ToolMetadata = {
-      tool_name: '',
-      start_time: 0,
-      end_time: 0,
-      execution_time: 0,
-      request_id: '',
-    };
-
     return {
       getConfig: () => ({}) as KernelConfig,
       getVersion: () => '0.1.0',
@@ -491,12 +483,68 @@ export class PluginLoader implements PluginLoaderInterface {
       unregisterPlugin: async () => {},
       getPlugin: (name: string) => this.cache.get(name)?.plugin,
       listPlugins: () => Array.from(this.cache.values()).map(e => e.plugin),
-      executeTool: async () =>
-        ({
-          success: false,
-          error: { code: 'execution_error' as const, message: 'Not implemented' },
-          metadata: emptyMetadata,
-        }) as ToolResult,
+      executeTool: async (name: string, params: Record<string, unknown>): Promise<ToolResult> => {
+        const startTime = Date.now();
+        const requestId = `req_${startTime}_${Math.random().toString(36).slice(2, 8)}`;
+
+        try {
+          // 遍历已加载的插件查找工具（与 Kernel.executeTool 行为一致）
+          for (const entry of this.cache.values()) {
+            const result = await entry.plugin.execute({
+              action: 'executeTool',
+              params: { name, params, requestId },
+            });
+
+            if (result.success && result.data) {
+              const endTime = Date.now();
+              return {
+                success: true,
+                data: result.data,
+                metadata: {
+                  tool_name: name,
+                  start_time: startTime,
+                  end_time: endTime,
+                  execution_time: endTime - startTime,
+                  request_id: requestId,
+                },
+              };
+            }
+          }
+
+          // 工具未找到
+          const endTime = Date.now();
+          return {
+            success: false,
+            error: {
+              code: ToolErrorCode.TOOL_NOT_FOUND,
+              message: `Tool ${name} not found`,
+            },
+            metadata: {
+              tool_name: name,
+              start_time: startTime,
+              end_time: endTime,
+              execution_time: endTime - startTime,
+              request_id: requestId,
+            },
+          };
+        } catch (error) {
+          const endTime = Date.now();
+          return {
+            success: false,
+            error: {
+              code: ToolErrorCode.EXECUTION_ERROR,
+              message: error instanceof Error ? error.message : String(error),
+            },
+            metadata: {
+              tool_name: name,
+              start_time: startTime,
+              end_time: endTime,
+              execution_time: endTime - startTime,
+              request_id: requestId,
+            },
+          };
+        }
+      },
     } as KernelApi;
   }
 }

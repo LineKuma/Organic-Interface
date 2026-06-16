@@ -850,6 +850,189 @@ describe('PluginLoader', () => {
       expect(plugins).toContain(plugin1);
       expect(plugins).toContain(plugin2);
     });
+
+    it('should execute tool successfully when plugin handles the tool', async () => {
+      const testLoader = new PluginLoader({ baseDir: '/tmp/test-execute-tool-success' });
+      const mockPlugin = createMockPlugin('tool-provider');
+      // 覆盖 execute 方法，模拟工具执行成功
+      (mockPlugin.execute as ReturnType<typeof vi.fn>).mockResolvedValue({
+        success: true,
+        data: { result: 'tool executed successfully' },
+      });
+
+      const cache = (testLoader as any).cache as Map<string, any>;
+      cache.set('tool-provider', {
+        plugin: mockPlugin,
+        metadata: mockPlugin.getMetadata(),
+        loadedAt: Date.now(),
+        config: undefined,
+      });
+
+      const kernelApi = (testLoader as any).createKernelApi.call(testLoader, 'caller');
+      const result = await kernelApi.executeTool('test-tool', { arg1: 'value1' });
+
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual({ result: 'tool executed successfully' });
+      expect(result.metadata.tool_name).toBe('test-tool');
+      expect(result.metadata.request_id).toBeDefined();
+      expect(result.metadata.start_time).toBeLessThanOrEqual(result.metadata.end_time);
+      expect(result.metadata.execution_time).toBeGreaterThanOrEqual(0);
+    });
+
+    it('should return TOOL_NOT_FOUND when no plugin handles the tool', async () => {
+      const testLoader = new PluginLoader({ baseDir: '/tmp/test-execute-tool-not-found' });
+      const mockPlugin = createMockPlugin('no-tool-plugin');
+      // 插件不处理该工具，返回失败
+      (mockPlugin.execute as ReturnType<typeof vi.fn>).mockResolvedValue({
+        success: false,
+        error: 'Tool not supported',
+      });
+
+      const cache = (testLoader as any).cache as Map<string, any>;
+      cache.set('no-tool-plugin', {
+        plugin: mockPlugin,
+        metadata: mockPlugin.getMetadata(),
+        loadedAt: Date.now(),
+        config: undefined,
+      });
+
+      const kernelApi = (testLoader as any).createKernelApi.call(testLoader, 'caller');
+      const result = await kernelApi.executeTool('non-existent-tool', {});
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error.code).toBe('tool_not_found');
+      expect(result.error.message).toContain('non-existent-tool');
+      expect(result.metadata.tool_name).toBe('non-existent-tool');
+    });
+
+    it('should return TOOL_NOT_FOUND when cache is empty', async () => {
+      const testLoader = new PluginLoader({ baseDir: '/tmp/test-execute-empty-cache' });
+
+      const kernelApi = (testLoader as any).createKernelApi.call(testLoader, 'caller');
+      const result = await kernelApi.executeTool('any-tool', {});
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error.code).toBe('tool_not_found');
+    });
+
+    it('should return EXECUTION_ERROR when plugin throws exception', async () => {
+      const testLoader = new PluginLoader({ baseDir: '/tmp/test-execute-tool-error' });
+      const mockPlugin = createMockPlugin('error-plugin');
+      // 插件 execute 方法抛出异常
+      (mockPlugin.execute as ReturnType<typeof vi.fn>).mockRejectedValue(
+        new Error('Plugin execution failed')
+      );
+
+      const cache = (testLoader as any).cache as Map<string, any>;
+      cache.set('error-plugin', {
+        plugin: mockPlugin,
+        metadata: mockPlugin.getMetadata(),
+        loadedAt: Date.now(),
+        config: undefined,
+      });
+
+      const kernelApi = (testLoader as any).createKernelApi.call(testLoader, 'caller');
+      const result = await kernelApi.executeTool('error-tool', {});
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+      expect(result.error.code).toBe('execution_error');
+      expect(result.error.message).toBe('Plugin execution failed');
+      expect(result.metadata.tool_name).toBe('error-tool');
+    });
+
+    it('should pass correct name and params to plugin execute', async () => {
+      const testLoader = new PluginLoader({ baseDir: '/tmp/test-execute-params' });
+      const mockPlugin = createMockPlugin('params-plugin');
+      const executeSpy = mockPlugin.execute as ReturnType<typeof vi.fn>;
+      executeSpy.mockResolvedValue({
+        success: true,
+        data: { ok: true },
+      });
+
+      const cache = (testLoader as any).cache as Map<string, any>;
+      cache.set('params-plugin', {
+        plugin: mockPlugin,
+        metadata: mockPlugin.getMetadata(),
+        loadedAt: Date.now(),
+        config: undefined,
+      });
+
+      const kernelApi = (testLoader as any).createKernelApi.call(testLoader, 'caller');
+      await kernelApi.executeTool('my-tool', { key: 'value', num: 42 });
+
+      expect(executeSpy).toHaveBeenCalledTimes(1);
+      const callArg = executeSpy.mock.calls[0][0];
+      expect(callArg.action).toBe('executeTool');
+      expect(callArg.params.name).toBe('my-tool');
+      expect(callArg.params.params).toEqual({ key: 'value', num: 42 });
+      expect(callArg.params.requestId).toBeDefined();
+    });
+
+    it('should try multiple plugins until one handles the tool', async () => {
+      const testLoader = new PluginLoader({ baseDir: '/tmp/test-execute-multi' });
+      const plugin1 = createMockPlugin('plugin-1');
+      const plugin2 = createMockPlugin('plugin-2');
+
+      // 第一个插件不处理工具
+      (plugin1.execute as ReturnType<typeof vi.fn>).mockResolvedValue({
+        success: false,
+        error: 'Not supported',
+      });
+      // 第二个插件处理工具
+      (plugin2.execute as ReturnType<typeof vi.fn>).mockResolvedValue({
+        success: true,
+        data: { handled: true },
+      });
+
+      const cache = (testLoader as any).cache as Map<string, any>;
+      cache.set('plugin-1', {
+        plugin: plugin1,
+        metadata: plugin1.getMetadata(),
+        loadedAt: Date.now(),
+        config: undefined,
+      });
+      cache.set('plugin-2', {
+        plugin: plugin2,
+        metadata: plugin2.getMetadata(),
+        loadedAt: Date.now(),
+        config: undefined,
+      });
+
+      const kernelApi = (testLoader as any).createKernelApi.call(testLoader, 'caller');
+      const result = await kernelApi.executeTool('target-tool', {});
+
+      expect(result.success).toBe(true);
+      expect(result.data).toEqual({ handled: true });
+      expect(plugin1.execute).toHaveBeenCalledTimes(1);
+      expect(plugin2.execute).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not return success when plugin returns success but no data', async () => {
+      const testLoader = new PluginLoader({ baseDir: '/tmp/test-execute-no-data' });
+      const mockPlugin = createMockPlugin('no-data-plugin');
+      // 插件返回 success 但没有 data
+      (mockPlugin.execute as ReturnType<typeof vi.fn>).mockResolvedValue({
+        success: true,
+      });
+
+      const cache = (testLoader as any).cache as Map<string, any>;
+      cache.set('no-data-plugin', {
+        plugin: mockPlugin,
+        metadata: mockPlugin.getMetadata(),
+        loadedAt: Date.now(),
+        config: undefined,
+      });
+
+      const kernelApi = (testLoader as any).createKernelApi.call(testLoader, 'caller');
+      const result = await kernelApi.executeTool('no-data-tool', {});
+
+      // success 但无 data 时应继续查找其他插件，最终返回 TOOL_NOT_FOUND
+      expect(result.success).toBe(false);
+      expect(result.error.code).toBe('tool_not_found');
+    });
   });
 
   describe('extractMetadata - 元数据提取', () => {

@@ -607,4 +607,116 @@ describe('PluginRegistry', () => {
       expect(results.some(p => p.pluginId === 'v1')).toBe(false);
     });
   });
+
+  describe('边界测试', () => {
+    it('should return empty array for search with no matches', () => {
+      registry.register('plugin-1', createMockMetadata({ name: 'Alpha' }), '/path/1');
+
+      const results = registry.search({ name: 'NonExistent' });
+
+      expect(results).toHaveLength(0);
+    });
+
+    it('should return empty array for findDependents with no dependents', () => {
+      registry.register('standalone', createMockMetadata({ name: 'Standalone' }), '/path');
+
+      const dependents = registry.findDependents('standalone');
+
+      expect(dependents).toHaveLength(0);
+    });
+
+    it('should return zero stats for empty registry', () => {
+      const stats = registry.getStats();
+
+      expect(stats.totalPlugins).toBe(0);
+      expect(stats.enabledPlugins).toBe(0);
+      expect(stats.disabledPlugins).toBe(0);
+      expect(stats.loadedPlugins).toBe(0);
+    });
+
+    it('should return empty arrays for empty registry queries', () => {
+      expect(registry.listAll()).toEqual([]);
+      expect(registry.listIds()).toEqual([]);
+      expect(registry.listEnabled()).toEqual([]);
+      expect(registry.listDisabled()).toEqual([]);
+    });
+
+    it('should handle unregister on empty registry without throwing', () => {
+      expect(() => registry.unregister('non-existent')).not.toThrow();
+      expect(registry.listAll()).toHaveLength(0);
+    });
+
+    it('should handle enable/disable on non-existent plugin without throwing', () => {
+      expect(() => registry.enable('non-existent')).not.toThrow();
+      expect(() => registry.disable('non-existent')).not.toThrow();
+    });
+
+    it('should handle updateStatus on non-existent plugin without throwing', () => {
+      expect(() =>
+        registry.updateStatus('non-existent', PluginLifecycleState.ACTIVE)
+      ).not.toThrow();
+    });
+
+    it('should handle load on non-existent plugin returning error', async () => {
+      const result = await registry.load('non-existent');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('not registered');
+    });
+
+    it('should handle unload on non-existent plugin without throwing', async () => {
+      await expect(registry.unload('non-existent')).resolves.not.toThrow();
+    });
+
+    it('should return all plugins when search has no filters', () => {
+      registry.register('plugin-1', createMockMetadata({ name: 'Alpha' }), '/path/1');
+      registry.register('plugin-2', createMockMetadata({ name: 'Beta' }), '/path/2');
+
+      const results = registry.search({});
+
+      expect(results).toHaveLength(2);
+    });
+
+    it('should count loaded plugins across multiple lifecycle states', () => {
+      registry.register('active', createMockMetadata(), '/path/1');
+      registry.register('running', createMockMetadata(), '/path/2');
+      registry.register('discovered', createMockMetadata(), '/path/3');
+
+      registry.updateStatus('active', PluginLifecycleState.ACTIVE);
+      registry.updateStatus('running', PluginLifecycleState.RUNNING);
+      registry.updateStatus('discovered', PluginLifecycleState.DISCOVERED);
+
+      const stats = registry.getStats();
+
+      expect(stats.totalPlugins).toBe(3);
+      expect(stats.loadedPlugins).toBe(2); // ACTIVE + RUNNING
+    });
+
+    it('should support multiple event listeners on same event', () => {
+      const handler1 = vi.fn();
+      const handler2 = vi.fn();
+
+      registry.on('plugin:registered', handler1);
+      registry.on('plugin:registered', handler2);
+
+      registry.register('plugin-1', createMockMetadata(), '/path/1');
+
+      expect(handler1).toHaveBeenCalledTimes(1);
+      expect(handler2).toHaveBeenCalledTimes(1);
+    });
+
+    it('should handle clear on empty registry without throwing', () => {
+      expect(() => registry.clear()).not.toThrow();
+      expect(registry.listAll()).toHaveLength(0);
+    });
+
+    it('should handle re-registering same pluginId overwriting previous entry', () => {
+      registry.register('plugin-1', createMockMetadata({ name: 'Original' }), '/path/1');
+      registry.register('plugin-1', createMockMetadata({ name: 'Updated' }), '/path/2');
+
+      const info = registry.getPluginInfo('plugin-1');
+      expect(info?.metadata.name).toBe('Updated');
+      expect(registry.listAll()).toHaveLength(1);
+    });
+  });
 });

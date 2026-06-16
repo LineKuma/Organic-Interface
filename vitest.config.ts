@@ -10,6 +10,7 @@ export default defineConfig({
       'packages/plugins/src/base/__tests__/*.test.ts',
       'packages/plugins/src/interfaces/__tests__/*.test.ts',
       'packages/plugins/src/loaders/__tests__/*.test.ts',
+      'packages/plugins/src/registry/__tests__/*.test.ts',
       'packages/utils/src/__tests__/*.test.ts',
       'packages/utils/src/errors/__tests__/*.test.ts',
       'packages/plugins/src/core-conversation/src/__tests__/*.test.ts',
