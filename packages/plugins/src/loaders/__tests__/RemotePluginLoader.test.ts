@@ -402,7 +402,12 @@ describe('RemotePluginLoader', () => {
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'downloaded' },
-        metadata: { id: 'http-success-plugin', name: 'downloaded', version: '1.0.0', apiVersion: '1.0.0' },
+        metadata: {
+          id: 'http-success-plugin',
+          name: 'downloaded',
+          version: '1.0.0',
+          apiVersion: '1.0.0',
+        },
       });
 
       const result = await loader.load('http-success-plugin');
@@ -477,7 +482,12 @@ describe('RemotePluginLoader', () => {
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'redirected' },
-        metadata: { id: 'redirect-plugin', name: 'redirected', version: '1.0.0', apiVersion: '1.0.0' },
+        metadata: {
+          id: 'redirect-plugin',
+          name: 'redirected',
+          version: '1.0.0',
+          apiVersion: '1.0.0',
+        },
       });
 
       const result = await loader.load('redirect-plugin');
@@ -636,7 +646,12 @@ describe('RemotePluginLoader', () => {
       const loadSpy = vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'cached' },
-        metadata: { id: 'cached-remote-plugin', name: 'cached', version: '1.0.0', apiVersion: '1.0.0' },
+        metadata: {
+          id: 'cached-remote-plugin',
+          name: 'cached',
+          version: '1.0.0',
+          apiVersion: '1.0.0',
+        },
       });
 
       const result = await loader.load('cached-remote-plugin');
@@ -719,7 +734,12 @@ describe('RemotePluginLoader', () => {
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'updated' },
-        metadata: { id: 'cache-update-plugin', name: 'updated', version: '1.0.0', apiVersion: '1.0.0' },
+        metadata: {
+          id: 'cache-update-plugin',
+          name: 'updated',
+          version: '1.0.0',
+          apiVersion: '1.0.0',
+        },
       });
 
       const installCache = (loader as any).installCache as Map<string, string>;
@@ -751,7 +771,12 @@ describe('RemotePluginLoader', () => {
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'reloaded' },
-        metadata: { id: 'reload-http-plugin', name: 'reloaded', version: '1.0.0', apiVersion: '1.0.0' },
+        metadata: {
+          id: 'reload-http-plugin',
+          name: 'reloaded',
+          version: '1.0.0',
+          apiVersion: '1.0.0',
+        },
       });
 
       const result = await loader.reload('reload-http-plugin');

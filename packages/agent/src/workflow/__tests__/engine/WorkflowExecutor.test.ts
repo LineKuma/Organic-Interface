@@ -167,7 +167,11 @@ describe('WorkflowExecutor', () => {
   describe('executeTask - duplicate execution', () => {
     it('should throw error when task is already executing', async () => {
       // 可追溯性: 覆盖 WorkflowExecutor.ts L118-120 activeExecutions.has 分支
-      let resolveFirst: (value: { success: boolean; output: unknown; duration: number }) => void = () => {};
+      let resolveFirst: (value: {
+        success: boolean;
+        output: unknown;
+        duration: number;
+      }) => void = () => {};
       const mockFn = vi.fn(
         () =>
           new Promise<{ success: boolean; output: unknown; duration: number }>(resolve => {
@@ -232,9 +236,14 @@ describe('WorkflowExecutor', () => {
       );
       executor = new WorkflowExecutor(mockFn, { defaultTimeout: 60000 });
 
-      const task = createTask('TimeoutTask', TaskType.TASK, { handler: 'test' }, {
-        timeout: { duration: 500, action: 'fail' },
-      });
+      const task = createTask(
+        'TimeoutTask',
+        TaskType.TASK,
+        { handler: 'test' },
+        {
+          timeout: { duration: 500, action: 'fail' },
+        }
+      );
       const execution = createTaskExecution(task.id, 'exec-1');
 
       const promise = executor.executeTask(task, execution, {}, {});
@@ -352,9 +361,14 @@ describe('WorkflowExecutor', () => {
       const mockFn = vi.fn(async () => ({ success: true, output: {}, duration: 100 }));
       executor = new WorkflowExecutor(mockFn, { autoRetry: true });
 
-      const task = createTask('RetryTask', TaskType.TASK, { handler: 'test' }, {
-        retryPolicy: { maxRetries: 3, retryInterval: 100 },
-      });
+      const task = createTask(
+        'RetryTask',
+        TaskType.TASK,
+        { handler: 'test' },
+        {
+          retryPolicy: { maxRetries: 3, retryInterval: 100 },
+        }
+      );
       // 创建非最终状态的执行记录
       const execution = createTaskExecution(task.id, 'exec-1');
       execution.status = TaskStatus.RUNNING;
@@ -368,9 +382,14 @@ describe('WorkflowExecutor', () => {
       const mockFn = vi.fn(async () => ({ success: true, output: {}, duration: 100 }));
       executor = new WorkflowExecutor(mockFn, { autoRetry: true });
 
-      const task = createTask('RetryTask', TaskType.TASK, { handler: 'test' }, {
-        retryPolicy: { maxRetries: 2, retryInterval: 100 },
-      });
+      const task = createTask(
+        'RetryTask',
+        TaskType.TASK,
+        { handler: 'test' },
+        {
+          retryPolicy: { maxRetries: 2, retryInterval: 100 },
+        }
+      );
       const execution = createTaskExecution(task.id, 'exec-1');
       execution.status = TaskStatus.RUNNING;
       execution.retryCount = 2;
@@ -383,9 +402,14 @@ describe('WorkflowExecutor', () => {
       const mockFn = vi.fn(async () => ({ success: true, output: {}, duration: 100 }));
       executor = new WorkflowExecutor(mockFn, { autoRetry: true });
 
-      const task = createTask('RetryTask', TaskType.TASK, { handler: 'test' }, {
-        retryPolicy: { maxRetries: 3, retryInterval: 100 },
-      });
+      const task = createTask(
+        'RetryTask',
+        TaskType.TASK,
+        { handler: 'test' },
+        {
+          retryPolicy: { maxRetries: 3, retryInterval: 100 },
+        }
+      );
       const execution = createTaskExecution(task.id, 'exec-1');
       execution.status = TaskStatus.FAILED;
       execution.retryCount = 0;
@@ -411,9 +435,14 @@ describe('WorkflowExecutor', () => {
       }));
       executor = new WorkflowExecutor(mockFn, { autoRetry: true });
 
-      const task = createTask('RetryTask', TaskType.TASK, { handler: 'test' }, {
-        retryPolicy: { maxRetries: 3, retryInterval: 500 },
-      });
+      const task = createTask(
+        'RetryTask',
+        TaskType.TASK,
+        { handler: 'test' },
+        {
+          retryPolicy: { maxRetries: 3, retryInterval: 500 },
+        }
+      );
       const execution = createTaskExecution(task.id, 'exec-1');
       execution.status = TaskStatus.FAILED;
       execution.retryCount = 0;
@@ -435,9 +464,14 @@ describe('WorkflowExecutor', () => {
       });
       executor = new WorkflowExecutor(mockFn, { autoRetry: true });
 
-      const task = createTask('RetryTask', TaskType.TASK, { handler: 'test' }, {
-        retryPolicy: { maxRetries: 3, retryInterval: 100 },
-      });
+      const task = createTask(
+        'RetryTask',
+        TaskType.TASK,
+        { handler: 'test' },
+        {
+          retryPolicy: { maxRetries: 3, retryInterval: 100 },
+        }
+      );
       const execution = createTaskExecution(task.id, 'exec-1');
       execution.status = TaskStatus.RUNNING;
       execution.retryCount = 0;
@@ -515,7 +549,11 @@ describe('WorkflowExecutor', () => {
   describe('getActiveExecution - with active task', () => {
     it('should return execution for running task', async () => {
       // 可追溯性: 覆盖 WorkflowExecutor.ts L409-411 getActiveExecution 返回实际执行
-      let resolveFirst: (value: { success: boolean; output: unknown; duration: number }) => void = () => {};
+      let resolveFirst: (value: {
+        success: boolean;
+        output: unknown;
+        duration: number;
+      }) => void = () => {};
       const mockFn = vi.fn(
         () =>
           new Promise<{ success: boolean; output: unknown; duration: number }>(resolve => {
