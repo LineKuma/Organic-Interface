@@ -296,6 +296,3 @@ describe('PluginInterface Types', () => {
     });
   });
 });
-
-// Import vi for mocking
-import { vi } from 'vitest';

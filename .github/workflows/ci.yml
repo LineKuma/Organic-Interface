@@ -9,11 +9,16 @@ on:
     branches:
       - agent-develop
 
+permissions:
+  contents: read
+
 jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: pnpm/action-setup@v2
         with:
           version: 10
@@ -21,7 +26,7 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --ignore-scripts
       - run: pnpm lint
 
   build:
@@ -29,6 +34,8 @@ jobs:
     needs: lint
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: pnpm/action-setup@v2
         with:
           version: 10
@@ -36,7 +43,8 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm rebuild
       - run: pnpm build
 
   test:
@@ -44,6 +52,8 @@ jobs:
     needs: build
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: pnpm/action-setup@v2
         with:
           version: 10
@@ -51,7 +61,8 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm rebuild
       - run: pnpm test
 
   coverage:
@@ -59,6 +70,8 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: pnpm/action-setup@v2
         with:
           version: 10
@@ -66,5 +79,6 @@ jobs:
         with:
           node-version: '20'
           cache: 'pnpm'
-      - run: pnpm install --frozen-lockfile
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm rebuild
       - run: pnpm test:coverage
