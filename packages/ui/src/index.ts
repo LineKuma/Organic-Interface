@@ -90,6 +90,23 @@ export {
 // CLI interface
 export { CLI } from './cli/CLI.js';
 
+// Terminal UI components (chalk + ora based)
+export { type Theme, type ThemeColors, defaultTheme, createTheme } from './terminal/Theme.js';
+
+export { Output, defaultOutput, createOutput, type OutputLevel } from './terminal/Output.js';
+
+export { Spinner, createSpinner, withSpinner, type SpinnerOptions } from './terminal/Spinner.js';
+
+export {
+  Banner,
+  defaultBanner,
+  createBanner,
+  type BannerConfig,
+  type BannerStyle,
+} from './terminal/Banner.js';
+
+export { Box, defaultBox, createBox, type BoxConfig, type BoxStyle } from './terminal/Box.js';
+
 /**
  * Module version
  */

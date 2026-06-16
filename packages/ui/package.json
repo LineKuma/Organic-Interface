@@ -19,13 +19,16 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@organic/utils": "workspace:*",
+    "@organic/agent": "workspace:*",
     "@organic/kernel": "workspace:*",
     "@organic/plugins": "workspace:*",
     "@organic/tools": "workspace:*",
-    "@organic/agent": "workspace:*"
+    "@organic/utils": "workspace:*",
+    "chalk": "^5.6.2",
+    "ora": "^9.4.0"
   },
   "devDependencies": {
+    "@types/ora": "^3.2.0",
     "typescript": "^5.4.0"
   }
 }

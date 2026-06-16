@@ -1,8 +1,12 @@
 /**
  * Interactive prompt component for user input
+ *
+ * Uses Node.js readline for real terminal interaction with chalk styling.
  */
 
+import * as readline from 'node:readline';
 import { createLogger, type Logger } from '@organic/utils';
+import chalk from 'chalk';
 
 /**
  * Prompt type
@@ -66,7 +70,198 @@ export class Prompt {
   }
 
   /**
-   * Render a text input prompt
+   * Ask a text question (async)
+   */
+  async ask(
+    message: string,
+    options: {
+      defaultValue?: string;
+      placeholder?: string;
+      required?: boolean;
+      validate?: (value: unknown) => string | null;
+    } = {}
+  ): Promise<string> {
+    const result = await this.askAsync(message, {
+      type: 'text',
+      defaultValue: options.defaultValue,
+      placeholder: options.placeholder,
+      required: options.required,
+      validate: options.validate,
+    });
+    return String(result.value ?? '');
+  }
+
+  /**
+   * Ask a password question (async, masked echo)
+   */
+  async askPassword(
+    message: string,
+    options: { required?: boolean; validate?: (value: unknown) => string | null } = {}
+  ): Promise<string> {
+    const result = await this.askAsync(message, {
+      type: 'password',
+      required: options.required,
+      validate: options.validate,
+    });
+    return String(result.value ?? '');
+  }
+
+  /**
+   * Ask a confirmation (async)
+   */
+  async askConfirm(message: string, defaultValue: boolean = false): Promise<boolean> {
+    const suffix = defaultValue ? ' [Y/n]' : ' [y/N]';
+    const result = await this.askAsync(message + suffix, {
+      type: 'confirm',
+      defaultValue,
+    });
+    return result.value === true;
+  }
+
+  /**
+   * Ask a single selection (async)
+   */
+  async askSelect(message: string, options: SelectOption[]): Promise<string> {
+    const result = await this.askAsync(message, {
+      type: 'select',
+      options,
+    });
+    return String(result.value ?? '');
+  }
+
+  /**
+   * Ask a multi selection (async)
+   */
+  async askMultiselect(message: string, options: SelectOption[]): Promise<string[]> {
+    const result = await this.askAsync(message, {
+      type: 'multiselect',
+      options,
+    });
+    return (result.value as string[]) ?? [];
+  }
+
+  /**
+   * Async prompt with readline
+   */
+  async askAsync(
+    message: string,
+    config: Omit<PromptConfig, 'message' | 'logger'>
+  ): Promise<PromptResult> {
+    const { type, defaultValue, options, placeholder, required, validate } = config;
+
+    // Display the prompt
+    this.displayPromptMessage(message, type, defaultValue, options, placeholder);
+
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: true,
+    });
+
+    try {
+      const input = await this.questionAsync(
+        rl,
+        type === 'password' ? chalk.dim('(input hidden) ') : ''
+      );
+      rl.close();
+
+      // Handle empty input
+      if (!input || input.trim() === '') {
+        if (required) {
+          return { answered: false, error: 'This field is required' };
+        }
+        return { answered: true, value: defaultValue };
+      }
+
+      // Validate
+      if (validate) {
+        const error = validate(input);
+        if (error) {
+          return { answered: false, error };
+        }
+      }
+
+      // Parse based on type
+      switch (type) {
+        case 'confirm':
+          return { answered: true, value: this.parseConfirm(input) };
+        case 'select':
+          return { answered: true, value: this.parseSelect(input, options ?? []) };
+        case 'multiselect':
+          return { answered: true, value: this.parseMultiselect(input, options ?? []) };
+        default:
+          return { answered: true, value: input };
+      }
+    } finally {
+      try {
+        rl.close();
+      } catch {
+        /* already closed */
+      }
+    }
+  }
+
+  /**
+   * Display the prompt message with styling
+   */
+  private displayPromptMessage(
+    message: string,
+    type: PromptType,
+    defaultValue?: unknown,
+    options?: SelectOption[],
+    placeholder?: string
+  ): void {
+    // Type indicator
+    const typeIndicator = chalk.dim(`[${type}]`);
+    const styledMessage = chalk.cyan.bold(message);
+
+    console.log(`${typeIndicator} ${styledMessage}`);
+
+    // Show default value
+    if (defaultValue !== undefined) {
+      const defaultStr =
+        type === 'multiselect' && Array.isArray(defaultValue)
+          ? defaultValue.join(', ')
+          : String(defaultValue);
+      console.log(chalk.dim(`  Default: ${defaultStr}`));
+    }
+
+    if (placeholder) {
+      console.log(chalk.dim(`  ${placeholder}`));
+    }
+
+    // Show options for select types
+    if ((type === 'select' || type === 'multiselect') && options) {
+      for (let i = 0; i < options.length; i++) {
+        const opt = options[i];
+        if (opt.disabled) {
+          console.log(chalk.dim(`    ${i + 1}. ${opt.label} (disabled)`));
+        } else {
+          console.log(`    ${chalk.green(`${i + 1}.`)} ${opt.label}`);
+        }
+      }
+      if (type === 'multiselect') {
+        console.log(chalk.dim('  Enter numbers separated by commas (e.g., 1,3,5)'));
+      }
+    }
+  }
+
+  /**
+   * Async question wrapper
+   */
+  private questionAsync(rl: readline.Interface, prompt: string): Promise<string> {
+    return new Promise(resolve => {
+      rl.question(chalk.cyan('? ') + prompt, answer => {
+        resolve(answer);
+      });
+    });
+  }
+
+  // ── Synchronous methods (legacy) ──────────────────────────────
+
+  /**
+   * Render a text input prompt (synchronous - returns empty string in non-TTY)
+   * @deprecated Use ask() for async interactive input
    */
   renderText(
     message: string,
@@ -84,12 +279,12 @@ export class Prompt {
       required: options.required,
       validate: options.validate,
     });
-
     return this.getInput(input);
   }
 
   /**
-   * Render a password prompt (masked input)
+   * Render a password prompt (synchronous)
+   * @deprecated Use askPassword() for async interactive input
    */
   renderPassword(
     message: string,
@@ -103,12 +298,12 @@ export class Prompt {
       required: options.required,
       validate: options.validate,
     });
-
     return this.getInput(input);
   }
 
   /**
-   * Render a confirmation prompt (yes/no)
+   * Render a confirmation prompt (synchronous)
+   * @deprecated Use askConfirm() for async interactive input
    */
   renderConfirm(
     message: string,
@@ -123,13 +318,13 @@ export class Prompt {
       defaultValue,
       validate: options?.validate,
     });
-
     const inputStr = typeof input === 'string' ? input : (input.value?.toString() ?? '');
     return this.parseConfirm(inputStr);
   }
 
   /**
-   * Render a single-select prompt
+   * Render a single-select prompt (synchronous)
+   * @deprecated Use askSelect() for async interactive input
    */
   renderSelect(
     message: string,
@@ -157,7 +352,8 @@ export class Prompt {
   }
 
   /**
-   * Render a multi-select prompt
+   * Render a multi-select prompt (synchronous)
+   * @deprecated Use askMultiselect() for async interactive input
    */
   renderMultiselect(
     message: string,
@@ -185,48 +381,15 @@ export class Prompt {
   }
 
   /**
-   * Render a prompt with configuration
+   * Render a prompt with configuration (synchronous)
    */
   render(message: string, config: Omit<PromptConfig, 'message' | 'logger'>): PromptResult {
     const { type, defaultValue, options, placeholder, required, validate } = config;
 
-    // Display the prompt message
-    this.logger.info(message);
+    this.displayPromptMessage(message, type, defaultValue, options, placeholder);
 
-    // Format default value for display
-    let displayDefault = '';
-    if (defaultValue !== undefined) {
-      if (type === 'confirm') {
-        displayDefault = defaultValue ? 'Y' : 'N';
-      } else if (type === 'multiselect' && Array.isArray(defaultValue)) {
-        displayDefault = defaultValue.join(', ');
-      } else {
-        displayDefault = String(defaultValue);
-      }
-    }
-
-    if (placeholder || displayDefault) {
-      const placeholderText = displayDefault || placeholder || '';
-      this.logger.info(`(Default: ${placeholderText})`);
-    }
-
-    // For select types, show numbered options
-    if (type === 'select' || type === 'multiselect') {
-      if (options) {
-        const formatted = options
-          .map((opt, i) => {
-            const marker = opt.disabled ? '   ' : `${i + 1}. `;
-            return `${marker}${opt.label}${opt.disabled ? ' (disabled)' : ''}`;
-          })
-          .join('\n');
-        this.logger.info(formatted);
-      }
-    }
-
-    // Get input
     const input = this.readLine();
 
-    // Handle empty input
     if (!input || input.trim() === '') {
       if (required) {
         return { answered: false, error: 'This field is required' };
@@ -234,7 +397,6 @@ export class Prompt {
       return { answered: true, value: defaultValue };
     }
 
-    // Validate if provided
     if (validate) {
       const error = validate(input);
       if (error) {
@@ -242,7 +404,6 @@ export class Prompt {
       }
     }
 
-    // Return based on type
     switch (type) {
       case 'confirm':
         return { answered: true, value: this.parseConfirm(input) };
@@ -288,20 +449,13 @@ export class Prompt {
     return parts.join(' ');
   }
 
-  /**
-   * Read a line from input (synchronous placeholder for demo)
-   */
+  // ── Private helpers ───────────────────────────────────────────
+
   private readLine(): string {
-    // In Node.js environment, use readline
-    // For synchronous operation in demo mode, return empty string
-    // In real interactive mode, this should use async prompts
-    this.logger.warn('Using placeholder for synchronous input - use async methods for real input');
+    this.logger.warn('Using synchronous input - use async methods for real interactive input');
     return '';
   }
 
-  /**
-   * Get input value (simplified)
-   */
   private getInput(result: PromptResult): string {
     if (!result.answered && result.error) {
       this.logger.error(result.error);
@@ -309,9 +463,6 @@ export class Prompt {
     return String(result.value ?? '');
   }
 
-  /**
-   * Parse confirmation input
-   */
   private parseConfirm(input: string): boolean {
     const normalized = input.toLowerCase().trim();
     if (normalized === 'yes' || normalized === 'y') {
@@ -320,12 +471,9 @@ export class Prompt {
     if (normalized === 'no' || normalized === 'n') {
       return false;
     }
-    return false; // Default to no
+    return false;
   }
 
-  /**
-   * Parse select input
-   */
   private parseSelect(input: string, options: SelectOption[]): string {
     const num = parseInt(input.trim(), 10);
 
@@ -336,7 +484,6 @@ export class Prompt {
       }
     }
 
-    // Try exact match
     const match = options.find(
       opt =>
         opt.label.toLowerCase() === input.toLowerCase() ||
@@ -347,13 +494,9 @@ export class Prompt {
       return match.value;
     }
 
-    // Return input as-is
     return input;
   }
 
-  /**
-   * Parse multiselect input
-   */
   private parseMultiselect(input: string, options: SelectOption[]): string[] {
     const parts = input
       .split(',')
@@ -372,7 +515,6 @@ export class Prompt {
         }
       }
 
-      // Try exact match
       const match = options.find(
         opt =>
           opt.label.toLowerCase() === part.toLowerCase() ||

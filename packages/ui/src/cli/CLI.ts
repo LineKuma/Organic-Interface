@@ -3,6 +3,8 @@
  */
 
 import { createLogger, type Logger } from '@organic/utils';
+import chalk from 'chalk';
+import * as readline from 'node:readline';
 import { type Command, type CommandResult, createCommand, addSubcommand } from './Command.js';
 import type { CommandParser } from './CommandParser.js';
 import { defaultParser } from './CommandParser.js';
@@ -394,6 +396,82 @@ export class CLI {
    */
   clearHistory(): void {
     this.operationHistory = [];
+  }
+
+  /**
+   * Start interactive REPL session
+   */
+  async startInteractive(): Promise<void> {
+    const rl = readline.createInterface({
+      input: process.stdin,
+      output: process.stdout,
+      terminal: true,
+      prompt: chalk.cyan(`${this.config.name}> `),
+      historySize: 1000,
+    });
+
+    // Display welcome banner
+    console.log('');
+    console.log(chalk.bold.cyan(`  ${this.config.name}`));
+    console.log(chalk.dim(`  ${this.config.description}`));
+    console.log(chalk.dim(`  Version ${this.config.version}`));
+    console.log(chalk.dim('  Type "help" for available commands, "exit" to quit'));
+    console.log('');
+
+    rl.prompt();
+
+    rl.on('line', async (line: string) => {
+      const trimmed = line.trim();
+
+      if (!trimmed) {
+        rl.prompt();
+        return;
+      }
+
+      // Handle exit
+      if (trimmed === 'exit' || trimmed === 'quit' || trimmed === 'q') {
+        console.log(chalk.dim('Goodbye!'));
+        rl.close();
+        return;
+      }
+
+      // Handle clear
+      if (trimmed === 'clear' || trimmed === 'cls') {
+        console.clear();
+        rl.prompt();
+        return;
+      }
+
+      // Run the command
+      const args = trimmed.split(/\s+/);
+      const result = await this.run(args);
+
+      if (result.error) {
+        console.log(chalk.red(`  ✖ ${result.error}`));
+      } else if (result.message) {
+        console.log(result.message);
+      }
+
+      console.log('');
+      rl.prompt();
+    });
+
+    rl.on('close', () => {
+      console.log('');
+      process.exit(0);
+    });
+
+    // Wait for the readline to close
+    return new Promise(resolve => {
+      rl.on('close', resolve);
+    });
+  }
+
+  /**
+   * Get the CLI configuration
+   */
+  getConfig(): Readonly<typeof this.config> {
+    return this.config;
   }
 }
 
