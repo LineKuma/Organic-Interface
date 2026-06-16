@@ -25,6 +25,19 @@ export {
 // Built-in tools
 export { FileTool, ShellTool, SearchTool, registerBuiltinTools } from './builtin/index.js';
 
+// Security
+export {
+  SecurityGuard,
+  createSecurityGuard,
+  ApprovalService,
+  createApprovalService,
+  SECURITY_PRESETS,
+  getPresetConfig,
+  presetAllowsOperation,
+  getPresetNames,
+  getPresetByPermissionLevel,
+} from './security/index.js';
+
 /**
  * Module version
  */

@@ -16,7 +16,9 @@ import {
   type ToolServiceConfig,
   type ToolValidationError,
   type ToolExecutionOptions,
+  type ToolPermissionType,
 } from '../types/index.js';
+import type { SecurityGuard } from '../security/SecurityGuard.js';
 
 /**
  * Default tool service configuration
@@ -65,6 +67,9 @@ export class ToolService extends EventEmitter {
 
   /** Execution counter */
   private executionCounter: number = 0;
+
+  /** Security guard for preset-based authorization */
+  private securityGuard: SecurityGuard | null = null;
 
   /**
    * Create a new ToolService instance
@@ -190,6 +195,56 @@ export class ToolService extends EventEmitter {
     return true;
   }
 
+  // ==================== Security ====================
+
+  /**
+   * Set the security guard for preset-based authorization
+   */
+  setSecurityGuard(guard: SecurityGuard): this {
+    this.securityGuard = guard;
+    this.logger.info(`Security guard set with preset: ${guard.getPreset()}`);
+    return this;
+  }
+
+  /**
+   * Get the security guard instance
+   */
+  getSecurityGuard(): SecurityGuard | null {
+    return this.securityGuard;
+  }
+
+  /**
+   * Map a tool and its input to the required permission type for authorization.
+   * Derives the operation type from the tool category and the specific operation being performed.
+   */
+  private mapCategoryToPermission(toolId: string, input: unknown): ToolPermissionType {
+    const entry = this.tools.get(toolId);
+    const category = entry?.definition.category ?? 'unknown';
+
+    // For file tools, check the specific operation to distinguish read/write
+    if (category === 'file' && input && typeof input === 'object') {
+      const op = (input as Record<string, unknown>).operation;
+      if (op === 'read' || op === 'exists' || op === 'stat' || op === 'list') {
+        return 'read';
+      }
+      if (op === 'write' || op === 'copy' || op === 'move' || op === 'delete' || op === 'mkdir') {
+        return 'write';
+      }
+      return 'filesystem';
+    }
+
+    switch (category) {
+      case 'shell':
+        return 'execute';
+      case 'search':
+        return 'read';
+      case 'http':
+        return 'network';
+      default:
+        return 'execute';
+    }
+  }
+
   // ==================== Tool Execution ====================
 
   /**
@@ -230,6 +285,23 @@ export class ToolService extends EventEmitter {
           error: `Validation failed: ${errors.map(e => e.message).join(', ')}`,
           executionTime: 0,
           metadata: { validationErrors: errors },
+        };
+      }
+    }
+
+    // Security guard authorization
+    if (this.securityGuard) {
+      const operation = this.mapCategoryToPermission(toolId, input);
+      const authResult = await this.securityGuard.authorize(toolId, input, operation, {
+        category: entry.definition.category,
+      });
+
+      if (!authResult.approved) {
+        return {
+          success: false,
+          error: `Authorization denied: ${authResult.reason ?? 'Blocked by security policy'}`,
+          executionTime: 0,
+          metadata: { authResult },
         };
       }
     }

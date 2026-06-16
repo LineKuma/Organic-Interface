@@ -165,6 +165,64 @@ export interface ToolExecutionContext {
 export type PermissionLevel = 'L1' | 'L2' | 'L3' | 'L4';
 
 /**
+ * Security presets that map to permission levels with approval requirements
+ *
+ * - plan:  Read-only (L1). File read, search, analysis. No modifications. Requires approval.
+ * - create: Read-write (L2). File read/write, no command execution. Requires approval.
+ * - work:  Read-write-execute (L3). Full tool access, shell commands. Requires approval.
+ * - yolo:  Full access (L4). All tools, no approval needed.
+ */
+export type SecurityPreset = 'plan' | 'create' | 'work' | 'yolo';
+
+/**
+ * Security preset configuration
+ */
+export interface SecurityPresetConfig {
+  /** Preset identifier */
+  preset: SecurityPreset;
+  /** Mapped permission level */
+  permissionLevel: PermissionLevel;
+  /** Allowed tool operation types */
+  allowedOperations: ToolPermissionType[];
+  /** Whether human approval is required before execution */
+  requiresApproval: boolean;
+  /** Human-readable description */
+  description: string;
+}
+
+/**
+ * Approval request for a tool execution
+ */
+export interface ApprovalRequest {
+  /** Unique request ID */
+  id: string;
+  /** Tool ID being requested */
+  toolId: string;
+  /** Tool input payload */
+  input: unknown;
+  /** Active security preset */
+  preset: SecurityPreset;
+  /** Operation type */
+  operation: ToolPermissionType;
+  /** Request timestamp */
+  timestamp: number;
+  /** Additional context */
+  metadata?: Record<string, unknown>;
+}
+
+/**
+ * Approval response
+ */
+export interface ApprovalResponse {
+  /** Whether the request was approved */
+  approved: boolean;
+  /** Reason for the decision */
+  reason?: string;
+  /** Timestamp of decision */
+  timestamp: number;
+}
+
+/**
  * Tool input validation error
  */
 export interface ToolValidationError {
