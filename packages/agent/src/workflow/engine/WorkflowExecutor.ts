@@ -127,33 +127,38 @@ export class WorkflowExecutor extends EventEmitter {
 
     this.emit('task:start', { task, execution });
 
-    // Set up timeout
-    const timeout = this.getTaskTimeout(task);
-    let timeoutId: ReturnType<typeof setTimeout> | undefined;
-
-    if (timeout > 0) {
-      timeoutId = setTimeout(() => {
-        this.handleTimeout(task.id, execution);
-      }, timeout);
-    }
-
     // Track active execution
     const activeExecution: ActiveExecution = {
       execution,
       task,
       startTime: Date.now(),
-      timeoutId,
     };
 
     this.activeExecutions.set(task.id, activeExecution);
 
-    try {
+    // Create a promise that can be resolved externally (for timeout handling)
+    const executionPromise = new Promise<TaskExecutionResult>((resolve, reject) => {
+      activeExecution.resolve = resolve;
+      activeExecution.reject = reject;
+
+      // Set up timeout after wiring resolve/reject so handleTimeout can resolve the promise
+      const timeout = this.getTaskTimeout(task);
+      if (timeout > 0) {
+        activeExecution.timeoutId = setTimeout(() => {
+          this.handleTimeout(task.id, execution);
+        }, timeout);
+      }
+
       // Execute the task
-      const result = await this.executor(task, input, context);
+      this.executor(task, input, context).then(resolve).catch(reject);
+    });
+
+    try {
+      const result = await executionPromise;
 
       // Clear timeout
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (activeExecution.timeoutId) {
+        clearTimeout(activeExecution.timeoutId);
       }
 
       // Process result
@@ -167,8 +172,21 @@ export class WorkflowExecutor extends EventEmitter {
       };
     } catch (error) {
       // Clear timeout
-      if (timeoutId) {
-        clearTimeout(timeoutId);
+      if (activeExecution.timeoutId) {
+        clearTimeout(activeExecution.timeoutId);
+      }
+
+      // If the task was cancelled externally, return a cancellation result
+      // (don't throw - the caller should handle this gracefully)
+      if (error instanceof Error && error.message === 'Task execution was cancelled') {
+        return {
+          success: false,
+          error: {
+            code: 'WF_004',
+            message: 'Task execution was cancelled',
+          },
+          duration: Date.now() - activeExecution.startTime,
+        };
       }
 
       // Handle execution error
@@ -176,7 +194,7 @@ export class WorkflowExecutor extends EventEmitter {
 
       return errorResult;
     } finally {
-      // Clean up active execution
+      // Clean up active execution (handleTimeout may have already removed it)
       this.activeExecutions.delete(task.id);
     }
   }
@@ -401,6 +419,13 @@ export class WorkflowExecutor extends EventEmitter {
    */
   isTaskRunning(taskId: string): boolean {
     return this.activeExecutions.has(taskId);
+  }
+
+  /**
+   * Set the node executor function (useful for testing)
+   */
+  setNodeExecutor(executor: NodeExecutor): void {
+    this.executor = executor;
   }
 
   /**

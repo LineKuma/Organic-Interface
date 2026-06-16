@@ -623,11 +623,13 @@ describe('WorkflowEngine', () => {
       workflow.entryNodeId = startNode.id;
       engine.registerWorkflow(workflow);
 
-      vi.spyOn((engine as any).executor, 'executeTask').mockResolvedValue({
-        success: true,
-        output: {},
-        duration: 5,
-      });
+      (engine as any).executor.setNodeExecutor(() =>
+        Promise.resolve({
+          success: true,
+          output: {},
+          duration: 5,
+        })
+      );
 
       await engine.startExecution(workflow.id);
       await new Promise(resolve => setTimeout(resolve, 50));

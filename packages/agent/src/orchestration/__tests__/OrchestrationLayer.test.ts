@@ -400,6 +400,7 @@ describe('OrchestrationLayer', () => {
       const layer2 = new OrchestrationLayer(registry, undefined, { autoDecompose: true });
       const autoResults: ExecutionResult[] = [
         { success: true, data: 'r1', duration: 5, attempts: 1 },
+        { success: true, data: 'r2', duration: 5, attempts: 1 },
       ];
       const mockPlan = { requestId: 'plan-1', steps: [], parallelGroups: [] };
       vi.spyOn((layer2 as any).coordinator, 'createPlan').mockReturnValue(mockPlan);
@@ -409,7 +410,10 @@ describe('OrchestrationLayer', () => {
         requestId: 'req-auto',
         taskName: 'parent-task',
         payload: {
-          subTasks: [{ subTaskId: 's1', taskName: 'sub1', payload: {}, dependsOn: [] }],
+          subTasks: [
+            { subTaskId: 's1', taskName: 'sub1', payload: {}, dependsOn: [] },
+            { subTaskId: 's2', taskName: 'sub2', payload: {}, dependsOn: [] },
+          ],
         },
         strategy: OrchestrationStrategy.AUTO,
       });
@@ -438,6 +442,7 @@ describe('OrchestrationLayer', () => {
             { subTaskId: 'st2', taskName: 'sub2', payload: { y: 2 }, dependsOn: ['st1'] },
           ],
         },
+        strategy: OrchestrationStrategy.SEQUENTIAL,
       });
 
       expect(result.success).toBe(true);

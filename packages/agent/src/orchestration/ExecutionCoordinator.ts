@@ -148,11 +148,25 @@ export class ExecutionCoordinator extends EventEmitter {
   /**
    * Execute a single task
    */
-  async execute<R = unknown>(request: ExecutionRequest): Promise<ExecutionResult<R>> {
+  async execute<R = unknown>(
+    request: ExecutionRequest,
+    signal?: AbortSignal
+  ): Promise<ExecutionResult<R>> {
     const startTime = Date.now();
     const attempts: ExecutionResult[] = [];
 
     this.emit('execution:start', { requestId: request.requestId });
+
+    // Check if already aborted
+    if (signal?.aborted) {
+      return {
+        success: false,
+        error: 'Execution was cancelled',
+        errorCode: 'CANCELLED',
+        duration: Date.now() - startTime,
+        attempts: 0,
+      };
+    }
 
     // Find target agent
     const agent = request.targetAgentId
@@ -181,6 +195,17 @@ export class ExecutionCoordinator extends EventEmitter {
     let lastError: Error | undefined;
 
     for (let attempt = 1; attempt <= retryConfig.maxAttempts; attempt++) {
+      // Check if cancelled between retries
+      if (signal?.aborted) {
+        return {
+          success: false,
+          error: 'Execution was cancelled',
+          errorCode: 'CANCELLED',
+          duration: Date.now() - startTime,
+          attempts: attempt,
+        };
+      }
+
       try {
         // Create execution message
         const message = createExecuteMessage(
@@ -204,10 +229,24 @@ export class ExecutionCoordinator extends EventEmitter {
           }
         );
 
-        // Send and wait
-        const result = await channel.sendAndWait<R>(message, {
+        // Send and wait (with abort signal support)
+        const sendPromise = channel.sendAndWait<R>(message, {
           timeout: request.timeout ?? this.defaultTimeout,
         });
+
+        const result: R = signal
+          ? await Promise.race([
+              sendPromise,
+              new Promise<never>((_, reject) => {
+                if (signal.aborted) {
+                  reject(new Error('Execution was cancelled'));
+                } else {
+                  const onAbort = () => reject(new Error('Execution was cancelled'));
+                  signal.addEventListener('abort', onAbort, { once: true });
+                }
+              }),
+            ])
+          : await sendPromise;
 
         const duration = Date.now() - startTime;
 
@@ -340,7 +379,7 @@ export class ExecutionCoordinator extends EventEmitter {
           stepId: step.stepId,
         });
 
-        const result = await this.execute(step.request);
+        const result = await this.execute(step.request, execution.abortController.signal);
         execution.stepResults.set(step.stepId, result);
 
         step.result = result;

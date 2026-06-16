@@ -447,16 +447,17 @@ describe('ExecutionCoordinator', () => {
       ]);
 
       // 开始执行但不等待
-      const executePromise = coordinator.executeWithPlan(plan);
+      coordinator.executeWithPlan(plan);
       await new Promise(resolve => setImmediate(resolve));
 
       // 取消执行
       const cancelResult = coordinator.cancel(plan.requestId);
       expect(cancelResult).toBe(true);
-      expect(coordinator.getActiveCount()).toBeGreaterThanOrEqual(0);
 
-      // 等待执行完成
-      await executePromise;
+      // 验证执行已从活跃列表中移除
+      // (executeWithPlan 的 finally 块在 cancel 后清理)
+      await new Promise(resolve => setTimeout(resolve, 50));
+      expect(coordinator.getActiveCount()).toBe(0);
     });
   });
 });

@@ -204,6 +204,8 @@ export class WorkflowEngine extends EventEmitter {
       status: WorkflowExecutionStatus.PAUSED,
     });
 
+    this.executions.set(executionId, execution);
+
     // Pause all running tasks
     this.executor.clearActiveExecutions();
 
@@ -229,6 +231,8 @@ export class WorkflowEngine extends EventEmitter {
       status: WorkflowExecutionStatus.RUNNING,
     });
 
+    this.executions.set(executionId, execution);
+
     this.emit('execution:resumed', { execution });
 
     // Resume scheduling
@@ -253,6 +257,8 @@ export class WorkflowEngine extends EventEmitter {
       status: WorkflowExecutionStatus.CANCELLED,
       finishedAt: Date.now(),
     });
+
+    this.executions.set(executionId, execution);
 
     this.emit('execution:cancelled', { execution });
     return true;
@@ -657,6 +663,14 @@ export class WorkflowEngine extends EventEmitter {
   ): void {
     const execution = this.executions.get(executionId);
     if (!execution) {
+      return;
+    }
+
+    // Don't override if execution was paused or cancelled externally
+    if (
+      execution.status === WorkflowExecutionStatus.PAUSED ||
+      execution.status === WorkflowExecutionStatus.CANCELLED
+    ) {
       return;
     }
 
