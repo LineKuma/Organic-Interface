@@ -98,7 +98,9 @@ describe('AI Q&A File Operations', () => {
     toolService.clear();
     try {
       await fs.rm(tempDir, { recursive: true, force: true });
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   });
 
   describe('Read Operations', () => {
@@ -106,13 +108,19 @@ describe('AI Q&A File Operations', () => {
       const filePath = path.join(tempDir, 'readme.txt');
       await fs.writeFile(filePath, 'Hello World', 'utf-8');
 
-      agent.registerTaskHandler('ai:read_text', createFileHandler(
-        toolService, 'Read successful.',
-        [{ toolId: 'builtin:file', input: { operation: 'read', path: filePath } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:read_text',
+        createFileHandler(toolService, 'Read successful.', [
+          { toolId: 'builtin:file', input: { operation: 'read', path: filePath } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:read_text', payload: { query: 'read' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:read_text',
+        payload: { query: 'read' },
       });
 
       expect(result.data!.toolResults[0].data).toBe('Hello World');
@@ -123,13 +131,19 @@ describe('AI Q&A File Operations', () => {
       const json = JSON.stringify({ name: 'Organic', version: '1.0.0' });
       await fs.writeFile(filePath, json, 'utf-8');
 
-      agent.registerTaskHandler('ai:read_json', createFileHandler(
-        toolService, 'JSON read.',
-        [{ toolId: 'builtin:file', input: { operation: 'read', path: filePath } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:read_json',
+        createFileHandler(toolService, 'JSON read.', [
+          { toolId: 'builtin:file', input: { operation: 'read', path: filePath } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:read_json', payload: { query: 'read' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:read_json',
+        payload: { query: 'read' },
       });
 
       expect(result.data!.toolResults[0].data).toBe(json);
@@ -138,13 +152,19 @@ describe('AI Q&A File Operations', () => {
     it('should fail reading non-existent file', async () => {
       const filePath = path.join(tempDir, 'does-not-exist.txt');
 
-      agent.registerTaskHandler('ai:read_missing', createFileHandler(
-        toolService, 'File not found.',
-        [{ toolId: 'builtin:file', input: { operation: 'read', path: filePath } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:read_missing',
+        createFileHandler(toolService, 'File not found.', [
+          { toolId: 'builtin:file', input: { operation: 'read', path: filePath } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:read_missing', payload: { query: 'read' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:read_missing',
+        payload: { query: 'read' },
       });
 
       expect(result.data!.toolResults[0].success).toBe(false);
@@ -156,13 +176,19 @@ describe('AI Q&A File Operations', () => {
       const largeContent = 'A'.repeat(10000);
       await fs.writeFile(filePath, largeContent, 'utf-8');
 
-      agent.registerTaskHandler('ai:read_large', createFileHandler(
-        toolService, 'Large file read.',
-        [{ toolId: 'builtin:file', input: { operation: 'read', path: filePath } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:read_large',
+        createFileHandler(toolService, 'Large file read.', [
+          { toolId: 'builtin:file', input: { operation: 'read', path: filePath } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:read_large', payload: { query: 'read' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:read_large',
+        payload: { query: 'read' },
       });
 
       expect(result.data!.toolResults[0].data).toBe(largeContent);
@@ -174,10 +200,12 @@ describe('AI Q&A File Operations', () => {
       const filePath = path.join(tempDir, 'output.txt');
       const content = 'AI-generated output';
 
-      agent.registerTaskHandler('ai:write_text', createFileHandler(
-        toolService, 'Written.',
-        [{ toolId: 'builtin:file', input: { operation: 'write', path: filePath, content } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:write_text',
+        createFileHandler(toolService, 'Written.', [
+          { toolId: 'builtin:file', input: { operation: 'write', path: filePath, content } },
+        ])
+      );
 
       await agent.execute({ taskId: 'ai:write_text', payload: { query: 'write' } });
       expect(await fs.readFile(filePath, 'utf-8')).toBe(content);
@@ -187,10 +215,15 @@ describe('AI Q&A File Operations', () => {
       const filePath = path.join(tempDir, 'deep', 'nested', 'file.txt');
       const content = 'Nested content';
 
-      agent.registerTaskHandler('ai:write_nested', createFileHandler(
-        toolService, 'Written.',
-        [{ toolId: 'builtin:file', input: { operation: 'write', path: filePath, content, createDirectories: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:write_nested',
+        createFileHandler(toolService, 'Written.', [
+          {
+            toolId: 'builtin:file',
+            input: { operation: 'write', path: filePath, content, createDirectories: true },
+          },
+        ])
+      );
 
       await agent.execute({ taskId: 'ai:write_nested', payload: { query: 'write' } });
       expect(await fs.readFile(filePath, 'utf-8')).toBe(content);
@@ -200,10 +233,15 @@ describe('AI Q&A File Operations', () => {
       const filePath = path.join(tempDir, 'overwrite.txt');
       await fs.writeFile(filePath, 'original', 'utf-8');
 
-      agent.registerTaskHandler('ai:overwrite', createFileHandler(
-        toolService, 'Overwritten.',
-        [{ toolId: 'builtin:file', input: { operation: 'write', path: filePath, content: 'updated' } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:overwrite',
+        createFileHandler(toolService, 'Overwritten.', [
+          {
+            toolId: 'builtin:file',
+            input: { operation: 'write', path: filePath, content: 'updated' },
+          },
+        ])
+      );
 
       await agent.execute({ taskId: 'ai:overwrite', payload: { query: 'write' } });
       expect(await fs.readFile(filePath, 'utf-8')).toBe('updated');
@@ -213,10 +251,12 @@ describe('AI Q&A File Operations', () => {
       const filePath = path.join(tempDir, 'data.json');
       const json = JSON.stringify({ items: [1, 2, 3], total: 6 });
 
-      agent.registerTaskHandler('ai:write_json', createFileHandler(
-        toolService, 'JSON written.',
-        [{ toolId: 'builtin:file', input: { operation: 'write', path: filePath, content: json } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:write_json',
+        createFileHandler(toolService, 'JSON written.', [
+          { toolId: 'builtin:file', input: { operation: 'write', path: filePath, content: json } },
+        ])
+      );
 
       await agent.execute({ taskId: 'ai:write_json', payload: { query: 'write' } });
       const parsed = JSON.parse(await fs.readFile(filePath, 'utf-8'));
@@ -229,13 +269,19 @@ describe('AI Q&A File Operations', () => {
       const filePath = path.join(tempDir, 'exists.txt');
       await fs.writeFile(filePath, 'exists', 'utf-8');
 
-      agent.registerTaskHandler('ai:exists', createFileHandler(
-        toolService, 'Checked.',
-        [{ toolId: 'builtin:file', input: { operation: 'exists', path: filePath } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:exists',
+        createFileHandler(toolService, 'Checked.', [
+          { toolId: 'builtin:file', input: { operation: 'exists', path: filePath } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:exists', payload: { query: 'check' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:exists',
+        payload: { query: 'check' },
       });
 
       expect(result.data!.toolResults[0].data).toBe(true);
@@ -246,13 +292,19 @@ describe('AI Q&A File Operations', () => {
       const content = 'stat me';
       await fs.writeFile(filePath, content, 'utf-8');
 
-      agent.registerTaskHandler('ai:stat', createFileHandler(
-        toolService, 'Statted.',
-        [{ toolId: 'builtin:file', input: { operation: 'stat', path: filePath } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:stat',
+        createFileHandler(toolService, 'Statted.', [
+          { toolId: 'builtin:file', input: { operation: 'stat', path: filePath } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:stat', payload: { query: 'stat' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:stat',
+        payload: { query: 'stat' },
       });
 
       const stat = result.data!.toolResults[0].data as any;
@@ -266,13 +318,19 @@ describe('AI Q&A File Operations', () => {
       const dest = path.join(tempDir, 'dest.txt');
       await fs.writeFile(src, 'copy me', 'utf-8');
 
-      agent.registerTaskHandler('ai:copy', createFileHandler(
-        toolService, 'Copied.',
-        [{ toolId: 'builtin:file', input: { operation: 'copy', source: src, destination: dest } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:copy',
+        createFileHandler(toolService, 'Copied.', [
+          { toolId: 'builtin:file', input: { operation: 'copy', source: src, destination: dest } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:copy', payload: { query: 'copy' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:copy',
+        payload: { query: 'copy' },
       });
 
       expect(result.data!.toolResults[0].success).toBe(true);
@@ -285,13 +343,19 @@ describe('AI Q&A File Operations', () => {
       const dest = path.join(tempDir, 'move-dest.txt');
       await fs.writeFile(src, 'move me', 'utf-8');
 
-      agent.registerTaskHandler('ai:move', createFileHandler(
-        toolService, 'Moved.',
-        [{ toolId: 'builtin:file', input: { operation: 'move', source: src, destination: dest } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:move',
+        createFileHandler(toolService, 'Moved.', [
+          { toolId: 'builtin:file', input: { operation: 'move', source: src, destination: dest } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:move', payload: { query: 'move' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:move',
+        payload: { query: 'move' },
       });
 
       expect(result.data!.toolResults[0].success).toBe(true);
@@ -304,10 +368,12 @@ describe('AI Q&A File Operations', () => {
       const filePath = path.join(tempDir, 'delete-me.txt');
       await fs.writeFile(filePath, 'delete', 'utf-8');
 
-      agent.registerTaskHandler('ai:delete', createFileHandler(
-        toolService, 'Deleted.',
-        [{ toolId: 'builtin:file', input: { operation: 'delete', path: filePath } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:delete',
+        createFileHandler(toolService, 'Deleted.', [
+          { toolId: 'builtin:file', input: { operation: 'delete', path: filePath } },
+        ])
+      );
 
       await agent.execute({ taskId: 'ai:delete', payload: { query: 'delete' } });
       await expect(fs.access(filePath)).rejects.toThrow();
@@ -321,13 +387,19 @@ describe('AI Q&A File Operations', () => {
       await fs.writeFile(path.join(tempDir, 'b.txt'), 'b', 'utf-8');
       await fs.writeFile(path.join(tempDir, 'subdir', 'c.txt'), 'c', 'utf-8');
 
-      agent.registerTaskHandler('ai:list', createFileHandler(
-        toolService, 'Listed.',
-        [{ toolId: 'builtin:file', input: { operation: 'list', path: tempDir, recursive: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:list',
+        createFileHandler(toolService, 'Listed.', [
+          { toolId: 'builtin:file', input: { operation: 'list', path: tempDir, recursive: true } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:list', payload: { query: 'list' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:list',
+        payload: { query: 'list' },
       });
 
       const files = result.data!.toolResults[0].data as string[];
@@ -341,13 +413,19 @@ describe('AI Q&A File Operations', () => {
       await fs.writeFile(path.join(tempDir, 'root.txt'), 'root', 'utf-8');
       await fs.writeFile(path.join(tempDir, 'nested', 'deep.txt'), 'deep', 'utf-8');
 
-      agent.registerTaskHandler('ai:list_flat', createFileHandler(
-        toolService, 'Listed.',
-        [{ toolId: 'builtin:file', input: { operation: 'list', path: tempDir, recursive: false } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:list_flat',
+        createFileHandler(toolService, 'Listed.', [
+          { toolId: 'builtin:file', input: { operation: 'list', path: tempDir, recursive: false } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:list_flat', payload: { query: 'list' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:list_flat',
+        payload: { query: 'list' },
       });
 
       const files = result.data!.toolResults[0].data as string[];
@@ -366,18 +444,38 @@ describe('AI Q&A File Operations', () => {
       }
 
       // Simulate AI: read all files, collect content, write summary
-      agent.registerTaskHandler('ai:batch_process', createFileHandler(
-        toolService, 'Batch processed.',
-        [
-          { toolId: 'builtin:file', input: { operation: 'read', path: path.join(tempDir, 'file1.txt') } },
-          { toolId: 'builtin:file', input: { operation: 'read', path: path.join(tempDir, 'file2.txt') } },
-          { toolId: 'builtin:file', input: { operation: 'read', path: path.join(tempDir, 'file3.txt') } },
-          { toolId: 'builtin:file', input: { operation: 'write', path: path.join(tempDir, 'summary.txt'), content: 'FILE1.TXT\nFILE2.TXT\nFILE3.TXT' } },
-        ],
-      ));
+      agent.registerTaskHandler(
+        'ai:batch_process',
+        createFileHandler(toolService, 'Batch processed.', [
+          {
+            toolId: 'builtin:file',
+            input: { operation: 'read', path: path.join(tempDir, 'file1.txt') },
+          },
+          {
+            toolId: 'builtin:file',
+            input: { operation: 'read', path: path.join(tempDir, 'file2.txt') },
+          },
+          {
+            toolId: 'builtin:file',
+            input: { operation: 'read', path: path.join(tempDir, 'file3.txt') },
+          },
+          {
+            toolId: 'builtin:file',
+            input: {
+              operation: 'write',
+              path: path.join(tempDir, 'summary.txt'),
+              content: 'FILE1.TXT\nFILE2.TXT\nFILE3.TXT',
+            },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:batch_process', payload: { query: 'process' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:batch_process',
+        payload: { query: 'process' },
       });
 
       expect(result.data!.toolResults[0].data).toBe('FILE1.TXT');
@@ -388,19 +486,54 @@ describe('AI Q&A File Operations', () => {
 
     it('should handle AI Q&A: generate project scaffold', async () => {
       // Simulate AI generating a project structure
-      agent.registerTaskHandler('ai:scaffold', createFileHandler(
-        toolService, 'Project scaffolded.',
-        [
-          { toolId: 'builtin:file', input: { operation: 'write', path: path.join(tempDir, 'src', 'index.ts'), content: 'export const hello = "world";', createDirectories: true } },
-          { toolId: 'builtin:file', input: { operation: 'write', path: path.join(tempDir, 'src', 'types.ts'), content: 'export interface Config { name: string; }', createDirectories: true } },
-          { toolId: 'builtin:file', input: { operation: 'write', path: path.join(tempDir, 'package.json'), content: '{"name":"test","version":"1.0.0"}' } },
-          { toolId: 'builtin:file', input: { operation: 'write', path: path.join(tempDir, 'src', 'utils', 'helper.ts'), content: 'export const helper = () => true;', createDirectories: true } },
+      agent.registerTaskHandler(
+        'ai:scaffold',
+        createFileHandler(toolService, 'Project scaffolded.', [
+          {
+            toolId: 'builtin:file',
+            input: {
+              operation: 'write',
+              path: path.join(tempDir, 'src', 'index.ts'),
+              content: 'export const hello = "world";',
+              createDirectories: true,
+            },
+          },
+          {
+            toolId: 'builtin:file',
+            input: {
+              operation: 'write',
+              path: path.join(tempDir, 'src', 'types.ts'),
+              content: 'export interface Config { name: string; }',
+              createDirectories: true,
+            },
+          },
+          {
+            toolId: 'builtin:file',
+            input: {
+              operation: 'write',
+              path: path.join(tempDir, 'package.json'),
+              content: '{"name":"test","version":"1.0.0"}',
+            },
+          },
+          {
+            toolId: 'builtin:file',
+            input: {
+              operation: 'write',
+              path: path.join(tempDir, 'src', 'utils', 'helper.ts'),
+              content: 'export const helper = () => true;',
+              createDirectories: true,
+            },
+          },
           { toolId: 'builtin:file', input: { operation: 'list', path: tempDir, recursive: true } },
-        ],
-      ));
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:scaffold', payload: { query: 'scaffold' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:scaffold',
+        payload: { query: 'scaffold' },
       });
 
       expect(result.data!.toolResults.every(r => r.success)).toBe(true);

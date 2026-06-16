@@ -10,7 +10,13 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import * as os from 'os';
-import { ToolService, FileTool, ShellTool, type ToolResult, type ToolExecutionContext } from '@organic/tools';
+import {
+  ToolService,
+  FileTool,
+  ShellTool,
+  type ToolResult,
+  type ToolExecutionContext,
+} from '@organic/tools';
 import { Agent, AgentType, AgentPriority, type AgentTaskInput } from '@organic/agent';
 
 // ── Mock Kernel ──────────────────────────────────────────────────
@@ -99,18 +105,29 @@ describe('AI Q&A Command Execution', () => {
     toolService.clear();
     try {
       await fs.rm(tempDir, { recursive: true, force: true });
-    } catch { /* ignore */ }
+    } catch {
+      /* ignore */
+    }
   });
 
   describe('Basic Commands', () => {
     it('should execute echo command', async () => {
-      agent.registerTaskHandler('ai:echo', createShellHandler(
-        toolService, 'Echo done.',
-        [{ toolId: 'builtin:shell', input: { command: 'echo', args: ['Hello from AI Agent'], captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:echo',
+        createShellHandler(toolService, 'Echo done.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'echo', args: ['Hello from AI Agent'], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:echo', payload: { query: 'echo' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:echo',
+        payload: { query: 'echo' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -119,13 +136,22 @@ describe('AI Q&A Command Execution', () => {
     });
 
     it('should execute command with environment variable', async () => {
-      agent.registerTaskHandler('ai:env_test', createShellHandler(
-        toolService, 'Env test done.',
-        [{ toolId: 'builtin:shell', input: { command: 'echo', args: ['$HOME'], captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:env_test',
+        createShellHandler(toolService, 'Env test done.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'echo', args: ['$HOME'], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:env_test', payload: { query: 'env' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:env_test',
+        payload: { query: 'env' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -136,16 +162,29 @@ describe('AI Q&A Command Execution', () => {
     it('should capture stdout and stderr', async () => {
       // Write a script that outputs to both stdout and stderr
       const scriptPath = path.join(tempDir, 'output_test.sh');
-      await fs.writeFile(scriptPath, '#!/bin/sh\necho "hello_stdout"\necho "hello_stderr" >&2\n', 'utf-8');
+      await fs.writeFile(
+        scriptPath,
+        '#!/bin/sh\necho "hello_stdout"\necho "hello_stderr" >&2\n',
+        'utf-8'
+      );
       await fs.chmod(scriptPath, 0o755);
 
-      agent.registerTaskHandler('ai:capture_output', createShellHandler(
-        toolService, 'Output captured.',
-        [{ toolId: 'builtin:shell', input: { command: 'sh', args: [scriptPath], captureStdout: true, captureStderr: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:capture_output',
+        createShellHandler(toolService, 'Output captured.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'sh', args: [scriptPath], captureStdout: true, captureStderr: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:capture_output', payload: { query: 'capture' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:capture_output',
+        payload: { query: 'capture' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -154,13 +193,19 @@ describe('AI Q&A Command Execution', () => {
     });
 
     it('should get exit code from command', async () => {
-      agent.registerTaskHandler('ai:exit_code', createShellHandler(
-        toolService, 'Exit code checked.',
-        [{ toolId: 'builtin:shell', input: { command: 'true', captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:exit_code',
+        createShellHandler(toolService, 'Exit code checked.', [
+          { toolId: 'builtin:shell', input: { command: 'true', captureStdout: true } },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:exit_code', payload: { query: 'exit' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:exit_code',
+        payload: { query: 'exit' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -172,13 +217,22 @@ describe('AI Q&A Command Execution', () => {
     it('should list directory via ls command', async () => {
       await fs.writeFile(path.join(tempDir, 'ls-test.txt'), 'test', 'utf-8');
 
-      agent.registerTaskHandler('ai:ls', createShellHandler(
-        toolService, 'Listed.',
-        [{ toolId: 'builtin:shell', input: { command: 'ls', args: [tempDir], captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:ls',
+        createShellHandler(toolService, 'Listed.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'ls', args: [tempDir], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:ls', payload: { query: 'ls' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:ls',
+        payload: { query: 'ls' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -189,13 +243,22 @@ describe('AI Q&A Command Execution', () => {
       const filePath = path.join(tempDir, 'cat-test.txt');
       await fs.writeFile(filePath, 'cat content', 'utf-8');
 
-      agent.registerTaskHandler('ai:cat', createShellHandler(
-        toolService, 'Cat done.',
-        [{ toolId: 'builtin:shell', input: { command: 'cat', args: [filePath], captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:cat',
+        createShellHandler(toolService, 'Cat done.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'cat', args: [filePath], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:cat', payload: { query: 'cat' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:cat',
+        payload: { query: 'cat' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -206,13 +269,22 @@ describe('AI Q&A Command Execution', () => {
       const filePath = path.join(tempDir, 'wc-test.txt');
       await fs.writeFile(filePath, 'line1\nline2\nline3\n', 'utf-8');
 
-      agent.registerTaskHandler('ai:wc', createShellHandler(
-        toolService, 'Counted.',
-        [{ toolId: 'builtin:shell', input: { command: 'wc', args: ['-l', filePath], captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:wc',
+        createShellHandler(toolService, 'Counted.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'wc', args: ['-l', filePath], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:wc', payload: { query: 'wc' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:wc',
+        payload: { query: 'wc' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -221,15 +293,28 @@ describe('AI Q&A Command Execution', () => {
 
     it('should search via grep command', async () => {
       const filePath = path.join(tempDir, 'grep-test.txt');
-      await fs.writeFile(filePath, 'const API_KEY = "test-secret";\nconst other = "value";\n', 'utf-8');
+      await fs.writeFile(
+        filePath,
+        'const API_KEY = "test-secret";\nconst other = "value";\n',
+        'utf-8'
+      );
 
-      agent.registerTaskHandler('ai:grep', createShellHandler(
-        toolService, 'Grepped.',
-        [{ toolId: 'builtin:shell', input: { command: 'grep', args: ['API_KEY', filePath], captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:grep',
+        createShellHandler(toolService, 'Grepped.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'grep', args: ['API_KEY', filePath], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:grep', payload: { query: 'grep' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:grep',
+        payload: { query: 'grep' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -240,15 +325,28 @@ describe('AI Q&A Command Execution', () => {
   describe('Node.js Script Execution', () => {
     it('should execute Node.js inline script', async () => {
       const scriptPath = path.join(tempDir, 'inline.js');
-      await fs.writeFile(scriptPath, 'console.log(JSON.stringify({status:"ok",items:[1,2,3]}));', 'utf-8');
+      await fs.writeFile(
+        scriptPath,
+        'console.log(JSON.stringify({status:"ok",items:[1,2,3]}));',
+        'utf-8'
+      );
 
-      agent.registerTaskHandler('ai:node_inline', createShellHandler(
-        toolService, 'Node executed.',
-        [{ toolId: 'builtin:shell', input: { command: 'node', args: [scriptPath], captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:node_inline',
+        createShellHandler(toolService, 'Node executed.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'node', args: [scriptPath], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:node_inline', payload: { query: 'node' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:node_inline',
+        payload: { query: 'node' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -261,13 +359,22 @@ describe('AI Q&A Command Execution', () => {
       const scriptPath = path.join(tempDir, 'script.js');
       await fs.writeFile(scriptPath, 'console.log("script output");', 'utf-8');
 
-      agent.registerTaskHandler('ai:node_file', createShellHandler(
-        toolService, 'Script executed.',
-        [{ toolId: 'builtin:shell', input: { command: 'node', args: [scriptPath], captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:node_file',
+        createShellHandler(toolService, 'Script executed.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'node', args: [scriptPath], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:node_file', payload: { query: 'node' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:node_file',
+        payload: { query: 'node' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -276,15 +383,28 @@ describe('AI Q&A Command Execution', () => {
 
     it('should execute Node.js with computation', async () => {
       const scriptPath = path.join(tempDir, 'compute.js');
-      await fs.writeFile(scriptPath, 'const sum = Array.from({length:100},(_,i)=>i).reduce((a,b)=>a+b,0); console.log(sum);', 'utf-8');
+      await fs.writeFile(
+        scriptPath,
+        'const sum = Array.from({length:100},(_,i)=>i).reduce((a,b)=>a+b,0); console.log(sum);',
+        'utf-8'
+      );
 
-      agent.registerTaskHandler('ai:node_compute', createShellHandler(
-        toolService, 'Computed.',
-        [{ toolId: 'builtin:shell', input: { command: 'node', args: [scriptPath], captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:node_compute',
+        createShellHandler(toolService, 'Computed.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'node', args: [scriptPath], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:node_compute', payload: { query: 'compute' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:node_compute',
+        payload: { query: 'compute' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -294,13 +414,26 @@ describe('AI Q&A Command Execution', () => {
 
   describe('Error Handling', () => {
     it('should handle non-existent command', async () => {
-      agent.registerTaskHandler('ai:bad_cmd', createShellHandler(
-        toolService, 'Command failed.',
-        [{ toolId: 'builtin:shell', input: { command: 'this_command_does_not_exist_xyz', captureStdout: true, captureStderr: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:bad_cmd',
+        createShellHandler(toolService, 'Command failed.', [
+          {
+            toolId: 'builtin:shell',
+            input: {
+              command: 'this_command_does_not_exist_xyz',
+              captureStdout: true,
+              captureStderr: true,
+            },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:bad_cmd', payload: { query: 'fail' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:bad_cmd',
+        payload: { query: 'fail' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -312,13 +445,22 @@ describe('AI Q&A Command Execution', () => {
       await fs.writeFile(scriptPath, '#!/bin/sh\nexit 42\n', 'utf-8');
       await fs.chmod(scriptPath, 0o755);
 
-      agent.registerTaskHandler('ai:exit_nonzero', createShellHandler(
-        toolService, 'Non-zero exit.',
-        [{ toolId: 'builtin:shell', input: { command: 'sh', args: [scriptPath], captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:exit_nonzero',
+        createShellHandler(toolService, 'Non-zero exit.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'sh', args: [scriptPath], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:exit_nonzero', payload: { query: 'exit' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:exit_nonzero',
+        payload: { query: 'exit' },
       });
 
       const data = result.data!.toolResults[0].data as any;
@@ -326,13 +468,22 @@ describe('AI Q&A Command Execution', () => {
     });
 
     it('should handle command timeout', async () => {
-      agent.registerTaskHandler('ai:timeout', createShellHandler(
-        toolService, 'Timeout.',
-        [{ toolId: 'builtin:shell', input: { command: 'sleep', args: ['10'], timeout: 500, captureStdout: true } }],
-      ));
+      agent.registerTaskHandler(
+        'ai:timeout',
+        createShellHandler(toolService, 'Timeout.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'sleep', args: ['10'], timeout: 500, captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:timeout', payload: { query: 'timeout' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:timeout',
+        payload: { query: 'timeout' },
       });
 
       // Tool execution should fail due to timeout
@@ -353,28 +504,41 @@ describe('AI Q&A Command Execution', () => {
       const testFile = path.join(tempDir, 'pipeline-test.txt');
       const content = 'Pipeline data line 1\nline 2\nline 3\n';
 
-      agent.registerTaskHandler('ai:pipeline_write_run', createShellHandler(
-        toolService, 'Pipeline complete.',
-        [
+      agent.registerTaskHandler(
+        'ai:pipeline_write_run',
+        createShellHandler(toolService, 'Pipeline complete.', [
           // Write a file
           { toolId: 'builtin:file', input: { operation: 'write', path: testFile, content } },
           // Count lines
-          { toolId: 'builtin:shell', input: { command: 'wc', args: ['-l', testFile], captureStdout: true } },
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'wc', args: ['-l', testFile], captureStdout: true },
+          },
           // Read file content
-          { toolId: 'builtin:shell', input: { command: 'cat', args: [testFile], captureStdout: true } },
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'cat', args: [testFile], captureStdout: true },
+          },
           // Search for pattern
-          { toolId: 'builtin:shell', input: { command: 'grep', args: ['line 2', testFile], captureStdout: true } },
-        ],
-      ));
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'grep', args: ['line 2', testFile], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:pipeline_write_run', payload: { query: 'pipeline' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:pipeline_write_run',
+        payload: { query: 'pipeline' },
       });
 
-      expect(result.data!.toolResults[0].success).toBe(true);                         // write
-      expect((result.data!.toolResults[1].data as any).stdout).toContain('3');        // wc -l
+      expect(result.data!.toolResults[0].success).toBe(true); // write
+      expect((result.data!.toolResults[1].data as any).stdout).toContain('3'); // wc -l
       expect((result.data!.toolResults[2].data as any).stdout).toContain('Pipeline'); // cat
-      expect((result.data!.toolResults[3].data as any).stdout).toContain('line 2');   // grep
+      expect((result.data!.toolResults[3].data as any).stdout).toContain('line 2'); // grep
     });
 
     it('should execute AI code review pipeline', async () => {
@@ -383,20 +547,38 @@ describe('AI Q&A Command Execution', () => {
       await fs.mkdir(path.join(tempDir, 'src'), { recursive: true });
       await fs.writeFile(sourceFile, 'const x = 1;\nconsole.log(x);\n', 'utf-8');
 
-      agent.registerTaskHandler('ai:code_review', createShellHandler(
-        toolService, 'Code review complete.',
-        [
+      agent.registerTaskHandler(
+        'ai:code_review',
+        createShellHandler(toolService, 'Code review complete.', [
           // Get file info
-          { toolId: 'builtin:shell', input: { command: 'wc', args: ['-c', sourceFile], captureStdout: true } },
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'wc', args: ['-c', sourceFile], captureStdout: true },
+          },
           // Check syntax with node --check
-          { toolId: 'builtin:shell', input: { command: 'node', args: ['--check', sourceFile], captureStdout: true, captureStderr: true } },
+          {
+            toolId: 'builtin:shell',
+            input: {
+              command: 'node',
+              args: ['--check', sourceFile],
+              captureStdout: true,
+              captureStderr: true,
+            },
+          },
           // Check for console.log usage
-          { toolId: 'builtin:shell', input: { command: 'grep', args: ['-n', 'console', sourceFile], captureStdout: true } },
-        ],
-      ));
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'grep', args: ['-n', 'console', sourceFile], captureStdout: true },
+          },
+        ])
+      );
 
-      const result = await agent.execute<AgentTaskInput, { answer: string; toolResults: ToolResult[] }>({
-        taskId: 'ai:code_review', payload: { query: 'review' },
+      const result = await agent.execute<
+        AgentTaskInput,
+        { answer: string; toolResults: ToolResult[] }
+      >({
+        taskId: 'ai:code_review',
+        payload: { query: 'review' },
       });
 
       // wc shows file size
@@ -413,14 +595,23 @@ describe('AI Q&A Command Execution', () => {
       const testFile = path.join(tempDir, 'metrics.txt');
       await fs.writeFile(testFile, 'metrics', 'utf-8');
 
-      agent.registerTaskHandler('ai:shell_metrics', createShellHandler(
-        toolService, 'Metrics collected.',
-        [
-          { toolId: 'builtin:shell', input: { command: 'echo', args: ['test1'], captureStdout: true } },
-          { toolId: 'builtin:shell', input: { command: 'echo', args: ['test2'], captureStdout: true } },
-          { toolId: 'builtin:shell', input: { command: 'cat', args: [testFile], captureStdout: true } },
-        ],
-      ));
+      agent.registerTaskHandler(
+        'ai:shell_metrics',
+        createShellHandler(toolService, 'Metrics collected.', [
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'echo', args: ['test1'], captureStdout: true },
+          },
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'echo', args: ['test2'], captureStdout: true },
+          },
+          {
+            toolId: 'builtin:shell',
+            input: { command: 'cat', args: [testFile], captureStdout: true },
+          },
+        ])
+      );
 
       await agent.execute({ taskId: 'ai:shell_metrics', payload: { query: 'metrics' } });
 
