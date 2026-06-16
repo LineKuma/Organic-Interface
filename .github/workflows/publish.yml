@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'npm dist-tag (latest, next, beta, etc.)'
+        description: 'npm dist-tag (latest, next, beta, dev, etc.)'
         required: false
         default: 'latest'
   push:
     tags:
-      - 'v*'
+      - 'v*-dev*'
 
 jobs:
   publish:
@@ -41,7 +41,12 @@ jobs:
 
       - name: Publish packages to npm
         run: |
-          TAG="${{ github.event_name == 'workflow_dispatch' && inputs.tag || 'latest' }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TAG="${{ inputs.tag }}"
+          else
+            TAG="dev"
+          fi
+          echo "Publishing with dist-tag: $TAG"
           pnpm publish -r --no-git-checks --access public --tag "$TAG"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
