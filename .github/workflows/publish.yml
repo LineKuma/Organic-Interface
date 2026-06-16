@@ -1,0 +1,47 @@
+name: Publish to npm
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'npm dist-tag (latest, next, beta, etc.)'
+        required: false
+        default: 'latest'
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Publish packages to npm
+        run: |
+          TAG="${{ github.event_name == 'workflow_dispatch' && inputs.tag || 'latest' }}"
+          pnpm publish -r --no-git-checks --access public --tag "$TAG"
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
