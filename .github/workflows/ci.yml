@@ -68,6 +68,3 @@ jobs:
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:coverage
-      - uses: actions/upload-coverage-report@v1
-        with:
-          coverage-format: json
