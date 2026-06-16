@@ -1214,4 +1214,444 @@ describe('PluginLoader', () => {
       expect(metadata.dependencies).toEqual([]);
     });
   });
+
+  // ==================== ST-03 覆盖率增强测试 ====================
+  // 目标：覆盖 load() 的动态 import 路径（load 函数/default 导出/无效导出）、
+  // 兼容性检查失败、initialize 失败/成功、resolvePluginPath 路径遍历防护与多位置查找、
+  // extractMetadata fallback、discover 错误处理。
+
+  describe('ST-03: resolvePluginPath - 路径遍历防护', () => {
+    it('should reject pluginId with path traversal (..)', () => {
+      // 异常路径：路径遍历攻击防护
+      const loader = new PluginLoader({ baseDir: '/tmp/test-traversal' });
+      const resolved = (loader as any).resolvePluginPath.call(loader, '../../../etc/passwd');
+      expect(resolved).toBeUndefined();
+    });
+
+    it('should reject pluginId with forward slash', () => {
+      // 异常路径：包含斜杠的 pluginId
+      const loader = new PluginLoader({ baseDir: '/tmp/test-slash' });
+      const resolved = (loader as any).resolvePluginPath.call(loader, 'subdir/plugin');
+      expect(resolved).toBeUndefined();
+    });
+
+    it('should reject pluginId with backslash', () => {
+      // 异常路径：包含反斜杠的 pluginId
+      const loader = new PluginLoader({ baseDir: '/tmp/test-backslash' });
+      const resolved = (loader as any).resolvePluginPath.call(loader, 'subdir\\plugin');
+      expect(resolved).toBeUndefined();
+    });
+  });
+
+  describe('ST-03: resolvePluginPath - 已跟踪路径', () => {
+    it('should return tracked path from pluginPaths cache', () => {
+      // 正常路径：pluginPaths 已有记录
+      const loader = new PluginLoader({ baseDir: '/tmp/test-tracked' });
+      const pluginPaths = (loader as any).pluginPaths as Map<string, string>;
+      const trackedPath = '/tmp/test-tracked/already-loaded/dist/index.js';
+      pluginPaths.set('already-loaded', trackedPath);
+
+      const resolved = (loader as any).resolvePluginPath.call(loader, 'already-loaded');
+      expect(resolved).toBe(trackedPath);
+    });
+  });
+
+  describe('ST-03: resolvePluginPath - 多位置查找', () => {
+    let tempDir: string;
+
+    beforeEach(() => {
+      tempDir = '/tmp/test-multi-loc-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    });
+
+    afterEach(() => {
+      try {
+        fs.rmSync(tempDir!, { recursive: true, force: true });
+      } catch {
+        // ignore
+      }
+    });
+
+    it('should find plugin at baseDir/plugin/src/index.ts', () => {
+      // 边界情况：src/index.ts 位置
+      fs.mkdirSync(path.join(tempDir!, 'src-plugin', 'src'), { recursive: true });
+      fs.writeFileSync(path.join(tempDir!, 'src-plugin', 'src', 'index.ts'), '// test');
+
+      const loader = new PluginLoader({ baseDir: tempDir! });
+      const resolved = (loader as any).resolvePluginPath.call(loader, 'src-plugin');
+      expect(resolved).toBe(path.join(tempDir!, 'src-plugin', 'src', 'index.ts'));
+    });
+
+    it('should find plugin at baseDir/plugin/index.js', () => {
+      // 边界情况：index.js 位置（无 dist/src 子目录）
+      fs.mkdirSync(path.join(tempDir!, 'flat-plugin'), { recursive: true });
+      fs.writeFileSync(path.join(tempDir!, 'flat-plugin', 'index.js'), '// test');
+
+      const loader = new PluginLoader({ baseDir: tempDir! });
+      const resolved = (loader as any).resolvePluginPath.call(loader, 'flat-plugin');
+      expect(resolved).toBe(path.join(tempDir!, 'flat-plugin', 'index.js'));
+    });
+
+    it('should prefer dist/index.js over src/index.ts', () => {
+      // 边界情况：优先级测试 - dist 优先于 src
+      fs.mkdirSync(path.join(tempDir!, 'priority-plugin', 'dist'), { recursive: true });
+      fs.mkdirSync(path.join(tempDir!, 'priority-plugin', 'src'), { recursive: true });
+      fs.writeFileSync(path.join(tempDir!, 'priority-plugin', 'dist', 'index.js'), '// dist');
+      fs.writeFileSync(path.join(tempDir!, 'priority-plugin', 'src', 'index.ts'), '// src');
+
+      const loader = new PluginLoader({ baseDir: tempDir! });
+      const resolved = (loader as any).resolvePluginPath.call(loader, 'priority-plugin');
+      expect(resolved).toBe(path.join(tempDir!, 'priority-plugin', 'dist', 'index.js'));
+    });
+  });
+
+  describe('ST-03: extractMetadata - fallback 到基本元数据', () => {
+    it('should return basic metadata when no getMetadata and no package.json', () => {
+      // 异常路径：无 getMetadata 方法且无 package.json
+      // 使用不存在的路径，fs.existsSync 自然返回 false
+      const loader = new PluginLoader({ baseDir: '/tmp/test-fallback' });
+      const basicPlugin: Partial<PluginInterface> = {
+        name: 'Basic Plugin',
+        version: '2.0.0',
+        description: 'A basic plugin',
+      };
+
+      const metadata = (loader as any).extractMetadata.call(
+        loader,
+        basicPlugin,
+        '/nonexistent/path/index.js'
+      );
+
+      expect(metadata.id).toBe('/nonexistent/path/index.js');
+      expect(metadata.name).toBe('Basic Plugin');
+      expect(metadata.version).toBe('2.0.0');
+      expect(metadata.description).toBe('A basic plugin');
+      expect(metadata.apiVersion).toBe('1.0.0');
+    });
+
+    it('should use default version 0.0.0 when plugin has no version', () => {
+      // 边界情况：插件无 version 属性
+      const loader = new PluginLoader({ baseDir: '/tmp/test-no-version' });
+      const noVersionPlugin: Partial<PluginInterface> = {
+        name: 'No Version Plugin',
+      };
+
+      const metadata = (loader as any).extractMetadata.call(
+        loader,
+        noVersionPlugin,
+        '/nonexistent/path/index.js'
+      );
+
+      expect(metadata.version).toBe('0.0.0');
+    });
+  });
+
+  describe('ST-03: discover - 错误处理', () => {
+    it('should handle readdirSync error gracefully', async () => {
+      // 异常路径：readdirSync 抛出错误
+      // 创建一个文件（非目录）作为 baseDir，使 readdirSync 抛出 ENOTDIR 错误
+      const tempFile = '/tmp/test-discover-error-' + Date.now() + '.txt';
+      fs.writeFileSync(tempFile, 'not a directory');
+
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+
+      try {
+        const loader = new PluginLoader({ baseDir: tempFile });
+        const results = await loader.discover();
+
+        // readdirSync 对文件抛出错误，被 catch 块捕获，返回空数组
+        expect(results).toEqual([]);
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Error discovering plugins:',
+          expect.any(Error)
+        );
+      } finally {
+        fs.unlinkSync(tempFile);
+        consoleErrorSpy.mockRestore();
+      }
+    });
+
+    it('should skip non-directory entries during discovery', async () => {
+      // 边界情况：跳过非目录条目
+      const tempDir = '/tmp/test-skip-files-' + Date.now();
+      fs.mkdirSync(tempDir, { recursive: true });
+      fs.mkdirSync(path.join(tempDir, 'real-plugin'), { recursive: true });
+      fs.writeFileSync(path.join(tempDir, 'real-plugin', 'package.json'), '{"name":"real"}');
+      // 创建文件（非目录）
+      fs.writeFileSync(path.join(tempDir, 'readme.md'), '# Readme');
+      fs.writeFileSync(path.join(tempDir, 'config.json'), '{}');
+
+      try {
+        const loader = new PluginLoader({ baseDir: tempDir });
+        const results = await loader.discover();
+
+        // 只应发现 real-plugin，不应包含 readme.md 或 config.json
+        const pluginIds = results.map(r => r.pluginId);
+        expect(pluginIds).toContain('real-plugin');
+        expect(pluginIds).not.toContain('readme.md');
+        expect(pluginIds).not.toContain('config.json');
+      } finally {
+        fs.rmSync(tempDir, { recursive: true, force: true });
+      }
+    });
+  });
+
+  describe('ST-03: load - 动态 import 与初始化', () => {
+    let tempDir: string;
+
+    beforeEach(() => {
+      tempDir = '/tmp/test-load-import-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+    });
+
+    afterEach(() => {
+      try {
+        fs.rmSync(tempDir!, { recursive: true, force: true });
+      } catch {
+        // ignore
+      }
+    });
+
+    it('should load plugin with default export class', async () => {
+      // 正常路径：通过 default 导出加载插件
+      const pluginDir = path.join(tempDir!, 'default-export-plugin', 'dist');
+      fs.mkdirSync(pluginDir, { recursive: true });
+      // 创建一个 CommonJS 模块，导出 default 类
+      fs.writeFileSync(
+        path.join(pluginDir, 'index.js'),
+        `
+        class TestPlugin {
+          name = 'Default Export Plugin';
+          version = '1.0.0';
+          description = 'Test';
+          getMetadata() {
+            return { id: 'default-export-plugin', name: 'Default Export Plugin', version: '1.0.0', apiVersion: '1.0.0' };
+          }
+          async initialize() { return { success: true }; }
+          async execute() { return { success: true, data: {} }; }
+        }
+        module.exports = { default: TestPlugin };
+        module.exports.default = TestPlugin;
+        `
+      );
+
+      const loader = new PluginLoader({ baseDir: tempDir!, cacheEnabled: false });
+      const result = await loader.load('default-export-plugin');
+
+      expect(result.success).toBe(true);
+      expect(result.metadata?.id).toBe('default-export-plugin');
+      expect(result.plugin).toBeDefined();
+    });
+
+    it('should return error when module has no valid export', async () => {
+      // 异常路径：模块无有效导出（default 不是构造函数，load 不是函数）
+      // CJS/ESM interop 会添加 default 属性，但 default 不是构造函数
+      const pluginDir = path.join(tempDir!, 'no-export-plugin', 'dist');
+      fs.mkdirSync(pluginDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(pluginDir, 'index.js'),
+        `module.exports = { someValue: 42 };`
+      );
+
+      const loader = new PluginLoader({ baseDir: tempDir!, cacheEnabled: false });
+      const result = await loader.load('no-export-plugin');
+
+      expect(result.success).toBe(false);
+      // default 存在但不是构造函数，会抛出异常被 catch 捕获
+      expect(result.error).toBeDefined();
+    });
+
+    it('should return error when plugin is not compatible', async () => {
+      // 异常路径：兼容性检查失败
+      const pluginDir = path.join(tempDir!, 'incompatible-plugin', 'dist');
+      fs.mkdirSync(pluginDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(pluginDir, 'index.js'),
+        `
+        class IncompatiblePlugin {
+          name = 'Incompatible';
+          version = '1.0.0';
+          getMetadata() {
+            return {
+              id: 'incompatible-plugin',
+              name: 'Incompatible',
+              version: '1.0.0',
+              apiVersion: '1.0.0',
+              dependencies: [{ pluginName: 'missing-dep', versionRange: '1.0.0', optional: false }]
+            };
+          }
+          async initialize() { return { success: true }; }
+          async execute() { return { success: true, data: {} }; }
+        }
+        module.exports = { default: IncompatiblePlugin };
+        module.exports.default = IncompatiblePlugin;
+        `
+      );
+
+      const loader = new PluginLoader({ baseDir: tempDir!, cacheEnabled: false });
+      const result = await loader.load('incompatible-plugin');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toContain('not compatible');
+    });
+
+    it('should return error when plugin.initialize fails', async () => {
+      // 异常路径：initialize 返回失败
+      const pluginDir = path.join(tempDir!, 'init-fail-plugin', 'dist');
+      fs.mkdirSync(pluginDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(pluginDir, 'index.js'),
+        `
+        class InitFailPlugin {
+          name = 'Init Fail';
+          version = '1.0.0';
+          getMetadata() {
+            return { id: 'init-fail-plugin', name: 'Init Fail', version: '1.0.0', apiVersion: '1.0.0' };
+          }
+          async initialize() { return { success: false, error: 'Initialization failed' }; }
+          async execute() { return { success: true, data: {} }; }
+        }
+        module.exports = { default: InitFailPlugin };
+        module.exports.default = InitFailPlugin;
+        `
+      );
+
+      const loader = new PluginLoader({ baseDir: tempDir!, cacheEnabled: false });
+      const result = await loader.load('init-fail-plugin');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Initialization failed');
+    });
+
+    it('should return error when plugin.initialize returns failure with default message', async () => {
+      // 异常路径：initialize 返回失败但无 error 字段
+      const pluginDir = path.join(tempDir!, 'init-fail-no-msg', 'dist');
+      fs.mkdirSync(pluginDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(pluginDir, 'index.js'),
+        `
+        class InitFailNoMsgPlugin {
+          name = 'No Msg';
+          version = '1.0.0';
+          getMetadata() {
+            return { id: 'init-fail-no-msg', name: 'No Msg', version: '1.0.0', apiVersion: '1.0.0' };
+          }
+          async initialize() { return { success: false }; }
+          async execute() { return { success: true, data: {} }; }
+        }
+        module.exports = { default: InitFailNoMsgPlugin };
+        module.exports.default = InitFailNoMsgPlugin;
+        `
+      );
+
+      const loader = new PluginLoader({ baseDir: tempDir!, cacheEnabled: false });
+      const result = await loader.load('init-fail-no-msg');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBe('Plugin initialization failed');
+    });
+
+    it('should successfully load and cache plugin with initialize', async () => {
+      // 正常路径：完整加载流程，包括 initialize 和缓存
+      const pluginDir = path.join(tempDir!, 'full-load-plugin', 'dist');
+      fs.mkdirSync(pluginDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(pluginDir, 'index.js'),
+        `
+        class FullLoadPlugin {
+          name = 'Full Load';
+          version = '3.0.0';
+          description = 'Full load test';
+          getMetadata() {
+            return { id: 'full-load-plugin', name: 'Full Load', version: '3.0.0', apiVersion: '1.0.0' };
+          }
+          async initialize() { return { success: true }; }
+          async execute() { return { success: true, data: {} }; }
+        }
+        module.exports = { default: FullLoadPlugin };
+        module.exports.default = FullLoadPlugin;
+        `
+      );
+
+      const loader = new PluginLoader({ baseDir: tempDir!, cacheEnabled: true });
+      const result = await loader.load('full-load-plugin');
+
+      expect(result.success).toBe(true);
+      expect(result.metadata?.version).toBe('3.0.0');
+      expect(loader.isLoaded('full-load-plugin')).toBe(true);
+
+      // 验证状态为 ACTIVE
+      const status = loader.getStatus('full-load-plugin');
+      expect(status?.state).toBe(PluginLifecycleState.ACTIVE);
+    });
+
+    it('should load plugin without initialize method', async () => {
+      // 边界情况：插件无 initialize 方法
+      const pluginDir = path.join(tempDir!, 'no-init-plugin', 'dist');
+      fs.mkdirSync(pluginDir, { recursive: true });
+      fs.writeFileSync(
+        path.join(pluginDir, 'index.js'),
+        `
+        class NoInitPlugin {
+          name = 'No Init';
+          version = '1.0.0';
+          getMetadata() {
+            return { id: 'no-init-plugin', name: 'No Init', version: '1.0.0', apiVersion: '1.0.0' };
+          }
+          async execute() { return { success: true, data: {} }; }
+        }
+        module.exports = { default: NoInitPlugin };
+        module.exports.default = NoInitPlugin;
+        `
+      );
+
+      const loader = new PluginLoader({ baseDir: tempDir!, cacheEnabled: false });
+      const result = await loader.load('no-init-plugin');
+
+      expect(result.success).toBe(true);
+      expect(result.metadata?.id).toBe('no-init-plugin');
+    });
+  });
+
+  describe('ST-03: load - import 异常处理', () => {
+    it('should set ERROR status when import fails', async () => {
+      // 异常路径：import 抛出异常
+      const loader = new PluginLoader({ baseDir: '/tmp/test-import-error' });
+
+      // Mock resolvePluginPath 返回一个不存在的路径
+      vi.spyOn(loader as any, 'resolvePluginPath').mockReturnValue('/nonexistent/module/path.js');
+
+      const result = await loader.load('import-error-plugin');
+
+      expect(result.success).toBe(false);
+      expect(result.error).toBeDefined();
+
+      // 验证状态被设置为 ERROR
+      const status = loader.getStatus('import-error-plugin');
+      expect(status?.state).toBe(PluginLifecycleState.ERROR);
+    });
+  });
+
+  describe('ST-03: load - 缓存命中与 TTL', () => {
+    it('should return cached plugin without re-importing when cache is valid', async () => {
+      // 正常路径：缓存命中，不重新 import
+      const loader = new PluginLoader({ baseDir: '/tmp/test-cache-valid', cacheTtl: 60000 });
+      const mockPlugin = createMockPlugin('cache-hit-plugin');
+
+      const cache = (loader as any).cache as Map<string, any>;
+      cache.set('cache-hit-plugin', {
+        plugin: mockPlugin,
+        metadata: mockPlugin.getMetadata(),
+        loadedAt: Date.now(),
+        config: undefined,
+      });
+
+      // Spy on resolvePluginPath - 不应被调用
+      const resolveSpy = vi.spyOn(loader as any, 'resolvePluginPath');
+
+      const result = await loader.load('cache-hit-plugin');
+
+      expect(result.success).toBe(true);
+      expect(result.plugin).toBe(mockPlugin);
+      expect(resolveSpy).not.toHaveBeenCalled();
+    });
+  });
 });
