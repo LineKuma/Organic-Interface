@@ -85,6 +85,19 @@ importers:
         specifier: ^4.1.8
         version: 4.1.8(@types/node@20.19.41)(@vitest/coverage-v8@4.1.8)(vite@8.0.16(@types/node@20.19.41)(yaml@2.9.0))
 
+  packages/model-config:
+    dependencies:
+      '@organic/utils':
+        specifier: workspace:*
+        version: link:../utils
+      chalk:
+        specifier: ^5.4.0
+        version: 5.6.2
+    devDependencies:
+      typescript:
+        specifier: ^5.4.0
+        version: 5.9.3
+
   packages/plugins:
     dependencies:
       '@organic/kernel':
