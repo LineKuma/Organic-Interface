@@ -90,13 +90,57 @@ export {
 // CLI interface
 export { CLI } from './cli/CLI.js';
 
-// Terminal UI components (chalk + ora based)
-export { type Theme, type ThemeColors, defaultTheme, createTheme } from './terminal/Theme.js';
+// Terminal UI - core capability detection and feature toggles
+export {
+  Terminal,
+  type FeatureConfig,
+  type TerminalFeatures,
+  type ColorDepth,
+  DEFAULT_FEATURE_CONFIG,
+  terminal,
+  ANSI,
+  esc,
+} from './terminal/Terminal.js';
 
+// Terminal UI - mouse event handling
+export {
+  MouseHandler,
+  createMouseHandler,
+  type MouseEvent,
+  type MouseEventType,
+  type MouseButton,
+  type MouseEventCallback,
+  type MouseEvents,
+} from './terminal/Mouse.js';
+
+// Terminal UI - screen buffer management
+export {
+  Screen,
+  createScreen,
+  inAlternateScreen,
+  type ResizeEvent,
+  type ScreenEvents,
+} from './terminal/Screen.js';
+
+// Terminal UI - theme and styling
+export {
+  type Theme,
+  type ThemeColors,
+  defaultTheme,
+  lowColorTheme,
+  noneTheme,
+  createTheme,
+  createAutoTheme,
+  getChalkForDepth,
+} from './terminal/Theme.js';
+
+// Terminal UI - styled output
 export { Output, defaultOutput, createOutput, type OutputLevel } from './terminal/Output.js';
 
+// Terminal UI - spinner
 export { Spinner, createSpinner, withSpinner, type SpinnerOptions } from './terminal/Spinner.js';
 
+// Terminal UI - banner
 export {
   Banner,
   defaultBanner,
@@ -105,6 +149,7 @@ export {
   type BannerStyle,
 } from './terminal/Banner.js';
 
+// Terminal UI - box drawing
 export { Box, defaultBox, createBox, type BoxConfig, type BoxStyle } from './terminal/Box.js';
 
 /**

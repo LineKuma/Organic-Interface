@@ -3,11 +3,13 @@
  */
 
 import { createLogger, type Logger } from '@organic/utils';
-import chalk from 'chalk';
 import * as readline from 'node:readline';
 import { type Command, type CommandResult, createCommand, addSubcommand } from './Command.js';
 import type { CommandParser } from './CommandParser.js';
 import { defaultParser } from './CommandParser.js';
+import { Terminal, type FeatureConfig } from '../terminal/Terminal.js';
+import { createAutoTheme, type Theme } from '../terminal/Theme.js';
+import { Screen } from '../terminal/Screen.js';
 
 /**
  * CLI configuration
@@ -27,6 +29,8 @@ export interface CLIConfig {
   interactive?: boolean;
   /** History file path for interactive mode */
   historyPath?: string;
+  /** Terminal feature configuration (mouse, colors, unicode, etc.) */
+  terminalFeatures?: Partial<FeatureConfig>;
 }
 
 /**
@@ -74,6 +78,9 @@ export class CLI {
   private readonly parser: CommandParser;
   private readonly rootCommand: Command;
   private operationHistory: OperationLog[] = [];
+  private readonly terminal: Terminal;
+  private readonly theme: Theme;
+  private screen: Screen | null = null;
 
   constructor(config: CLIConfig = {}) {
     this.config = {
@@ -84,10 +91,23 @@ export class CLI {
       parser: config.parser,
       interactive: config.interactive ?? false,
       historyPath: config.historyPath ?? '.organic-cli-history',
+      terminalFeatures: config.terminalFeatures,
     };
 
     this.logger = this.config.logger ?? createLogger({ prefix: 'cli' });
     this.parser = this.config.parser ?? defaultParser;
+
+    // Initialize terminal with feature configuration
+    this.terminal = Terminal.init(config.terminalFeatures);
+    this.theme = createAutoTheme();
+
+    // Log terminal capabilities on startup
+    this.logger.debug(
+      `Terminal: ${this.terminal.features.termType} (${this.terminal.features.termProgram}), ` +
+        `colors=${this.terminal.features.colorDepth}, ` +
+        `mouse=${this.terminal.features.mouse}, ` +
+        `unicode=${this.terminal.features.unicode}`
+    );
 
     // Create root command
     this.rootCommand = createCommand({
@@ -400,22 +420,35 @@ export class CLI {
 
   /**
    * Start interactive REPL session
+   *
+   * Uses the Terminal detection system for feature-aware rendering.
+   * Supports alternate screen buffer, cursor control, and clean exit handling.
    */
   async startInteractive(): Promise<void> {
+    this.screen = new Screen(this.terminal);
+    const { colors } = this.theme;
+
+    // Enter alternate screen for a clean TUI experience (if supported)
+    if (this.terminal.features.alternateScreen) {
+      this.screen.enterAltScreen();
+    }
+    this.screen.hideCursor();
+    this.screen.setupCleanup();
+
     const rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
       terminal: true,
-      prompt: chalk.cyan(`${this.config.name}> `),
+      prompt: colors.primary(`${this.config.name}> `),
       historySize: 1000,
     });
 
     // Display welcome banner
     console.log('');
-    console.log(chalk.bold.cyan(`  ${this.config.name}`));
-    console.log(chalk.dim(`  ${this.config.description}`));
-    console.log(chalk.dim(`  Version ${this.config.version}`));
-    console.log(chalk.dim('  Type "help" for available commands, "exit" to quit'));
+    console.log(colors.title(`  ${this.config.name}`));
+    console.log(colors.muted(`  ${this.config.description}`));
+    console.log(colors.muted(`  Version ${this.config.version}`));
+    console.log(colors.muted('  Type "help" for available commands, "exit" to quit'));
     console.log('');
 
     rl.prompt();
@@ -430,14 +463,14 @@ export class CLI {
 
       // Handle exit
       if (trimmed === 'exit' || trimmed === 'quit' || trimmed === 'q') {
-        console.log(chalk.dim('Goodbye!'));
+        console.log(colors.muted('Goodbye!'));
         rl.close();
         return;
       }
 
       // Handle clear
       if (trimmed === 'clear' || trimmed === 'cls') {
-        console.clear();
+        this.screen?.clear();
         rl.prompt();
         return;
       }
@@ -447,7 +480,7 @@ export class CLI {
       const result = await this.run(args);
 
       if (result.error) {
-        console.log(chalk.red(`  ✖ ${result.error}`));
+        console.log(colors.error(`  ${this.theme.errorPrefix} ${result.error}`));
       } else if (result.message) {
         console.log(result.message);
       }
@@ -457,6 +490,7 @@ export class CLI {
     });
 
     rl.on('close', () => {
+      this.screen?.restore();
       console.log('');
       process.exit(0);
     });
@@ -465,6 +499,27 @@ export class CLI {
     return new Promise(resolve => {
       rl.on('close', resolve);
     });
+  }
+
+  /**
+   * Get the terminal instance
+   */
+  getTerminal(): Terminal {
+    return this.terminal;
+  }
+
+  /**
+   * Get the current theme
+   */
+  getTheme(): Theme {
+    return this.theme;
+  }
+
+  /**
+   * Get the screen manager (only available during interactive mode)
+   */
+  getScreen(): Screen | null {
+    return this.screen;
   }
 
   /**
