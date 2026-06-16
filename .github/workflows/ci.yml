@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - agent-develop
+      - 'feature/**'
   pull_request:
     branches:
       - agent-develop
