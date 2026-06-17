@@ -1,0 +1,28 @@
+#!/usr/bin/env node
+/**
+ * OI CLI Entry Point
+ *
+ * This is the entry point for the `oi` command.
+ * It detects whether it's being called by an AI terminal
+ * (via OI_AI_TERMINAL env var) and:
+ * - If AI terminal: acts as a lightweight helper, communicating
+ *   with the host via IPC socket
+ * - If direct: runs the full CLI with direct access
+ */
+
+import { fileURLToPath } from 'node:url';
+import { dirname, resolve } from 'node:path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+// Dynamic import to allow the main module to handle errors
+async function main() {
+  const { OiHelper } = await import('../src/helper/OiHelper.js');
+  const helper = new OiHelper();
+  await helper.run(process.argv.slice(2));
+}
+
+main().catch(error => {
+  console.error('OI CLI Error:', error.message);
+  process.exit(1);
+});
