@@ -5,17 +5,27 @@
  *   oi history ls       - List all conversation contexts
  *   oi history show     - Show messages in a context (default: current)
  *   oi history count    - Count messages in a context
+ *
+ * All commands are pure proxies: they forward requests to the host
+ * via IPC. The helper has no direct access to conversation data.
  */
 
 import chalk from 'chalk';
 
 import type { IpcRequest, HistoryListResponse, HistoryGetResponse } from '../../types/ipc.js';
 import { sendIpcRequest } from '../IpcClient.js';
-import { getConversationId } from '../../types/ipc.js';
 
 /** Generate a unique request ID */
 function reqId(): string {
   return `hist-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+}
+
+/** Command context provided by the helper */
+export interface CommandContext {
+  /** Socket path to the host IPC server */
+  socketPath: string;
+  /** Current conversation ID */
+  conversationId?: string;
 }
 
 /**
@@ -23,15 +33,18 @@ function reqId(): string {
  *
  * Usage: oi history ls
  */
-export async function historyList(_args: string[]): Promise<void> {
+export async function historyList(_args: string[], ctx: CommandContext): Promise<void> {
   const request: IpcRequest = {
     id: reqId(),
     method: 'history.list',
-    conversationId: getConversationId(),
-    aiTerminal: true,
+    executor: {
+      pid: process.pid,
+      aiTerminal: true,
+      conversationId: ctx.conversationId,
+    },
   };
 
-  const response = await sendIpcRequest(request);
+  const response = await sendIpcRequest(request, ctx.socketPath);
 
   if (!response.success) {
     console.error(chalk.red(`Error: ${response.error}`));
@@ -72,7 +85,7 @@ export async function historyList(_args: string[]): Promise<void> {
  *
  * Usage: oi history show [contextId] [--last N] [--first N]
  */
-export async function historyShow(args: string[]): Promise<void> {
+export async function historyShow(args: string[], ctx: CommandContext): Promise<void> {
   let contextId: string | undefined;
   let lastN: number | undefined;
   let firstN: number | undefined;
@@ -99,8 +112,11 @@ export async function historyShow(args: string[]): Promise<void> {
   const request: IpcRequest = {
     id: reqId(),
     method: 'history.get',
-    conversationId: getConversationId(),
-    aiTerminal: true,
+    executor: {
+      pid: process.pid,
+      aiTerminal: true,
+      conversationId: ctx.conversationId,
+    },
     params: {
       contextId: contextId ?? 'current',
       lastN,
@@ -108,7 +124,7 @@ export async function historyShow(args: string[]): Promise<void> {
     },
   };
 
-  const response = await sendIpcRequest(request);
+  const response = await sendIpcRequest(request, ctx.socketPath);
 
   if (!response.success) {
     console.error(chalk.red(`Error: ${response.error}`));
@@ -156,18 +172,21 @@ export async function historyShow(args: string[]): Promise<void> {
  *
  * Usage: oi history count [contextId]
  */
-export async function historyCount(args: string[]): Promise<void> {
+export async function historyCount(args: string[], ctx: CommandContext): Promise<void> {
   const contextId = args[0] ?? 'current';
 
   const request: IpcRequest = {
     id: reqId(),
     method: 'history.count',
-    conversationId: getConversationId(),
-    aiTerminal: true,
+    executor: {
+      pid: process.pid,
+      aiTerminal: true,
+      conversationId: ctx.conversationId,
+    },
     params: { contextId },
   };
 
-  const response = await sendIpcRequest(request);
+  const response = await sendIpcRequest(request, ctx.socketPath);
 
   if (!response.success) {
     console.error(chalk.red(`Error: ${response.error}`));

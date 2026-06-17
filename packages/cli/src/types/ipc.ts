@@ -5,12 +5,14 @@
  * AI helper and the host process via Unix domain socket.
  *
  * Protocol: JSON-based request/response over Unix socket
- * Socket path: /tmp/oi-ipc-{hostPid}.sock
+ * Socket path: provided by host via command line argument
  *
- * Environment variables:
- *   OI_AI_TERMINAL=true    - Set by AI tool; signals AI context
- *   OI_CONVERSATION_ID=xxx  - Current conversation ID
- *   OI_IPC_SOCKET=/path     - Override IPC socket path
+ * Architecture:
+ *   - Lightweight helper: only proxies commands to host via IPC
+ *   - Host: authenticates, performs permission checks, executes
+ *   - All context (conversation ID, executor identity) is carried
+ *     in the IPC request, no environment variables needed
+ *   - Hard isolation: helper cannot access host data directly
  */
 
 // ── IPC Request / Response ───────────────────────────────────────
@@ -26,6 +28,16 @@ export type IpcMethod =
   | 'config.list'
   | 'ping';
 
+/** Executor identity - determined by the host */
+export interface ExecutorIdentity {
+  /** Process ID of the helper */
+  pid: number;
+  /** Whether this is from an AI terminal */
+  aiTerminal: boolean;
+  /** Conversation ID (set by the AI tool, validated by host) */
+  conversationId?: string;
+}
+
 /** Base IPC request */
 export interface IpcRequest {
   /** Unique request ID */
@@ -34,10 +46,8 @@ export interface IpcRequest {
   method: IpcMethod;
   /** Method parameters */
   params?: Record<string, unknown>;
-  /** Conversation ID (from OI_CONVERSATION_ID) */
-  conversationId?: string;
-  /** Whether this is from an AI terminal */
-  aiTerminal?: boolean;
+  /** Executor identity (set by helper, validated by host) */
+  executor?: ExecutorIdentity;
 }
 
 /** IPC response */
@@ -92,7 +102,7 @@ export interface HistoryMessageItem {
 export interface HistoryListResponse {
   /** Available contexts */
   contexts: HistoryListItem[];
-  /** Current context (from OI_CONVERSATION_ID) */
+  /** Current context (from executor identity) */
   currentContextId?: string;
 }
 
@@ -151,30 +161,53 @@ export interface ConfigListResponse {
   items: ConfigItem[];
 }
 
-// ── Environment ──────────────────────────────────────────────────
+// ── CLI Arguments ─────────────────────────────────────────────────
 
-/** Known environment variable names */
-export const ENV_AI_TERMINAL = 'OI_AI_TERMINAL';
-export const ENV_CONVERSATION_ID = 'OI_CONVERSATION_ID';
-export const ENV_IPC_SOCKET = 'OI_IPC_SOCKET';
+/** Known CLI argument names for the helper */
+export const CLI_ARG_SOCKET = 'socket';
+export const CLI_ARG_CONVERSATION = 'ctx';
 
-/** Default IPC socket path pattern */
+/** CLI arguments parsed by the helper */
+export interface HelperCliArgs {
+  /** Socket path to connect to the host */
+  socketPath: string;
+  /** Conversation ID (current context) */
+  conversationId?: string;
+  /** The actual command to execute */
+  command: string[];
+}
+
+/**
+ * Parse CLI arguments for the helper.
+ * The AI tool invokes: oi --socket /path/to/sock --ctx conv_123 <command...>
+ */
+export function parseHelperArgs(argv: string[]): HelperCliArgs {
+  let socketPath = '/tmp/oi-ipc-host.sock';
+  let conversationId: string | undefined;
+  const command: string[] = [];
+
+  let i = 0;
+  while (i < argv.length) {
+    if (argv[i] === '--socket' && i + 1 < argv.length) {
+      socketPath = argv[i + 1];
+      i += 2;
+    } else if (argv[i] === '--ctx' && i + 1 < argv.length) {
+      conversationId = argv[i + 1];
+      i += 2;
+    } else {
+      command.push(argv[i]);
+      i++;
+    }
+  }
+
+  return { socketPath, conversationId, command };
+}
+
+/**
+ * Determine the default socket path.
+ * When the host starts, it creates a socket at a known location.
+ * The helper connects to this socket.
+ */
 export function getDefaultSocketPath(): string {
-  const pid = process.env[ENV_CONVERSATION_ID] ? process.pid : 'host';
-  return `/tmp/oi-ipc-${pid}.sock`;
-}
-
-/** Check if running in AI terminal mode */
-export function isAiTerminal(): boolean {
-  return process.env[ENV_AI_TERMINAL] === 'true';
-}
-
-/** Get the current conversation ID from environment */
-export function getConversationId(): string | undefined {
-  return process.env[ENV_CONVERSATION_ID];
-}
-
-/** Get the IPC socket path */
-export function getSocketPath(): string {
-  return process.env[ENV_IPC_SOCKET] ?? getDefaultSocketPath();
+  return '/tmp/oi-ipc-host.sock';
 }

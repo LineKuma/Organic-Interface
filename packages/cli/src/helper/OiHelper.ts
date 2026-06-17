@@ -11,9 +11,9 @@
  * - No heavy dependencies
  * - All data comes from the host via IPC
  *
- * Environment variables:
- *   OI_AI_TERMINAL=true     - Must be set by AI tool
- *   OI_CONVERSATION_ID=xxx  - Current conversation context
+ * CLI arguments (provided by the AI tool):
+ *   --socket /path/to/sock   - Socket path to host IPC server
+ *   --ctx conversation_id     - Current conversation context
  *
  * Commands:
  *   oi history ls            - List conversation contexts
@@ -30,25 +30,32 @@
 
 import chalk from 'chalk';
 
-import { isAiTerminal, getConversationId } from '../types/ipc.js';
+import { parseHelperArgs } from '../types/ipc.js';
+import type { CommandContext } from './commands/HistoryCommands.js';
 import { pingHost } from './IpcClient.js';
 import { historyList, historyShow, historyCount } from './commands/HistoryCommands.js';
 import { macroResolve, macroPreview } from './commands/MacroCommands.js';
 import { configGet, configList } from './commands/ConfigCommands.js';
 
 /** Command handler type */
-type CommandHandler = (args: string[]) => Promise<void>;
+type CommandHandler = (args: string[], ctx: CommandContext) => Promise<void>;
 
 /** Command definition */
 interface CommandDef {
   handler: CommandHandler;
   description: string;
   usage: string;
-  requiresAiTerminal: boolean;
 }
 
 /**
- * OI Helper CLI
+ * OI Helper CLI - Pure proxy
+ *
+ * The helper is a thin wrapper that forwards all commands to the
+ * host via IPC. It has no direct access to conversation data,
+ * configuration, or any other host resources.
+ *
+ * The AI tool invokes it as:
+ *   oi --socket /tmp/oi-ipc-host.sock --ctx conv_123 <command...>
  */
 export class OiHelper {
   private commands: Map<string, CommandDef> = new Map();
@@ -59,132 +66,108 @@ export class OiHelper {
 
   /** Register all available commands */
   private registerCommands(): void {
-    // History commands
-    this.cmd('history ls', historyList, 'List conversation contexts', 'oi history ls', true);
+    this.cmd('history ls', historyList, 'List conversation contexts', 'oi history ls');
     this.cmd(
       'history show',
       historyShow,
       'Show messages in a context',
-      'oi history show [contextId] [--last N] [--first N]',
-      true
+      'oi history show [contextId] [--last N] [--first N]'
     );
     this.cmd(
       'history count',
       historyCount,
       'Count messages in a context',
-      'oi history count [contextId]',
-      true
+      'oi history count [contextId]'
     );
 
-    // Macro commands
     this.cmd(
       'macro resolve',
       macroResolve,
       'Resolve macro expressions in text',
-      'oi macro resolve <text>',
-      true
+      'oi macro resolve <text>'
     );
-    this.cmd(
-      'macro preview',
-      macroPreview,
-      'Preview macro expressions',
-      'oi macro preview <text>',
-      true
-    );
+    this.cmd('macro preview', macroPreview, 'Preview macro expressions', 'oi macro preview <text>');
 
-    // Config commands
-    this.cmd('config get', configGet, 'Get a configuration value', 'oi config get <key>', true);
-    this.cmd('config list', configList, 'List all configuration values', 'oi config list', true);
+    this.cmd('config get', configGet, 'Get a configuration value', 'oi config get <key>');
+    this.cmd('config list', configList, 'List all configuration values', 'oi config list');
   }
 
   /** Register a command */
-  private cmd(
-    name: string,
-    handler: CommandHandler,
-    description: string,
-    usage: string,
-    requiresAiTerminal: boolean
-  ): void {
-    this.commands.set(name, { handler, description, usage, requiresAiTerminal });
+  private cmd(name: string, handler: CommandHandler, description: string, usage: string): void {
+    this.commands.set(name, { handler, description, usage });
   }
 
   /** Run the CLI with the given arguments */
   async run(argv: string[]): Promise<void> {
+    // Parse CLI args to extract socket path and context
+    const parsed = parseHelperArgs(argv);
+
+    const ctx: CommandContext = {
+      socketPath: parsed.socketPath,
+      conversationId: parsed.conversationId,
+    };
+
+    const command = parsed.command;
+
     // No arguments: show help
-    if (argv.length === 0) {
-      this.showHelp();
+    if (command.length === 0) {
+      this.showHelp(ctx);
       return;
     }
 
     // Help command
-    if (argv[0] === 'help' || argv[0] === '--help' || argv[0] === '-h') {
-      this.showHelp();
+    if (command[0] === 'help' || command[0] === '--help' || command[0] === '-h') {
+      this.showHelp(ctx);
       return;
     }
 
     // Ping command
-    if (argv[0] === 'ping') {
-      await this.handlePing();
+    if (command[0] === 'ping') {
+      await this.handlePing(ctx);
       return;
     }
 
     // Health command
-    if (argv[0] === 'health') {
-      await this.handleHealth();
+    if (command[0] === 'health') {
+      await this.handleHealth(ctx);
       return;
     }
 
     // Try to match a command
-    const cmdName = argv.slice(0, 2).join(' ');
+    const cmdName = command.slice(0, 2).join(' ');
     const cmd = this.commands.get(cmdName);
 
-    if (!cmd) {
-      // Try single-word command
-      const singleCmd = this.commands.get(argv[0]);
-      if (!singleCmd) {
-        console.error(chalk.red(`Unknown command: ${argv.join(' ')}`));
-        console.error(chalk.dim('Run "oi help" for available commands.'));
-        process.exit(1);
-      }
-
-      if (singleCmd.requiresAiTerminal && !isAiTerminal()) {
-        this.showAiTerminalRequired();
-        return;
-      }
-
-      await singleCmd.handler(argv.slice(1));
+    if (cmd) {
+      await cmd.handler(command.slice(2), ctx);
       return;
     }
 
-    // Check AI terminal requirement
-    if (cmd.requiresAiTerminal && !isAiTerminal()) {
-      this.showAiTerminalRequired();
+    // Try single-word command
+    const singleCmd = this.commands.get(command[0]);
+    if (singleCmd) {
+      await singleCmd.handler(command.slice(1), ctx);
       return;
     }
 
-    await cmd.handler(argv.slice(2));
+    console.error(chalk.red(`Unknown command: ${command.join(' ')}`));
+    console.error(chalk.dim('Run "oi help" for available commands.'));
+    process.exit(1);
   }
 
   /** Show help text */
-  private showHelp(): void {
+  private showHelp(ctx: CommandContext): void {
     console.log(chalk.bold.cyan('\n  Organic Interface CLI'));
     console.log(chalk.dim('  Lightweight helper for AI terminal interaction\n'));
 
-    const aiTerminal = isAiTerminal();
-    const conversationId = getConversationId();
-
-    console.log(
-      `  ${chalk.dim('AI Terminal:')} ${aiTerminal ? chalk.green('yes') : chalk.yellow('no')}`
-    );
-    if (conversationId) {
-      console.log(`  ${chalk.dim('Context:')}     ${chalk.cyan(conversationId)}`);
+    console.log(`  ${chalk.dim('Socket:')}  ${chalk.cyan(ctx.socketPath)}`);
+    if (ctx.conversationId) {
+      console.log(`  ${chalk.dim('Context:')} ${chalk.cyan(ctx.conversationId)}`);
     }
     console.log();
 
     console.log(chalk.bold('  Commands:'));
     console.log();
 
-    // Group commands by category
     const categories: Record<string, CommandDef[]> = {};
 
     for (const [name, cmd] of this.commands) {
@@ -192,14 +175,13 @@ export class OiHelper {
       if (!categories[category]) {
         categories[category] = [];
       }
-      categories[category].push({ ...cmd, ...{ handler: cmd.handler } });
+      categories[category].push(cmd);
     }
 
     for (const [category, cmds] of Object.entries(categories)) {
       console.log(chalk.bold(`  ${category}:`));
       for (const cmd of cmds) {
-        const tag = cmd.requiresAiTerminal ? chalk.dim(' [ai-only]') : '';
-        console.log(`    ${chalk.cyan(cmd.usage)}${tag}`);
+        console.log(`    ${chalk.cyan(cmd.usage)}`);
         console.log(`      ${chalk.dim(cmd.description)}`);
       }
       console.log();
@@ -212,21 +194,10 @@ export class OiHelper {
     console.log();
   }
 
-  /** Show AI terminal required message */
-  private showAiTerminalRequired(): void {
-    console.log(chalk.yellow('This command requires AI terminal context.'));
-    console.log(
-      chalk.dim('Set OI_AI_TERMINAL=true and OI_CONVERSATION_ID=xxx to use this command.')
-    );
-    console.log(
-      chalk.dim('\nThis is a security measure to prevent unauthorized access to conversation data.')
-    );
-  }
-
   /** Handle ping command */
-  private async handlePing(): Promise<void> {
+  private async handlePing(ctx: CommandContext): Promise<void> {
     console.log(chalk.dim('Pinging host...'));
-    const reachable = await pingHost();
+    const reachable = await pingHost(ctx.socketPath);
     if (reachable) {
       console.log(chalk.green('Host is reachable.'));
     } else {
@@ -236,26 +207,17 @@ export class OiHelper {
   }
 
   /** Handle health command */
-  private async handleHealth(): Promise<void> {
-    const aiTerminal = isAiTerminal();
-    const conversationId = getConversationId();
-
+  private async handleHealth(ctx: CommandContext): Promise<void> {
     console.log(chalk.bold('\n  Health Status:'));
     console.log(chalk.dim('  ─'.repeat(40)));
 
-    // AI Terminal status
+    console.log(`  Socket:    ${chalk.cyan(ctx.socketPath)}`);
     console.log(
-      `  AI Terminal:   ${aiTerminal ? chalk.green('enabled') : chalk.yellow('disabled')}`
-    );
-    console.log(
-      `  Context ID:    ${conversationId ? chalk.cyan(conversationId) : chalk.dim('not set')}`
+      `  Context:   ${ctx.conversationId ? chalk.cyan(ctx.conversationId) : chalk.dim('not set')}`
     );
 
-    // Host connectivity
-    const reachable = await pingHost();
-    console.log(
-      `  Host:          ${reachable ? chalk.green('connected') : chalk.red('unreachable')}`
-    );
+    const reachable = await pingHost(ctx.socketPath);
+    console.log(`  Host:      ${reachable ? chalk.green('connected') : chalk.red('unreachable')}`);
 
     console.log();
   }

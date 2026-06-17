@@ -3,12 +3,14 @@
  *
  * Used by the OiHelper to connect to the host IpcServer
  * via Unix domain socket and send JSON requests.
+ *
+ * The socket path is provided by the host via CLI argument.
+ * No environment variables are used.
  */
 
 import * as net from 'node:net';
 
 import type { IpcRequest, IpcResponse } from '../types/ipc.js';
-import { getSocketPath } from '../types/ipc.js';
 
 /** Timeout for IPC connection in ms */
 const IPC_CONNECT_TIMEOUT = 5000;
@@ -17,15 +19,13 @@ const IPC_CONNECT_TIMEOUT = 5000;
  * Send an IPC request to the host and receive the response
  *
  * @param request - The IPC request to send
- * @param socketPath - Optional socket path override
+ * @param socketPath - Socket path to the host
  * @returns The IPC response
  */
 export async function sendIpcRequest(
   request: IpcRequest,
-  socketPath?: string
+  socketPath: string
 ): Promise<IpcResponse> {
-  const path = socketPath ?? getSocketPath();
-
   return new Promise(resolve => {
     const client = new net.Socket();
     let data = '';
@@ -41,7 +41,7 @@ export async function sendIpcRequest(
       resolve({
         id: request.id,
         success: false,
-        error: `IPC timeout: host not reachable at ${path}`,
+        error: `IPC timeout: host not reachable at ${socketPath}`,
         errorCode: 'IPC_TIMEOUT',
       });
     }, IPC_CONNECT_TIMEOUT);
@@ -89,7 +89,7 @@ export async function sendIpcRequest(
       });
     });
 
-    client.connect(path, () => {
+    client.connect(socketPath, () => {
       const payload = JSON.stringify(request) + '\n';
       client.write(payload);
     });
@@ -99,7 +99,7 @@ export async function sendIpcRequest(
 /**
  * Send a ping to check if the host is reachable
  */
-export async function pingHost(socketPath?: string): Promise<boolean> {
+export async function pingHost(socketPath: string): Promise<boolean> {
   const response = await sendIpcRequest(
     {
       id: `ping-${Date.now()}`,

@@ -4,13 +4,15 @@
  * Handles:
  *   oi macro resolve <text>        - Resolve macro expressions in text
  *   oi macro preview <text>        - Preview macro expressions without resolution
+ *
+ * All commands are pure proxies: they forward requests to the host via IPC.
  */
 
 import chalk from 'chalk';
 
 import type { IpcRequest, MacroResolveResponse, MacroPreviewResponse } from '../../types/ipc.js';
 import { sendIpcRequest } from '../IpcClient.js';
-import { getConversationId } from '../../types/ipc.js';
+import type { CommandContext } from './HistoryCommands.js';
 
 function reqId(): string {
   return `macro-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
@@ -21,7 +23,7 @@ function reqId(): string {
  *
  * Usage: oi macro resolve "text with {{macros}}"
  */
-export async function macroResolve(args: string[]): Promise<void> {
+export async function macroResolve(args: string[], ctx: CommandContext): Promise<void> {
   const text = args.join(' ');
 
   if (!text) {
@@ -33,12 +35,15 @@ export async function macroResolve(args: string[]): Promise<void> {
   const request: IpcRequest = {
     id: reqId(),
     method: 'macro.resolve',
-    conversationId: getConversationId(),
-    aiTerminal: true,
+    executor: {
+      pid: process.pid,
+      aiTerminal: true,
+      conversationId: ctx.conversationId,
+    },
     params: { text },
   };
 
-  const response = await sendIpcRequest(request);
+  const response = await sendIpcRequest(request, ctx.socketPath);
 
   if (!response.success) {
     console.error(chalk.red(`Error: ${response.error}`));
@@ -58,7 +63,7 @@ export async function macroResolve(args: string[]): Promise<void> {
  *
  * Usage: oi macro preview "text with {{macros}}"
  */
-export async function macroPreview(args: string[]): Promise<void> {
+export async function macroPreview(args: string[], ctx: CommandContext): Promise<void> {
   const text = args.join(' ');
 
   if (!text) {
@@ -70,12 +75,15 @@ export async function macroPreview(args: string[]): Promise<void> {
   const request: IpcRequest = {
     id: reqId(),
     method: 'macro.preview',
-    conversationId: getConversationId(),
-    aiTerminal: true,
+    executor: {
+      pid: process.pid,
+      aiTerminal: true,
+      conversationId: ctx.conversationId,
+    },
     params: { text },
   };
 
-  const response = await sendIpcRequest(request);
+  const response = await sendIpcRequest(request, ctx.socketPath);
 
   if (!response.success) {
     console.error(chalk.red(`Error: ${response.error}`));

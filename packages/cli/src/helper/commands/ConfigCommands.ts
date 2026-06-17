@@ -4,13 +4,15 @@
  * Handles:
  *   oi config get <key>     - Get a configuration value
  *   oi config list          - List all configuration values
+ *
+ * All commands are pure proxies: they forward requests to the host via IPC.
  */
 
 import chalk from 'chalk';
 
 import type { IpcRequest, ConfigListResponse } from '../../types/ipc.js';
 import { sendIpcRequest } from '../IpcClient.js';
-import { getConversationId } from '../../types/ipc.js';
+import type { CommandContext } from './HistoryCommands.js';
 
 function reqId(): string {
   return `cfg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
@@ -21,7 +23,7 @@ function reqId(): string {
  *
  * Usage: oi config get <key>
  */
-export async function configGet(args: string[]): Promise<void> {
+export async function configGet(args: string[], ctx: CommandContext): Promise<void> {
   const key = args[0];
 
   if (!key) {
@@ -33,12 +35,15 @@ export async function configGet(args: string[]): Promise<void> {
   const request: IpcRequest = {
     id: reqId(),
     method: 'config.get',
-    conversationId: getConversationId(),
-    aiTerminal: true,
+    executor: {
+      pid: process.pid,
+      aiTerminal: true,
+      conversationId: ctx.conversationId,
+    },
     params: { key },
   };
 
-  const response = await sendIpcRequest(request);
+  const response = await sendIpcRequest(request, ctx.socketPath);
 
   if (!response.success) {
     console.error(chalk.red(`Error: ${response.error}`));
@@ -54,16 +59,19 @@ export async function configGet(args: string[]): Promise<void> {
  *
  * Usage: oi config list
  */
-export async function configList(): Promise<void> {
+export async function configList(_args: string[], ctx: CommandContext): Promise<void> {
   const request: IpcRequest = {
     id: reqId(),
     method: 'config.list',
-    conversationId: getConversationId(),
-    aiTerminal: true,
+    executor: {
+      pid: process.pid,
+      aiTerminal: true,
+      conversationId: ctx.conversationId,
+    },
     params: {},
   };
 
-  const response = await sendIpcRequest(request);
+  const response = await sendIpcRequest(request, ctx.socketPath);
 
   if (!response.success) {
     console.error(chalk.red(`Error: ${response.error}`));

@@ -5,8 +5,7 @@
  *
  * - Lightweight helper for AI terminal use (via IPC)
  * - Host-side IPC server for conversation/macro/config access
- * - AI terminal environment variable guard (OI_AI_TERMINAL)
- * - Conversation ID injection (OI_CONVERSATION_ID)
+ * - Hard permission isolation: helper proxies, host validates
  *
  * Commands (via `oi`):
  *   oi history ls           - List conversation contexts
@@ -22,8 +21,8 @@
  *
  * @example AI terminal usage:
  * ```bash
- * OI_AI_TERMINAL=true OI_CONVERSATION_ID=ctx_123 oi history ls
- * OI_AI_TERMINAL=true OI_CONVERSATION_ID=ctx_123 oi macro resolve "{{history:current:last:5}}"
+ * oi --socket /tmp/oi-ipc-host.sock --ctx conv_123 history ls
+ * oi --socket /tmp/oi-ipc-host.sock --ctx conv_123 macro resolve "{{history:current:last:5}}"
  * ```
  *
  * @example Host usage:
@@ -34,6 +33,7 @@
  * server.setContext({
  *   getContexts: () => contextManager.getAllContexts(),
  *   getMessages: (id) => contextManager.getMessages(id),
+ *   checkPermission: (executor, ctxId) => executor?.aiTerminal === true,
  * });
  * await server.start();
  * ```

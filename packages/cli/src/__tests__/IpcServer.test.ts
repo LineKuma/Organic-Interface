@@ -2,10 +2,10 @@
  * CLI Package Tests
  *
  * Comprehensive tests for the OI CLI system:
- * - IPC protocol types and environment variable handling
+ * - IPC protocol types and CLI argument parsing
  * - IpcServer host-side socket server with handlers
  * - IpcClient lightweight helper communication
- * - OiHelper command routing and AI terminal guard
+ * - OiHelper command routing and proxy behavior
  * - History, Macro, and Config commands
  */
 
@@ -26,15 +26,7 @@ import type {
   ConfigListResponse,
 } from '../types/ipc.js';
 
-import {
-  ENV_AI_TERMINAL,
-  ENV_CONVERSATION_ID,
-  ENV_IPC_SOCKET,
-  isAiTerminal,
-  getConversationId,
-  getSocketPath,
-  getDefaultSocketPath,
-} from '../types/ipc.js';
+import { parseHelperArgs, getDefaultSocketPath } from '../types/ipc.js';
 
 // ── Test Helpers ─────────────────────────────────────────────────
 
@@ -113,7 +105,6 @@ function createTestContext(): IpcServerContext {
     ],
     getMessages: (contextId, range, lastN) => {
       let msgs = [...SAMPLE_MESSAGES].filter(m => {
-        // Simulate different contexts
         if (contextId === 'ctx_1') return true;
         if (contextId === 'ctx_2') return m.index <= 3;
         return true;
@@ -196,51 +187,54 @@ function sendRequest(socketPath: string, request: IpcRequest): Promise<IpcRespon
   });
 }
 
-// ── Environment Variables ────────────────────────────────────────
+/** Create an executor identity for testing */
+function testExecutor(conversationId?: string): IpcRequest['executor'] {
+  return {
+    pid: process.pid,
+    aiTerminal: true,
+    conversationId,
+  };
+}
 
-describe('Environment Variables', () => {
-  const origEnv = { ...process.env };
+// ── CLI Argument Parsing ─────────────────────────────────────────
 
-  afterEach(() => {
-    process.env = { ...origEnv };
+describe('CLI Argument Parsing', () => {
+  it('should parse socket and ctx args', () => {
+    const result = parseHelperArgs([
+      '--socket',
+      '/tmp/custom.sock',
+      '--ctx',
+      'conv_123',
+      'history',
+      'ls',
+    ]);
+    expect(result.socketPath).toBe('/tmp/custom.sock');
+    expect(result.conversationId).toBe('conv_123');
+    expect(result.command).toEqual(['history', 'ls']);
   });
 
-  it('should detect AI terminal mode', () => {
-    process.env[ENV_AI_TERMINAL] = 'true';
-    expect(isAiTerminal()).toBe(true);
+  it('should use default socket when not provided', () => {
+    const result = parseHelperArgs(['history', 'ls']);
+    expect(result.socketPath).toBe('/tmp/oi-ipc-host.sock');
+    expect(result.conversationId).toBeUndefined();
+    expect(result.command).toEqual(['history', 'ls']);
   });
 
-  it('should detect non-AI terminal mode', () => {
-    delete process.env[ENV_AI_TERMINAL];
-    expect(isAiTerminal()).toBe(false);
+  it('should parse multiple args with mixed flags', () => {
+    const result = parseHelperArgs(['--ctx', 'ctx_abc', 'history', 'show', '--last', '10']);
+    expect(result.conversationId).toBe('ctx_abc');
+    expect(result.command).toEqual(['history', 'show', '--last', '10']);
   });
 
-  it('should get conversation ID', () => {
-    process.env[ENV_CONVERSATION_ID] = 'ctx_test_123';
-    expect(getConversationId()).toBe('ctx_test_123');
-  });
-
-  it('should return undefined for missing conversation ID', () => {
-    delete process.env[ENV_CONVERSATION_ID];
-    expect(getConversationId()).toBeUndefined();
-  });
-
-  it('should get socket path from env', () => {
-    process.env[ENV_IPC_SOCKET] = '/custom/path.sock';
-    expect(getSocketPath()).toBe('/custom/path.sock');
+  it('should handle no args', () => {
+    const result = parseHelperArgs([]);
+    expect(result.socketPath).toBe('/tmp/oi-ipc-host.sock');
+    expect(result.conversationId).toBeUndefined();
+    expect(result.command).toEqual([]);
   });
 
   it('should return default socket path', () => {
-    delete process.env[ENV_IPC_SOCKET];
-    const path = getDefaultSocketPath();
-    expect(path).toContain('/tmp/oi-ipc-');
-  });
-
-  it('should create AI terminal env', () => {
-    const env = IpcServer.createAiTerminalEnv('ctx_123', '/tmp/test.sock');
-    expect(env[ENV_AI_TERMINAL]).toBe('true');
-    expect(env[ENV_CONVERSATION_ID]).toBe('ctx_123');
-    expect(env['OI_IPC_SOCKET']).toBe('/tmp/test.sock');
+    expect(getDefaultSocketPath()).toBe('/tmp/oi-ipc-host.sock');
   });
 });
 
@@ -292,11 +286,11 @@ describe('IpcServer', () => {
       expect(data.contexts[0].contextId).toBe('ctx_1');
     });
 
-    it('should include current context ID', async () => {
+    it('should include current context ID from executor', async () => {
       const response = await sendRequest(socketPath, {
         id: 'test-3',
         method: 'history.list',
-        conversationId: 'ctx_1',
+        executor: testExecutor('ctx_1'),
       });
       expect(response.success).toBe(true);
       const data = response.data as HistoryListResponse;
@@ -330,11 +324,11 @@ describe('IpcServer', () => {
       expect(data.messages[1].content).toBe('2+2 = 4');
     });
 
-    it('should use conversationId from request', async () => {
+    it('should use conversationId from executor', async () => {
       const response = await sendRequest(socketPath, {
         id: 'test-6',
         method: 'history.get',
-        conversationId: 'ctx_2',
+        executor: testExecutor('ctx_2'),
       });
       expect(response.success).toBe(true);
       const data = response.data as HistoryGetResponse;
@@ -520,5 +514,127 @@ describe('IpcServer custom handler', () => {
     expect(response.success).toBe(true);
     const data = response.data as { custom: string };
     expect(data.custom).toBe('handler-called');
+  });
+});
+
+// ── IpcServer Permission Checks ──────────────────────────────────
+
+describe('IpcServer permission checks', () => {
+  let server: IpcServer;
+  let socketPath: string;
+
+  beforeEach(async () => {
+    socketPath = testSocketPath();
+    server = new IpcServer(socketPath);
+    server.setContext({
+      ...createTestContext(),
+      checkPermission: (executor, contextId) => {
+        // Only allow access to own conversation
+        return executor?.conversationId === contextId;
+      },
+    });
+    await server.start();
+  });
+
+  afterEach(async () => {
+    await server.stop();
+    try {
+      fs.unlinkSync(socketPath);
+    } catch {
+      /* ignore */
+    }
+  });
+
+  it('should allow access to own conversation', async () => {
+    const response = await sendRequest(socketPath, {
+      id: 'test-perm-1',
+      method: 'history.get',
+      executor: testExecutor('ctx_1'),
+      params: { contextId: 'ctx_1' },
+    });
+    expect(response.success).toBe(true);
+  });
+
+  it('should deny access to other conversation', async () => {
+    const response = await sendRequest(socketPath, {
+      id: 'test-perm-2',
+      method: 'history.get',
+      executor: testExecutor('ctx_1'),
+      params: { contextId: 'ctx_2' },
+    });
+    expect(response.success).toBe(false);
+    expect(response.errorCode).toBe('PERMISSION_DENIED');
+  });
+
+  it('should allow access without permission checker', async () => {
+    // Create a server without checkPermission
+    const noPermPath = `/tmp/oi-ipc-test-no-perm-${Date.now()}.sock`;
+    const noPermServer = new IpcServer(noPermPath);
+    noPermServer.setContext(createTestContext());
+    await noPermServer.start();
+
+    try {
+      const response = await sendRequest(noPermPath, {
+        id: 'test-perm-3',
+        method: 'history.get',
+        executor: testExecutor('ctx_1'),
+        params: { contextId: 'ctx_2' },
+      });
+      expect(response.success).toBe(true);
+    } finally {
+      await noPermServer.stop();
+      try {
+        fs.unlinkSync(noPermPath);
+      } catch {
+        /* ignore */
+      }
+    }
+  });
+});
+
+// ── Executor Identity in Requests ────────────────────────────────
+
+describe('Executor Identity', () => {
+  let server: IpcServer;
+  let socketPath: string;
+
+  beforeEach(async () => {
+    socketPath = testSocketPath();
+    server = new IpcServer(socketPath);
+    server.setContext(createTestContext());
+    await server.start();
+  });
+
+  afterEach(async () => {
+    await server.stop();
+    try {
+      fs.unlinkSync(socketPath);
+    } catch {
+      /* ignore */
+    }
+  });
+
+  it('should use executor conversationId for context', async () => {
+    const response = await sendRequest(socketPath, {
+      id: 'test-exec-1',
+      method: 'history.get',
+      executor: testExecutor('ctx_1'),
+    });
+    expect(response.success).toBe(true);
+    const data = response.data as HistoryGetResponse;
+    expect(data.contextId).toBe('ctx_1');
+    expect(data.messages).toHaveLength(5);
+  });
+
+  it('should prefer params.contextId over executor conversationId', async () => {
+    const response = await sendRequest(socketPath, {
+      id: 'test-exec-2',
+      method: 'history.get',
+      executor: testExecutor('ctx_1'),
+      params: { contextId: 'ctx_2' },
+    });
+    expect(response.success).toBe(true);
+    const data = response.data as HistoryGetResponse;
+    expect(data.totalCount).toBe(3);
   });
 });

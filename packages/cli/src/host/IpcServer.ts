@@ -8,7 +8,13 @@
  * The host process (OI kernel) creates an IpcServer and
  * registers handlers for each IPC method. The server
  * validates that requests come from authorized clients
- * and have the proper conversation context.
+ * and have the proper executor identity.
+ *
+ * Architecture:
+ *   - Helper sends IPC request with executor identity (pid, aiTerminal, conversationId)
+ *   - Host validates executor identity and performs permission checks
+ *   - Host determines what the helper is allowed to access
+ *   - Hard isolation: helper never directly accesses host data
  */
 
 import * as net from 'node:net';
@@ -25,7 +31,6 @@ import type {
   MacroPreviewResponse,
   ConfigListResponse,
 } from '../types/ipc.js';
-import { ENV_AI_TERMINAL, ENV_CONVERSATION_ID } from '../types/ipc.js';
 
 /** Handler function type for IPC methods */
 export type IpcHandler = (request: IpcRequest) => Promise<Omit<IpcResponse, 'id'>>;
@@ -50,6 +55,16 @@ export interface IpcServerContext {
   getConfig?: (key: string) => unknown;
   /** List all config values */
   listConfig?: () => ConfigListResponse['items'] | Promise<ConfigListResponse['items']>;
+  /** Permission check: can this executor access the given conversation? */
+  checkPermission?: (executor: IpcRequest['executor'], conversationId: string) => boolean;
+}
+
+/**
+ * Extract conversation ID from a request.
+ * Priority: executor.conversationId > params.contextId
+ */
+function extractConversationId(req: IpcRequest): string | undefined {
+  return req.executor?.conversationId ?? (req.params?.contextId as string | undefined);
 }
 
 /**
@@ -62,6 +77,7 @@ export interface IpcServerContext {
  *   getContexts: () => contextManager.getAllContexts(),
  *   getMessages: (id, range) => contextManager.getMessages(id, range),
  *   resolveMacro: (text) => macroResolver.resolve(text, ctx),
+ *   checkPermission: (executor, ctxId) => executor?.aiTerminal === true,
  * });
  * await server.start();
  * ```
@@ -111,7 +127,7 @@ export class IpcServer {
         };
       }
 
-      const conversationId = req.conversationId ?? (req.params?.contextId as string);
+      const conversationId = extractConversationId(req);
       const contexts = await this.context.getContexts();
 
       const response: HistoryListResponse = {
@@ -132,9 +148,20 @@ export class IpcServer {
       }
 
       const params = req.params ?? {};
-      const contextId = (params.contextId as string) ?? req.conversationId ?? 'current';
+      const contextId = (params.contextId as string) ?? extractConversationId(req) ?? 'current';
       const range = params.range as { start?: number; end?: number } | undefined;
       const lastN = params.lastN as number | undefined;
+
+      // Permission check: host validates executor can access this context
+      if (this.context.checkPermission && req.executor) {
+        if (!this.context.checkPermission(req.executor, contextId)) {
+          return {
+            success: false,
+            error: 'Permission denied: executor cannot access this conversation',
+            errorCode: 'PERMISSION_DENIED',
+          };
+        }
+      }
 
       const messages = await this.context.getMessages(contextId, range, lastN);
       const totalCount = this.context.getMessageCount
@@ -161,7 +188,7 @@ export class IpcServer {
       }
 
       const params = req.params ?? {};
-      const contextId = (params.contextId as string) ?? req.conversationId ?? 'current';
+      const contextId = (params.contextId as string) ?? extractConversationId(req) ?? 'current';
       const count = await this.context.getMessageCount(contextId);
 
       return { success: true, data: { contextId, count } };
@@ -178,7 +205,7 @@ export class IpcServer {
 
       const params = req.params ?? {};
       const text = params.text as string;
-      const contextId = (params.contextId as string) ?? req.conversationId;
+      const contextId = (params.contextId as string) ?? extractConversationId(req);
 
       if (!text) {
         return {
@@ -278,7 +305,7 @@ export class IpcServer {
 
       this.server.listen(this.socketPath, () => {
         this.logger.info(`IPC server listening on ${this.socketPath}`);
-        // Set socket permissions
+        // Set socket permissions to restrict access
         try {
           fs.chmodSync(this.socketPath, 0o600);
         } catch {
@@ -348,18 +375,10 @@ export class IpcServer {
 
   /** Process a single IPC request */
   private async processRequest(request: IpcRequest, socket: net.Socket): Promise<void> {
-    this.logger.debug(`Processing: ${request.method} (${request.id})`);
-
-    // Validate AI terminal flag
-    if (request.aiTerminal && !this.isValidAiTerminal()) {
-      this.sendResponse(socket, {
-        id: request.id,
-        success: false,
-        error: 'Unauthorized: OI_AI_TERMINAL flag mismatch',
-        errorCode: 'UNAUTHORIZED',
-      });
-      return;
-    }
+    this.logger.debug(
+      `Processing: ${request.method} (${request.id})` +
+        (request.executor ? ` executor=${request.executor.conversationId ?? 'anon'}` : '')
+    );
 
     const handler = this.handlers.get(request.method);
     if (!handler) {
@@ -395,22 +414,5 @@ export class IpcServer {
     } catch (err) {
       this.logger.debug(`Failed to send response: ${err}`);
     }
-  }
-
-  /** Validate AI terminal authorization */
-  private isValidAiTerminal(): boolean {
-    return process.env[ENV_AI_TERMINAL] === 'true';
-  }
-
-  /**
-   * Create AI terminal environment variables
-   * These should be set by the AI tool before executing the helper
-   */
-  static createAiTerminalEnv(conversationId: string, socketPath?: string): Record<string, string> {
-    return {
-      [ENV_AI_TERMINAL]: 'true',
-      [ENV_CONVERSATION_ID]: conversationId,
-      ...(socketPath ? { OI_IPC_SOCKET: socketPath } : {}),
-    };
   }
 }

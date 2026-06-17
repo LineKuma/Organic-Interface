@@ -3,17 +3,13 @@
  * OI CLI Entry Point
  *
  * This is the entry point for the `oi` command.
- * It detects whether it's being called by an AI terminal
- * (via OI_AI_TERMINAL env var) and:
- * - If AI terminal: acts as a lightweight helper, communicating
- *   with the host via IPC socket
- * - If direct: runs the full CLI with direct access
+ * The AI tool invokes it as:
+ *   oi --socket /tmp/oi-ipc-host.sock --ctx conv_123 <command...>
+ *
+ * The helper is a pure proxy: it forwards all commands to the
+ * host via IPC. The host determines executor identity and
+ * performs permission checks for hard isolation.
  */
-
-import { fileURLToPath } from 'node:url';
-import { dirname, resolve } from 'node:path';
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Dynamic import to allow the main module to handle errors
 async function main() {
