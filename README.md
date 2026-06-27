@@ -117,15 +117,25 @@ organic-interface/
 一键安装，无需克隆仓库：
 
 ```bash
-# 安装最新版本
+# 安装最新稳定版本 (master 分支，默认)
 curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash
+
+# 安装开发版本 (develop 分支)
+curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash -s -- --branch develop
 
 # 安装指定版本
 curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash -s -- --version v0.1.0
 
+# 安装指定版本和分支
+curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash -s -- --version v0.1.0 --branch develop
+
 # 安装到指定目录
 curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash -s -- --dir /opt/organic
 ```
+
+**分支说明：**
+- `master` (或 `stable`)：稳定版本，适合生产环境
+- `develop` (或 `dev`)：开发版本，包含最新功能，可能不稳定
 
 安装完成后，运行以下命令使环境变量生效：
 

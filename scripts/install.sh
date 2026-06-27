@@ -22,6 +22,7 @@ NC='\033[0m' # No Color
 REPO_OWNER="LineKuma"
 REPO_NAME="Organic-Interface"
 DEFAULT_VERSION="latest"
+DEFAULT_BRANCH="master"
 INSTALL_DIR="${HOME}/.organic"
 BIN_DIR="${INSTALL_DIR}/bin"
 DIST_DIR="${INSTALL_DIR}/dist"
@@ -37,13 +38,17 @@ Organic-Interface 安装脚本
 
 选项:
     -v, --version VERSION   指定安装版本 (默认: latest)
+    -b, --branch BRANCH     指定分支 (stable/master 或 dev/develop，默认: master)
     -d, --dir DIRECTORY     指定安装目录 (默认: ~/.organic)
     -u, --uninstall         卸载 Organic-Interface
     -h, --help              显示帮助信息
 
 示例:
-    # 安装最新版本
+    # 安装最新稳定版本 (master 分支)
     curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash
+
+    # 安装开发版本 (develop 分支)
+    curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash -s -- --branch develop
 
     # 安装指定版本
     curl -fsSL ... | bash -s -- --version v0.1.0
@@ -134,9 +139,10 @@ download_file() {
 # 安装函数
 install() {
     local version="$1"
-    local install_dir="$2"
+    local branch="$2"
+    local install_dir="$3"
 
-    info "开始安装 Organic-Interface ${version}..."
+    info "开始安装 Organic-Interface ${version} (${branch} 分支)..."
 
     # 检查依赖
     check_dependencies
@@ -147,14 +153,25 @@ install() {
         info "最新版本: ${version}"
     fi
 
+    # 解析分支
+    local download_branch="$branch"
+    case "$branch" in
+        stable|master)
+            download_branch="master"
+            ;;
+        dev|develop)
+            download_branch="develop"
+            ;;
+    esac
+
     # 确定下载 URL
     local download_url
     case "$(uname -s)" in
         Linux*)
-            download_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${version}/organic-linux-x64.tar.gz"
+            download_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${version}/organic-${download_branch}-linux-x64.tar.gz"
             ;;
         Darwin*)
-            download_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${version}/organic-darwin-x64.tar.gz"
+            download_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${version}/organic-${download_branch}-darwin-x64.tar.gz"
             ;;
         *)
             error "不支持的操作系统: $(uname -s)"
@@ -232,6 +249,7 @@ BIN_EOF
     echo "安装路径: ${install_dir}"
     echo "可执行文件: ${install_dir}/bin/organic"
     echo "版本: ${version}"
+    echo "分支: ${branch}"
     echo ""
     echo "请运行以下命令使环境变量生效:"
     echo "  source $profile"
@@ -262,6 +280,7 @@ uninstall() {
 # 主函数
 main() {
     local version="$DEFAULT_VERSION"
+    local branch="$DEFAULT_BRANCH"
     local install_dir="$INSTALL_DIR"
     local action="install"
 
@@ -270,6 +289,10 @@ main() {
         case $1 in
             -v|--version)
                 version="$2"
+                shift 2
+                ;;
+            -b|--branch)
+                branch="$2"
                 shift 2
                 ;;
             -d|--dir)
@@ -292,7 +315,7 @@ main() {
 
     case "$action" in
         install)
-            install "$version" "$install_dir"
+            install "$version" "$branch" "$install_dir"
             ;;
         uninstall)
             uninstall "$install_dir"
