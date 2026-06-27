@@ -3,3 +3,7 @@ dist
 coverage
 *.min.js
 .eslintrc.js
+*.yml
+*.yaml
+*.sh
+pnpm-lock.yaml
