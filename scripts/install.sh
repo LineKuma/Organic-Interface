@@ -118,7 +118,8 @@ get_latest_version() {
     local api_url="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest"
     local version=""
 
-    info "正在获取最新版本信息..."
+    # 输出到 stderr，避免被变量捕获
+    info "正在获取最新版本信息..." >&2
 
     # 尝试从 GitHub API 获取
     if command -v curl &> /dev/null; then
@@ -129,11 +130,12 @@ get_latest_version() {
 
     # 如果 API 失败，使用固定版本作为 fallback
     if [ -z "$version" ]; then
-        warn "无法从 GitHub API 获取最新版本（可能是速率限制）"
-        warn "使用默认版本: v0.1.0"
+        warn "无法从 GitHub API 获取最新版本（可能是速率限制）" >&2
+        warn "使用默认版本: v0.1.0" >&2
         version="v0.1.0"
     fi
 
+    # 只输出版本号到 stdout
     echo "$version"
 }
 
