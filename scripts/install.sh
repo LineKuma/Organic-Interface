@@ -166,17 +166,9 @@ install() {
 
     # 确定下载 URL
     local download_url
-    case "$(uname -s)" in
-        Linux*)
-            download_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${version}/organic-${download_branch}-linux-x64.tar.gz"
-            ;;
-        Darwin*)
-            download_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${version}/organic-${download_branch}-darwin-x64.tar.gz"
-            ;;
-        *)
-            error "不支持的操作系统: $(uname -s)"
-            ;;
-    esac
+    # 从版本号中提取版本数字（去掉 v 前缀）
+    local version_number="${version#v}"
+    download_url="https://github.com/${REPO_OWNER}/${REPO_NAME}/releases/download/${version}/organic-${version_number}.tar.gz"
 
     # 创建临时目录
     local temp_dir
