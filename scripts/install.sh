@@ -200,9 +200,9 @@ install() {
     mkdir -p "${install_dir}/bin"
     mkdir -p "${install_dir}/dist"
 
-    # 解压
+    # 解压（使用 --strip-components=1 移除顶层目录）
     info "正在解压..."
-    tar -xzf "$tarball" -C "${install_dir}/dist"
+    tar -xzf "$tarball" -C "${install_dir}/dist" --strip-components=1
 
     # 创建可执行文件
     local bin_file="${install_dir}/bin/organic"
