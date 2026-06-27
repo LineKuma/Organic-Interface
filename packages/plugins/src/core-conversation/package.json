@@ -1,0 +1,45 @@
+{
+  "name": "@organic/plugins/core-conversation",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Core conversation plugin for Organic Interface - provides text-based CLI interaction",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "cd ../../.. && pnpm exec vitest run",
+    "lint": "cd ../../.. && pnpm exec eslint .",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@organic/utils": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0"
+  },
+  "organic": {
+    "plugin": true,
+    "pluginName": "core-conversation",
+    "pluginType": "core",
+    "apiVersion": "1.0.0",
+    "minKernelVersion": "1.0.0"
+  },
+  "keywords": [
+    "organic-interface",
+    "plugin",
+    "conversation",
+    "cli",
+    "text-interaction"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
