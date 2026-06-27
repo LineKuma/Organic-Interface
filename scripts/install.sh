@@ -116,12 +116,25 @@ check_dependencies() {
 # 获取最新版本号
 get_latest_version() {
     local api_url="https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest"
+    local version=""
 
+    info "正在获取最新版本信息..."
+
+    # 尝试从 GitHub API 获取
     if command -v curl &> /dev/null; then
-        curl -fsSL "$api_url" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
+        version=$(curl -sSL "$api_url" 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     else
-        wget -qO- "$api_url" | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/'
+        version=$(wget -qO- "$api_url" 2>/dev/null | grep '"tag_name":' | sed -E 's/.*"([^"]+)".*/\1/')
     fi
+
+    # 如果 API 失败，使用固定版本作为 fallback
+    if [ -z "$version" ]; then
+        warn "无法从 GitHub API 获取最新版本（可能是速率限制）"
+        warn "使用默认版本: v0.1.0"
+        version="v0.1.0"
+    fi
+
+    echo "$version"
 }
 
 # 下载文件
