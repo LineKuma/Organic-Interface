@@ -110,15 +110,76 @@ organic-interface/
 - Node.js 18.0.0 或更高版本
 - pnpm 8.0.0 或更高版本
 
-### 安装步骤
+### 安装方式
+
+#### 方式一：网络安装脚本（推荐）
+
+一键安装，无需克隆仓库：
+
+```bash
+# 安装最新版本
+curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash
+
+# 安装指定版本
+curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash -s -- --version v0.1.0
+
+# 安装到指定目录
+curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash -s -- --dir /opt/organic
+```
+
+安装完成后，运行以下命令使环境变量生效：
+
+```bash
+source ~/.bashrc  # 或 ~/.zshrc
+```
+
+然后即可使用：
+
+```bash
+organic --help     # 查看帮助
+organic --version  # 查看版本
+organic            # 启动交互式 CLI
+```
+
+卸载：
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash -s -- --uninstall
+```
+
+#### 方式二：从 GitHub Release 下载
+
+从 [GitHub Releases](https://github.com/LineKuma/Organic-Interface/releases) 下载预构建的 tarball：
+
+```bash
+# 下载
+wget https://github.com/LineKuma/Organic-Interface/releases/download/v0.1.0/organic-v0.1.0.tar.gz
+
+# 解压
+tar -xzf organic-v0.1.0.tar.gz
+
+# 安装依赖
+cd organic-v0.1.0
+pnpm install --prod
+
+# 运行
+node packages/ui/cli.js
+```
+
+#### 方式三：克隆仓库（开发用）
+
+适合开发者贡献代码：
 
 ```bash
 # 克隆项目
-git clone <repository-url>
-cd organic-interface
+git clone https://github.com/LineKuma/Organic-Interface.git
+cd Organic-Interface
 
 # 安装依赖
 pnpm install
+
+# 构建
+pnpm build
 ```
 
 ### 构建命令

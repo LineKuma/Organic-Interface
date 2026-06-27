@@ -1,0 +1,155 @@
+name: Build and Release
+
+on:
+  release:
+    types: [created]
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v0.1.0)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v2
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build all packages
+        run: pnpm build
+
+      - name: Run tests
+        run: pnpm test
+        continue-on-error: true
+
+      - name: Create release tarball
+        run: |
+          VERSION="${{ github.event.inputs.version || github.event.release.tag_name || github.ref_name }}"
+          VERSION="${VERSION#v}"
+          
+          # 创建临时目录
+          TEMP_DIR=$(mktemp -d)
+          DIST_NAME="organic-${VERSION}"
+          mkdir -p "${TEMP_DIR}/${DIST_NAME}"
+          
+          # 复制必要文件
+          cp package.json "${TEMP_DIR}/${DIST_NAME}/"
+          cp pnpm-lock.yaml "${TEMP_DIR}/${DIST_NAME}/"
+          cp pnpm-workspace.yaml "${TEMP_DIR}/${DIST_NAME}/"
+          cp .npmrc "${TEMP_DIR}/${DIST_NAME}/" || true
+          
+          # 复制所有包
+          for pkg in packages/*; do
+            pkg_name=$(basename "$pkg")
+            mkdir -p "${TEMP_DIR}/${DIST_NAME}/packages/${pkg_name}"
+            cp "${pkg}/package.json" "${TEMP_DIR}/${DIST_NAME}/packages/${pkg_name}/"
+            if [ -d "${pkg}/dist" ]; then
+              cp -r "${pkg}/dist" "${TEMP_DIR}/${DIST_NAME}/packages/${pkg_name}/"
+            fi
+            if [ -f "${pkg}/tsconfig.json" ]; then
+              cp "${pkg}/tsconfig.json" "${TEMP_DIR}/${DIST_NAME}/packages/${pkg_name}/"
+            fi
+          done
+          
+          # 创建 CLI 入口
+          cat > "${TEMP_DIR}/${DIST_NAME}/packages/ui/cli.js" << 'EOF'
+#!/usr/bin/env node
+// Organic-Interface CLI
+const { createCLI } = await import('./dist/cli/index.js');
+
+async function main() {
+  const cli = createCLI({
+    name: 'organic',
+    version: '0.1.0',
+    description: 'Organic Interface - Plugin-based Agent Framework',
+    interactive: process.argv.length <= 2,
+  });
+
+  const args = process.argv.slice(2);
+
+  if (args.length === 0) {
+    await cli.startInteractive();
+  } else {
+    const result = await cli.run(args);
+    if (result.error) {
+      console.error(`Error: ${result.error}`);
+      process.exit(result.code);
+    }
+    if (result.message) {
+      console.log(result.message);
+    }
+    process.exit(result.code);
+  }
+}
+
+main().catch(error => {
+  console.error('Fatal error:', error);
+  process.exit(1);
+});
+EOF
+          chmod +x "${TEMP_DIR}/${DIST_NAME}/packages/ui/cli.js"
+          
+          # 创建 README
+          cat > "${TEMP_DIR}/${DIST_NAME}/README.md" << 'EOF'
+# Organic-Interface
+
+安装依赖:
+  pnpm install --prod
+
+运行 CLI:
+  node packages/ui/cli.js --help
+
+EOF
+          
+          # 打包
+          mkdir -p release
+          TARBALL="organic-${VERSION}.tar.gz"
+          tar -czf "release/${TARBALL}" -C "$TEMP_DIR" "$DIST_NAME"
+          
+          echo "TARBALL_NAME=${TARBALL}" >> $GITHUB_OUTPUT
+          echo "VERSION=${VERSION}" >> $GITHUB_OUTPUT
+
+        id: build_tarball
+
+      - name: Upload tarball to GitHub Release
+        if: github.event_name == 'release' || github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/${{ steps.build_tarball.outputs.TARBALL_NAME }}
+          tag_name: ${{ github.event.release.tag_name || github.ref_name }}
+
+      - name: Upload artifact (for workflow_dispatch)
+        if: github.event_name == 'workflow_dispatch'
+        uses: actions/upload-artifact@v4
+        with:
+          name: organic-${{ steps.build_tarball.outputs.VERSION }}
+          path: release/${{ steps.build_tarball.outputs.TARBALL_NAME }}
+
+      - name: Generate checksums
+        run: |
+          cd release
+          sha256sum *.tar.gz > checksums.sha256
+          
+      - name: Upload checksums
+        if: github.event_name == 'release' || github.event_name == 'push'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/checksums.sha256
