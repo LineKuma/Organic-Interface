@@ -13,12 +13,9 @@ import {
 } from '@organic/utils';
 
 describe('Logger', () => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let consoleLogSpy: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let consoleWarnSpy: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let consoleErrorSpy: any;
+  let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+  let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
+  let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
 
   beforeEach(() => {
     consoleLogSpy = vi.spyOn(console, 'log').mockImplementation(() => {});

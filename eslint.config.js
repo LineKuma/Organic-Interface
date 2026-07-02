@@ -36,6 +36,12 @@ export default [
       'no-unused-vars': 'warn',
     },
   },
+  {
+    files: ['**/*.test.ts', '**/*.test.tsx', '**/__tests__/**'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
+    },
+  },
   configPrettier,
   {
     ignores: [
