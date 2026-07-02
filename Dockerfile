@@ -19,8 +19,7 @@ RUN pnpm install --frozen-lockfile --config.optional=true
 COPY . .
 
 # Build all packages using turbo
-# Use --force to ensure dependencies are properly linked
-RUN pnpm install && pnpm build
+RUN pnpm build
 
 # =============================================================================
 # Stage 2: Runner - Minimal runtime image
@@ -44,7 +43,7 @@ COPY --from=builder /app/turbo.json ./turbo.json
 COPY --from=builder /app/tsconfig.base.json ./tsconfig.base.json
 
 # Set environment
-ENV NODE_ENV=development
+ENV NODE_ENV=production
 
 # Default command - keep container running
 CMD ["tail", "-f", "/dev/null"]

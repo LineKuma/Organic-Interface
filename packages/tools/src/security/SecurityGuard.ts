@@ -26,10 +26,10 @@ export interface SecurityGuardEvents {
   'preset:changed': [SecurityPreset, SecurityPreset];
   /** Fired when an operation is blocked by the security policy */
   'operation:blocked': [
-    { toolId: string; operation: string; preset: SecurityPreset; reason: string },
+    { toolId: string; operation: ToolPermissionType; preset: SecurityPreset; reason: string },
   ];
   /** Fired when an operation is allowed */
-  'operation:allowed': [{ toolId: string; operation: string; preset: SecurityPreset }];
+  'operation:allowed': [{ toolId: string; operation: ToolPermissionType; preset: SecurityPreset }];
 }
 
 /**
@@ -139,10 +139,13 @@ export class SecurityGuard extends EventEmitter {
    * Check if an operation is allowed under the current preset.
    * Returns the reason if blocked, or null if allowed.
    */
-  checkOperation(toolId: string, operation: string): { allowed: boolean; reason?: string } {
+  checkOperation(
+    toolId: string,
+    operation: ToolPermissionType
+  ): { allowed: boolean; reason?: string } {
     const allowedOps = this.presetConfig.allowedOperations;
 
-    if (!allowedOps.includes(operation as ToolPermissionType)) {
+    if (!allowedOps.includes(operation)) {
       const reason =
         `Operation '${operation}' not allowed in '${this.config.preset}' preset. ` +
         `Allowed: [${allowedOps.join(', ')}]`;
@@ -170,7 +173,7 @@ export class SecurityGuard extends EventEmitter {
   async authorize(
     toolId: string,
     input: unknown,
-    operation: string,
+    operation: ToolPermissionType,
     metadata?: Record<string, unknown>
   ): Promise<ApprovalResponse> {
     // Step 1: Check if the operation is allowed

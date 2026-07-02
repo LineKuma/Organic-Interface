@@ -10,7 +10,7 @@
  *   yolo   (L4) - Full access: all tools, NO approval required.
  */
 
-import type { SecurityPreset, SecurityPresetConfig } from '../types/index.js';
+import type { SecurityPreset, SecurityPresetConfig, ToolPermissionType } from '../types/index.js';
 
 /**
  * All security preset configurations
@@ -60,9 +60,12 @@ export function getPresetConfig(preset: SecurityPreset): SecurityPresetConfig {
 /**
  * Check if a given preset allows a specific operation type
  */
-export function presetAllowsOperation(preset: SecurityPreset, operation: string): boolean {
+export function presetAllowsOperation(
+  preset: SecurityPreset,
+  operation: ToolPermissionType
+): boolean {
   const config = SECURITY_PRESETS[preset];
-  return config.allowedOperations.includes(operation as any);
+  return config.allowedOperations.includes(operation);
 }
 
 /**

@@ -5,6 +5,7 @@
  */
 
 import ora, { type Ora, type Color } from 'ora';
+import { type SpinnerName } from 'cli-spinners';
 import { type Theme, defaultTheme } from './Theme.js';
 
 /**
@@ -36,7 +37,7 @@ export class Spinner {
     this.theme = options.theme ?? defaultTheme;
     this.spinner = ora({
       text: options.text ?? '',
-      spinner: (options.spinner as any) ?? 'dots',
+      spinner: (options.spinner as SpinnerName) ?? 'dots',
       color: options.color ?? 'cyan',
       discardStdin: options.discardStdin ?? false,
       hideCursor: options.hideCursor ?? true,

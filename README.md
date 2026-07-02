@@ -134,6 +134,7 @@ curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/s
 ```
 
 **分支说明：**
+
 - `master` (或 `stable`)：稳定版本，适合生产环境
 - `develop` (或 `dev`)：开发版本，包含最新功能，可能不稳定
 

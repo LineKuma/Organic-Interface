@@ -14,7 +14,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "cd ../../.. && pnpm exec vitest run",
+    "test": "cd ../../.. && pnpm exec vitest run packages/plugins/src/core-conversation",
     "lint": "cd ../../.. && pnpm exec eslint .",
     "typecheck": "tsc --noEmit",
     "clean": "rm -rf dist"

@@ -8,7 +8,12 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
-import type { ApprovalRequest, ApprovalResponse, SecurityPreset } from '../types/index.js';
+import type {
+  ApprovalRequest,
+  ApprovalResponse,
+  SecurityPreset,
+  ToolPermissionType,
+} from '../types/index.js';
 
 /**
  * ApprovalService events
@@ -73,7 +78,7 @@ export class ApprovalService extends EventEmitter {
     toolId: string,
     input: unknown,
     preset: SecurityPreset,
-    operation: string,
+    operation: ToolPermissionType,
     metadata?: Record<string, unknown>
   ): Promise<ApprovalResponse> {
     const request: ApprovalRequest = {
@@ -81,7 +86,7 @@ export class ApprovalService extends EventEmitter {
       toolId,
       input,
       preset,
-      operation: operation as any,
+      operation,
       timestamp: Date.now(),
       metadata,
     };

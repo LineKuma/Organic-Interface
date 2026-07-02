@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Organic-Interface CLI 入口 (构建后)
- * 
+ *
  * 用于打包发布的启动脚本
  */
 
