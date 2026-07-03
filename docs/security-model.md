@@ -18,12 +18,12 @@ Organic-Interface 的安全模型基于四层权限体系，为 UI 操作提供�
 
 ### 四级权限模型
 
-| 级别 | 名称 | 可执行操作 | 典型场景 |
-|------|------|------------|----------|
-| L1 | 只读 | scroll, hover, wait, getText, getAttribute, screenshot | 信息采集、页面监控 |
-| L2 | 交互 | L1 + click, select | 页面导航、选项选择（默认级别） |
-| L3 | 输入 | L2 + input | 表单填写、搜索操作 |
-| L4 | 完全 | 所有操作 | 管理员操作、系统配置 |
+| 级别 | 名称 | 可执行操作                                             | 典型场景                       |
+| ---- | ---- | ------------------------------------------------------ | ------------------------------ |
+| L1   | 只读 | scroll, hover, wait, getText, getAttribute, screenshot | 信息采集、页面监控             |
+| L2   | 交互 | L1 + click, select                                     | 页面导航、选项选择（默认级别） |
+| L3   | 输入 | L2 + input                                             | 表单填写、搜索操作             |
+| L4   | 完全 | 所有操作                                               | 管理员操作、系统配置           |
 
 ### 权限继承
 
@@ -38,12 +38,12 @@ L4 (完全权限)
 
 ### 权限选择指南
 
-| 场景 | 推荐级别 | 理由 |
-|------|----------|------|
-| 数据采集 Agent | L1 | 只需读取界面信息，无需交互 |
-| 页面导航 Agent | L2 | 需要点击和选择，但不需要输入 |
-| 表单填写 Agent | L3 | 需要输入文本内容 |
-| 管理后台 Agent | L4 | 需要完全控制权限 |
+| 场景           | 推荐级别 | 理由                         |
+| -------------- | -------- | ---------------------------- |
+| 数据采集 Agent | L1       | 只需读取界面信息，无需交互   |
+| 页面导航 Agent | L2       | 需要点击和选择，但不需要输入 |
+| 表单填写 Agent | L3       | 需要输入文本内容             |
+| 管理后台 Agent | L4       | 需要完全控制权限             |
 
 ---
 
@@ -102,17 +102,17 @@ sandbox.checkPermission(sessionB.sessionId, 'input', '#field');
 
 ### 完整权限表
 
-| 操作 | L1 | L2 | L3 | L4 | 敏感 | 可拒绝 |
-|------|:--:|:--:|:--:|:--:|:----:|:------:|
-| scroll | ✓ | ✓ | ✓ | ✓ | — | ✓ |
-| hover | ✓ | ✓ | ✓ | ✓ | — | ✓ |
-| wait | ✓ | ✓ | ✓ | ✓ | — | ✓ |
-| getText | ✓ | ✓ | ✓ | ✓ | — | ✓ |
-| getAttribute | ✓ | ✓ | ✓ | ✓ | — | ✓ |
-| screenshot | ✓ | ✓ | ✓ | ✓ | — | ✓ |
-| click | — | ✓ | ✓ | ✓ | — | ✓ |
-| select | — | ✓ | ✓ | ✓ | — | ✓ |
-| input | — | — | ✓ | ✓ | ✓ | ✓ |
+| 操作         | L1  | L2  | L3  | L4  | 敏感 | 可拒绝 |
+| ------------ | :-: | :-: | :-: | :-: | :--: | :----: |
+| scroll       |  ✓  |  ✓  |  ✓  |  ✓  |  —   |   ✓    |
+| hover        |  ✓  |  ✓  |  ✓  |  ✓  |  —   |   ✓    |
+| wait         |  ✓  |  ✓  |  ✓  |  ✓  |  —   |   ✓    |
+| getText      |  ✓  |  ✓  |  ✓  |  ✓  |  —   |   ✓    |
+| getAttribute |  ✓  |  ✓  |  ✓  |  ✓  |  —   |   ✓    |
+| screenshot   |  ✓  |  ✓  |  ✓  |  ✓  |  —   |   ✓    |
+| click        |  —  |  ✓  |  ✓  |  ✓  |  —   |   ✓    |
+| select       |  —  |  ✓  |  ✓  |  ✓  |  —   |   ✓    |
+| input        |  —  |  —  |  ✓  |  ✓  |  ✓   |   ✓    |
 
 ### 敏感操作
 
@@ -147,21 +147,21 @@ if (result.requiresConfirmation) {
 
 ```typescript
 // 安全的选择器
-sandbox.validateSelector('#my-button');           // ✓ CSS 选择器
-sandbox.validateSelector('//div[@class="main"]');  // ✓ XPath 选择器
+sandbox.validateSelector('#my-button'); // ✓ CSS 选择器
+sandbox.validateSelector('//div[@class="main"]'); // ✓ XPath 选择器
 
 // 危险的选择器（被拒绝）
-sandbox.validateSelector('javascript:alert(1)');   // ✗ javascript: 协议
-sandbox.validateSelector('data:text/html,...');     // ✗ data: 协议
+sandbox.validateSelector('javascript:alert(1)'); // ✗ javascript: 协议
+sandbox.validateSelector('data:text/html,...'); // ✗ data: 协议
 ```
 
 ### 危险模式检测
 
-| 模式 | 检测 | 说明 |
-|------|------|------|
+| 模式          | 检测 | 说明          |
+| ------------- | ---- | ------------- |
 | `javascript:` | 拒绝 | 防止 XSS 攻击 |
-| `data:` | 拒绝 | 防止数据注入 |
-| `eval(` | 拒绝 | 防止代码执行 |
+| `data:`       | 拒绝 | 防止数据注入  |
+| `eval(`       | 拒绝 | 防止代码执行  |
 
 ---
 
@@ -173,14 +173,14 @@ sandbox.validateSelector('data:text/html,...');     // ✗ data: 协议
 
 ```typescript
 interface OperationRecord {
-  operation: UIOperationType;    // 操作类型
-  selector: string;              // 目标选择器
-  timestamp: number;             // 操作时间戳
-  sessionId: string;             // 会话 ID
-  agentId: string;               // Agent ID
+  operation: UIOperationType; // 操作类型
+  selector: string; // 目标选择器
+  timestamp: number; // 操作时间戳
+  sessionId: string; // 会话 ID
+  agentId: string; // Agent ID
   parameters?: Record<string, unknown>; // 操作参数
-  status: 'success' | 'failed';  // 执行状态
-  errorMessage?: string;         // 错误信息
+  status: 'success' | 'failed'; // 执行状态
+  errorMessage?: string; // 错误信息
 }
 ```
 
@@ -194,8 +194,8 @@ const history = sandbox.getOperationHistory(sessionId);
 const allHistory = sandbox.getAllOperationHistory();
 
 // 清除历史
-sandbox.clearHistory(sessionId);  // 指定会话
-sandbox.clearHistory();           // 所有会话
+sandbox.clearHistory(sessionId); // 指定会话
+sandbox.clearHistory(); // 所有会话
 ```
 
 ### CLI 日志查询
@@ -275,21 +275,21 @@ organic log --agent suspicious-agent
 
 沙箱触发以下安全相关事件：
 
-| 事件 | 触发时机 | 数据 |
-|------|----------|------|
-| `session:created` | 创建会话 | `{ session }` |
+| 事件                 | 触发时机 | 数据          |
+| -------------------- | -------- | ------------- |
+| `session:created`    | 创建会话 | `{ session }` |
 | `session:terminated` | 终止会话 | `{ session }` |
 | `operation:recorded` | 记录操作 | `{ context }` |
 
 ### 事件监听示例
 
 ```typescript
-sandbox.on('session:created', (data) => {
+sandbox.on('session:created', data => {
   console.log(`新会话创建: ${data.session.sessionId}`);
   // 发送告警或记录日志
 });
 
-sandbox.on('operation:recorded', (data) => {
+sandbox.on('operation:recorded', data => {
   if (data.context.operation === 'input') {
     // 对敏感操作进行额外监控
     console.log(`敏感操作: ${data.context.selector}`);

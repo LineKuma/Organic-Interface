@@ -141,7 +141,11 @@ MAX_CONNECTIONS = 10
       await service.referenceFile(filePath, context.id);
 
       // Check that state was stored
-      const stateItem = contextManager.getState(context.id, `file_ref:${filePath}`, 'file-reference');
+      const stateItem = contextManager.getState(
+        context.id,
+        `file_ref:${filePath}`,
+        'file-reference'
+      );
       expect(stateItem).toBeDefined();
     });
 
@@ -182,7 +186,7 @@ MAX_CONNECTIONS = 10
       ]);
 
       await expect(
-        service.referenceFile('/nonexistent/path/file.ts', context.id),
+        service.referenceFile('/nonexistent/path/file.ts', context.id)
       ).rejects.toThrow();
     });
   });
@@ -243,7 +247,10 @@ MAX_CONNECTIONS = 10
       ]);
 
       const utilPath = createTempFile('util.ts', 'export function helper() {}');
-      const appPath = createTempFile('app.ts', "import { helper } from './util';\nexport function main() { helper(); }");
+      const appPath = createTempFile(
+        'app.ts',
+        "import { helper } from './util';\nexport function main() { helper(); }"
+      );
 
       await service.referenceFile(utilPath, context.id);
       await service.referenceFile(appPath, context.id);
@@ -347,7 +354,11 @@ export const VERSION = "1.0.0";
       expect(result.file.exports.some(e => e === 'App' || e === 'VERSION')).toBe(true);
 
       // Verify context state
-      const stateItem = contextManager.getState(context.id, `file_ref:${filePath}`, 'file-reference');
+      const stateItem = contextManager.getState(
+        context.id,
+        `file_ref:${filePath}`,
+        'file-reference'
+      );
       expect(stateItem).toBeDefined();
 
       const item = stateItem as any;

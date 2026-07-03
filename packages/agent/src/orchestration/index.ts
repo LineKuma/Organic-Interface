@@ -34,11 +34,7 @@ export {
 } from './ExecutionCoordinator.js';
 
 // ExecutionPreview - Preview and analyze execution plans
-export {
-  ExecutionPreview,
-  type PreviewItem,
-  type PreviewResult,
-} from './ExecutionPreview.js';
+export { ExecutionPreview, type PreviewItem, type PreviewResult } from './ExecutionPreview.js';
 
 // SessionAutoRecovery - Automatic session recovery
 export {

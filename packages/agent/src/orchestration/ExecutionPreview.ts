@@ -7,11 +7,8 @@
  */
 
 import { createLogger, type Logger } from '@organic/utils';
-import type {
-  OrchestrationLayerPlan,
-  OrchestrationStrategy,
-} from './OrchestrationLayer.js';
-import type { ExecutionPlan, ExecutionStep } from './ExecutionCoordinator.js';
+import type { OrchestrationLayerPlan } from './OrchestrationLayer.js';
+import type { ExecutionStep } from './ExecutionCoordinator.js';
 
 /**
  * Preview item representing a single unit in the execution plan
@@ -112,11 +109,11 @@ export class ExecutionPreview {
       }
       visited.add(stepId);
 
-      const step = steps.find((s) => s.stepId === stepId);
+      const step = steps.find(s => s.stepId === stepId);
       if (!step) return 0;
 
       const baseDuration = this.estimateStepDuration(step);
-      const depDurations = step.dependsOn.map((depId) => computeDuration(depId));
+      const depDurations = step.dependsOn.map(depId => computeDuration(depId));
       const maxDepDuration = depDurations.length > 0 ? Math.max(...depDurations) : 0;
       const total = baseDuration + maxDepDuration;
 
@@ -152,7 +149,7 @@ export class ExecutionPreview {
       }
       visited.add(stepId);
 
-      const step = steps.find((s) => s.stepId === stepId);
+      const step = steps.find(s => s.stepId === stepId);
       if (!step) return 0;
 
       const baseDuration = this.estimateStepDuration(step);
@@ -248,7 +245,7 @@ export class ExecutionPreview {
     }
 
     // Check for steps with no dependencies and no parallel groups
-    const sequentialSteps = steps.filter((s) => s.dependsOn.length === 0);
+    const sequentialSteps = steps.filter(s => s.dependsOn.length === 0);
     if (sequentialSteps.length > 3) {
       warnings.push(
         `${sequentialSteps.length} independent steps found - consider parallel execution`
@@ -256,7 +253,7 @@ export class ExecutionPreview {
     }
 
     // Check for steps with many dependencies
-    const highDependencySteps = steps.filter((s) => s.dependsOn.length > 5);
+    const highDependencySteps = steps.filter(s => s.dependsOn.length > 5);
     if (highDependencySteps.length > 0) {
       warnings.push(
         `${highDependencySteps.length} steps have 5+ dependencies - may cause bottlenecks`
@@ -264,7 +261,7 @@ export class ExecutionPreview {
     }
 
     // Check for high-risk steps
-    const highRiskSteps = steps.filter((s) => this.assessRisk(s, plan) === 'high');
+    const highRiskSteps = steps.filter(s => this.assessRisk(s, plan) === 'high');
     if (highRiskSteps.length > 0) {
       warnings.push(
         `${highRiskSteps.length} steps identified as high risk - review before execution`
@@ -337,7 +334,7 @@ export class ExecutionPreview {
     lines.push('');
 
     // Build a dependency-based tree
-    const rootItems = preview.items.filter((item) => item.dependencies.length === 0);
+    const rootItems = preview.items.filter(item => item.dependencies.length === 0);
     const childMap = new Map<string, PreviewItem[]>();
 
     for (const item of preview.items) {
@@ -382,9 +379,10 @@ export class ExecutionPreview {
     const maxBarWidth = 40;
 
     for (const item of preview.items) {
-      const barWidth = totalDuration > 0
-        ? Math.max(1, Math.round((item.estimatedDuration / totalDuration) * maxBarWidth))
-        : 1;
+      const barWidth =
+        totalDuration > 0
+          ? Math.max(1, Math.round((item.estimatedDuration / totalDuration) * maxBarWidth))
+          : 1;
       const bar = '█'.repeat(barWidth);
       const riskIcon = item.risk === 'high' ? 'H' : item.risk === 'medium' ? 'M' : 'L';
 
@@ -400,7 +398,7 @@ export class ExecutionPreview {
    * Extract preview items from a plan
    */
   private extractItems(plan: OrchestrationLayerPlan): PreviewItem[] {
-    return plan.executionPlan.steps.map((step) => this.stepToPreviewItem(step));
+    return plan.executionPlan.steps.map(step => this.stepToPreviewItem(step));
   }
 
   /**
@@ -467,9 +465,7 @@ export class ExecutionPreview {
     }
 
     // Being a dependency for many others increases risk
-    const dependents = plan.executionPlan.steps.filter((s) =>
-      s.dependsOn.includes(step.stepId)
-    );
+    const dependents = plan.executionPlan.steps.filter(s => s.dependsOn.includes(step.stepId));
     if (dependents.length > 3) riskScore += 2;
     else if (dependents.length > 1) riskScore += 1;
 
@@ -490,18 +486,18 @@ export class ExecutionPreview {
       if (assigned.has(step.stepId)) continue;
 
       // Find steps with same dependencies
-      const group = steps.filter((s) => {
+      const group = steps.filter(s => {
         if (assigned.has(s.stepId)) return false;
         if (s.stepId === step.stepId) return true;
         return (
           s.dependsOn.length === step.dependsOn.length &&
-          s.dependsOn.every((d) => step.dependsOn.includes(d))
+          s.dependsOn.every(d => step.dependsOn.includes(d))
         );
       });
 
       if (group.length > 1) {
-        groups.push(group.map((s) => s.stepId));
-        group.forEach((s) => assigned.add(s.stepId));
+        groups.push(group.map(s => s.stepId));
+        group.forEach(s => assigned.add(s.stepId));
       } else {
         groups.push([step.stepId]);
         assigned.add(step.stepId);
@@ -525,7 +521,7 @@ export class ExecutionPreview {
       visited.add(stepId);
       recStack.add(stepId);
 
-      const step = steps.find((s) => s.stepId === stepId);
+      const step = steps.find(s => s.stepId === stepId);
       if (step) {
         for (const depId of step.dependsOn) {
           if (hasCycle(depId)) return true;

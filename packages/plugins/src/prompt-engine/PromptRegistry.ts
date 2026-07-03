@@ -77,19 +77,18 @@ export class PromptRegistry {
 
     // Filter by tags
     if (filter.tags && filter.tags.length > 0) {
-      results = results.filter(t =>
-        filter.tags!.some(tag => t.tags.includes(tag))
-      );
+      results = results.filter(t => filter.tags!.some(tag => t.tags.includes(tag)));
     }
 
     // Full-text search
     if (filter.search) {
       const query = filter.search.toLowerCase();
-      results = results.filter(t =>
-        t.name.toLowerCase().includes(query) ||
-        t.description.toLowerCase().includes(query) ||
-        t.content.toLowerCase().includes(query) ||
-        t.tags.some(tag => tag.toLowerCase().includes(query))
+      results = results.filter(
+        t =>
+          t.name.toLowerCase().includes(query) ||
+          t.description.toLowerCase().includes(query) ||
+          t.content.toLowerCase().includes(query) ||
+          t.tags.some(tag => tag.toLowerCase().includes(query))
       );
     }
 

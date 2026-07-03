@@ -319,7 +319,8 @@ export class TemplateEngine {
    */
   extractVariables(template: string): string[] {
     const variables = new Set<string>();
-    const varRegex = /\{\{(?!\s*#if\s|\s*#each\s|\s*\/if|\s*\/each|\s*>|\s*\/)([^|}]+?)(?:\s*\|\s*[^}]+)?\}\}/g;
+    const varRegex =
+      /\{\{(?!\s*#if\s|\s*#each\s|\s*\/if|\s*\/each|\s*>|\s*\/)([^|}]+?)(?:\s*\|\s*[^}]+)?\}\}/g;
     let match: RegExpExecArray | null;
 
     while ((match = varRegex.exec(template)) !== null) {
@@ -333,7 +334,12 @@ export class TemplateEngine {
 
       // Extract base variable name (before any filter)
       const baseVar = varExpr.trim();
-      if (baseVar && !baseVar.startsWith('#') && !baseVar.startsWith('/') && !baseVar.startsWith('>')) {
+      if (
+        baseVar &&
+        !baseVar.startsWith('#') &&
+        !baseVar.startsWith('/') &&
+        !baseVar.startsWith('>')
+      ) {
         variables.add(baseVar);
       }
     }
@@ -398,8 +404,10 @@ export class TemplateEngine {
       block.variable = defaultMatch[1].trim();
       let defaultValue = defaultMatch[2].trim();
       // Strip surrounding quotes if present
-      if ((defaultValue.startsWith('"') && defaultValue.endsWith('"')) ||
-          (defaultValue.startsWith("'") && defaultValue.endsWith("'"))) {
+      if (
+        (defaultValue.startsWith('"') && defaultValue.endsWith('"')) ||
+        (defaultValue.startsWith("'") && defaultValue.endsWith("'"))
+      ) {
         defaultValue = defaultValue.slice(1, -1);
       }
       block.defaultValue = defaultValue;
@@ -464,7 +472,10 @@ export class TemplateEngine {
     let value = this.resolveNested(varName, variables);
 
     // Apply default value
-    if ((value === undefined || value === null || value === '') && block.defaultValue !== undefined) {
+    if (
+      (value === undefined || value === null || value === '') &&
+      block.defaultValue !== undefined
+    ) {
       value = block.defaultValue;
     }
 
@@ -570,14 +581,22 @@ export class TemplateEngine {
         const rightVal = this.resolveConditionValue(right, variables);
 
         switch (op) {
-          case '===': return leftVal === rightVal;
-          case '!==': return leftVal !== rightVal;
-          case '==': return leftVal == rightVal;
-          case '!=': return leftVal != rightVal;
-          case '>=': return Number(leftVal) >= Number(rightVal);
-          case '<=': return Number(leftVal) <= Number(rightVal);
-          case '>': return Number(leftVal) > Number(rightVal);
-          case '<': return Number(leftVal) < Number(rightVal);
+          case '===':
+            return leftVal === rightVal;
+          case '!==':
+            return leftVal !== rightVal;
+          case '==':
+            return leftVal == rightVal;
+          case '!=':
+            return leftVal != rightVal;
+          case '>=':
+            return Number(leftVal) >= Number(rightVal);
+          case '<=':
+            return Number(leftVal) <= Number(rightVal);
+          case '>':
+            return Number(leftVal) > Number(rightVal);
+          case '<':
+            return Number(leftVal) < Number(rightVal);
         }
       }
     }
@@ -648,8 +667,10 @@ export class TemplateEngine {
     const trimmed = expr.trim();
 
     // String literal
-    if ((trimmed.startsWith("'") && trimmed.endsWith("'")) ||
-        (trimmed.startsWith('"') && trimmed.endsWith('"'))) {
+    if (
+      (trimmed.startsWith("'") && trimmed.endsWith("'")) ||
+      (trimmed.startsWith('"') && trimmed.endsWith('"'))
+    ) {
       return trimmed.slice(1, -1);
     }
 

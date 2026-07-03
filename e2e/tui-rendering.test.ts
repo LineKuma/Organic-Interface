@@ -23,11 +23,6 @@ import {
   Output,
   createOutput,
   defaultOutput,
-  type SpinnerOptions,
-  type BannerConfig,
-  type BannerStyle,
-  type BoxConfig,
-  type BoxStyle,
   type OutputLevel,
 } from '@organic/ui';
 
@@ -297,7 +292,8 @@ describe('TUI 渲染组件', () => {
         title: 'Organic Interface',
         version: '1.0.0',
         subtitle: 'AI-powered UI automation framework',
-        description: 'A comprehensive framework for building AI-driven terminal user interfaces with rich rendering capabilities.',
+        description:
+          'A comprehensive framework for building AI-driven terminal user interfaces with rich rendering capabilities.',
         style: 'double',
         width: 70,
       });
@@ -371,13 +367,7 @@ describe('TUI 渲染组件', () => {
 
     it('用户渲染多行内容的 Box', () => {
       const output = box.render({
-        content: [
-          'Line 1',
-          'Line 2',
-          'Line 3',
-          'Line 4',
-          'Line 5',
-        ],
+        content: ['Line 1', 'Line 2', 'Line 3', 'Line 4', 'Line 5'],
         style: 'single',
       });
 
@@ -477,12 +467,15 @@ describe('TUI 渲染组件', () => {
     });
 
     it('用户渲染 Key-Value Box', () => {
-      const output = box.renderKeyValue([
-        ['Name', 'Organic Interface'],
-        ['Version', '0.1.0'],
-        ['Status', 'Running'],
-        ['Uptime', '2h 30m'],
-      ], { title: 'Application Info', style: 'single' });
+      const output = box.renderKeyValue(
+        [
+          ['Name', 'Organic Interface'],
+          ['Version', '0.1.0'],
+          ['Status', 'Running'],
+          ['Uptime', '2h 30m'],
+        ],
+        { title: 'Application Info', style: 'single' }
+      );
 
       expect(output).toContain('Application Info');
       expect(output).toContain('Name');
@@ -637,11 +630,14 @@ describe('TUI 渲染组件', () => {
 
       // 2. 用户看到系统信息 Box
       const box = new Box();
-      const boxOutput = box.renderKeyValue([
-        ['CPU', '45%'],
-        ['Memory', '8.2 GB / 16 GB'],
-        ['Disk', '120 GB / 256 GB'],
-      ], { title: 'System Info', style: 'rounded' });
+      const boxOutput = box.renderKeyValue(
+        [
+          ['CPU', '45%'],
+          ['Memory', '8.2 GB / 16 GB'],
+          ['Disk', '120 GB / 256 GB'],
+        ],
+        { title: 'System Info', style: 'rounded' }
+      );
       expect(boxOutput).toContain('System Info');
       expect(boxOutput).toContain('CPU');
 

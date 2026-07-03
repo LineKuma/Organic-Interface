@@ -14,15 +14,15 @@
 
 `@organic/agent` 是 Organic-Interface 平台的 Agent SDK 核心包，提供从单 Agent 创建到多 Agent 协同编排的完整能力。该 SDK 封装了以下核心领域：
 
-| 领域 | 说明 |
-| --- | --- |
-| **核心 Agent** | Agent 生命周期管理、任务执行、事件系统 |
-| **任务调度** | 优先级队列、并发控制、跨 Agent 调度 |
-| **上下文管理** | 对话上下文、上下文窗口、执行帧传播 |
+| 领域           | 说明                                        |
+| -------------- | ------------------------------------------- |
+| **核心 Agent** | Agent 生命周期管理、任务执行、事件系统      |
+| **任务调度**   | 优先级队列、并发控制、跨 Agent 调度         |
+| **上下文管理** | 对话上下文、上下文窗口、执行帧传播          |
 | **工作流引擎** | DAG 工作流定义与执行（串行/并行/条件/循环） |
-| **编排层** | 任务分解、Agent 选择、执行计划 |
-| **Agent 通信** | 双向通道、结构化消息、发布订阅 |
-| **Agent 注册** | 注册中心、服务发现、元数据管理 |
+| **编排层**     | 任务分解、Agent 选择、执行计划              |
+| **Agent 通信** | 双向通道、结构化消息、发布订阅              |
+| **Agent 注册** | 注册中心、服务发现、元数据管理              |
 
 ```
 npm install @organic/agent
@@ -66,7 +66,7 @@ console.log(result.data);
 ### 2.2 监听 Agent 事件
 
 ```typescript
-agent.on('task:started', (task) => {
+agent.on('task:started', task => {
   console.log(`[$] Task started: ${task.taskId}`);
 });
 
@@ -82,7 +82,7 @@ agent.on('state:changed', (prevState, nextState) => {
   console.log(`State: ${prevState.status} -> ${nextState.status}`);
 });
 
-agent.on('error', (error) => {
+agent.on('error', error => {
   console.error('Agent error:', error);
 });
 ```
@@ -110,17 +110,17 @@ const config: AgentConfig = createAgentConfig({
   maxQueueSize: 100,
 
   // 超时控制
-  defaultTimeout: 30_000,       // 默认任务超时 30s
-  taskTimeout: 60_000,          // 全局任务超时 60s
+  defaultTimeout: 30_000, // 默认任务超时 30s
+  taskTimeout: 60_000, // 全局任务超时 60s
 
   // 重试策略
   maxRetries: 3,
-  retryDelay: 1_000,            // 重试间隔 1s
-  retryBackoff: 'exponential',  // 指数退避
+  retryDelay: 1_000, // 重试间隔 1s
+  retryBackoff: 'exponential', // 指数退避
 
   // 上下文配置
-  contextWindowSize: 50,        // 上下文窗口大小
-  contextRetention: 'sliding',  // 滑动窗口策略
+  contextWindowSize: 50, // 上下文窗口大小
+  contextRetention: 'sliding', // 滑动窗口策略
 
   // 资源限制
   maxMemoryMB: 512,
@@ -139,22 +139,22 @@ const config: AgentConfig = createAgentConfig({
 
 ```typescript
 type AgentType =
-  | 'assistant'    // 对话助手，处理自然语言交互
-  | 'worker'       // 工作节点，执行具体任务
+  | 'assistant' // 对话助手，处理自然语言交互
+  | 'worker' // 工作节点，执行具体任务
   | 'orchestrator' // 编排器，负责任务分解与调度
-  | 'router'       // 路由器，根据条件分发任务
-  | 'observer'     // 观察者，监控和报告
-  | 'custom';      // 自定义类型
+  | 'router' // 路由器，根据条件分发任务
+  | 'observer' // 观察者，监控和报告
+  | 'custom'; // 自定义类型
 ```
 
 ### 3.3 AgentPriority 枚举
 
 ```typescript
 type AgentPriority =
-  | 'critical'  // 最高优先级，立即执行
-  | 'high'      // 高优先级，优先调度
-  | 'normal'    // 默认优先级
-  | 'low'       // 低优先级，空闲时执行
+  | 'critical' // 最高优先级，立即执行
+  | 'high' // 高优先级，优先调度
+  | 'normal' // 默认优先级
+  | 'low' // 低优先级，空闲时执行
   | 'background'; // 后台优先级，资源充裕时执行
 ```
 
@@ -222,22 +222,25 @@ import { AgentTaskInput } from '@organic/agent';
 
 const task: AgentTaskInput = {
   // 必填
-  taskId: 'task-001',           // 唯一任务标识
-  payload: {                    // 任务载荷（任意类型）
+  taskId: 'task-001', // 唯一任务标识
+  payload: {
+    // 任务载荷（任意类型）
     action: 'transform',
     source: 'data.csv',
     target: 'data.json',
   },
 
   // 可选
-  priority: 'high',            // 任务优先级（覆盖 Agent 默认值）
-  parentTaskId: 'parent-001',  // 父任务 ID（用于任务树追踪）
-  dependencies: [              // 依赖任务列表（需先完成）
+  priority: 'high', // 任务优先级（覆盖 Agent 默认值）
+  parentTaskId: 'parent-001', // 父任务 ID（用于任务树追踪）
+  dependencies: [
+    // 依赖任务列表（需先完成）
     'task-preq-001',
     'task-preq-002',
   ],
-  timeout: 15_000,             // 任务级超时（覆盖 Agent 默认值）
-  metadata: {                  // 自定义元数据
+  timeout: 15_000, // 任务级超时（覆盖 Agent 默认值）
+  metadata: {
+    // 自定义元数据
     source: 'api',
     userId: 'user-42',
     traceId: 'trace-abc-123',
@@ -263,10 +266,7 @@ interface TransformOutput {
   errors: string[];
 }
 
-const handler: AgentTaskHandler<AgentTaskInput, TransformOutput> = async (
-  input,
-  context
-) => {
+const handler: AgentTaskHandler<AgentTaskInput, TransformOutput> = async (input, context) => {
   // 使用上下文
   console.log(`Agent: ${context.agent.name}`);
   console.log(`Task ID: ${context.taskId}`);
@@ -302,13 +302,13 @@ agent.registerHandler('transform', handler);
 
 ```typescript
 interface AgentExecutionContext {
-  agent: Agent;                    // 当前 Agent 实例
-  taskId: string;                  // 当前任务 ID
+  agent: Agent; // 当前 Agent 实例
+  taskId: string; // 当前任务 ID
   parentContext?: AgentExecutionContext; // 父任务上下文
-  depth: number;                   // 任务嵌套深度
-  startTime: number;               // 任务开始时间戳
-  cancelled: boolean;              // 是否已取消
-  signal?: AbortSignal;           // 取消信号
+  depth: number; // 任务嵌套深度
+  startTime: number; // 任务开始时间戳
+  cancelled: boolean; // 是否已取消
+  signal?: AbortSignal; // 取消信号
   metadata: Record<string, unknown>; // 上下文元数据
 }
 ```
@@ -375,8 +375,8 @@ import { TaskQueue, TaskPriority, TaskStatus, Task } from '@organic/agent';
 
 // 创建优先级队列
 const queue = new TaskQueue({
-  concurrency: 3,          // 最大并发数
-  maxSize: 500,            // 队列最大容量
+  concurrency: 3, // 最大并发数
+  maxSize: 500, // 队列最大容量
   defaultPriority: 'normal',
   strategy: 'priority-first', // 优先级优先
 });
@@ -393,9 +393,9 @@ const task: Task = {
 await queue.enqueue(task);
 
 // 队列状态
-console.log(queue.size);       // 当前队列长度
-console.log(queue.running);    // 正在执行的任务数
-console.log(queue.isFull);     // 是否已满
+console.log(queue.size); // 当前队列长度
+console.log(queue.running); // 正在执行的任务数
+console.log(queue.isFull); // 是否已满
 
 // 批量入队
 await queue.enqueueBatch([task1, task2, task3]);
@@ -407,7 +407,7 @@ await queue.cancel('task-001');
 await queue.clear();
 
 // 事件监听
-queue.on('task:dequeued', (task) => console.log(`Dequeued: ${task.id}`));
+queue.on('task:dequeued', task => console.log(`Dequeued: ${task.id}`));
 queue.on('queue:full', () => console.warn('Queue is full!'));
 queue.on('queue:drained', () => console.log('All tasks completed'));
 ```
@@ -463,7 +463,7 @@ type TaskPriority = 'critical' | 'high' | 'normal' | 'low' | 'background';
 
 // 饥饿防护：低优先级任务最大等待时间
 const scheduler = new TaskScheduler({
-  maxStarvationTime: 60_000,  // 60s 后强制提升低优先级任务
+  maxStarvationTime: 60_000, // 60s 后强制提升低优先级任务
   maxConcurrency: 5,
 });
 ```
@@ -633,7 +633,9 @@ const results = await contextManager.searchMessages('conv-001', {
 
 // 管理参与者
 await contextManager.addParticipant('conv-001', {
-  type: 'agent', id: 'agent-002', name: 'ReportAgent',
+  type: 'agent',
+  id: 'agent-002',
+  name: 'ReportAgent',
 });
 await contextManager.removeParticipant('conv-001', 'agent-002');
 
@@ -694,8 +696,8 @@ await contextManager.removeContextItem('conv-001', 'ctx-001');
 import { ContextWindowManager } from '@organic/agent';
 
 const windowManager = new ContextWindowManager({
-  maxTokens: 8_000,           // 最大 token 数
-  maxMessages: 50,            // 最大消息数
+  maxTokens: 8_000, // 最大 token 数
+  maxMessages: 50, // 最大消息数
   retentionPolicy: 'sliding', // 'sliding' | 'fifo' | 'priority'
   preserveSystemMessages: true,
   preservePinnedMessages: true,
@@ -718,8 +720,8 @@ console.log(windowState);
 
 // 设置保留策略
 windowManager.setRetentionPolicy('conv-001', {
-  preserveLastN: 10,          // 保留最后 N 条消息
-  preserveByPriority: true,   // 按优先级保留
+  preserveLastN: 10, // 保留最后 N 条消息
+  preserveByPriority: true, // 按优先级保留
   summarizationPrompt: 'Summarize the key points of the conversation above.',
 });
 
@@ -765,8 +767,8 @@ const childFrame = contextService.createExecutionFrame({
   agentId: 'agent-002',
   taskId: 'task-002',
   parentFrameId: frame.id,
-  inheritContext: true,           // 继承父帧上下文
-  inheritKeys: ['currentFile'],   // 仅继承指定键
+  inheritContext: true, // 继承父帧上下文
+  inheritKeys: ['currentFile'], // 仅继承指定键
 });
 
 // 退出执行帧
@@ -1059,7 +1061,7 @@ executor.on('node:failed', (nodeId, error, execution) => {
   console.error(`[!!] Node failed: ${nodeId}`, error);
 });
 
-executor.on('workflow:completed', (execution) => {
+executor.on('workflow:completed', execution => {
   console.log(`[DONE] Workflow completed: ${execution.executionId}`);
 });
 
@@ -1178,7 +1180,8 @@ const strategy: OrchestrationStrategy = {
 const complexTask = {
   taskId: 'orchestrate-001',
   payload: {
-    description: 'Analyze Q1 sales data, generate reports in multiple formats, and publish to dashboard',
+    description:
+      'Analyze Q1 sales data, generate reports in multiple formats, and publish to dashboard',
     context: {
       dataSource: 'sales-q1.csv',
       formats: ['csv', 'json', 'pdf'],
@@ -1187,10 +1190,7 @@ const complexTask = {
   },
 };
 
-const decomposed: DecomposedTask[] = await orchestration.decompose(
-  complexTask,
-  strategy
-);
+const decomposed: DecomposedTask[] = await orchestration.decompose(complexTask, strategy);
 
 console.log(decomposed);
 // [
@@ -1278,7 +1278,7 @@ import { AgentChannel, AgentMessage } from '@organic/agent';
 // 创建通道
 const channel = new AgentChannel({
   channelId: 'ch-001',
-  mode: 'duplex',              // 'simplex' | 'duplex' | 'multicast'
+  mode: 'duplex', // 'simplex' | 'duplex' | 'multicast'
   encryption: true,
   compression: true,
 });
@@ -1305,7 +1305,7 @@ const message: AgentMessage = {
 await channel.send(message);
 
 // 接收消息
-channel.onMessage(async (message) => {
+channel.onMessage(async message => {
   console.log(`[${message.from} -> ${message.to}]: ${message.subject}`);
 
   if (message.type === 'request') {
@@ -1352,7 +1352,7 @@ const mq = new MessageQueue({
 });
 
 // 订阅主题
-const subscription = mq.subscribe('tasks.completed', async (message) => {
+const subscription = mq.subscribe('tasks.completed', async message => {
   console.log(`Task completed: ${message.taskId}`);
 });
 
@@ -1362,12 +1362,16 @@ mq.subscribe(['tasks.*', 'agents.status'], async (message, topic) => {
 });
 
 // 带过滤的订阅
-mq.subscribe('tasks.#', async (message) => {
-  // 处理所有 tasks 子主题
-}, {
-  filter: (msg) => msg.priority === 'high',
-  concurrency: 3,
-});
+mq.subscribe(
+  'tasks.#',
+  async message => {
+    // 处理所有 tasks 子主题
+  },
+  {
+    filter: msg => msg.priority === 'high',
+    concurrency: 3,
+  }
+);
 
 // 发布消息
 await mq.publish('tasks.completed', {
@@ -1469,15 +1473,15 @@ console.log(stats);
 // }
 
 // 监听注册事件
-registry.on('agent:registered', (agent) => {
+registry.on('agent:registered', agent => {
   console.log(`Agent registered: ${agent.name}`);
 });
 
-registry.on('agent:offline', (agentId) => {
+registry.on('agent:offline', agentId => {
   console.warn(`Agent went offline: ${agentId}`);
 });
 
-registry.on('agent:updated', (agent) => {
+registry.on('agent:updated', agent => {
   console.log(`Agent updated: ${agent.name} -> ${agent.status}`);
 });
 
@@ -1595,7 +1599,10 @@ const orchestrator = new Agent(orchestratorConfig);
 // ============================================================
 const allAgents = [
   { agent: dataFetcher, meta: { capabilities: ['http', 'file', 'database'] } },
-  { agent: dataProcessor, meta: { capabilities: ['csv', 'json', 'xml', 'validation', 'cleaning'] } },
+  {
+    agent: dataProcessor,
+    meta: { capabilities: ['csv', 'json', 'xml', 'validation', 'cleaning'] },
+  },
   { agent: reportGenerator, meta: { capabilities: ['pdf', 'html', 'markdown', 'chart'] } },
   { agent: publisher, meta: { capabilities: ['dashboard', 'email', 'slack', 's3'] } },
   { agent: orchestrator, meta: { capabilities: ['orchestration', 'planning', 'decomposition'] } },
@@ -1666,10 +1673,17 @@ dataProcessor.registerHandler('transformData', async (input, ctx) => {
   const { data, targetFormat } = input.payload;
   let result: string;
   switch (targetFormat) {
-    case 'csv': result = convertToCSV(data); break;
-    case 'json': result = JSON.stringify(data, null, 2); break;
-    case 'xml': result = convertToXML(data); break;
-    default: throw new Error(`Unsupported format: ${targetFormat}`);
+    case 'csv':
+      result = convertToCSV(data);
+      break;
+    case 'json':
+      result = JSON.stringify(data, null, 2);
+      break;
+    case 'xml':
+      result = convertToXML(data);
+      break;
+    default:
+      throw new Error(`Unsupported format: ${targetFormat}`);
   }
   return { format: targetFormat, content: result, size: result.length };
 });
@@ -1677,11 +1691,12 @@ dataProcessor.registerHandler('transformData', async (input, ctx) => {
 // ReportGenerator 处理器
 reportGenerator.registerHandler('generateReport', async (input, ctx) => {
   const { data, format, template } = input.payload;
-  const report = format === 'pdf'
-    ? await generatePDF(data, template)
-    : format === 'html'
-      ? await generateHTML(data, template)
-      : await generateMarkdown(data);
+  const report =
+    format === 'pdf'
+      ? await generatePDF(data, template)
+      : format === 'html'
+        ? await generateHTML(data, template)
+        : await generateMarkdown(data);
 
   return {
     format,
@@ -1765,7 +1780,10 @@ orchestrator.registerHandler('orchestrate', async (input, ctx) => {
 
   const reportResults = await Promise.allSettled(reportTasks);
   const reports = reportResults
-    .filter((r): r is PromiseFulfilledResult<AgentResult<unknown>> => r.status === 'fulfilled' && r.value.success)
+    .filter(
+      (r): r is PromiseFulfilledResult<AgentResult<unknown>> =>
+        r.status === 'fulfilled' && r.value.success
+    )
     .map(r => r.value.data);
 
   // 步骤 4：发布
@@ -1898,80 +1916,80 @@ process.on('SIGINT', shutdown);
 
 ### 12.1 AgentConfig 完整选项
 
-| 选项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `name` | `string` | — | Agent 名称（必填） |
-| `type` | `AgentType` | `'worker'` | Agent 类型 |
-| `priority` | `AgentPriority` | `'normal'` | 调度优先级 |
-| `maxConcurrency` | `number` | `1` | 最大并发任务数 |
-| `maxQueueSize` | `number` | `1000` | 队列最大容量 |
-| `defaultTimeout` | `number` | `30000` | 默认任务超时（ms） |
-| `taskTimeout` | `number` | — | 全局任务超时（ms） |
-| `maxRetries` | `number` | `0` | 最大重试次数 |
-| `retryDelay` | `number` | `1000` | 重试间隔（ms） |
-| `retryBackoff` | `'linear' \| 'exponential'` | `'linear'` | 退避策略 |
-| `contextWindowSize` | `number` | `100` | 上下文窗口大小 |
-| `contextRetention` | `'sliding' \| 'fifo' \| 'priority'` | `'sliding'` | 上下文保留策略 |
-| `maxMemoryMB` | `number` | — | 最大内存限制（MB） |
-| `cpuLimit` | `number` | — | CPU 核心限制 |
-| `metadata` | `Record<string, unknown>` | `{}` | 自定义元数据 |
+| 选项                | 类型                                | 默认值      | 说明               |
+| ------------------- | ----------------------------------- | ----------- | ------------------ |
+| `name`              | `string`                            | —           | Agent 名称（必填） |
+| `type`              | `AgentType`                         | `'worker'`  | Agent 类型         |
+| `priority`          | `AgentPriority`                     | `'normal'`  | 调度优先级         |
+| `maxConcurrency`    | `number`                            | `1`         | 最大并发任务数     |
+| `maxQueueSize`      | `number`                            | `1000`      | 队列最大容量       |
+| `defaultTimeout`    | `number`                            | `30000`     | 默认任务超时（ms） |
+| `taskTimeout`       | `number`                            | —           | 全局任务超时（ms） |
+| `maxRetries`        | `number`                            | `0`         | 最大重试次数       |
+| `retryDelay`        | `number`                            | `1000`      | 重试间隔（ms）     |
+| `retryBackoff`      | `'linear' \| 'exponential'`         | `'linear'`  | 退避策略           |
+| `contextWindowSize` | `number`                            | `100`       | 上下文窗口大小     |
+| `contextRetention`  | `'sliding' \| 'fifo' \| 'priority'` | `'sliding'` | 上下文保留策略     |
+| `maxMemoryMB`       | `number`                            | —           | 最大内存限制（MB） |
+| `cpuLimit`          | `number`                            | —           | CPU 核心限制       |
+| `metadata`          | `Record<string, unknown>`           | `{}`        | 自定义元数据       |
 
 ### 12.2 TaskQueue 配置
 
-| 选项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `concurrency` | `number` | `1` | 最大并发数 |
-| `maxSize` | `number` | `1000` | 队列最大容量 |
-| `defaultPriority` | `TaskPriority` | `'normal'` | 默认优先级 |
-| `strategy` | `string` | `'priority-first'` | 调度策略 |
-| `batchSize` | `number` | — | 批量处理大小 |
-| `batchTimeout` | `number` | — | 批量超时（ms） |
+| 选项              | 类型           | 默认值             | 说明           |
+| ----------------- | -------------- | ------------------ | -------------- |
+| `concurrency`     | `number`       | `1`                | 最大并发数     |
+| `maxSize`         | `number`       | `1000`             | 队列最大容量   |
+| `defaultPriority` | `TaskPriority` | `'normal'`         | 默认优先级     |
+| `strategy`        | `string`       | `'priority-first'` | 调度策略       |
+| `batchSize`       | `number`       | —                  | 批量处理大小   |
+| `batchTimeout`    | `number`       | —                  | 批量超时（ms） |
 
 ### 12.3 TaskScheduler 配置
 
-| 选项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `maxConcurrency` | `number` | `10` | 全局最大并发数 |
-| `schedulingStrategy` | `'priority' \| 'round-robin' \| 'least-loaded'` | `'priority'` | 调度策略 |
-| `defaultTimeout` | `number` | `30000` | 默认超时（ms） |
-| `maxStarvationTime` | `number` | — | 饥饿防护时间（ms） |
+| 选项                 | 类型                                            | 默认值       | 说明               |
+| -------------------- | ----------------------------------------------- | ------------ | ------------------ |
+| `maxConcurrency`     | `number`                                        | `10`         | 全局最大并发数     |
+| `schedulingStrategy` | `'priority' \| 'round-robin' \| 'least-loaded'` | `'priority'` | 调度策略           |
+| `defaultTimeout`     | `number`                                        | `30000`      | 默认超时（ms）     |
+| `maxStarvationTime`  | `number`                                        | —            | 饥饿防护时间（ms） |
 
 ### 12.4 ContextWindowManager 配置
 
-| 选项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `maxTokens` | `number` | `8000` | 最大 token 数 |
-| `maxMessages` | `number` | `50` | 最大消息数 |
-| `retentionPolicy` | `'sliding' \| 'fifo' \| 'priority'` | `'sliding'` | 保留策略 |
-| `preserveSystemMessages` | `boolean` | `true` | 保留系统消息 |
-| `preservePinnedMessages` | `boolean` | `true` | 保留置顶消息 |
-| `summarizationThreshold` | `number` | `0.8` | 摘要触发阈值 |
+| 选项                     | 类型                                | 默认值      | 说明          |
+| ------------------------ | ----------------------------------- | ----------- | ------------- |
+| `maxTokens`              | `number`                            | `8000`      | 最大 token 数 |
+| `maxMessages`            | `number`                            | `50`        | 最大消息数    |
+| `retentionPolicy`        | `'sliding' \| 'fifo' \| 'priority'` | `'sliding'` | 保留策略      |
+| `preserveSystemMessages` | `boolean`                           | `true`      | 保留系统消息  |
+| `preservePinnedMessages` | `boolean`                           | `true`      | 保留置顶消息  |
+| `summarizationThreshold` | `number`                            | `0.8`       | 摘要触发阈值  |
 
 ### 12.5 WorkflowEngine 配置
 
-| 选项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `registry.persistWorkflows` | `boolean` | `false` | 持久化工作流定义 |
-| `registry.storageBackend` | `string` | `'memory'` | 存储后端 |
-| `executor.maxConcurrency` | `number` | `10` | 执行器最大并发 |
-| `executor.defaultTimeout` | `number` | `120000` | 默认超时（ms） |
+| 选项                        | 类型      | 默认值     | 说明             |
+| --------------------------- | --------- | ---------- | ---------------- |
+| `registry.persistWorkflows` | `boolean` | `false`    | 持久化工作流定义 |
+| `registry.storageBackend`   | `string`  | `'memory'` | 存储后端         |
+| `executor.maxConcurrency`   | `number`  | `10`       | 执行器最大并发   |
+| `executor.defaultTimeout`   | `number`  | `120000`   | 默认超时（ms）   |
 
 ### 12.6 OrchestrationLayer 配置
 
-| 选项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `decompositionStrategy` | `'semantic' \| 'rule-based' \| 'llm-driven'` | `'semantic'` | 分解策略 |
-| `agentSelectionStrategy` | `AgentSelectionStrategy` | `'capability-match'` | Agent 选择策略 |
-| `maxDepth` | `number` | `5` | 最大分解深度 |
-| `timeout` | `number` | `300000` | 编排超时（ms） |
+| 选项                     | 类型                                         | 默认值               | 说明           |
+| ------------------------ | -------------------------------------------- | -------------------- | -------------- |
+| `decompositionStrategy`  | `'semantic' \| 'rule-based' \| 'llm-driven'` | `'semantic'`         | 分解策略       |
+| `agentSelectionStrategy` | `AgentSelectionStrategy`                     | `'capability-match'` | Agent 选择策略 |
+| `maxDepth`               | `number`                                     | `5`                  | 最大分解深度   |
+| `timeout`                | `number`                                     | `300000`             | 编排超时（ms） |
 
 ### 12.7 AgentRegistry 配置
 
-| 选项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
+| 选项                | 类型     | 默认值  | 说明           |
+| ------------------- | -------- | ------- | -------------- |
 | `heartbeatInterval` | `number` | `10000` | 心跳间隔（ms） |
-| `heartbeatTimeout` | `number` | `30000` | 心跳超时（ms） |
-| `cleanupInterval` | `number` | `60000` | 清理间隔（ms） |
+| `heartbeatTimeout`  | `number` | `30000` | 心跳超时（ms） |
+| `cleanupInterval`   | `number` | `60000` | 清理间隔（ms） |
 
 ---
 
@@ -1982,15 +2000,15 @@ process.on('SIGINT', shutdown);
 ```typescript
 // Agent 执行错误类型
 type AgentErrorType =
-  | 'TIMEOUT'           // 任务超时
-  | 'CANCELLED'         // 任务被取消
-  | 'QUEUE_FULL'        // 队列已满
-  | 'AGENT_BUSY'        // Agent 忙碌
-  | 'AGENT_STOPPED'     // Agent 已停止
+  | 'TIMEOUT' // 任务超时
+  | 'CANCELLED' // 任务被取消
+  | 'QUEUE_FULL' // 队列已满
+  | 'AGENT_BUSY' // Agent 忙碌
+  | 'AGENT_STOPPED' // Agent 已停止
   | 'DEPENDENCY_FAILED' // 依赖任务失败
-  | 'RETRY_EXHAUSTED'   // 重试耗尽
-  | 'INVALID_INPUT'     // 无效输入
-  | 'INTERNAL_ERROR';   // 内部错误
+  | 'RETRY_EXHAUSTED' // 重试耗尽
+  | 'INVALID_INPUT' // 无效输入
+  | 'INTERNAL_ERROR'; // 内部错误
 ```
 
 ### 13.2 错误处理模式
@@ -2014,7 +2032,7 @@ try {
 }
 
 // 模式 2：事件监听
-agent.on('error', (error) => {
+agent.on('error', error => {
   console.error('Agent error:', error);
   // 记录到监控系统
   metrics.increment('agent.errors', { agent: agent.name, type: error.type });
@@ -2055,7 +2073,7 @@ class CircuitBreaker {
 
   constructor(
     private threshold: number = 5,
-    private resetTimeout: number = 30_000,
+    private resetTimeout: number = 30_000
   ) {}
 
   async execute(fn: () => Promise<AgentResult>): Promise<AgentResult> {
@@ -2095,8 +2113,8 @@ const result = await breaker.execute(() => agent.execute(task));
 const workflow: Workflow = {
   // ... 其他配置
   config: {
-    onFailure: 'pause',                // 'pause' | 'continue' | 'rollback' | 'abort'
-    onNodeFailure: 'retry',            // 'retry' | 'skip' | 'fail' | 'fallback'
+    onFailure: 'pause', // 'pause' | 'continue' | 'rollback' | 'abort'
+    onNodeFailure: 'retry', // 'retry' | 'skip' | 'fail' | 'fallback'
     globalRetry: {
       maxRetries: 3,
       delay: 5_000,
@@ -2107,7 +2125,7 @@ const workflow: Workflow = {
         // 使用缓存数据
         return { data: await getCachedData(), fromCache: true };
       },
-      'publish': async (error, context) => {
+      publish: async (error, context) => {
         // 发布失败时重试队列
         await retryQueue.enqueue(context.task);
         return { queued: true };
@@ -2153,8 +2171,8 @@ const goodTask: AgentTaskInput = {
 const badTask: AgentTaskInput = {
   taskId: 'do-everything',
   payload: {
-    rawData: hugeDataObject,  // 应通过引用传递
-    doEverything: true,        // 职责不明确
+    rawData: hugeDataObject, // 应通过引用传递
+    doEverything: true, // 职责不明确
   },
   // 缺少 timeout
 };
@@ -2164,21 +2182,25 @@ const badTask: AgentTaskInput = {
 
 ```typescript
 // ✅ 根据任务类型设置合理的并发数
-const cpuAgent = new Agent(createAgentConfig({
-  name: 'cpu-intensive',
-  type: 'worker',
-  maxConcurrency: 2,  // CPU 密集型：限制并发
-}));
+const cpuAgent = new Agent(
+  createAgentConfig({
+    name: 'cpu-intensive',
+    type: 'worker',
+    maxConcurrency: 2, // CPU 密集型：限制并发
+  })
+);
 
-const ioAgent = new Agent(createAgentConfig({
-  name: 'io-intensive',
-  type: 'worker',
-  maxConcurrency: 20, // IO 密集型：高并发
-}));
+const ioAgent = new Agent(
+  createAgentConfig({
+    name: 'io-intensive',
+    type: 'worker',
+    maxConcurrency: 20, // IO 密集型：高并发
+  })
+);
 
 // ✅ 使用调度器管理全局并发
 const scheduler = new TaskScheduler({
-  maxConcurrency: 10,  // 全局上限
+  maxConcurrency: 10, // 全局上限
   schedulingStrategy: 'least-loaded',
 });
 ```
@@ -2188,7 +2210,7 @@ const scheduler = new TaskScheduler({
 ```typescript
 // ✅ 控制上下文窗口大小
 const windowManager = new ContextWindowManager({
-  maxTokens: 4_000,           // 根据模型限制设置
+  maxTokens: 4_000, // 根据模型限制设置
   maxMessages: 30,
   sumarizationThreshold: 0.7, // 70% 时触发摘要
 });
@@ -2234,7 +2256,7 @@ const bestPracticeWorkflow: Workflow = {
     maxConcurrency: 5,
     defaultRetry: { maxRetries: 2, delay: 1_000 },
     defaultTimeout: 60_000,
-    onFailure: 'pause',  // 失败时暂停，保留现场
+    onFailure: 'pause', // 失败时暂停，保留现场
   },
 };
 ```
@@ -2243,7 +2265,7 @@ const bestPracticeWorkflow: Workflow = {
 
 ```typescript
 // ✅ 监听关键事件
-agent.on('task:started', (task) => {
+agent.on('task:started', task => {
   metrics.increment('tasks.started');
   logger.info('Task started', { taskId: task.taskId, agent: agent.name });
 });
@@ -2272,7 +2294,7 @@ setInterval(() => {
 }, 10_000);
 
 // ✅ 使用心跳检测 Agent 健康状态
-registry.on('agent:offline', (agentId) => {
+registry.on('agent:offline', agentId => {
   alerting.send(`Agent ${agentId} is offline!`);
   // 触发故障转移
 });
@@ -2325,63 +2347,110 @@ process.on('SIGINT', gracefulShutdown);
 
 ```typescript
 // 核心 Agent
-Agent, AgentResult<T>, AgentTaskInput, AgentTaskHandler<T,R>,
-AgentExecutionContext, AgentEvents, AgentConfig, AgentConfigOptions,
-AgentType, AgentPriority, DEFAULT_AGENT_CONFIG, createAgentConfig,
-AgentState, AgentStateOptions, AgentStats, AgentStatus,
-createAgentState, getAgentStats
+(Agent,
+  AgentResult<T>,
+  AgentTaskInput,
+  AgentTaskHandler<T, R>,
+  AgentExecutionContext,
+  AgentEvents,
+  AgentConfig,
+  AgentConfigOptions,
+  AgentType,
+  AgentPriority,
+  DEFAULT_AGENT_CONFIG,
+  createAgentConfig,
+  AgentState,
+  AgentStateOptions,
+  AgentStats,
+  AgentStatus,
+  createAgentState,
+  getAgentStats);
 
 // 调度器
-TaskQueue, TaskScheduler, TaskPriority, TaskStatus, Task,
-TaskOptions, TaskQueueConfig
+(TaskQueue, TaskScheduler, TaskPriority, TaskStatus, Task, TaskOptions, TaskQueueConfig);
 
 // 上下文管理
-Message, MessageSender, MessageContent, MessageOptions,
-Attachment, ToolCall, ToolResponse, MessageType, MessageStatus,
-MessageFlag, ContentFormat, AttachmentType,
-ContextManager, ContextItem, ContextItemOptions, ContextItemFilter,
-ContextItemUpdate, ContextItemMetadata, ContextItemType, ContextItemPriority,
-ContextWindowManager, ContextService
+(Message,
+  MessageSender,
+  MessageContent,
+  MessageOptions,
+  Attachment,
+  ToolCall,
+  ToolResponse,
+  MessageType,
+  MessageStatus,
+  MessageFlag,
+  ContentFormat,
+  AttachmentType,
+  ContextManager,
+  ContextItem,
+  ContextItemOptions,
+  ContextItemFilter,
+  ContextItemUpdate,
+  ContextItemMetadata,
+  ContextItemType,
+  ContextItemPriority,
+  ContextWindowManager,
+  ContextService);
 
 // 工作流
-WorkflowTask, Workflow, WorkflowExecutor, WorkflowEngine,
-WorkflowEdge, WorkflowConfig, WorkflowVariable, WorkflowExecution,
-EdgeCondition, WorkflowStatus, WorkflowExecutionStatus,
-TaskExecution, TaskConfig, TaskInput, TaskOutput, TaskDependency,
-RetryPolicy, TaskTimeout, ConditionExpression, LoopConfig, ParallelConfig
+(WorkflowTask,
+  Workflow,
+  WorkflowExecutor,
+  WorkflowEngine,
+  WorkflowEdge,
+  WorkflowConfig,
+  WorkflowVariable,
+  WorkflowExecution,
+  EdgeCondition,
+  WorkflowStatus,
+  WorkflowExecutionStatus,
+  TaskExecution,
+  TaskConfig,
+  TaskInput,
+  TaskOutput,
+  TaskDependency,
+  RetryPolicy,
+  TaskTimeout,
+  ConditionExpression,
+  LoopConfig,
+  ParallelConfig);
 
 // 编排
-OrchestrationLayer, ExecutionCoordinator,
-OrchestrationStrategy, OrchestrationPlanStatus,
-DecomposedTask, AgentSelectionStrategy
+(OrchestrationLayer,
+  ExecutionCoordinator,
+  OrchestrationStrategy,
+  OrchestrationPlanStatus,
+  DecomposedTask,
+  AgentSelectionStrategy);
 
 // 通信
-AgentChannel, AgentMessage, MessageQueue
+(AgentChannel, AgentMessage, MessageQueue);
 
 // 注册
-AgentRegistry, AgentMetadata
+(AgentRegistry, AgentMetadata);
 ```
 
 ---
 
 ## 附录 B：事件总线速查
 
-| 事件名 | 来源 | 参数 |
-| --- | --- | --- |
-| `task:started` | Agent | `(task: AgentTaskInput)` |
-| `task:completed` | Agent | `(task: AgentTaskInput, result: AgentResult)` |
-| `task:failed` | Agent | `(task: AgentTaskInput, error: Error)` |
-| `state:changed` | Agent | `(prevState: AgentState, nextState: AgentState)` |
-| `error` | Agent | `(error: Error)` |
-| `task:dequeued` | TaskQueue | `(task: Task)` |
-| `queue:full` | TaskQueue | `()` |
-| `queue:drained` | TaskQueue | `()` |
-| `window:trimmed` | ContextWindowManager | `(convId: string, removedCount: number)` |
-| `window:overflow` | ContextWindowManager | `(convId: string, state: WindowState)` |
-| `node:started` | WorkflowExecutor | `(nodeId: string, execution: WorkflowExecution)` |
-| `node:completed` | WorkflowExecutor | `(nodeId: string, result: unknown, execution: WorkflowExecution)` |
-| `node:failed` | WorkflowExecutor | `(nodeId: string, error: Error, execution: WorkflowExecution)` |
-| `workflow:completed` | WorkflowExecutor | `(execution: WorkflowExecution)` |
-| `agent:registered` | AgentRegistry | `(agent: AgentMetadata)` |
-| `agent:offline` | AgentRegistry | `(agentId: string)` |
-| `agent:updated` | AgentRegistry | `(agent: AgentMetadata)` |
+| 事件名               | 来源                 | 参数                                                              |
+| -------------------- | -------------------- | ----------------------------------------------------------------- |
+| `task:started`       | Agent                | `(task: AgentTaskInput)`                                          |
+| `task:completed`     | Agent                | `(task: AgentTaskInput, result: AgentResult)`                     |
+| `task:failed`        | Agent                | `(task: AgentTaskInput, error: Error)`                            |
+| `state:changed`      | Agent                | `(prevState: AgentState, nextState: AgentState)`                  |
+| `error`              | Agent                | `(error: Error)`                                                  |
+| `task:dequeued`      | TaskQueue            | `(task: Task)`                                                    |
+| `queue:full`         | TaskQueue            | `()`                                                              |
+| `queue:drained`      | TaskQueue            | `()`                                                              |
+| `window:trimmed`     | ContextWindowManager | `(convId: string, removedCount: number)`                          |
+| `window:overflow`    | ContextWindowManager | `(convId: string, state: WindowState)`                            |
+| `node:started`       | WorkflowExecutor     | `(nodeId: string, execution: WorkflowExecution)`                  |
+| `node:completed`     | WorkflowExecutor     | `(nodeId: string, result: unknown, execution: WorkflowExecution)` |
+| `node:failed`        | WorkflowExecutor     | `(nodeId: string, error: Error, execution: WorkflowExecution)`    |
+| `workflow:completed` | WorkflowExecutor     | `(execution: WorkflowExecution)`                                  |
+| `agent:registered`   | AgentRegistry        | `(agent: AgentMetadata)`                                          |
+| `agent:offline`      | AgentRegistry        | `(agentId: string)`                                               |
+| `agent:updated`      | AgentRegistry        | `(agent: AgentMetadata)`                                          |

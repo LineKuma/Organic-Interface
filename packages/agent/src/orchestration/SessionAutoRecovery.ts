@@ -129,9 +129,7 @@ export class SessionAutoRecovery {
         cp.lastCheckpoint > latest.lastCheckpoint ? cp : latest
       );
 
-      this.logger.debug(
-        `Loaded checkpoint for session ${sessionId}: seq ${latest.lastCheckpoint}`
-      );
+      this.logger.debug(`Loaded checkpoint for session ${sessionId}: seq ${latest.lastCheckpoint}`);
       return latest;
     } catch (error) {
       this.logger.error(
@@ -189,8 +187,8 @@ export class SessionAutoRecovery {
       const sessions = await this.storage!.list();
 
       const checkpoints = sessions
-        .filter((s) => s.tags.includes('recovery') && s.tags.includes(sessionId))
-        .map((s) => this.sessionToRecoveryState(s))
+        .filter(s => s.tags.includes('recovery') && s.tags.includes(sessionId))
+        .map(s => this.sessionToRecoveryState(s))
         .filter((r): r is RecoveryState => r !== null);
 
       return checkpoints;
@@ -212,9 +210,7 @@ export class SessionAutoRecovery {
       const checkpoints = await this.listCheckpoints(sessionId);
 
       if (checkpoints.length <= keepLast) {
-        this.logger.debug(
-          `No cleanup needed: ${checkpoints.length} checkpoints, keep ${keepLast}`
-        );
+        this.logger.debug(`No cleanup needed: ${checkpoints.length} checkpoints, keep ${keepLast}`);
         return;
       }
 
@@ -235,9 +231,7 @@ export class SessionAutoRecovery {
         }
       }
 
-      this.logger.info(
-        `Cleaned up ${toDelete.length} old checkpoints for session ${sessionId}`
-      );
+      this.logger.info(`Cleaned up ${toDelete.length} old checkpoints for session ${sessionId}`);
     } catch (error) {
       this.logger.error(
         `Failed to clean up checkpoints: ${error instanceof Error ? error.message : String(error)}`
@@ -259,8 +253,7 @@ export class SessionAutoRecovery {
     }
 
     // Recovery is needed if there are pending or failed tasks
-    const hasPendingWork =
-      checkpoint.pendingTasks.length > 0 || checkpoint.failedTasks.length > 0;
+    const hasPendingWork = checkpoint.pendingTasks.length > 0 || checkpoint.failedTasks.length > 0;
 
     if (hasPendingWork) {
       this.logger.debug(`Recovery needed for session ${sessionId}`);
@@ -313,7 +306,11 @@ export class SessionAutoRecovery {
   /**
    * Convert a session persistence object to a recovery state
    */
-  private sessionToRecoveryState(session: { id: string; tags: string[]; data: Record<string, unknown> }): RecoveryState | null {
+  private sessionToRecoveryState(session: {
+    id: string;
+    tags: string[];
+    data: Record<string, unknown>;
+  }): RecoveryState | null {
     try {
       const metadata = (session.data as Record<string, unknown>) ?? {};
       return {
@@ -334,9 +331,7 @@ export class SessionAutoRecovery {
    */
   private ensureStorage(): void {
     if (!this.storage) {
-      throw new Error(
-        'StorageProvider not set. Call setStorage() before using recovery features.'
-      );
+      throw new Error('StorageProvider not set. Call setStorage() before using recovery features.');
     }
   }
 }

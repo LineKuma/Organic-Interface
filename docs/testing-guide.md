@@ -41,10 +41,10 @@
 
 ### 技术栈
 
-| 工具 | 用途 | 版本 |
-|------|------|------|
-| Vitest | 测试框架 | 1.4+ |
-| @vitest/coverage-v8 | 覆盖率 | 4.1+ |
+| 工具                | 用途     | 版本 |
+| ------------------- | -------- | ---- |
+| Vitest              | 测试框架 | 1.4+ |
+| @vitest/coverage-v8 | 覆盖率   | 4.1+ |
 
 ### 配置文件
 
@@ -105,16 +105,16 @@ describe('Sandbox', () => {
 
 **分类**:
 
-| 分类 | 文件 | 测试场景 |
-|------|------|----------|
-| UI 沙箱 | `ui-sandbox-user-flow.test.ts` | 沙箱配置、会话管理、权限检查、操作记录 |
-| UI Agent | `ui-agent-user-workflow.test.ts` | Agent 生命周期、UI 操作执行、统计、暂停恢复 |
-| UI 组件 | `ui-components-user-interaction.test.ts` | Progress、Table、Prompt 组件交互 |
-| UI CLI | `ui-cli-user-workflow.test.ts` | CLI 配置、命令、操作日志、自定义命令 |
-| TUI 终端 | `tui-terminal-screen.test.ts` | 终端能力检测、屏幕管理、主题、ANSI |
-| TUI 渲染 | `tui-rendering.test.ts` | Spinner、Banner、Box、Output 渲染 |
-| TUI 鼠标 | `tui-mouse-interaction.test.ts` | 鼠标事件、SGR 序列、双击、拖拽 |
-| TUI CLI | `tui-cli-full-workflow.test.ts` | 命令解析、参数验证、帮助系统、子命令 |
+| 分类     | 文件                                     | 测试场景                                    |
+| -------- | ---------------------------------------- | ------------------------------------------- |
+| UI 沙箱  | `ui-sandbox-user-flow.test.ts`           | 沙箱配置、会话管理、权限检查、操作记录      |
+| UI Agent | `ui-agent-user-workflow.test.ts`         | Agent 生命周期、UI 操作执行、统计、暂停恢复 |
+| UI 组件  | `ui-components-user-interaction.test.ts` | Progress、Table、Prompt 组件交互            |
+| UI CLI   | `ui-cli-user-workflow.test.ts`           | CLI 配置、命令、操作日志、自定义命令        |
+| TUI 终端 | `tui-terminal-screen.test.ts`            | 终端能力检测、屏幕管理、主题、ANSI          |
+| TUI 渲染 | `tui-rendering.test.ts`                  | Spinner、Banner、Box、Output 渲染           |
+| TUI 鼠标 | `tui-mouse-interaction.test.ts`          | 鼠标事件、SGR 序列、双击、拖拽              |
+| TUI CLI  | `tui-cli-full-workflow.test.ts`          | 命令解析、参数验证、帮助系统、子命令        |
 
 ---
 
@@ -230,12 +230,12 @@ vi.mock('@organic/utils', () => ({
 
 ### 目标
 
-| 指标 | 目标 |
-|------|------|
+| 指标       | 目标  |
+| ---------- | ----- |
 | 语句覆盖率 | > 80% |
 | 分支覆盖率 | > 75% |
 | 函数覆盖率 | > 80% |
-| 行覆盖率 | > 80% |
+| 行覆盖率   | > 80% |
 
 ### 查看覆盖率
 

@@ -178,7 +178,9 @@ describe('TemplateEngine', () => {
     });
 
     it('should handle equality comparison', () => {
-      const result = engine.compile('{{#if status === "active"}}active{{/if}}', { status: 'active' });
+      const result = engine.compile('{{#if status === "active"}}active{{/if}}', {
+        status: 'active',
+      });
       expect(result).toBe('active');
     });
 
@@ -252,14 +254,20 @@ describe('TemplateEngine', () => {
     });
 
     it('should support first/last in loop', () => {
-      const template = '{{#each items}}{{#if item_first}}First: {{item}}{{/if}}{{#if item_last}}Last: {{item}}{{/if}}{{/each}}';
+      const template =
+        '{{#each items}}{{#if item_first}}First: {{item}}{{/if}}{{#if item_last}}Last: {{item}}{{/if}}{{/each}}';
       const result = engine.compile(template, { items: ['a', 'b', 'c'] });
       expect(result).toBe('First: aLast: c');
     });
 
     it('should handle nested loops', () => {
       const template = '{{#each rows as row}}{{#each row}}[{{item}}]{{/each}}\n{{/each}}';
-      const result = engine.compile(template, { rows: [[1, 2], [3, 4]] });
+      const result = engine.compile(template, {
+        rows: [
+          [1, 2],
+          [3, 4],
+        ],
+      });
       expect(result).toBe('[1][2]\n[3][4]\n');
     });
   });
@@ -348,9 +356,7 @@ describe('TemplateEngine', () => {
 
   describe('validate()', () => {
     it('should validate a correct template', () => {
-      const variables: TemplateVariable[] = [
-        { name: 'name', type: 'string', required: true },
-      ];
+      const variables: TemplateVariable[] = [{ name: 'name', type: 'string', required: true }];
       const result = engine.validate('Hello {{name}}!', variables);
       expect(result.valid).toBe(true);
       expect(result.errors).toHaveLength(0);
@@ -399,9 +405,7 @@ describe('TemplateEngine', () => {
     });
 
     it('should warn about unused required variables', () => {
-      const variables: TemplateVariable[] = [
-        { name: 'unused', type: 'string', required: true },
-      ];
+      const variables: TemplateVariable[] = [{ name: 'unused', type: 'string', required: true }];
       const result = engine.validate('Hello!', variables);
       expect(result.warnings.some(w => w.message.includes('not used'))).toBe(true);
     });

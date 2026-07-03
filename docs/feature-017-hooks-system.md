@@ -82,16 +82,16 @@ DISCOVERED → RESOLVED → LOADING → INITIALIZED → ACTIVE → RUNNING
 
 ```typescript
 export enum PluginLifecycleState {
-  DISCOVERED    = 'discovered',      // Plugin 被发现
-  RESOLVED      = 'resolved',        // 依赖已解析
-  LOADING       = 'loading',         // 正在加载
-  INITIALIZED   = 'initialized',     // 已初始化
-  ACTIVE        = 'active',          // 已激活
-  RUNNING       = 'running',         // 正在运行
-  SHUTTING_DOWN = 'shutting_down',   // 正在关闭
-  SHUTDOWN      = 'shutdown',        // 已关闭
-  ERROR         = 'error',           // 错误状态
-  UNLOADED      = 'unloaded',        // 已卸载
+  DISCOVERED = 'discovered', // Plugin 被发现
+  RESOLVED = 'resolved', // 依赖已解析
+  LOADING = 'loading', // 正在加载
+  INITIALIZED = 'initialized', // 已初始化
+  ACTIVE = 'active', // 已激活
+  RUNNING = 'running', // 正在运行
+  SHUTTING_DOWN = 'shutting_down', // 正在关闭
+  SHUTDOWN = 'shutdown', // 已关闭
+  ERROR = 'error', // 错误状态
+  UNLOADED = 'unloaded', // 已卸载
 }
 ```
 
@@ -132,8 +132,12 @@ class MyPlugin implements PluginInterface {
     };
   }
 
-  async initialize(): Promise<void> { /* ... */ }
-  async shutdown(): Promise<void> { /* ... */ }
+  async initialize(): Promise<void> {
+    /* ... */
+  }
+  async shutdown(): Promise<void> {
+    /* ... */
+  }
 }
 ```
 
@@ -148,7 +152,7 @@ export interface PluginStatus {
   enabled: boolean;
   error?: string;
   lastStateChange?: number;
-  stats?: PluginStats;  // 执行统计：totalExecutions, successfulExecutions 等
+  stats?: PluginStats; // 执行统计：totalExecutions, successfulExecutions 等
 }
 ```
 
@@ -186,10 +190,10 @@ export class EventBus {
 
 ```typescript
 export interface KernelEvent<T = unknown> {
-  type: string;       // 事件类型/名称
-  data: T;            // 事件载荷数据
-  timestamp: number;  // 事件发出的时间戳
-  source?: string;    // 事件来源
+  type: string; // 事件类型/名称
+  data: T; // 事件载荷数据
+  timestamp: number; // 事件发出的时间戳
+  source?: string; // 事件来源
 }
 ```
 
@@ -197,23 +201,23 @@ export interface KernelEvent<T = unknown> {
 
 EventBus 支持三种通配符模式：
 
-| 模式 | 说明 | 示例 |
-|------|------|------|
-| `prefix:*` | 匹配以 `prefix:` 或 `prefix/` 开头的所有事件 | `plugin:*` 匹配 `plugin:register`, `plugin:error` |
-| `*:suffix` | 匹配以 `:suffix` 或 `/suffix` 结尾的所有事件 | `*:error` 匹配 `plugin:error`, `tool:error` |
-| 包含 `*` 的模式 | 正则匹配，`*` 不匹配 `:` | `task:*:complete` 匹配 `task:node:complete` |
+| 模式            | 说明                                         | 示例                                              |
+| --------------- | -------------------------------------------- | ------------------------------------------------- |
+| `prefix:*`      | 匹配以 `prefix:` 或 `prefix/` 开头的所有事件 | `plugin:*` 匹配 `plugin:register`, `plugin:error` |
+| `*:suffix`      | 匹配以 `:suffix` 或 `/suffix` 结尾的所有事件 | `*:error` 匹配 `plugin:error`, `tool:error`       |
+| 包含 `*` 的模式 | 正则匹配，`*` 不匹配 `:`                     | `task:*:complete` 匹配 `task:node:complete`       |
 
 ### 内核事件常量
 
 ```typescript
 export const KernelEvents = {
-  KERNEL_INIT:       'kernel:init',        // Kernel 初始化
-  KERNEL_START:      'kernel:start',       // Kernel 启动
-  KERNEL_STOP:       'kernel:stop',        // Kernel 停止
-  PLUGIN_REGISTER:   'plugin:register',    // Plugin 注册
-  PLUGIN_UNREGISTER: 'plugin:unregister',  // Plugin 注销
-  PLUGIN_ERROR:      'plugin:error',       // Plugin 错误
-  CONFIG_UPDATE:     'config:update',      // 配置更新
+  KERNEL_INIT: 'kernel:init', // Kernel 初始化
+  KERNEL_START: 'kernel:start', // Kernel 启动
+  KERNEL_STOP: 'kernel:stop', // Kernel 停止
+  PLUGIN_REGISTER: 'plugin:register', // Plugin 注册
+  PLUGIN_UNREGISTER: 'plugin:unregister', // Plugin 注销
+  PLUGIN_ERROR: 'plugin:error', // Plugin 错误
+  CONFIG_UPDATE: 'config:update', // 配置更新
 } as const;
 ```
 
@@ -225,17 +229,17 @@ import { EventBus, KernelEvents } from '@organic/kernel';
 const eventBus = new EventBus({ async: true });
 
 // 精确订阅：监听 Kernel 启动
-const sub1 = eventBus.on(KernelEvents.KERNEL_START, (event) => {
+const sub1 = eventBus.on(KernelEvents.KERNEL_START, event => {
   console.log(`Kernel 已启动，时间: ${new Date(event.timestamp).toISOString()}`);
 });
 
 // 通配符订阅：监听所有 Plugin 相关事件
-const sub2 = eventBus.onWildcard('plugin:*', (event) => {
+const sub2 = eventBus.onWildcard('plugin:*', event => {
   console.log(`Plugin 事件: ${event.type}`, event.data);
 });
 
 // 一次性订阅：监听下一次配置更新
-eventBus.once(KernelEvents.CONFIG_UPDATE, (event) => {
+eventBus.once(KernelEvents.CONFIG_UPDATE, event => {
   console.log('配置已更新:', event.data);
 });
 
@@ -248,23 +252,35 @@ sub2.unsubscribe();
 
 ```typescript
 // Kernel 启动时发布事件
-eventBus.emit(KernelEvents.KERNEL_START, {
-  version: '1.0.0',
-  startTime: Date.now(),
-}, 'kernel');
+eventBus.emit(
+  KernelEvents.KERNEL_START,
+  {
+    version: '1.0.0',
+    startTime: Date.now(),
+  },
+  'kernel'
+);
 
 // Plugin 注册时发布事件
-eventBus.emit(KernelEvents.PLUGIN_REGISTER, {
-  pluginId: 'my-plugin',
-  name: 'MyPlugin',
-}, 'plugin-manager');
+eventBus.emit(
+  KernelEvents.PLUGIN_REGISTER,
+  {
+    pluginId: 'my-plugin',
+    name: 'MyPlugin',
+  },
+  'plugin-manager'
+);
 
 // 配置更新时发布事件
-eventBus.emit(KernelEvents.CONFIG_UPDATE, {
-  key: 'maxConcurrency',
-  oldValue: 5,
-  newValue: 10,
-}, 'config-service');
+eventBus.emit(
+  KernelEvents.CONFIG_UPDATE,
+  {
+    key: 'maxConcurrency',
+    oldValue: 5,
+    newValue: 10,
+  },
+  'config-service'
+);
 ```
 
 ---
@@ -279,13 +295,13 @@ Agent 通过 `EventEmitter` 发出任务生命周期事件，所有 Agent 事件
 // packages/agent/src/core/Agent.ts
 
 export interface AgentEvents {
-  'task:start':      { taskId: string; timestamp: number };
-  'task:complete':   { taskId: string; result: AgentResult; timestamp: number };
-  'task:error':      { taskId: string; error: Error; timestamp: number };
-  'status:change':   { oldStatus: AgentStatus; newStatus: AgentStatus; timestamp: number };
-  'child:register':  { childId: string; timestamp: number };
+  'task:start': { taskId: string; timestamp: number };
+  'task:complete': { taskId: string; result: AgentResult; timestamp: number };
+  'task:error': { taskId: string; error: Error; timestamp: number };
+  'status:change': { oldStatus: AgentStatus; newStatus: AgentStatus; timestamp: number };
+  'child:register': { childId: string; timestamp: number };
   'child:unregister': { childId: string; timestamp: number };
-  heartbeat:         { timestamp: number; load: number };
+  heartbeat: { timestamp: number; load: number };
 }
 ```
 
@@ -303,12 +319,12 @@ Agent 状态变更时触发 `status:change`，携带新旧状态对比：
 
 ```typescript
 export enum AgentStatus {
-  IDLE           = 'idle',
-  INITIALIZING   = 'initializing',
-  BUSY           = 'busy',
-  SHUTTING_DOWN  = 'shutting_down',
-  OFFLINE        = 'offline',
-  ERROR          = 'error',
+  IDLE = 'idle',
+  INITIALIZING = 'initializing',
+  BUSY = 'busy',
+  SHUTTING_DOWN = 'shutting_down',
+  OFFLINE = 'offline',
+  ERROR = 'error',
 }
 ```
 
@@ -378,14 +394,14 @@ LifecycleManager 管理 Kernel 的生命周期状态，提供 `before` 和 `afte
 // packages/kernel/src/kernel/LifecycleManager.ts
 
 export enum LifecycleState {
-  CREATED       = 'created',        // 已创建，未初始化
-  INITIALIZING  = 'initializing',   // 正在初始化
-  INITIALIZED   = 'initialized',    // 已初始化，待启动
-  STARTING      = 'starting',       // 正在启动
-  RUNNING       = 'running',        // 正在运行
-  STOPPING      = 'stopping',       // 正在停止
-  STOPPED       = 'stopped',        // 已停止
-  ERROR         = 'error',          // 错误状态
+  CREATED = 'created', // 已创建，未初始化
+  INITIALIZING = 'initializing', // 正在初始化
+  INITIALIZED = 'initialized', // 已初始化，待启动
+  STARTING = 'starting', // 正在启动
+  RUNNING = 'running', // 正在运行
+  STOPPING = 'stopping', // 正在停止
+  STOPPED = 'stopped', // 已停止
+  ERROR = 'error', // 错误状态
 }
 ```
 
@@ -393,9 +409,9 @@ export enum LifecycleState {
 
 ```typescript
 export interface LifecycleTransition {
-  from: LifecycleState;             // 前一状态
-  to: LifecycleState;               // 新状态
-  timestamp: number;                // 转换时间戳
+  from: LifecycleState; // 前一状态
+  to: LifecycleState; // 新状态
+  timestamp: number; // 转换时间戳
   metadata?: Record<string, unknown>; // 可选元数据
 }
 ```
@@ -454,13 +470,13 @@ console.log(lifecycleManager.getStatus());
 ### 状态查询辅助方法
 
 ```typescript
-lifecycleManager.isState(LifecycleState.RUNNING);       // 判断是否为指定状态
+lifecycleManager.isState(LifecycleState.RUNNING); // 判断是否为指定状态
 lifecycleManager.isAnyState(LifecycleState.INITIALIZED, LifecycleState.RUNNING);
-lifecycleManager.isRunning();                           // 是否在运行中
-lifecycleManager.isActive();                            // 是否处于活跃状态
-lifecycleManager.getPreviousState();                    // 获取前一状态
-lifecycleManager.clearHooks();                          // 清除所有钩子
-lifecycleManager.reset();                               // 重置到 CREATED 状态
+lifecycleManager.isRunning(); // 是否在运行中
+lifecycleManager.isActive(); // 是否处于活跃状态
+lifecycleManager.getPreviousState(); // 获取前一状态
+lifecycleManager.clearHooks(); // 清除所有钩子
+lifecycleManager.reset(); // 重置到 CREATED 状态
 ```
 
 ---
@@ -480,19 +496,23 @@ export interface SecurityGuardEvents {
   // newPreset, oldPreset
 
   /** 操作被安全策略阻止时触发 */
-  'operation:blocked': [{
-    toolId: string;
-    operation: ToolPermissionType;
-    preset: SecurityPreset;
-    reason: string;
-  }];
+  'operation:blocked': [
+    {
+      toolId: string;
+      operation: ToolPermissionType;
+      preset: SecurityPreset;
+      reason: string;
+    },
+  ];
 
   /** 操作被允许时触发 */
-  'operation:allowed': [{
-    toolId: string;
-    operation: ToolPermissionType;
-    preset: SecurityPreset;
-  }];
+  'operation:allowed': [
+    {
+      toolId: string;
+      operation: ToolPermissionType;
+      preset: SecurityPreset;
+    },
+  ];
 }
 ```
 
@@ -562,10 +582,10 @@ if (!result.allowed) {
 // 3. 返回授权结果
 
 const approval = await securityGuard.authorize(
-  toolId,    // 工具 ID
-  input,     // 工具输入
+  toolId, // 工具 ID
+  input, // 工具输入
   operation, // 操作类型
-  metadata   // 元数据
+  metadata // 元数据
 );
 ```
 
@@ -581,18 +601,18 @@ ToolService 管理工具注册和执行，提供以下事件钩子：
 // packages/tools/src/services/ToolService.ts
 
 export interface ToolServiceEvents {
-  'tool:registered':   { toolId: string; timestamp: number };
+  'tool:registered': { toolId: string; timestamp: number };
   'tool:unregistered': { toolId: string; timestamp: number };
-  'tool:enabled':      { toolId: string; timestamp: number };
-  'tool:disabled':     { toolId: string; timestamp: number };
-  'execution:start':   { toolId: string; executionId: string; timestamp: number };
+  'tool:enabled': { toolId: string; timestamp: number };
+  'tool:disabled': { toolId: string; timestamp: number };
+  'execution:start': { toolId: string; executionId: string; timestamp: number };
   'execution:complete': {
     toolId: string;
     executionId: string;
     result: ToolResult;
     timestamp: number;
   };
-  'execution:error':   {
+  'execution:error': {
     toolId: string;
     executionId: string;
     error: Error;
@@ -609,15 +629,15 @@ ToolExecutor 管理工具的实际执行，提供队列和执行生命周期事�
 // packages/tools/src/executor/ToolExecutor.ts
 
 export interface ToolExecutorEvents {
-  'execution:queued':    { toolId: string; queueLength: number; timestamp: number };
-  'execution:started':   { toolId: string; executionId: string; timestamp: number };
+  'execution:queued': { toolId: string; queueLength: number; timestamp: number };
+  'execution:started': { toolId: string; executionId: string; timestamp: number };
   'execution:completed': {
     toolId: string;
     executionId: string;
     duration: number;
     timestamp: number;
   };
-  'execution:failed':    {
+  'execution:failed': {
     toolId: string;
     executionId: string;
     error: string;
@@ -625,8 +645,8 @@ export interface ToolExecutorEvents {
     timestamp: number;
   };
   'execution:cancelled': { toolId: string; executionId: string; timestamp: number };
-  'queue:empty':         { timestamp: number };
-  'queue:full':          { timestamp: number };
+  'queue:empty': { timestamp: number };
+  'queue:full': { timestamp: number };
 }
 ```
 
@@ -823,10 +843,10 @@ Sandbox 提供 UI 操作的安全隔离环境，其事件钩子覆盖会话和�
 // packages/ui/src/core/Sandbox.ts
 
 export interface SandboxEvents {
-  'session:created':    { session: SandboxSession; timestamp: number };
+  'session:created': { session: SandboxSession; timestamp: number };
   'session:terminated': { session: SandboxSession; timestamp: number };
   'operation:recorded': { context: SandboxOperationContext; timestamp: number };
-  'permission:denied':  {
+  'permission:denied': {
     sessionId: string;
     operation: UIOperationType;
     reason: string;
@@ -841,10 +861,10 @@ export interface SandboxEvents {
 
 ```typescript
 export interface PermissionCheckResult {
-  allowed: boolean;              // 操作是否允许
-  reason?: string;               // 拒绝原因
+  allowed: boolean; // 操作是否允许
+  reason?: string; // 拒绝原因
   requiresConfirmation: boolean; // 是否需要用户确认
-  warnings: string[];            // 警告信息
+  warnings: string[]; // 警告信息
 }
 ```
 
@@ -856,12 +876,12 @@ UIAgent 提供 AI 驱动的 UI 操作能力，其事件钩子覆盖 Agent 和操
 // packages/ui/src/core/UIAgent.ts
 
 export interface UIAgentEvents {
-  'agent:start':      { agentId: string; timestamp: number };
-  'agent:stop':       { agentId: string; timestamp: number };
-  'agent:pause':      { agentId: string; timestamp: number };
-  'agent:resume':     { agentId: string; timestamp: number };
-  'session:start':    { agentId: string; sessionId: string; timestamp: number };
-  'session:end':      { agentId: string; sessionId: string; timestamp: number };
+  'agent:start': { agentId: string; timestamp: number };
+  'agent:stop': { agentId: string; timestamp: number };
+  'agent:pause': { agentId: string; timestamp: number };
+  'agent:resume': { agentId: string; timestamp: number };
+  'session:start': { agentId: string; sessionId: string; timestamp: number };
+  'session:end': { agentId: string; sessionId: string; timestamp: number };
   'operation:request': {
     agentId: string;
     sessionId: string;
@@ -875,7 +895,7 @@ export interface UIAgentEvents {
     timestamp: number;
   };
   'operation:confirm': { agentId: string; operation: UIOperationType; timestamp: number };
-  'operation:cancel':  {
+  'operation:cancel': {
     agentId: string;
     operation: UIOperationType;
     reason: string;
@@ -901,7 +921,7 @@ export interface UIOperationRequest {
   options?: {
     timeout?: number;
     retry?: number;
-    force?: boolean;  // 强制执行（跳过确认）
+    force?: boolean; // 强制执行（跳过确认）
   };
 }
 ```
@@ -1020,13 +1040,13 @@ ContextManager 提供 `subscribe()` 方法，允许订阅特定状态键的变�
 export type ContextChangeCallback = (change: StateChange) => void;
 
 // 订阅单个状态键
-const unsubscribe = contextManager.subscribe('workflow_status', (change) => {
+const unsubscribe = contextManager.subscribe('workflow_status', change => {
   console.log(`状态变更: ${change.key}, ${change.oldValue} → ${change.newValue}`);
   console.log(`变更类型: ${change.changeType}`); // 'set' | 'update' | 'delete'
 });
 
 // 订阅多个状态键
-const unsubscribe2 = contextManager.subscribe(['key1', 'key2', 'key3'], (change) => {
+const unsubscribe2 = contextManager.subscribe(['key1', 'key2', 'key3'], change => {
   console.log(`状态 ${change.key} 已变更`);
 });
 
@@ -1061,7 +1081,7 @@ const windowManager = new ContextWindowManager();
 // == ContextService 钩子 ==
 
 // 上下文创建
-contextService.on('context:created', (context) => {
+contextService.on('context:created', context => {
   console.log(`上下文创建: ${context.id}, 会话: ${context.sessionId}`);
 });
 
@@ -1099,23 +1119,25 @@ contextService.on('frame:popped', ({ contextId, frame }) => {
 
 // == ContextWindowManager 钩子 ==
 
-windowManager.on('window:created', (window) => {
-  console.log(`窗口创建: ${window.id}, 消息数: ${window.messages.length}, Token: ${window.tokenCount}`);
+windowManager.on('window:created', window => {
+  console.log(
+    `窗口创建: ${window.id}, 消息数: ${window.messages.length}, Token: ${window.tokenCount}`
+  );
 });
 
 windowManager.on('window:slid', ({ window, direction }) => {
   console.log(`窗口滑动: ${direction}, 范围: [${window.startIndex}, ${window.endIndex}]`);
 });
 
-windowManager.on('window:optimized', (window) => {
+windowManager.on('window:optimized', window => {
   console.log(`窗口优化: ${window.id}, 新 Token 数: ${window.tokenCount}`);
 });
 
-windowManager.on('window:deleted', (windowId) => {
+windowManager.on('window:deleted', windowId => {
   console.log(`窗口删除: ${windowId}`);
 });
 
-windowManager.on('windows:cleared', (count) => {
+windowManager.on('windows:cleared', count => {
   console.log(`所有窗口已清除: ${count} 个`);
 });
 
@@ -1124,17 +1146,14 @@ windowManager.on('windows:cleared', (count) => {
 const contextManager = new ContextManager();
 
 // 订阅特定状态键
-const unsubscribe = contextManager.subscribe('task:progress', (change) => {
+const unsubscribe = contextManager.subscribe('task:progress', change => {
   console.log(`任务进度变更: ${change.oldValue}% → ${change.newValue}%`);
 });
 
 // 订阅多个状态键
-const unsubscribe2 = contextManager.subscribe(
-  ['agent:status', 'workflow:state'],
-  (change) => {
-    console.log(`状态变更: ${change.key} = ${change.newValue}`);
-  }
-);
+const unsubscribe2 = contextManager.subscribe(['agent:status', 'workflow:state'], change => {
+  console.log(`状态变更: ${change.key} = ${change.newValue}`);
+});
 ```
 
 ---
@@ -1149,10 +1168,10 @@ StorageService 提供事务生命周期管理，事务本身可作为钩子注�
 // packages/storage/src/services/StorageService.ts
 
 export enum TransactionStatus {
-  ACTIVE     = 'active',
-  COMMITTED  = 'committed',
+  ACTIVE = 'active',
+  COMMITTED = 'committed',
   ROLLED_BACK = 'rolled_back',
-  EXPIRED    = 'expired',
+  EXPIRED = 'expired',
 }
 
 export interface Transaction {
@@ -1206,15 +1225,18 @@ async function transactionalWithHooks<T>(
 }
 
 // 使用示例
-await transactionalWithHooks(async (tx) => {
-  await storageService.create({ type: 'user', data: { name: 'Alice' } });
-  await storageService.create({ type: 'user', data: { name: 'Bob' } });
-  return { created: 2 };
-}, {
-  isolation: IsolationLevel.SERIALIZABLE,
-  timeout: 30000,
-  retryOnConflict: true,
-});
+await transactionalWithHooks(
+  async tx => {
+    await storageService.create({ type: 'user', data: { name: 'Alice' } });
+    await storageService.create({ type: 'user', data: { name: 'Bob' } });
+    return { created: 2 };
+  },
+  {
+    isolation: IsolationLevel.SERIALIZABLE,
+    timeout: 30000,
+    retryOnConflict: true,
+  }
+);
 
 // 检查事务状态
 const info = await storageService.getStorageInfo();
@@ -1307,7 +1329,7 @@ class MyPlugin {
     this.subscriptions.push(
       eventBus.on(KernelEvents.KERNEL_START, this.onKernelStart.bind(this)),
       eventBus.onWildcard('plugin:*', this.onPluginEvent.bind(this)),
-      eventBus.on(KernelEvents.CONFIG_UPDATE, this.onConfigUpdate.bind(this)),
+      eventBus.on(KernelEvents.CONFIG_UPDATE, this.onConfigUpdate.bind(this))
     );
   }
 
@@ -1354,10 +1376,18 @@ class CustomAgent extends Agent {
     });
   }
 
-  private validateTaskResources(taskId: string): void { /* ... */ }
-  private cacheTaskResult(taskId: string, result: AgentResult): void { /* ... */ }
-  private logTaskFailure(taskId: string, error: Error): void { /* ... */ }
-  private maybeRetryTask(taskId: string): void { /* ... */ }
+  private validateTaskResources(taskId: string): void {
+    /* ... */
+  }
+  private cacheTaskResult(taskId: string, result: AgentResult): void {
+    /* ... */
+  }
+  private logTaskFailure(taskId: string, error: Error): void {
+    /* ... */
+  }
+  private maybeRetryTask(taskId: string): void {
+    /* ... */
+  }
 }
 ```
 
@@ -1603,9 +1633,7 @@ function sanitizeSensitiveData(input: unknown): unknown {
 
 ```typescript
 // 工作流性能监控 —— 记录每个节点的执行时间
-function createWorkflowPerformanceMonitor(
-  nodeExecutor: NodeExecutor
-): NodeExecutor {
+function createWorkflowPerformanceMonitor(nodeExecutor: NodeExecutor): NodeExecutor {
   return async (task, input, context) => {
     const nodeStartTime = Date.now();
 
@@ -1640,9 +1668,7 @@ function createWorkflowPerformanceMonitor(
 }
 
 // 使用
-const executor = new WorkflowExecutor(
-  createWorkflowPerformanceMonitor(actualNodeExecutor)
-);
+const executor = new WorkflowExecutor(createWorkflowPerformanceMonitor(actualNodeExecutor));
 ```
 
 ### 示例五：完整插件集成示例
@@ -1662,8 +1688,8 @@ class MonitoringPlugin implements PluginInterface {
       hooks: {
         onLoad: () => this.initialize(),
         onUnload: () => this.cleanup(),
-        onError: (error) => this.handleError(error),
-        onConfigChange: (config) => this.reloadConfig(config),
+        onError: error => this.handleError(error),
+        onConfigChange: config => this.reloadConfig(config),
       },
     };
   }
@@ -1673,7 +1699,7 @@ class MonitoringPlugin implements PluginInterface {
     this.subscriptions.push(
       this.eventBus.on(KernelEvents.KERNEL_START, this.onKernelStart.bind(this)),
       this.eventBus.on(KernelEvents.KERNEL_STOP, this.onKernelStop.bind(this)),
-      this.eventBus.onWildcard('plugin:*', this.onPluginEvent.bind(this)),
+      this.eventBus.onWildcard('plugin:*', this.onPluginEvent.bind(this))
     );
 
     // 2. 注册 Agent 事件（通过 Agent 实例）
@@ -1763,105 +1789,105 @@ class MonitoringPlugin implements PluginInterface {
 
 ### 完整钩子点汇总
 
-| 模块 | 钩子点 | 类型 | 触发时机 | 方向 |
-|------|--------|------|----------|------|
-| **PluginHooks** | `onLoad` | 回调 | Plugin 加载时 | 同步/异步 |
-| **PluginHooks** | `onUnload` | 回调 | Plugin 卸载时 | 同步/异步 |
-| **PluginHooks** | `onError` | 回调 | Plugin 发生错误时 | 同步 |
-| **PluginHooks** | `onConfigChange` | 回调 | Plugin 配置变更时 | 同步 |
-| **PluginLifecycleState** | `DISCOVERED → RESOLVED` | 状态转换 | 依赖解析完成 | — |
-| **PluginLifecycleState** | `RESOLVED → LOADING` | 状态转换 | 开始加载 | — |
-| **PluginLifecycleState** | `LOADING → INITIALIZED` | 状态转换 | 初始化完成 | — |
-| **PluginLifecycleState** | `INITIALIZED → ACTIVE` | 状态转换 | 激活 | — |
-| **PluginLifecycleState** | `ACTIVE → RUNNING` | 状态转换 | 开始运行 | — |
-| **PluginLifecycleState** | `RUNNING → SHUTTING_DOWN` | 状态转换 | 开始关闭 | — |
-| **PluginLifecycleState** | `SHUTTING_DOWN → SHUTDOWN` | 状态转换 | 关闭完成 | — |
-| **PluginLifecycleState** | `* → ERROR` | 状态转换 | 任何状态到错误 | — |
-| **EventBus** | `kernel:init` | 事件 | Kernel 初始化 | 异步 |
-| **EventBus** | `kernel:start` | 事件 | Kernel 启动 | 异步 |
-| **EventBus** | `kernel:stop` | 事件 | Kernel 停止 | 异步 |
-| **EventBus** | `plugin:register` | 事件 | Plugin 注册 | 异步 |
-| **EventBus** | `plugin:unregister` | 事件 | Plugin 注销 | 异步 |
-| **EventBus** | `plugin:error` | 事件 | Plugin 错误 | 异步 |
-| **EventBus** | `config:update` | 事件 | 配置更新 | 异步 |
-| **EventBus** | `onWildcard('prefix:*')` | 通配符订阅 | 匹配到事件 | 异步 |
-| **Agent** | `task:start` | 事件 | 任务开始执行 | 同步 |
-| **Agent** | `task:complete` | 事件 | 任务执行完成 | 同步 |
-| **Agent** | `task:error` | 事件 | 任务执行失败 | 同步 |
-| **Agent** | `status:change` | 事件 | Agent 状态变更 | 同步 |
-| **Agent** | `child:register` | 事件 | 子 Agent 注册 | 同步 |
-| **Agent** | `child:unregister` | 事件 | 子 Agent 注销 | 同步 |
-| **Agent** | `heartbeat` | 事件 | 心跳定时触发 | 同步 |
-| **LifecycleManager** | `onBeforeTransition` | 钩子回调 | 状态转换前 | 异步 |
-| **LifecycleManager** | `onAfterTransition` | 钩子回调 | 状态转换后 | 异步 |
-| **LifecycleState** | `CREATED → INITIALIZING` | 状态转换 | Kernel 开始初始化 | — |
-| **LifecycleState** | `INITIALIZING → INITIALIZED` | 状态转换 | Kernel 初始化完成 | — |
-| **LifecycleState** | `INITIALIZED → STARTING` | 状态转换 | Kernel 开始启动 | — |
-| **LifecycleState** | `STARTING → RUNNING` | 状态转换 | Kernel 运行中 | — |
-| **LifecycleState** | `RUNNING → STOPPING` | 状态转换 | Kernel 开始停止 | — |
-| **LifecycleState** | `STOPPING → STOPPED` | 状态转换 | Kernel 已停止 | — |
-| **LifecycleState** | `* → ERROR` | 状态转换 | 任何状态到错误 | — |
-| **SecurityGuard** | `preset:changed` | 事件 | 安全预设变更 | 同步 |
-| **SecurityGuard** | `operation:blocked` | 事件 | 操作被阻止 | 同步 |
-| **SecurityGuard** | `operation:allowed` | 事件 | 操作被允许 | 同步 |
-| **SecurityGuard** | `authorize()` | 拦截点 | 工具授权请求 | 异步 |
-| **SecurityGuard** | `checkOperation()` | 拦截点 | 操作权限检查 | 同步 |
-| **ToolService** | `tool:registered` | 事件 | 工具注册 | 同步 |
-| **ToolService** | `tool:unregistered` | 事件 | 工具注销 | 同步 |
-| **ToolService** | `tool:enabled` | 事件 | 工具启用 | 同步 |
-| **ToolService** | `tool:disabled` | 事件 | 工具禁用 | 同步 |
-| **ToolService** | `execution:start` | 事件 | 工具开始执行 | 同步 |
-| **ToolService** | `execution:complete` | 事件 | 工具执行完成 | 同步 |
-| **ToolService** | `execution:error` | 事件 | 工具执行错误 | 同步 |
-| **ToolExecutor** | `execution:queued` | 事件 | 加入执行队列 | 同步 |
-| **ToolExecutor** | `execution:started` | 事件 | 开始执行 | 同步 |
-| **ToolExecutor** | `execution:completed` | 事件 | 执行完成 | 同步 |
-| **ToolExecutor** | `execution:failed` | 事件 | 执行失败 | 同步 |
-| **ToolExecutor** | `execution:cancelled` | 事件 | 执行取消 | 同步 |
-| **ToolExecutor** | `queue:empty` | 事件 | 队列为空 | 同步 |
-| **ToolExecutor** | `queue:full` | 事件 | 队列已满 | 同步 |
-| **WorkflowExecutor** | `NodeExecutor` | 钩子函数 | 每个节点执行 | 异步 |
-| **WorkflowExecutor** | `task:start` | 事件 | 工作流任务开始 | 同步 |
-| **WorkflowExecutor** | `task:complete` | 事件 | 工作流任务完成 | 同步 |
-| **WorkflowExecutor** | `task:error` | 事件 | 工作流任务失败 | 同步 |
-| **WorkflowExecutor** | `task:timeout` | 事件 | 工作流任务超时 | 同步 |
-| **WorkflowExecutor** | `task:cancelled` | 事件 | 工作流任务取消 | 同步 |
-| **Sandbox** | `session:created` | 事件 | 沙箱会话创建 | 同步 |
-| **Sandbox** | `session:terminated` | 事件 | 沙箱会话终止 | 同步 |
-| **Sandbox** | `operation:recorded` | 事件 | 操作记录 | 同步 |
-| **Sandbox** | `permission:denied` | 事件 | 权限拒绝 | 同步 |
-| **Sandbox** | `checkPermission()` | 拦截点 | 权限检查 | 同步 |
-| **UIAgent** | `agent:start` | 事件 | UIAgent 启动 | 同步 |
-| **UIAgent** | `agent:stop` | 事件 | UIAgent 停止 | 同步 |
-| **UIAgent** | `agent:pause` | 事件 | UIAgent 暂停 | 同步 |
-| **UIAgent** | `agent:resume` | 事件 | UIAgent 恢复 | 同步 |
-| **UIAgent** | `session:start` | 事件 | UI 会话开始 | 同步 |
-| **UIAgent** | `session:end` | 事件 | UI 会话结束 | 同步 |
-| **UIAgent** | `operation:request` | 事件 | UI 操作请求 | 同步 |
-| **UIAgent** | `operation:execute` | 事件 | UI 操作执行结果 | 同步 |
-| **UIAgent** | `operation:confirm` | 事件 | 等待用户确认 | 同步 |
-| **UIAgent** | `operation:cancel` | 事件 | 操作取消 | 同步 |
-| **UIAgent** | `permission:denied` | 事件 | 权限拒绝 | 同步 |
-| **UIAgent** | `UIOperationRequest` | 拦截点 | 操作请求参数 | — |
-| **ContextService** | `context:created` | 事件 | 上下文创建 | 同步 |
-| **ContextService** | `context:deleted` | 事件 | 上下文删除 | 同步 |
-| **ContextService** | `message:added` | 事件 | 消息添加 | 同步 |
-| **ContextService** | `state:changed` | 事件 | 状态变更 | 同步 |
-| **ContextService** | `item:added` | 事件 | 上下文项添加 | 同步 |
-| **ContextService** | `item:updated` | 事件 | 上下文项更新 | 同步 |
-| **ContextService** | `item:deleted` | 事件 | 上下文项删除 | 同步 |
-| **ContextService** | `frame:pushed` | 事件 | 执行帧入栈 | 同步 |
-| **ContextService** | `frame:popped` | 事件 | 执行帧出栈 | 同步 |
-| **ContextManager** | `subscribe()` | 订阅回调 | 状态键值变更 | 同步 |
-| **ContextWindowManager** | `window:created` | 事件 | 窗口创建 | 同步 |
-| **ContextWindowManager** | `window:slid` | 事件 | 窗口滑动 | 同步 |
-| **ContextWindowManager** | `window:optimized` | 事件 | 窗口优化 | 同步 |
-| **ContextWindowManager** | `window:deleted` | 事件 | 窗口删除 | 同步 |
-| **ContextWindowManager** | `windows:cleared` | 事件 | 所有窗口清除 | 同步 |
-| **StorageService** | `beginTransaction` | 事务钩子 | 事务开始 | 异步 |
-| **StorageService** | `commitTransaction` | 事务钩子 | 事务提交 | 异步 |
-| **StorageService** | `rollbackTransaction` | 事务钩子 | 事务回滚 | 异步 |
-| **StorageService** | 事务超时自动回滚 | 事务钩子 | 事务超时 | 异步 |
+| 模块                     | 钩子点                       | 类型       | 触发时机          | 方向      |
+| ------------------------ | ---------------------------- | ---------- | ----------------- | --------- |
+| **PluginHooks**          | `onLoad`                     | 回调       | Plugin 加载时     | 同步/异步 |
+| **PluginHooks**          | `onUnload`                   | 回调       | Plugin 卸载时     | 同步/异步 |
+| **PluginHooks**          | `onError`                    | 回调       | Plugin 发生错误时 | 同步      |
+| **PluginHooks**          | `onConfigChange`             | 回调       | Plugin 配置变更时 | 同步      |
+| **PluginLifecycleState** | `DISCOVERED → RESOLVED`      | 状态转换   | 依赖解析完成      | —         |
+| **PluginLifecycleState** | `RESOLVED → LOADING`         | 状态转换   | 开始加载          | —         |
+| **PluginLifecycleState** | `LOADING → INITIALIZED`      | 状态转换   | 初始化完成        | —         |
+| **PluginLifecycleState** | `INITIALIZED → ACTIVE`       | 状态转换   | 激活              | —         |
+| **PluginLifecycleState** | `ACTIVE → RUNNING`           | 状态转换   | 开始运行          | —         |
+| **PluginLifecycleState** | `RUNNING → SHUTTING_DOWN`    | 状态转换   | 开始关闭          | —         |
+| **PluginLifecycleState** | `SHUTTING_DOWN → SHUTDOWN`   | 状态转换   | 关闭完成          | —         |
+| **PluginLifecycleState** | `* → ERROR`                  | 状态转换   | 任何状态到错误    | —         |
+| **EventBus**             | `kernel:init`                | 事件       | Kernel 初始化     | 异步      |
+| **EventBus**             | `kernel:start`               | 事件       | Kernel 启动       | 异步      |
+| **EventBus**             | `kernel:stop`                | 事件       | Kernel 停止       | 异步      |
+| **EventBus**             | `plugin:register`            | 事件       | Plugin 注册       | 异步      |
+| **EventBus**             | `plugin:unregister`          | 事件       | Plugin 注销       | 异步      |
+| **EventBus**             | `plugin:error`               | 事件       | Plugin 错误       | 异步      |
+| **EventBus**             | `config:update`              | 事件       | 配置更新          | 异步      |
+| **EventBus**             | `onWildcard('prefix:*')`     | 通配符订阅 | 匹配到事件        | 异步      |
+| **Agent**                | `task:start`                 | 事件       | 任务开始执行      | 同步      |
+| **Agent**                | `task:complete`              | 事件       | 任务执行完成      | 同步      |
+| **Agent**                | `task:error`                 | 事件       | 任务执行失败      | 同步      |
+| **Agent**                | `status:change`              | 事件       | Agent 状态变更    | 同步      |
+| **Agent**                | `child:register`             | 事件       | 子 Agent 注册     | 同步      |
+| **Agent**                | `child:unregister`           | 事件       | 子 Agent 注销     | 同步      |
+| **Agent**                | `heartbeat`                  | 事件       | 心跳定时触发      | 同步      |
+| **LifecycleManager**     | `onBeforeTransition`         | 钩子回调   | 状态转换前        | 异步      |
+| **LifecycleManager**     | `onAfterTransition`          | 钩子回调   | 状态转换后        | 异步      |
+| **LifecycleState**       | `CREATED → INITIALIZING`     | 状态转换   | Kernel 开始初始化 | —         |
+| **LifecycleState**       | `INITIALIZING → INITIALIZED` | 状态转换   | Kernel 初始化完成 | —         |
+| **LifecycleState**       | `INITIALIZED → STARTING`     | 状态转换   | Kernel 开始启动   | —         |
+| **LifecycleState**       | `STARTING → RUNNING`         | 状态转换   | Kernel 运行中     | —         |
+| **LifecycleState**       | `RUNNING → STOPPING`         | 状态转换   | Kernel 开始停止   | —         |
+| **LifecycleState**       | `STOPPING → STOPPED`         | 状态转换   | Kernel 已停止     | —         |
+| **LifecycleState**       | `* → ERROR`                  | 状态转换   | 任何状态到错误    | —         |
+| **SecurityGuard**        | `preset:changed`             | 事件       | 安全预设变更      | 同步      |
+| **SecurityGuard**        | `operation:blocked`          | 事件       | 操作被阻止        | 同步      |
+| **SecurityGuard**        | `operation:allowed`          | 事件       | 操作被允许        | 同步      |
+| **SecurityGuard**        | `authorize()`                | 拦截点     | 工具授权请求      | 异步      |
+| **SecurityGuard**        | `checkOperation()`           | 拦截点     | 操作权限检查      | 同步      |
+| **ToolService**          | `tool:registered`            | 事件       | 工具注册          | 同步      |
+| **ToolService**          | `tool:unregistered`          | 事件       | 工具注销          | 同步      |
+| **ToolService**          | `tool:enabled`               | 事件       | 工具启用          | 同步      |
+| **ToolService**          | `tool:disabled`              | 事件       | 工具禁用          | 同步      |
+| **ToolService**          | `execution:start`            | 事件       | 工具开始执行      | 同步      |
+| **ToolService**          | `execution:complete`         | 事件       | 工具执行完成      | 同步      |
+| **ToolService**          | `execution:error`            | 事件       | 工具执行错误      | 同步      |
+| **ToolExecutor**         | `execution:queued`           | 事件       | 加入执行队列      | 同步      |
+| **ToolExecutor**         | `execution:started`          | 事件       | 开始执行          | 同步      |
+| **ToolExecutor**         | `execution:completed`        | 事件       | 执行完成          | 同步      |
+| **ToolExecutor**         | `execution:failed`           | 事件       | 执行失败          | 同步      |
+| **ToolExecutor**         | `execution:cancelled`        | 事件       | 执行取消          | 同步      |
+| **ToolExecutor**         | `queue:empty`                | 事件       | 队列为空          | 同步      |
+| **ToolExecutor**         | `queue:full`                 | 事件       | 队列已满          | 同步      |
+| **WorkflowExecutor**     | `NodeExecutor`               | 钩子函数   | 每个节点执行      | 异步      |
+| **WorkflowExecutor**     | `task:start`                 | 事件       | 工作流任务开始    | 同步      |
+| **WorkflowExecutor**     | `task:complete`              | 事件       | 工作流任务完成    | 同步      |
+| **WorkflowExecutor**     | `task:error`                 | 事件       | 工作流任务失败    | 同步      |
+| **WorkflowExecutor**     | `task:timeout`               | 事件       | 工作流任务超时    | 同步      |
+| **WorkflowExecutor**     | `task:cancelled`             | 事件       | 工作流任务取消    | 同步      |
+| **Sandbox**              | `session:created`            | 事件       | 沙箱会话创建      | 同步      |
+| **Sandbox**              | `session:terminated`         | 事件       | 沙箱会话终止      | 同步      |
+| **Sandbox**              | `operation:recorded`         | 事件       | 操作记录          | 同步      |
+| **Sandbox**              | `permission:denied`          | 事件       | 权限拒绝          | 同步      |
+| **Sandbox**              | `checkPermission()`          | 拦截点     | 权限检查          | 同步      |
+| **UIAgent**              | `agent:start`                | 事件       | UIAgent 启动      | 同步      |
+| **UIAgent**              | `agent:stop`                 | 事件       | UIAgent 停止      | 同步      |
+| **UIAgent**              | `agent:pause`                | 事件       | UIAgent 暂停      | 同步      |
+| **UIAgent**              | `agent:resume`               | 事件       | UIAgent 恢复      | 同步      |
+| **UIAgent**              | `session:start`              | 事件       | UI 会话开始       | 同步      |
+| **UIAgent**              | `session:end`                | 事件       | UI 会话结束       | 同步      |
+| **UIAgent**              | `operation:request`          | 事件       | UI 操作请求       | 同步      |
+| **UIAgent**              | `operation:execute`          | 事件       | UI 操作执行结果   | 同步      |
+| **UIAgent**              | `operation:confirm`          | 事件       | 等待用户确认      | 同步      |
+| **UIAgent**              | `operation:cancel`           | 事件       | 操作取消          | 同步      |
+| **UIAgent**              | `permission:denied`          | 事件       | 权限拒绝          | 同步      |
+| **UIAgent**              | `UIOperationRequest`         | 拦截点     | 操作请求参数      | —         |
+| **ContextService**       | `context:created`            | 事件       | 上下文创建        | 同步      |
+| **ContextService**       | `context:deleted`            | 事件       | 上下文删除        | 同步      |
+| **ContextService**       | `message:added`              | 事件       | 消息添加          | 同步      |
+| **ContextService**       | `state:changed`              | 事件       | 状态变更          | 同步      |
+| **ContextService**       | `item:added`                 | 事件       | 上下文项添加      | 同步      |
+| **ContextService**       | `item:updated`               | 事件       | 上下文项更新      | 同步      |
+| **ContextService**       | `item:deleted`               | 事件       | 上下文项删除      | 同步      |
+| **ContextService**       | `frame:pushed`               | 事件       | 执行帧入栈        | 同步      |
+| **ContextService**       | `frame:popped`               | 事件       | 执行帧出栈        | 同步      |
+| **ContextManager**       | `subscribe()`                | 订阅回调   | 状态键值变更      | 同步      |
+| **ContextWindowManager** | `window:created`             | 事件       | 窗口创建          | 同步      |
+| **ContextWindowManager** | `window:slid`                | 事件       | 窗口滑动          | 同步      |
+| **ContextWindowManager** | `window:optimized`           | 事件       | 窗口优化          | 同步      |
+| **ContextWindowManager** | `window:deleted`             | 事件       | 窗口删除          | 同步      |
+| **ContextWindowManager** | `windows:cleared`            | 事件       | 所有窗口清除      | 同步      |
+| **StorageService**       | `beginTransaction`           | 事务钩子   | 事务开始          | 异步      |
+| **StorageService**       | `commitTransaction`          | 事务钩子   | 事务提交          | 异步      |
+| **StorageService**       | `rollbackTransaction`        | 事务钩子   | 事务回滚          | 异步      |
+| **StorageService**       | 事务超时自动回滚             | 事务钩子   | 事务超时          | 异步      |
 
 ---
 
@@ -1950,18 +1976,14 @@ class HookManager {
 const hookManager = new HookManager();
 
 // EventBus 订阅
-hookManager.register(
-  eventBus.on(KernelEvents.KERNEL_START, onKernelStart)
-);
+hookManager.register(eventBus.on(KernelEvents.KERNEL_START, onKernelStart));
 
 // EventEmitter 订阅
 agent.on('task:complete', onTaskComplete);
 hookManager.register(() => agent.off('task:complete', onTaskComplete));
 
 // ContextManager 订阅
-hookManager.register(
-  contextManager.subscribe('key', onChange)
-);
+hookManager.register(contextManager.subscribe('key', onChange));
 
 // Plugin 卸载时清理
 async function onUnload() {
@@ -1973,10 +1995,7 @@ async function onUnload() {
 
 ```typescript
 // 调试辅助：追踪所有钩子调用
-function createDebugHook<T extends (...args: any[]) => any>(
-  name: string,
-  fn: T
-): T {
+function createDebugHook<T extends (...args: any[]) => any>(name: string, fn: T): T {
   return ((...args: any[]) => {
     const startTime = performance.now();
     console.log(`[Hook] ${name} 开始`, { args: args.length });
@@ -1995,9 +2014,12 @@ function createDebugHook<T extends (...args: any[]) => any>(
 }
 
 // 使用
-agent.on('task:start', createDebugHook('task:start', ({ taskId }) => {
-  console.log(`处理任务: ${taskId}`);
-}));
+agent.on(
+  'task:start',
+  createDebugHook('task:start', ({ taskId }) => {
+    console.log(`处理任务: ${taskId}`);
+  })
+);
 ```
 
 ### 避免循环依赖

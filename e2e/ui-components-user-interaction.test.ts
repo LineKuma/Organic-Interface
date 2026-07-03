@@ -19,12 +19,8 @@ import {
   createTable,
   showProgress,
   renderTable,
-  type PromptConfig,
-  type ProgressConfig,
-  type ProgressState,
   type ProgressStyle,
   type TableColumn,
-  type TableSortConfig,
   type SelectOption,
 } from '@organic/ui';
 
@@ -201,7 +197,7 @@ describe('用户使用 UI 组件完成日常任务', () => {
       ]);
 
       table.sort('name', 'asc');
-      const output = table.render();
+      table.render();
 
       // 确认排序配置
       const sortConfig = table.getSortConfig();
@@ -237,9 +233,7 @@ describe('用户使用 UI 组件完成日常任务', () => {
 
     it('用户替换表格所有数据', () => {
       const table = new Table<User>(userColumns);
-      table.addRows([
-        { id: 1, name: 'Old', email: 'old@test.com', role: '访客' },
-      ]);
+      table.addRows([{ id: 1, name: 'Old', email: 'old@test.com', role: '访客' }]);
 
       table.setRows([
         { id: 2, name: 'New1', email: 'n1@test.com', role: '管理员' },
@@ -251,9 +245,7 @@ describe('用户使用 UI 组件完成日常任务', () => {
 
     it('用户清空表格', () => {
       const table = new Table<User>(userColumns);
-      table.addRows([
-        { id: 1, name: 'Test', email: 'test@test.com', role: '访客' },
-      ]);
+      table.addRows([{ id: 1, name: 'Test', email: 'test@test.com', role: '访客' }]);
 
       table.clear();
       expect(table.rowCount).toBe(0);

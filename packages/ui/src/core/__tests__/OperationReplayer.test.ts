@@ -72,8 +72,16 @@ describe('OperationReplayer', () => {
 
     it('should replay all operations in a session', async () => {
       const session = recorder.startRecording('Test');
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ executionTime: 10 }));
-      recorder.recordOperation('input', createMockInput('#field'), createMockResult({ executionTime: 10 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ executionTime: 10 })
+      );
+      recorder.recordOperation(
+        'input',
+        createMockInput('#field'),
+        createMockResult({ executionTime: 10 })
+      );
       recorder.stopRecording();
 
       const result = await replayer.replay(session.id);
@@ -85,7 +93,11 @@ describe('OperationReplayer', () => {
 
     it('should replay with custom speed', async () => {
       const session = recorder.startRecording('Speed Test');
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ executionTime: 100 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ executionTime: 100 })
+      );
       recorder.stopRecording();
 
       const startTime = Date.now();
@@ -98,7 +110,11 @@ describe('OperationReplayer', () => {
 
     it('should replay with fixed delay', async () => {
       const session = recorder.startRecording('Delay Test');
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ executionTime: 1000 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ executionTime: 1000 })
+      );
       recorder.stopRecording();
 
       const startTime = Date.now();
@@ -110,7 +126,11 @@ describe('OperationReplayer', () => {
 
     it('should handle failed operations', async () => {
       const session = recorder.startRecording('Error Test');
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ status: 'failed', executionTime: 10, success: false }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ status: 'failed', executionTime: 10, success: false })
+      );
       recorder.stopRecording();
 
       const result = await replayer.replay(session.id);
@@ -122,7 +142,11 @@ describe('OperationReplayer', () => {
 
     it('should handle cancelled operations', async () => {
       const session = recorder.startRecording('Cancel Test');
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ status: 'cancelled', executionTime: 10 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ status: 'cancelled', executionTime: 10 })
+      );
       recorder.stopRecording();
 
       const result = await replayer.replay(session.id);
@@ -132,9 +156,21 @@ describe('OperationReplayer', () => {
 
     it('should stop on error when stopOnError is true', async () => {
       const session = recorder.startRecording('Stop Test');
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ status: 'success', executionTime: 10 }));
-      recorder.recordOperation('input', createMockInput('#field'), createMockResult({ status: 'failed', executionTime: 10, success: false }));
-      recorder.recordOperation('scroll', createMockInput('#page'), createMockResult({ status: 'success', executionTime: 10 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ status: 'success', executionTime: 10 })
+      );
+      recorder.recordOperation(
+        'input',
+        createMockInput('#field'),
+        createMockResult({ status: 'failed', executionTime: 10, success: false })
+      );
+      recorder.recordOperation(
+        'scroll',
+        createMockInput('#page'),
+        createMockResult({ status: 'success', executionTime: 10 })
+      );
       recorder.stopRecording();
 
       const result = await replayer.replay(session.id, { stopOnError: true });
@@ -145,9 +181,21 @@ describe('OperationReplayer', () => {
 
     it('should not stop on error by default', async () => {
       const session = recorder.startRecording('NoStop Test');
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ status: 'success', executionTime: 10 }));
-      recorder.recordOperation('input', createMockInput('#field'), createMockResult({ status: 'failed', executionTime: 10, success: false }));
-      recorder.recordOperation('scroll', createMockInput('#page'), createMockResult({ status: 'success', executionTime: 10 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ status: 'success', executionTime: 10 })
+      );
+      recorder.recordOperation(
+        'input',
+        createMockInput('#field'),
+        createMockResult({ status: 'failed', executionTime: 10, success: false })
+      );
+      recorder.recordOperation(
+        'scroll',
+        createMockInput('#page'),
+        createMockResult({ status: 'success', executionTime: 10 })
+      );
       recorder.stopRecording();
 
       const result = await replayer.replay(session.id);
@@ -159,7 +207,11 @@ describe('OperationReplayer', () => {
       const handler = vi.fn();
       replayer.on('replay:start', handler);
       const session = recorder.startRecording();
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ executionTime: 10 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ executionTime: 10 })
+      );
       recorder.stopRecording();
       await replayer.replay(session.id);
       expect(handler).toHaveBeenCalledTimes(1);
@@ -169,7 +221,11 @@ describe('OperationReplayer', () => {
       const handler = vi.fn();
       replayer.on('replay:end', handler);
       const session = recorder.startRecording();
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ executionTime: 10 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ executionTime: 10 })
+      );
       recorder.stopRecording();
       await replayer.replay(session.id);
       expect(handler).toHaveBeenCalledTimes(1);
@@ -182,7 +238,11 @@ describe('OperationReplayer', () => {
       replayer.on('operation:start', startHandler);
       replayer.on('operation:end', endHandler);
       const session = recorder.startRecording();
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ executionTime: 10 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ executionTime: 10 })
+      );
       recorder.stopRecording();
       await replayer.replay(session.id);
       expect(startHandler).toHaveBeenCalledTimes(1);
@@ -193,7 +253,11 @@ describe('OperationReplayer', () => {
       const handler = vi.fn();
       replayer.on('operation:error', handler);
       const session = recorder.startRecording();
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ status: 'failed', executionTime: 10, success: false }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ status: 'failed', executionTime: 10, success: false })
+      );
       recorder.stopRecording();
       await replayer.replay(session.id);
       expect(handler).toHaveBeenCalledTimes(1);
@@ -203,7 +267,11 @@ describe('OperationReplayer', () => {
       const handler = vi.fn();
       replayer.on('replay:progress', handler);
       const session = recorder.startRecording();
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ executionTime: 10 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ executionTime: 10 })
+      );
       recorder.stopRecording();
       await replayer.replay(session.id);
       expect(handler).toHaveBeenCalled();
@@ -225,9 +293,7 @@ describe('OperationReplayer', () => {
     });
 
     it('should throw if already replaying', async () => {
-      const ops: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 100 }),
-      ];
+      const ops: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 100 })];
 
       // Start replay but don't await
       const replayPromise = replayer.replayOperations(ops);
@@ -288,9 +354,7 @@ describe('OperationReplayer', () => {
       const handler = vi.fn();
       replayer.on('replay:resume', handler);
 
-      const ops: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 50 }),
-      ];
+      const ops: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 50 })];
 
       const replayPromise = replayer.replayOperations(ops);
       await new Promise(r => setTimeout(r, 5));
@@ -402,9 +466,7 @@ describe('OperationReplayer', () => {
     });
 
     it('should return true during replay', async () => {
-      const ops: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 50 }),
-      ];
+      const ops: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 50 })];
 
       const replayPromise = replayer.replayOperations(ops);
       expect(replayer.isPlaying()).toBe(true);
@@ -417,18 +479,14 @@ describe('OperationReplayer', () => {
 
   describe('speed', () => {
     it('should clamp speed to minimum 0.1', async () => {
-      const ops: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 100 }),
-      ];
+      const ops: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 100 })];
 
       const result = await replayer.replayOperations(ops, { speed: -1 });
       expect(result.successCount).toBe(1);
     });
 
     it('should clamp speed to maximum 10', async () => {
-      const ops: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 100 }),
-      ];
+      const ops: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 100 })];
 
       const result = await replayer.replayOperations(ops, { speed: 100 });
       expect(result.successCount).toBe(1);
@@ -457,8 +515,20 @@ describe('OperationReplayer', () => {
     it('should handle mixed operation results', async () => {
       const ops: RecordedOperation[] = [
         createMockOp({ id: 'op1', type: 'click', duration: 10, status: 'success' }),
-        createMockOp({ id: 'op2', type: 'input', duration: 10, status: 'failed', result: createMockResult({ status: 'failed', success: false }) }),
-        createMockOp({ id: 'op3', type: 'scroll', duration: 10, status: 'cancelled', result: createMockResult({ status: 'cancelled' }) }),
+        createMockOp({
+          id: 'op2',
+          type: 'input',
+          duration: 10,
+          status: 'failed',
+          result: createMockResult({ status: 'failed', success: false }),
+        }),
+        createMockOp({
+          id: 'op3',
+          type: 'scroll',
+          duration: 10,
+          status: 'cancelled',
+          result: createMockResult({ status: 'cancelled' }),
+        }),
         createMockOp({ id: 'op4', type: 'wait', duration: 10, status: 'success' }),
       ];
 

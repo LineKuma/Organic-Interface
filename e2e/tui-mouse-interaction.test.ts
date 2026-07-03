@@ -10,15 +10,13 @@
  * 6. 键盘输入转发（data 事件）
  */
 
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import {
   MouseHandler,
   createMouseHandler,
   type MouseEvent,
-  type MouseButton,
   type MouseEventType,
   Terminal,
-  ANSI,
 } from '@organic/ui';
 
 // ── 测试辅助：模拟 SGR 鼠标序列 ───────────────────────────────────
@@ -139,8 +137,14 @@ describe('TUI 鼠标事件处理', () => {
 
       // 注册所有事件监听
       const eventTypes: MouseEventType[] = [
-        'click', 'dblclick', 'mousedown', 'mouseup',
-        'mousemove', 'drag', 'wheel', 'scroll',
+        'click',
+        'dblclick',
+        'mousedown',
+        'mouseup',
+        'mousemove',
+        'drag',
+        'wheel',
+        'scroll',
       ];
       for (const type of eventTypes) {
         mouse.on(type, (ev: MouseEvent) => {

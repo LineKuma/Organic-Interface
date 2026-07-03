@@ -11,17 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  UIAgent,
-  createUIAgent,
-  type UIAgentConfig,
-  type UIAgentState,
-  type UIAgentStatus,
-  type UIOperationRequest,
-  type SandboxSession,
-  type UIOperationType,
-  type UIPermissionLevel,
-} from '@organic/ui';
+import { UIAgent, createUIAgent, type UIOperationRequest } from '@organic/ui';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
@@ -49,7 +39,7 @@ describe('用户使用 UIAgent 完成完整工作流', () => {
 
     it('用户启动 Agent 时收到 agent:start 事件', async () => {
       const events: string[] = [];
-      agent.on('agent:start', (data) => {
+      agent.on('agent:start', data => {
         events.push(data.agentId);
       });
 
@@ -99,7 +89,7 @@ describe('用户使用 UIAgent 完成完整工作流', () => {
 
     it('用户启动会话时收到 session:start 事件', () => {
       const events: string[] = [];
-      agent.on('session:start', (data) => {
+      agent.on('session:start', data => {
         events.push(data.sessionId);
       });
 
@@ -115,7 +105,7 @@ describe('用户使用 UIAgent 完成完整工作流', () => {
     });
 
     it('用户启动多个会话后当前会话是最新的', () => {
-      const session1 = agent.startSession();
+      agent.startSession();
       const session2 = agent.startSession();
 
       const current = agent.getCurrentSession();
@@ -257,7 +247,7 @@ describe('用户使用 UIAgent 完成完整工作流', () => {
 
     it('用户执行操作时收到 operation:request 事件', async () => {
       const events: string[] = [];
-      agent.on('operation:request', (data) => {
+      agent.on('operation:request', data => {
         events.push(data.operation);
       });
 
@@ -335,7 +325,7 @@ describe('用户使用 UIAgent 完成完整工作流', () => {
 
     it('用户暂停 Agent 时收到 agent:pause 事件', () => {
       const events: string[] = [];
-      agent.on('agent:pause', (data) => {
+      agent.on('agent:pause', data => {
         events.push(data.agentId);
       });
 
@@ -351,7 +341,7 @@ describe('用户使用 UIAgent 完成完整工作流', () => {
 
     it('用户恢复 Agent 时收到 agent:resume 事件', () => {
       const events: string[] = [];
-      agent.on('agent:resume', (data) => {
+      agent.on('agent:resume', data => {
         events.push(data.agentId);
       });
 
@@ -409,7 +399,7 @@ describe('用户使用 UIAgent 完成完整工作流', () => {
 
     it('用户结束会话时收到 session:end 事件', async () => {
       const events: string[] = [];
-      agent.on('session:end', (data) => {
+      agent.on('session:end', data => {
         events.push(data.sessionId);
       });
 
@@ -430,7 +420,7 @@ describe('用户使用 UIAgent 完成完整工作流', () => {
 
     it('用户停止 Agent 时收到 agent:stop 事件', async () => {
       const events: string[] = [];
-      agent.on('agent:stop', (data) => {
+      agent.on('agent:stop', data => {
         events.push(data.agentId);
       });
 
@@ -520,7 +510,10 @@ describe('用户使用 UIAgent 完成完整工作流', () => {
       const results = await agent.executeSequence([
         { type: 'click', input: { selector: '#nav-dashboard' } },
         { type: 'wait', input: { selector: '#dashboard-content', condition: 'visible' } },
-        { type: 'scroll', input: { selector: '#dashboard-content', direction: 'down', distance: 300 } },
+        {
+          type: 'scroll',
+          input: { selector: '#dashboard-content', direction: 'down', distance: 300 },
+        },
         { type: 'getText', input: { selector: '.stat-value' } },
         { type: 'screenshot', input: { selector: '#dashboard', fullPage: false } },
       ]);

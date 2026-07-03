@@ -1,5 +1,9 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { SearchFilterSelect, type SearchFilterOption, type SearchFilterConfig } from '../SearchFilterSelect.js';
+import {
+  SearchFilterSelect,
+  type SearchFilterOption,
+  type SearchFilterConfig,
+} from '../SearchFilterSelect.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
@@ -87,7 +91,7 @@ describe('SearchFilterSelect', () => {
       const options = createOptions(10);
       const results = select.search(options, 'Option 1');
       expect(results.length).toBeGreaterThanOrEqual(1);
-      expect(results.every((r) => r.label.includes('1'))).toBe(true);
+      expect(results.every(r => r.label.includes('1'))).toBe(true);
     });
 
     it('should filter by fuzzy match on value', () => {
@@ -133,7 +137,7 @@ describe('SearchFilterSelect', () => {
       const options = createOptions(10);
       const results = select.filterByTag(options, ['frontend']);
       expect(results.length).toBeGreaterThan(0);
-      expect(results.every((r) => r.tags?.includes('frontend'))).toBe(true);
+      expect(results.every(r => r.tags?.includes('frontend'))).toBe(true);
     });
 
     it('should filter by multiple tags', () => {

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Kernel, LifecycleState, type KernelConfig } from '@organic/kernel';
+import { Kernel, type KernelConfig } from '@organic/kernel';
 import { StorageManager, StorageBackendType } from '@organic/storage';
 
 describe('Storage Service', () => {

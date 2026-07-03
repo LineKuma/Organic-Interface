@@ -246,7 +246,7 @@ export class OperationReplayer extends EventEmitter {
 
       try {
         // Simulate the operation execution time, adjusted by speed
-        const operationDelay = delay ?? (op.duration / speed);
+        const operationDelay = delay ?? op.duration / speed;
         await this.delay(operationDelay, this.abortController.signal);
 
         this.emit('operation:end', {
@@ -323,7 +323,9 @@ export class OperationReplayer extends EventEmitter {
     this.currentOp = null;
     this.abortController = null;
 
-    this.logger.info(`Replay completed: ${successCount} success, ${failCount} failed, ${skipCount} skipped`);
+    this.logger.info(
+      `Replay completed: ${successCount} success, ${failCount} failed, ${skipCount} skipped`
+    );
 
     this.emit('replay:end', { result, timestamp: Date.now() });
 
@@ -436,13 +438,12 @@ export class OperationReplayer extends EventEmitter {
    * Update the current progress
    */
   private updateProgress(): void {
-    const elapsed = this.state === 'playing'
-      ? Date.now() - this.startTime - this.elapsedBeforePause
-      : this.elapsedBeforePause;
+    const elapsed =
+      this.state === 'playing'
+        ? Date.now() - this.startTime - this.elapsedBeforePause
+        : this.elapsedBeforePause;
 
-    const percent = this.totalOps > 0
-      ? Math.round((this.currentIndex / this.totalOps) * 100)
-      : 0;
+    const percent = this.totalOps > 0 ? Math.round((this.currentIndex / this.totalOps) * 100) : 0;
 
     const avgTimePerOp = this.currentIndex > 0 ? elapsed / this.currentIndex : 0;
     const remaining = this.totalOps - this.currentIndex;
@@ -523,10 +524,14 @@ export class OperationReplayer extends EventEmitter {
       const timeout = setTimeout(resolve, ms);
 
       if (signal) {
-        signal.addEventListener('abort', () => {
-          clearTimeout(timeout);
-          reject(new DOMException('Aborted', 'AbortError'));
-        }, { once: true });
+        signal.addEventListener(
+          'abort',
+          () => {
+            clearTimeout(timeout);
+            reject(new DOMException('Aborted', 'AbortError'));
+          },
+          { once: true }
+        );
       }
     });
   }

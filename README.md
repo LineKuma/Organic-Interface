@@ -314,62 +314,63 @@ organic-interface/
 - 文档位于 `docs/` 目录下
 
 ---
+
 ## 文档索引
 
 ### 入门文档
 
-| 文档 | 说明 |
-|------|------|
-| [需求规格说明](docs/requirements.md) | 项目需求文档，功能需求详细说明 |
-| [技术选型文档](docs/tech-stack.md) | 技术栈选型及理由 |
-| [架构设计文档](docs/architecture.md) | 三层架构设计、Agent 多层架构、包-架构映射 |
-| [Monorepo 架构设计](docs/feature-013-monorepo-architecture.md) | 多模块架构、包间依赖、构建配置 |
+| 文档                                                           | 说明                                      |
+| -------------------------------------------------------------- | ----------------------------------------- |
+| [需求规格说明](docs/requirements.md)                           | 项目需求文档，功能需求详细说明            |
+| [技术选型文档](docs/tech-stack.md)                             | 技术栈选型及理由                          |
+| [架构设计文档](docs/architecture.md)                           | 三层架构设计、Agent 多层架构、包-架构映射 |
+| [Monorepo 架构设计](docs/feature-013-monorepo-architecture.md) | 多模块架构、包间依赖、构建配置            |
 
 ### 功能文档
 
-| 编号 | 文档 | 说明 |
-|------|------|------|
-| FEAT-002 | [交互界面作为工具](docs/feature-002-ui-as-tool.md) | UI 操作接口、AI 自主操作界面 |
-| FEAT-003 | [高度自定义提示词系统](docs/feature-003-prompt-system.md) | 模板引擎、版本管理、变量系统 |
-| FEAT-004 | [文件引用功能](docs/feature-004-file-reference.md) | 代码文件引用、上下文关联 |
-| FEAT-005 | [项目定位与设计原则](docs/feature-005-product-positioning.md) | 产品定位、差异化方向 |
-| FEAT-006 | [Plugin 插件系统架构](docs/feature-006-plugin-spec.md) | Kernel-Plugin 双层架构、接口规范 |
-| FEAT-007 | [Kernel 工具调用服务](docs/feature-007-tool-system.md) | 工具分类、注册、执行、权限控制 |
-| FEAT-008 | [上下文管理](docs/feature-008-context-management.md) | 对话上下文、消息管理、状态传播 |
-| FEAT-009 | [工作流引擎](docs/feature-009-workflow-engine.md) | DAG 工作流、串行/并行/条件/循环执行 |
-| FEAT-010 | [配置管理系统](docs/feature-010-config-system.md) | 多级配置、继承覆盖、热更新 |
-| FEAT-011 | [安全管理系统](docs/feature-011-security-system.md) | RBAC 权限模型、审计日志 |
-| FEAT-012 | [Storage 存储系统](docs/feature-012-storage-system.md) | 多后端存储、事务、数据迁移 |
-| FEAT-014 | [核心对话插件](docs/feature-014-core-conversation-plugin.md) | CoreConversationPlugin 完整规格 |
-| FEAT-015 | [Agent SDK](docs/feature-015-agent-sdk.md) | Agent 创建、任务执行、调度、上下文 |
-| FEAT-016 | [Sub-agents 子代理](docs/feature-016-sub-agents.md) | 任务分解、编排、Agent 注册中心 |
-| FEAT-017 | [Hooks 钩子系统](docs/feature-017-hooks-system.md) | 生命周期钩子、事件拦截、中间件 |
-| FEAT-018 | [Memory 记忆系统](docs/feature-018-memory-system.md) | 三层记忆、上下文窗口、持久化 |
-| FEAT-019 | [Skills 插件开发指南](docs/feature-019-skills-development.md) | 插件开发教程、完整示例 |
+| 编号     | 文档                                                          | 说明                                |
+| -------- | ------------------------------------------------------------- | ----------------------------------- |
+| FEAT-002 | [交互界面作为工具](docs/feature-002-ui-as-tool.md)            | UI 操作接口、AI 自主操作界面        |
+| FEAT-003 | [高度自定义提示词系统](docs/feature-003-prompt-system.md)     | 模板引擎、版本管理、变量系统        |
+| FEAT-004 | [文件引用功能](docs/feature-004-file-reference.md)            | 代码文件引用、上下文关联            |
+| FEAT-005 | [项目定位与设计原则](docs/feature-005-product-positioning.md) | 产品定位、差异化方向                |
+| FEAT-006 | [Plugin 插件系统架构](docs/feature-006-plugin-spec.md)        | Kernel-Plugin 双层架构、接口规范    |
+| FEAT-007 | [Kernel 工具调用服务](docs/feature-007-tool-system.md)        | 工具分类、注册、执行、权限控制      |
+| FEAT-008 | [上下文管理](docs/feature-008-context-management.md)          | 对话上下文、消息管理、状态传播      |
+| FEAT-009 | [工作流引擎](docs/feature-009-workflow-engine.md)             | DAG 工作流、串行/并行/条件/循环执行 |
+| FEAT-010 | [配置管理系统](docs/feature-010-config-system.md)             | 多级配置、继承覆盖、热更新          |
+| FEAT-011 | [安全管理系统](docs/feature-011-security-system.md)           | RBAC 权限模型、审计日志             |
+| FEAT-012 | [Storage 存储系统](docs/feature-012-storage-system.md)        | 多后端存储、事务、数据迁移          |
+| FEAT-014 | [核心对话插件](docs/feature-014-core-conversation-plugin.md)  | CoreConversationPlugin 完整规格     |
+| FEAT-015 | [Agent SDK](docs/feature-015-agent-sdk.md)                    | Agent 创建、任务执行、调度、上下文  |
+| FEAT-016 | [Sub-agents 子代理](docs/feature-016-sub-agents.md)           | 任务分解、编排、Agent 注册中心      |
+| FEAT-017 | [Hooks 钩子系统](docs/feature-017-hooks-system.md)            | 生命周期钩子、事件拦截、中间件      |
+| FEAT-018 | [Memory 记忆系统](docs/feature-018-memory-system.md)          | 三层记忆、上下文窗口、持久化        |
+| FEAT-019 | [Skills 插件开发指南](docs/feature-019-skills-development.md) | 插件开发教程、完整示例              |
 
 ### 技术设计文档
 
-| 文档 | 说明 |
-|------|------|
-| [数据流设计](docs/data-flow.md) | 请求流、事件流、工具执行流、工作流、存储流等完整数据流图 |
-| [状态机规范](docs/state-machines.md) | 10 个核心状态机：生命周期、插件、Agent、任务、工作流等 |
-| [通信协议规范](docs/communication-protocols.md) | EventBus、AgentChannel、MessageQueue、跨包通信协议 |
+| 文档                                            | 说明                                                     |
+| ----------------------------------------------- | -------------------------------------------------------- |
+| [数据流设计](docs/data-flow.md)                 | 请求流、事件流、工具执行流、工作流、存储流等完整数据流图 |
+| [状态机规范](docs/state-machines.md)            | 10 个核心状态机：生命周期、插件、Agent、任务、工作流等   |
+| [通信协议规范](docs/communication-protocols.md) | EventBus、AgentChannel、MessageQueue、跨包通信协议       |
 
 ### 用户指南
 
-| 文档 | 说明 |
-|------|------|
-| [CLI 参考手册](docs/cli-reference.md) | CLI 命令、选项、子命令完整参考 |
-| [配置参考](docs/configuration.md) | 5 级配置覆盖、环境变量、配置项说明 |
-| [常见工作流](docs/common-workflows.md) | 7 个完整使用工作流 |
-| [安全模型](docs/security-model.md) | L1-L4 权限等级、操作矩阵 |
-| [TUI 组件参考](docs/tui-components.md) | 终端 UI 组件 API 参考 |
+| 文档                                   | 说明                               |
+| -------------------------------------- | ---------------------------------- |
+| [CLI 参考手册](docs/cli-reference.md)  | CLI 命令、选项、子命令完整参考     |
+| [配置参考](docs/configuration.md)      | 5 级配置覆盖、环境变量、配置项说明 |
+| [常见工作流](docs/common-workflows.md) | 7 个完整使用工作流                 |
+| [安全模型](docs/security-model.md)     | L1-L4 权限等级、操作矩阵           |
+| [TUI 组件参考](docs/tui-components.md) | 终端 UI 组件 API 参考              |
 
 ### 开发者指南
 
-| 文档 | 说明 |
-|------|------|
+| 文档                                  | 说明                             |
+| ------------------------------------- | -------------------------------- |
 | [开发指南](docs/development-guide.md) | 开发环境搭建、代码规范、贡献流程 |
-| [测试指南](docs/testing-guide.md) | 测试框架、编写测试、覆盖率 |
-| [部署指南](docs/deployment.md) | 构建、部署、运维 |
-| [故障排查](docs/troubleshooting.md) | 8 类常见问题及解决方案 |
+| [测试指南](docs/testing-guide.md)     | 测试框架、编写测试、覆盖率       |
+| [部署指南](docs/deployment.md)        | 构建、部署、运维                 |
+| [故障排查](docs/troubleshooting.md)   | 8 类常见问题及解决方案           |

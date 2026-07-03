@@ -64,10 +64,7 @@ export class OperationDiff {
   /**
    * Compare two lists of operations
    */
-  diffOperations(
-    ops1: RecordedOperation[],
-    ops2: RecordedOperation[]
-  ): OperationDiffResult {
+  diffOperations(ops1: RecordedOperation[], ops2: RecordedOperation[]): OperationDiffResult {
     const result: OperationDiffResult = {
       added: [],
       removed: [],
@@ -115,7 +112,7 @@ export class OperationDiff {
 
     this.logger.info(
       `Diff result: ${result.added.length} added, ${result.removed.length} removed, ` +
-      `${result.modified.length} modified, ${result.unchanged.length} unchanged`
+        `${result.modified.length} modified, ${result.unchanged.length} unchanged`
     );
 
     return result;

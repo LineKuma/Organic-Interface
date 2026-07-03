@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CLI, type CLIConfig } from '@organic/ui';
+import { CLI } from '@organic/ui';
 import { createCLI } from '@organic/ui/cli/index.js';
 import { createCommand } from '@organic/ui/cli/Command.js';
 
@@ -297,9 +297,12 @@ describe('用户使用 CLI 完成日常命令操作', () => {
     it('用户组合筛选日志', async () => {
       const result = await cli.run([
         'log',
-        '--agent', 'agent-a',
-        '--type', 'click',
-        '--status', 'success',
+        '--agent',
+        'agent-a',
+        '--type',
+        'click',
+        '--status',
+        'success',
       ]);
       expect(result.success).toBe(true);
       expect(result.message).toContain('agent-a');
@@ -314,10 +317,8 @@ describe('用户使用 CLI 完成日常命令操作', () => {
         createCommand({
           name: 'greet',
           description: '打招呼',
-          arguments: [
-            { name: 'name', description: '名字', required: true },
-          ],
-          handler: async (args) => ({
+          arguments: [{ name: 'name', description: '名字', required: true }],
+          handler: async args => ({
             success: true,
             code: 0,
             message: `Hello, ${args.name}!`,
@@ -339,7 +340,7 @@ describe('用户使用 CLI 完成日常命令操作', () => {
             { short: 'm', long: 'mode', description: '构建模式', valueType: 'string' },
             { short: 'w', long: 'watch', description: '监听模式', valueType: 'boolean' },
           ],
-          handler: async (args) => ({
+          handler: async args => ({
             success: true,
             code: 0,
             message: `Building in ${args.mode ?? 'production'} mode`,
@@ -434,10 +435,8 @@ describe('用户使用 CLI 完成日常命令操作', () => {
         createCommand({
           name: 'analyze',
           description: '分析项目',
-          options: [
-            { short: 'p', long: 'path', description: '项目路径', valueType: 'string' },
-          ],
-          handler: async (args) => ({
+          options: [{ short: 'p', long: 'path', description: '项目路径', valueType: 'string' }],
+          handler: async args => ({
             success: true,
             code: 0,
             message: `Analyzing ${args.path ?? '.'}...`,

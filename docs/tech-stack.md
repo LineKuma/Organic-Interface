@@ -77,15 +77,15 @@ AI调度方面，系统使用自研的Agent/OrchestrationLayer/WorkflowEngine架
 
 **核心组件**：
 
-| 组件               | 所属包            | 职责                         |
-| ------------------ | ----------------- | ---------------------------- |
-| Agent              | @organic/agent    | 核心Agent实体，任务执行单元  |
-| OrchestrationLayer | @organic/agent    | 任务分解、计划编排、结果聚合 |
-| WorkflowEngine     | @organic/agent    | 工作流定义、DAG执行、节点调度 |
-| ExecutionCoordinator | @organic/agent  | 执行协调、重试策略、结果汇总 |
-| TaskScheduler      | @organic/agent    | 任务队列管理、优先级调度     |
-| ContextManager     | @organic/agent    | 会话上下文管理、窗口控制     |
-| ContextService     | @organic/agent    | 执行上下文传播、框架管理     |
+| 组件                 | 所属包         | 职责                          |
+| -------------------- | -------------- | ----------------------------- |
+| Agent                | @organic/agent | 核心Agent实体，任务执行单元   |
+| OrchestrationLayer   | @organic/agent | 任务分解、计划编排、结果聚合  |
+| WorkflowEngine       | @organic/agent | 工作流定义、DAG执行、节点调度 |
+| ExecutionCoordinator | @organic/agent | 执行协调、重试策略、结果汇总  |
+| TaskScheduler        | @organic/agent | 任务队列管理、优先级调度      |
+| ContextManager       | @organic/agent | 会话上下文管理、窗口控制      |
+| ContextService       | @organic/agent | 执行上下文传播、框架管理      |
 
 **架构特点**：
 
@@ -96,6 +96,7 @@ AI调度方面，系统使用自研的Agent/OrchestrationLayer/WorkflowEngine架
 - 状态同步通过共享存储实现，确保多Agent环境下数据一致性
 
 **Agent类型**（AgentType）：
+
 - 支持不同优先级的Agent注册（AgentPriority）
 - 可配置的Agent状态管理（AgentStatus）
 - 内置任务统计（AgentStats）和状态追踪
@@ -190,15 +191,15 @@ packages:
 
 **已定义包（7个，全部已实现）**：
 
-| 包名              | 说明                     | 依赖关系                         |
-| ----------------- | ------------------------ | -------------------------------- |
-| @organic/utils    | 共享类型、错误和工具函数 | 无外部依赖                       |
-| @organic/kernel   | 核心引擎、生命周期和事件 | 依赖 @organic/utils              |
-| @organic/plugins  | Plugin系统、加载和注册   | 依赖 @organic/utils              |
-| @organic/tools    | 工具管理、执行和安全沙箱 | 依赖 @organic/utils              |
-| @organic/agent    | Agent调度、工作流和上下文 | 依赖 utils, kernel, plugins, tools |
-| @organic/storage  | 多后端存储抽象层         | 依赖 @organic/utils              |
-| @organic/ui       | 终端UI组件、CLI和TUI     | 依赖 @organic/utils              |
+| 包名             | 说明                      | 依赖关系                           |
+| ---------------- | ------------------------- | ---------------------------------- |
+| @organic/utils   | 共享类型、错误和工具函数  | 无外部依赖                         |
+| @organic/kernel  | 核心引擎、生命周期和事件  | 依赖 @organic/utils                |
+| @organic/plugins | Plugin系统、加载和注册    | 依赖 @organic/utils                |
+| @organic/tools   | 工具管理、执行和安全沙箱  | 依赖 @organic/utils                |
+| @organic/agent   | Agent调度、工作流和上下文 | 依赖 utils, kernel, plugins, tools |
+| @organic/storage | 多后端存储抽象层          | 依赖 @organic/utils                |
+| @organic/ui      | 终端UI组件、CLI和TUI      | 依赖 @organic/utils                |
 
 **包间依赖关系**：
 
@@ -220,11 +221,11 @@ packages:
 
 系统通过 @organic/storage 包提供统一存储抽象，支持三种后端：
 
-| 后端     | 类名             | 说明                | 适用场景           |
-| -------- | ---------------- | ------------------- | ------------------ |
-| Memory   | MemoryStorage    | 内存存储，高速临时  | 会话缓存、测试     |
-| File     | FileStorage      | 文件持久化存储      | 本地持久化、配置   |
-| Database | DatabaseStorage  | 基于SQLite的结构化存储 | 事务性数据、正式存储 |
+| 后端     | 类名            | 说明                   | 适用场景             |
+| -------- | --------------- | ---------------------- | -------------------- |
+| Memory   | MemoryStorage   | 内存存储，高速临时     | 会话缓存、测试       |
+| File     | FileStorage     | 文件持久化存储         | 本地持久化、配置     |
+| Database | DatabaseStorage | 基于SQLite的结构化存储 | 事务性数据、正式存储 |
 
 **选择理由**：
 
@@ -361,18 +362,18 @@ packages:
 
 ### 核心依赖（已实现）
 
-| 类别       | 选择                          | 说明                         |
-| ---------- | ----------------------------- | ---------------------------- |
-| AI调度     | 自研Agent/OrchestrationLayer/WorkflowEngine | 任务分解、编排和执行管理     |
-| 存储       | Memory / File / Database (SQLite) | 多后端存储抽象层          |
+| 类别   | 选择                                        | 说明                     |
+| ------ | ------------------------------------------- | ------------------------ |
+| AI调度 | 自研Agent/OrchestrationLayer/WorkflowEngine | 任务分解、编排和执行管理 |
+| 存储   | Memory / File / Database (SQLite)           | 多后端存储抽象层         |
 
 ### 核心依赖（规划中）
 
-| 类别     | 选择    | 说明                     |
-| -------- | ------- | ------------------------ |
-| 日志     | pino    | 高性能结构化日志库       |
-| 配置验证 | zod     | TypeScript优先schema验证 |
-| 环境变量 | dotenv  | 环境变量加载             |
+| 类别     | 选择   | 说明                     |
+| -------- | ------ | ------------------------ |
+| 日志     | pino   | 高性能结构化日志库       |
+| 配置验证 | zod    | TypeScript优先schema验证 |
+| 环境变量 | dotenv | 环境变量加载             |
 
 ### 构建和工具（已实现）
 
@@ -386,11 +387,11 @@ packages:
 
 ### 数据库
 
-| 类别       | 选择       | 状态 | 说明             |
-| ---------- | ---------- | ---- | ---------------- |
-| 默认存储   | Memory / File / SQLite | 已实现 | 多后端存储抽象 |
-| 生产数据库 | PostgreSQL | 规划中 | 可选高性能数据库 |
-| 缓存       | Redis      | 规划中 | 可选缓存层       |
+| 类别       | 选择                   | 状态   | 说明             |
+| ---------- | ---------------------- | ------ | ---------------- |
+| 默认存储   | Memory / File / SQLite | 已实现 | 多后端存储抽象   |
+| 生产数据库 | PostgreSQL             | 规划中 | 可选高性能数据库 |
+| 缓存       | Redis                  | 规划中 | 可选缓存层       |
 
 ---
 

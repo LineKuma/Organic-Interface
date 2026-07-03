@@ -11,9 +11,9 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { CLI, type CLIConfig } from '@organic/ui';
-import { createCommand, addSubcommand, findCommand, type Command, type CommandResult, type CommandOption, type CommandArgument } from '@organic/ui/cli/Command.js';
-import { CommandParser, defaultParser, type ParseResult, type ParsedInput } from '@organic/ui/cli/CommandParser.js';
+import { CLI } from '@organic/ui';
+import { createCommand, addSubcommand, findCommand } from '@organic/ui/cli/Command.js';
+import { CommandParser } from '@organic/ui/cli/CommandParser.js';
 
 // ── 用户场景：命令解析器 ──────────────────────────────────────────
 
@@ -142,9 +142,7 @@ describe('TUI CLI 交互式完整工作流', () => {
       const cmd = createCommand({
         name: 'deploy',
         description: 'Deploy app',
-        arguments: [
-          { name: 'target', description: 'Target env', required: true },
-        ],
+        arguments: [{ name: 'target', description: 'Target env', required: true }],
       });
 
       const parsed = parser.parse('deploy');
@@ -173,9 +171,7 @@ describe('TUI CLI 交互式完整工作流', () => {
       const cmd = createCommand({
         name: 'greet',
         description: 'Greet someone',
-        arguments: [
-          { name: 'name', description: 'Name', required: false },
-        ],
+        arguments: [{ name: 'name', description: 'Name', required: false }],
       });
 
       const parsed = parser.parse('greet');
@@ -203,7 +199,13 @@ describe('TUI CLI 交互式完整工作流', () => {
         name: 'create',
         description: 'Create resource',
         options: [
-          { short: 'n', long: 'name', description: 'Resource name', required: true, valueType: 'string' },
+          {
+            short: 'n',
+            long: 'name',
+            description: 'Resource name',
+            required: true,
+            valueType: 'string',
+          },
           { short: 'f', long: 'force', description: 'Force', valueType: 'boolean' },
         ],
       });
@@ -218,7 +220,13 @@ describe('TUI CLI 交互式完整工作流', () => {
         name: 'create',
         description: 'Create resource',
         options: [
-          { short: 'n', long: 'name', description: 'Resource name', required: true, valueType: 'string' },
+          {
+            short: 'n',
+            long: 'name',
+            description: 'Resource name',
+            required: true,
+            valueType: 'string',
+          },
         ],
       });
 
@@ -261,8 +269,20 @@ describe('TUI CLI 交互式完整工作流', () => {
         name: 'server',
         description: 'Server',
         options: [
-          { short: 'p', long: 'port', description: 'Port', valueType: 'number', defaultValue: 3000 },
-          { short: 'H', long: 'host', description: 'Host', valueType: 'string', defaultValue: 'localhost' },
+          {
+            short: 'p',
+            long: 'port',
+            description: 'Port',
+            valueType: 'number',
+            defaultValue: 3000,
+          },
+          {
+            short: 'H',
+            long: 'host',
+            description: 'Host',
+            valueType: 'string',
+            defaultValue: 'localhost',
+          },
         ],
       });
 
@@ -278,7 +298,13 @@ describe('TUI CLI 交互式完整工作流', () => {
         name: 'server',
         description: 'Server',
         options: [
-          { short: 'p', long: 'port', description: 'Port', valueType: 'number', defaultValue: 3000 },
+          {
+            short: 'p',
+            long: 'port',
+            description: 'Port',
+            valueType: 'number',
+            defaultValue: 3000,
+          },
         ],
       });
 
@@ -292,9 +318,7 @@ describe('TUI CLI 交互式完整工作流', () => {
       const cmd = createCommand({
         name: 'greet',
         description: 'Greet',
-        arguments: [
-          { name: 'name', description: 'Name', required: false, defaultValue: 'World' },
-        ],
+        arguments: [{ name: 'name', description: 'Name', required: false, defaultValue: 'World' }],
       });
 
       const parsed = parser.parse('greet');
@@ -406,7 +430,13 @@ describe('TUI CLI 交互式完整工作流', () => {
         ],
         options: [
           { short: 'f', long: 'force', description: 'Force deploy', valueType: 'boolean' },
-          { short: 't', long: 'timeout', description: 'Timeout in seconds', valueType: 'number', defaultValue: 300 },
+          {
+            short: 't',
+            long: 'timeout',
+            description: 'Timeout in seconds',
+            valueType: 'number',
+            defaultValue: 300,
+          },
         ],
       });
 
@@ -541,11 +571,29 @@ describe('TUI CLI 交互式完整工作流', () => {
         name: 'calc',
         description: 'Calculator',
         options: [
-          { short: 'a', long: 'num-a', description: 'First number', valueType: 'number', required: true },
-          { short: 'b', long: 'num-b', description: 'Second number', valueType: 'number', required: true },
-          { short: 'o', long: 'op', description: 'Operation', valueType: 'string', defaultValue: 'add' },
+          {
+            short: 'a',
+            long: 'num-a',
+            description: 'First number',
+            valueType: 'number',
+            required: true,
+          },
+          {
+            short: 'b',
+            long: 'num-b',
+            description: 'Second number',
+            valueType: 'number',
+            required: true,
+          },
+          {
+            short: 'o',
+            long: 'op',
+            description: 'Operation',
+            valueType: 'string',
+            defaultValue: 'add',
+          },
         ],
-        handler: async (args) => ({
+        handler: async args => ({
           success: true,
           code: 0,
           message: `Calculating ${args['num-a']} ${args.op} ${args['num-b']}`,
@@ -630,23 +678,29 @@ describe('TUI CLI 交互式完整工作流', () => {
     });
 
     it('用户注册多个命令并在帮助中列出', async () => {
-      cli.register(createCommand({
-        name: 'init',
-        description: 'Initialize project',
-        handler: async () => ({ success: true, code: 0, message: 'Initialized' }),
-      }));
+      cli.register(
+        createCommand({
+          name: 'init',
+          description: 'Initialize project',
+          handler: async () => ({ success: true, code: 0, message: 'Initialized' }),
+        })
+      );
 
-      cli.register(createCommand({
-        name: 'build',
-        description: 'Build project',
-        handler: async () => ({ success: true, code: 0, message: 'Built' }),
-      }));
+      cli.register(
+        createCommand({
+          name: 'build',
+          description: 'Build project',
+          handler: async () => ({ success: true, code: 0, message: 'Built' }),
+        })
+      );
 
-      cli.register(createCommand({
-        name: 'test',
-        description: 'Run tests',
-        handler: async () => ({ success: true, code: 0, message: 'Tests passed' }),
-      }));
+      cli.register(
+        createCommand({
+          name: 'test',
+          description: 'Run tests',
+          handler: async () => ({ success: true, code: 0, message: 'Tests passed' }),
+        })
+      );
 
       const help = await cli.run(['--help']);
       expect(help.message).toContain('init');
@@ -731,20 +785,34 @@ describe('TUI CLI 交互式完整工作流', () => {
       });
 
       // 注册 init 命令
-      cli.register(createCommand({
-        name: 'init',
-        description: 'Initialize new project',
-        options: [
-          { short: 'n', long: 'name', description: 'Project name', valueType: 'string', required: true },
-          { short: 't', long: 'template', description: 'Template', valueType: 'string', defaultValue: 'default' },
-          { short: 'f', long: 'force', description: 'Force overwrite', valueType: 'boolean' },
-        ],
-        handler: async (args) => ({
-          success: true,
-          code: 0,
-          message: `Initialized ${args.name} with template ${args.template}`,
-        }),
-      }));
+      cli.register(
+        createCommand({
+          name: 'init',
+          description: 'Initialize new project',
+          options: [
+            {
+              short: 'n',
+              long: 'name',
+              description: 'Project name',
+              valueType: 'string',
+              required: true,
+            },
+            {
+              short: 't',
+              long: 'template',
+              description: 'Template',
+              valueType: 'string',
+              defaultValue: 'default',
+            },
+            { short: 'f', long: 'force', description: 'Force overwrite', valueType: 'boolean' },
+          ],
+          handler: async args => ({
+            success: true,
+            code: 0,
+            message: `Initialized ${args.name} with template ${args.template}`,
+          }),
+        })
+      );
 
       // 注册 generate 命令（带子命令）
       const generateCmd = createCommand({
@@ -758,25 +826,31 @@ describe('TUI CLI 交互式完整工作流', () => {
         }),
       });
 
-      addSubcommand(generateCmd, createCommand({
-        name: 'component',
-        description: 'Generate component',
-        handler: async () => ({
-          success: true,
-          code: 0,
-          message: 'Generated component',
-        }),
-      }));
+      addSubcommand(
+        generateCmd,
+        createCommand({
+          name: 'component',
+          description: 'Generate component',
+          handler: async () => ({
+            success: true,
+            code: 0,
+            message: 'Generated component',
+          }),
+        })
+      );
 
-      addSubcommand(generateCmd, createCommand({
-        name: 'service',
-        description: 'Generate service',
-        handler: async () => ({
-          success: true,
-          code: 0,
-          message: 'Generated service',
-        }),
-      }));
+      addSubcommand(
+        generateCmd,
+        createCommand({
+          name: 'service',
+          description: 'Generate service',
+          handler: async () => ({
+            success: true,
+            code: 0,
+            message: 'Generated service',
+          }),
+        })
+      );
 
       cli.register(generateCmd);
 

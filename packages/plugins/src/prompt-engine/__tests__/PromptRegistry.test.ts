@@ -98,30 +98,36 @@ describe('PromptRegistry', () => {
 
   describe('find()', () => {
     beforeEach(() => {
-      registry.register(createTemplate({
-        id: 't1',
-        name: 'Alpha',
-        category: 'code',
-        tags: ['javascript'],
-        createdAt: 1000,
-        updatedAt: 2000,
-      }));
-      registry.register(createTemplate({
-        id: 't2',
-        name: 'Beta',
-        category: 'docs',
-        tags: ['typescript'],
-        createdAt: 2000,
-        updatedAt: 3000,
-      }));
-      registry.register(createTemplate({
-        id: 't3',
-        name: 'Gamma',
-        category: 'code',
-        tags: ['javascript', 'testing'],
-        createdAt: 3000,
-        updatedAt: 4000,
-      }));
+      registry.register(
+        createTemplate({
+          id: 't1',
+          name: 'Alpha',
+          category: 'code',
+          tags: ['javascript'],
+          createdAt: 1000,
+          updatedAt: 2000,
+        })
+      );
+      registry.register(
+        createTemplate({
+          id: 't2',
+          name: 'Beta',
+          category: 'docs',
+          tags: ['typescript'],
+          createdAt: 2000,
+          updatedAt: 3000,
+        })
+      );
+      registry.register(
+        createTemplate({
+          id: 't3',
+          name: 'Gamma',
+          category: 'code',
+          tags: ['javascript', 'testing'],
+          createdAt: 3000,
+          updatedAt: 4000,
+        })
+      );
     });
 
     it('should filter by category', () => {
@@ -263,9 +269,7 @@ describe('PromptRegistry', () => {
     it('should update existing templates on import', () => {
       registry.register(createTemplate({ id: 't1', name: 'Original' }));
 
-      const templates = [
-        createTemplate({ id: 't1', name: 'Updated' }),
-      ];
+      const templates = [createTemplate({ id: 't1', name: 'Updated' })];
 
       const result = registry.import(templates);
       expect(result.success).toBe(true);
@@ -368,13 +372,15 @@ describe('PromptRegistry', () => {
 
   describe('search()', () => {
     it('should search across name, description, content, and tags', () => {
-      registry.register(createTemplate({
-        id: 't1',
-        name: 'Code Review',
-        description: 'Review template',
-        content: 'Review the code',
-        tags: ['code', 'review'],
-      }));
+      registry.register(
+        createTemplate({
+          id: 't1',
+          name: 'Code Review',
+          description: 'Review template',
+          content: 'Review the code',
+          tags: ['code', 'review'],
+        })
+      );
 
       expect(registry.search('Code Review')).toHaveLength(1);
       expect(registry.search('review')).toHaveLength(1);
@@ -453,10 +459,12 @@ describe('PromptRegistry', () => {
   describe('edge cases', () => {
     it('should handle large number of templates', () => {
       for (let i = 0; i < 100; i++) {
-        registry.register(createTemplate({
-          id: `t-${i}`,
-          name: `Template ${i}`,
-        }));
+        registry.register(
+          createTemplate({
+            id: `t-${i}`,
+            name: `Template ${i}`,
+          })
+        );
       }
       expect(registry.count).toBe(100);
     });

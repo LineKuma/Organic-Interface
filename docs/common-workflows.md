@@ -73,8 +73,8 @@ const customSandbox = createSandbox({
 // 创建 Agent 会话
 const session = sandbox.createSession('agent-001', 'L2');
 
-console.log(session.sessionId);    // session_xxx
-console.log(session.status);       // 'active'
+console.log(session.sessionId); // session_xxx
+console.log(session.status); // 'active'
 console.log(session.permissionLevel); // 'L2'
 ```
 
@@ -239,12 +239,15 @@ console.log(bannerOutput);
 
 ```typescript
 const box = new Box();
-const sysInfo = box.renderKeyValue([
-  ['CPU', '45%'],
-  ['Memory', '8.2 GB / 16 GB'],
-  ['Disk', '120 GB / 256 GB'],
-  ['Uptime', '2h 30m'],
-], { title: 'System Info', style: 'rounded' });
+const sysInfo = box.renderKeyValue(
+  [
+    ['CPU', '45%'],
+    ['Memory', '8.2 GB / 16 GB'],
+    ['Disk', '120 GB / 256 GB'],
+    ['Uptime', '2h 30m'],
+  ],
+  { title: 'System Info', style: 'rounded' }
+);
 console.log(sysInfo);
 ```
 
@@ -299,19 +302,33 @@ const cli = new CLI({
 ### 步骤 2：注册 init 命令
 
 ```typescript
-cli.register(createCommand({
-  name: 'init',
-  description: 'Initialize new project',
-  options: [
-    { short: 'n', long: 'name', description: 'Project name', valueType: 'string', required: true },
-    { short: 't', long: 'template', description: 'Template', valueType: 'string', defaultValue: 'default' },
-  ],
-  handler: async (args) => ({
-    success: true,
-    code: 0,
-    message: `Initialized ${args.name} with template ${args.template}`,
-  }),
-}));
+cli.register(
+  createCommand({
+    name: 'init',
+    description: 'Initialize new project',
+    options: [
+      {
+        short: 'n',
+        long: 'name',
+        description: 'Project name',
+        valueType: 'string',
+        required: true,
+      },
+      {
+        short: 't',
+        long: 'template',
+        description: 'Template',
+        valueType: 'string',
+        defaultValue: 'default',
+      },
+    ],
+    handler: async args => ({
+      success: true,
+      code: 0,
+      message: `Initialized ${args.name} with template ${args.template}`,
+    }),
+  })
+);
 ```
 
 ### 步骤 3：注册 generate 命令（含子命令）
@@ -323,25 +340,31 @@ const generateCmd = createCommand({
   aliases: ['g'],
 });
 
-addSubcommand(generateCmd, createCommand({
-  name: 'component',
-  description: 'Generate component',
-  handler: async () => ({
-    success: true,
-    code: 0,
-    message: 'Generated component',
-  }),
-}));
+addSubcommand(
+  generateCmd,
+  createCommand({
+    name: 'component',
+    description: 'Generate component',
+    handler: async () => ({
+      success: true,
+      code: 0,
+      message: 'Generated component',
+    }),
+  })
+);
 
-addSubcommand(generateCmd, createCommand({
-  name: 'service',
-  description: 'Generate service',
-  handler: async () => ({
-    success: true,
-    code: 0,
-    message: 'Generated service',
-  }),
-}));
+addSubcommand(
+  generateCmd,
+  createCommand({
+    name: 'service',
+    description: 'Generate service',
+    handler: async () => ({
+      success: true,
+      code: 0,
+      message: 'Generated service',
+    }),
+  })
+);
 
 cli.register(generateCmd);
 ```

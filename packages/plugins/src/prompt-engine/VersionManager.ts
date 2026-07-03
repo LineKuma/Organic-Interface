@@ -31,7 +31,12 @@ export class VersionManager {
    * @param author - Optional author name
    * @returns The created TemplateVersion
    */
-  createVersion(templateId: string, content: string, message: string, author?: string): TemplateVersion {
+  createVersion(
+    templateId: string,
+    content: string,
+    message: string,
+    author?: string
+  ): TemplateVersion {
     const history = this.getOrCreateHistory(templateId);
     const nextVersion = this.incrementVersion(history);
 

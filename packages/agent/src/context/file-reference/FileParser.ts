@@ -51,7 +51,7 @@ export class FileParser {
     content: string,
     language: SupportedLanguage,
     filePath: string,
-    options?: ParseOptions,
+    options?: ParseOptions
   ): ParsedFile {
     const opts = { ...DEFAULT_PARSE_OPTIONS, ...options };
     const lines = content.split('\n');
@@ -86,7 +86,11 @@ export class FileParser {
   /**
    * Extract symbols from source code content
    */
-  extractSymbols(content: string, language: SupportedLanguage, filePath: string = ''): FileSymbol[] {
+  extractSymbols(
+    content: string,
+    language: SupportedLanguage,
+    filePath: string = ''
+  ): FileSymbol[] {
     const symbols: FileSymbol[] = [];
 
     switch (language) {
@@ -210,10 +214,24 @@ export class FileParser {
       case SupportedLanguage.TYPESCRIPT:
       case SupportedLanguage.JAVASCRIPT: {
         // Named exports
-        const exportRegex = /export\s+(?:default\s+)?(?:(?:const|let|var|function|class|interface|type|enum|abstract\s+class)\s+)?(\w+)/g;
+        const exportRegex =
+          /export\s+(?:default\s+)?(?:(?:const|let|var|function|class|interface|type|enum|abstract\s+class)\s+)?(\w+)/g;
         let match: RegExpExecArray | null;
         while ((match = exportRegex.exec(content)) !== null) {
-          if (!['default', 'const', 'let', 'var', 'function', 'class', 'interface', 'type', 'enum', 'abstract'].includes(match[1])) {
+          if (
+            ![
+              'default',
+              'const',
+              'let',
+              'var',
+              'function',
+              'class',
+              'interface',
+              'type',
+              'enum',
+              'abstract',
+            ].includes(match[1])
+          ) {
             exports.push(match[1]);
           }
         }
@@ -289,7 +307,8 @@ export class FileParser {
     this.addSymbols(stripped, classRegex, SymbolKind.CLASS, filePath, symbols);
 
     // Method declarations inside classes
-    const methodRegex = /(?:public|private|protected|static|async|abstract)?\s*(?:public|private|protected|static|async|abstract)?\s*(\w+)\s*\([^)]*\)\s*\{/g;
+    const methodRegex =
+      /(?:public|private|protected|static|async|abstract)?\s*(?:public|private|protected|static|async|abstract)?\s*(\w+)\s*\([^)]*\)\s*\{/g;
     this.addSymbols(stripped, methodRegex, SymbolKind.METHOD, filePath, symbols);
 
     // Variable declarations (const/let/var - not arrow functions)
@@ -318,7 +337,9 @@ export class FileParser {
     while ((importMatch = importRegex.exec(stripped)) !== null) {
       const name = importMatch[0].match(/(?:as\s+)?(\w+)\s+from/)?.[1];
       if (name) {
-        symbols.push(this.createSymbol(name, SymbolKind.IMPORT, stripped, importMatch.index, filePath));
+        symbols.push(
+          this.createSymbol(name, SymbolKind.IMPORT, stripped, importMatch.index, filePath)
+        );
       }
     }
 
@@ -330,7 +351,9 @@ export class FileParser {
       if (names) {
         for (const name of names) {
           if (name !== 'export' && name !== 'as') {
-            symbols.push(this.createSymbol(name, SymbolKind.EXPORT, stripped, reExportMatch.index, filePath));
+            symbols.push(
+              this.createSymbol(name, SymbolKind.EXPORT, stripped, reExportMatch.index, filePath)
+            );
           }
         }
       }
@@ -382,11 +405,13 @@ export class FileParser {
     this.addSymbols(stripped, enumRegex, SymbolKind.ENUM, filePath, symbols);
 
     // Method declarations
-    const methodRegex = /(?:public|private|protected)?\s*(?:static|abstract|final|synchronized)?\s*(?:\w+(?:<[^>]*>)?)\s+(\w+)\s*\(/g;
+    const methodRegex =
+      /(?:public|private|protected)?\s*(?:static|abstract|final|synchronized)?\s*(?:\w+(?:<[^>]*>)?)\s+(\w+)\s*\(/g;
     this.addSymbols(stripped, methodRegex, SymbolKind.METHOD, filePath, symbols);
 
     // Field declarations
-    const fieldRegex = /(?:public|private|protected)?\s*(?:static|final)?\s*(?:\w+(?:<[^>]*>)?)\s+(\w+)\s*[=;]/g;
+    const fieldRegex =
+      /(?:public|private|protected)?\s*(?:static|final)?\s*(?:\w+(?:<[^>]*>)?)\s+(\w+)\s*[=;]/g;
     this.addSymbols(stripped, fieldRegex, SymbolKind.VARIABLE, filePath, symbols);
 
     // Package declarations
@@ -478,7 +503,8 @@ export class FileParser {
     const stripped = this.stripComments(content, '//', ['/*', '*/']);
 
     // Function declarations (simplified)
-    const funcRegex = /(?:virtual\s+)?(?:static\s+)?(?:inline\s+)?(?:const\s+)?(?:\w+(?:<[^>]*>)?)\s+(\w+)\s*\([^)]*\)\s*(?:const)?\s*[;{]/g;
+    const funcRegex =
+      /(?:virtual\s+)?(?:static\s+)?(?:inline\s+)?(?:const\s+)?(?:\w+(?:<[^>]*>)?)\s+(\w+)\s*\([^)]*\)\s*(?:const)?\s*[;{]/g;
     this.addSymbols(stripped, funcRegex, SymbolKind.FUNCTION, filePath, symbols);
 
     // Class declarations
@@ -504,7 +530,8 @@ export class FileParser {
     const stripped = this.stripComments(content, '//', ['/*', '*/']);
 
     // Class declarations
-    const classRegex = /(?:public|private|protected|internal)?\s*(?:static|abstract|sealed)?\s*class\s+(\w+)/g;
+    const classRegex =
+      /(?:public|private|protected|internal)?\s*(?:static|abstract|sealed)?\s*class\s+(\w+)/g;
     this.addSymbols(stripped, classRegex, SymbolKind.CLASS, filePath, symbols);
 
     // Interface declarations
@@ -516,7 +543,8 @@ export class FileParser {
     this.addSymbols(stripped, enumRegex, SymbolKind.ENUM, filePath, symbols);
 
     // Method declarations
-    const methodRegex = /(?:public|private|protected|internal)?\s*(?:static|virtual|abstract|override|async)?\s*(?:\w+(?:<[^>]*>)?)\s+(\w+)\s*[<\(]/g;
+    const methodRegex =
+      /(?:public|private|protected|internal)?\s*(?:static|virtual|abstract|override|async)?\s*(?:\w+(?:<[^>]*>)?)\s+(\w+)\s*[<\(]/g;
     this.addSymbols(stripped, methodRegex, SymbolKind.METHOD, filePath, symbols);
 
     // Namespace declarations
@@ -565,7 +593,7 @@ export class FileParser {
     regex: RegExp,
     kind: SymbolKind,
     filePath: string,
-    symbols: FileSymbol[],
+    symbols: FileSymbol[]
   ): void {
     // Reset regex state
     regex.lastIndex = 0;
@@ -588,7 +616,7 @@ export class FileParser {
     kind: SymbolKind,
     content: string,
     position: number,
-    filePath: string,
+    filePath: string
   ): FileSymbol {
     const line = this.getLineNumber(content, position);
     const column = this.getColumnNumber(content, position);
@@ -635,19 +663,112 @@ export class FileParser {
    */
   private isKeyword(name: string): boolean {
     const keywords = new Set([
-      'if', 'else', 'for', 'while', 'do', 'switch', 'case', 'break', 'continue',
-      'return', 'throw', 'try', 'catch', 'finally', 'new', 'delete', 'typeof',
-      'instanceof', 'in', 'of', 'void', 'this', 'super', 'true', 'false', 'null',
-      'undefined', 'import', 'export', 'default', 'from', 'as', 'async', 'await',
-      'yield', 'let', 'var', 'const', 'function', 'class', 'extends', 'implements',
-      'interface', 'type', 'enum', 'namespace', 'module', 'declare', 'abstract',
-      'static', 'public', 'private', 'protected', 'readonly', 'get', 'set',
-      'package', 'int', 'long', 'float', 'double', 'char', 'boolean', 'byte',
-      'short', 'string', 'void', 'bool', 'String', 'Integer', 'int32', 'int64',
-      'struct', 'impl', 'trait', 'pub', 'use', 'where', 'fn', 'mod', 'crate',
-      'self', 'Self', 'mut', 'ref', 'unsafe', 'extern', 'dyn', 'move', 'box',
-      'is', 'not', 'and', 'or', 'pass', 'raise', 'with', 'nonlocal', 'global',
-      'elif', 'lambda', 'assert', 'del', 'exec', 'print', 'def',
+      'if',
+      'else',
+      'for',
+      'while',
+      'do',
+      'switch',
+      'case',
+      'break',
+      'continue',
+      'return',
+      'throw',
+      'try',
+      'catch',
+      'finally',
+      'new',
+      'delete',
+      'typeof',
+      'instanceof',
+      'in',
+      'of',
+      'void',
+      'this',
+      'super',
+      'true',
+      'false',
+      'null',
+      'undefined',
+      'import',
+      'export',
+      'default',
+      'from',
+      'as',
+      'async',
+      'await',
+      'yield',
+      'let',
+      'var',
+      'const',
+      'function',
+      'class',
+      'extends',
+      'implements',
+      'interface',
+      'type',
+      'enum',
+      'namespace',
+      'module',
+      'declare',
+      'abstract',
+      'static',
+      'public',
+      'private',
+      'protected',
+      'readonly',
+      'get',
+      'set',
+      'package',
+      'int',
+      'long',
+      'float',
+      'double',
+      'char',
+      'boolean',
+      'byte',
+      'short',
+      'string',
+      'void',
+      'bool',
+      'String',
+      'Integer',
+      'int32',
+      'int64',
+      'struct',
+      'impl',
+      'trait',
+      'pub',
+      'use',
+      'where',
+      'fn',
+      'mod',
+      'crate',
+      'self',
+      'Self',
+      'mut',
+      'ref',
+      'unsafe',
+      'extern',
+      'dyn',
+      'move',
+      'box',
+      'is',
+      'not',
+      'and',
+      'or',
+      'pass',
+      'raise',
+      'with',
+      'nonlocal',
+      'global',
+      'elif',
+      'lambda',
+      'assert',
+      'del',
+      'exec',
+      'print',
+      'def',
     ]);
     return keywords.has(name);
   }

@@ -35,13 +35,13 @@ Organic Interface 的插件系统（Skills 系统）是核心扩展机制，采�
 
 Organic Interface 插件系统支持多种类型的功能扩展：
 
-| 插件类型       | 描述                                   | 示例                            |
-|----------------|----------------------------------------|---------------------------------|
-| **工具插件**   | 扩展 Kernel 的工具调用能力             | 文件搜索工具、Git 工具、Lint 工具 |
-| **对话插件**   | 扩展对话能力和用户交互模式             | 代码评审插件、文档生成插件       |
-| **UI 插件**    | 添加新的 TUI 组件和界面元素            | 自定义仪表盘、交互式预览         |
-| **工作流插件** | 实现自动化工作流                       | 代码审查工作流、发布流程         |
-| **集成插件**   | 集成外部服务和系统                     | GitHub 集成、Jira 集成           |
+| 插件类型       | 描述                        | 示例                              |
+| -------------- | --------------------------- | --------------------------------- |
+| **工具插件**   | 扩展 Kernel 的工具调用能力  | 文件搜索工具、Git 工具、Lint 工具 |
+| **对话插件**   | 扩展对话能力和用户交互模式  | 代码评审插件、文档生成插件        |
+| **UI 插件**    | 添加新的 TUI 组件和界面元素 | 自定义仪表盘、交互式预览          |
+| **工作流插件** | 实现自动化工作流            | 代码审查工作流、发布流程          |
+| **集成插件**   | 集成外部服务和系统          | GitHub 集成、Jira 集成            |
 
 ---
 
@@ -68,12 +68,14 @@ Organic Interface 插件系统支持多种类型的功能扩展：
 ```
 
 **Kernel 职责：**
+
 - 提供 Kernel API 接口（`KernelApi`）供插件调用
 - 管理插件完整生命周期（从发现到卸载）
 - 提供基础服务：信息查询、工具执行、日志输出
 - 处理插件间通信和事件广播
 
 **Plugin 职责：**
+
 - 实现具体业务功能
 - 通过标准接口与 Kernel 交互
 - 管理自身状态和资源
@@ -207,7 +209,7 @@ export class GreetingPlugin extends BasePlugin {
     const { action, params } = input;
 
     if (action === 'greet') {
-      const name = (params?.name as string) || this.config.defaultName as string;
+      const name = (params?.name as string) || (this.config.defaultName as string);
       let message = `Hello, ${name}!`;
 
       if (this.config.uppercase as boolean) {
@@ -371,16 +373,16 @@ export interface PluginHooks {
 
 ### 4.5 类型汇总
 
-| 类型                  | 说明                     |
-|-----------------------|--------------------------|
-| `PluginLifecycleState` | 生命周期状态枚举         |
-| `PluginConfig`        | 初始化配置               |
-| `PluginStatus`        | 插件状态信息             |
-| `PluginStats`         | 执行统计信息             |
-| `PluginContext`       | 初始化上下文             |
-| `PluginInput`         | 执行输入                 |
-| `PluginOutput`        | 执行输出                 |
-| `InitializeResult`    | 初始化结果               |
+| 类型                   | 说明             |
+| ---------------------- | ---------------- |
+| `PluginLifecycleState` | 生命周期状态枚举 |
+| `PluginConfig`         | 初始化配置       |
+| `PluginStatus`         | 插件状态信息     |
+| `PluginStats`          | 执行统计信息     |
+| `PluginContext`        | 初始化上下文     |
+| `PluginInput`          | 执行输入         |
+| `PluginOutput`         | 执行输出         |
+| `InitializeResult`     | 初始化结果       |
 
 ---
 
@@ -388,18 +390,18 @@ export interface PluginHooks {
 
 ### 5.1 完整状态说明
 
-| 状态             | 说明                                                                 |
-|-----------------|----------------------------------------------------------------------|
-| `DISCOVERED`    | 插件已被发现，元数据已读取，等待依赖解析                             |
-| `RESOLVED`      | 依赖解析完成，兼容性验证通过，准备加载                               |
-| `LOADING`       | 正在加载代码模块，创建插件实例                                       |
-| `INITIALIZED`   | `initialize()` 执行成功，插件已准备就绪                               |
-| `ACTIVE`        | 插件已激活，可以接收和处理请求                                       |
-| `RUNNING`       | 插件正在执行 `execute()`，处理请求中                                   |
-| `SHUTTING_DOWN` | 正在关闭插件，清理资源中                                             |
-| `SHUTDOWN`      | 关闭完成，等待卸载                                                   |
-| `ERROR`         | 发生错误，包含错误信息                                               |
-| `UNLOADED`      | 已从内存卸载完成                                                     |
+| 状态            | 说明                                     |
+| --------------- | ---------------------------------------- |
+| `DISCOVERED`    | 插件已被发现，元数据已读取，等待依赖解析 |
+| `RESOLVED`      | 依赖解析完成，兼容性验证通过，准备加载   |
+| `LOADING`       | 正在加载代码模块，创建插件实例           |
+| `INITIALIZED`   | `initialize()` 执行成功，插件已准备就绪  |
+| `ACTIVE`        | 插件已激活，可以接收和处理请求           |
+| `RUNNING`       | 插件正在执行 `execute()`，处理请求中     |
+| `SHUTTING_DOWN` | 正在关闭插件，清理资源中                 |
+| `SHUTDOWN`      | 关闭完成，等待卸载                       |
+| `ERROR`         | 发生错误，包含错误信息                   |
+| `UNLOADED`      | 已从内存卸载完成                         |
 
 ### 5.2 生命周期回调顺序
 
@@ -693,21 +695,21 @@ export interface BasePluginOptions {
 
 ### 7.3 可重写的方法
 
-| 方法                 | 说明                                     | 默认实现                               |
-|----------------------|------------------------------------------|----------------------------------------|
-| `onInitialize()`     | 自定义初始化逻辑                         | 空实现，需要子类重写                   |
-| `onExecute()`        | 自定义执行逻辑                           | 返回 `not implemented`，必须重写      |
-| `onShutdown()`       | 自定义关闭清理逻辑                       | 空实现                                 |
-| `getConfigSchema()`  | 返回配置验证 schema                      | undefined，不验证                       |
-| `validateConfig()`   | 验证配置                                 | 使用 schema 进行默认验证                |
+| 方法                | 说明                | 默认实现                         |
+| ------------------- | ------------------- | -------------------------------- |
+| `onInitialize()`    | 自定义初始化逻辑    | 空实现，需要子类重写             |
+| `onExecute()`       | 自定义执行逻辑      | 返回 `not implemented`，必须重写 |
+| `onShutdown()`      | 自定义关闭清理逻辑  | 空实现                           |
+| `getConfigSchema()` | 返回配置验证 schema | undefined，不验证                |
+| `validateConfig()`  | 验证配置            | 使用 schema 进行默认验证         |
 
 ### 7.4 子类可用的保护方法
 
-| 方法               | 说明                     |
-|--------------------|--------------------------|
-| `updateConfig()`  | 更新配置                 |
-| `getConfig()`     | 获取当前配置             |
-| `isInitialized()` | 检查是否已初始化         |
+| 方法              | 说明             |
+| ----------------- | ---------------- |
+| `updateConfig()`  | 更新配置         |
+| `getConfig()`     | 获取当前配置     |
+| `isInitialized()` | 检查是否已初始化 |
 
 ### 7.5 完整示例
 
@@ -871,12 +873,12 @@ constructor() {
 
 ### 9.1 可用钩子列表
 
-| 钩子            | 调用时机               | 参数        |
-|-----------------|------------------------|-------------|
-| `onLoad`        | 初始化完成后           | 无          |
-| `onUnload`      | 卸载前                 | 无          |
-| `onError`       | 执行发生错误时         | `Error` 对象 |
-| `onConfigChange`| 配置更新后             | 新配置对象  |
+| 钩子             | 调用时机       | 参数         |
+| ---------------- | -------------- | ------------ |
+| `onLoad`         | 初始化完成后   | 无           |
+| `onUnload`       | 卸载前         | 无           |
+| `onError`        | 执行发生错误时 | `Error` 对象 |
+| `onConfigChange` | 配置更新后     | 新配置对象   |
 
 ### 9.2 使用示例
 
@@ -901,11 +903,11 @@ export class DatabasePlugin extends BasePlugin {
           // 关闭连接
           await this.connection?.close();
         },
-        onError: (error) => {
+        onError: error => {
           // 记录错误到日志
           console.error('[database]', error);
         },
-        onConfigChange: async (newConfig) => {
+        onConfigChange: async newConfig => {
           // 重新连接使用新配置
           await this.connection?.close();
           this.connection = await this.connect(newConfig);
@@ -1004,23 +1006,23 @@ protected async onInitialize(): Promise<void> {
 import { PluginLoader } from '@organic/plugins';
 
 const loader = new PluginLoader({
-  baseDir: './plugins',         // 插件根目录
-  cacheEnabled: true,          // 启用缓存
-  cacheTtl: 300000,            // 缓存 TTL（5 分钟）
+  baseDir: './plugins', // 插件根目录
+  cacheEnabled: true, // 启用缓存
+  cacheTtl: 300000, // 缓存 TTL（5 分钟）
 });
 ```
 
 主要方法：
 
-| 方法           | 说明                     |
-|----------------|--------------------------|
-| `load(pluginId, config?)` | 加载插件                 |
-| `unload(pluginId)` | 卸载插件                 |
-| `reload(pluginId)` | 重新加载插件             |
-| `discover()` | 发现目录中的所有插件     |
-| `isLoaded(pluginId)` | 检查是否已加载           |
-| `listLoaded()` | 列出所有已加载插件       |
-| `getStatus(pluginId)` | 获取插件状态             |
+| 方法                      | 说明                 |
+| ------------------------- | -------------------- |
+| `load(pluginId, config?)` | 加载插件             |
+| `unload(pluginId)`        | 卸载插件             |
+| `reload(pluginId)`        | 重新加载插件         |
+| `discover()`              | 发现目录中的所有插件 |
+| `isLoaded(pluginId)`      | 检查是否已加载       |
+| `listLoaded()`            | 列出所有已加载插件   |
+| `getStatus(pluginId)`     | 获取插件状态         |
 
 ### 11.2 发现插件
 
@@ -1041,8 +1043,8 @@ for (const result of results) {
 ```typescript
 export interface PluginDiscoveryResult {
   pluginId: string;
-  source: string;              // 插件路径
-  metadata?: PluginMetadata;   // 解析出的元数据
+  source: string; // 插件路径
+  metadata?: PluginMetadata; // 解析出的元数据
   discoveredAt: number;
   success: boolean;
   error?: string;
@@ -1057,21 +1059,21 @@ export interface PluginDiscoveryResult {
 import { RemotePluginLoader } from '@organic/plugins';
 
 const remoteLoader = new RemotePluginLoader({
-  installDir: './plugins/remote',  // 安装目录
-  registryUrl: 'https://registry.organic.example.com',  // 注册中心地址
-  timeout: 30000,                   // 网络超时
-  verifySsl: true,                  // SSL 验证
+  installDir: './plugins/remote', // 安装目录
+  registryUrl: 'https://registry.organic.example.com', // 注册中心地址
+  timeout: 30000, // 网络超时
+  verifySsl: true, // SSL 验证
 });
 ```
 
 支持的源类型：
 
-| 类型   | 说明                 | 状态         |
-|--------|----------------------|--------------|
-| `http` | 从 HTTP/HTTPS 下载  | ✅ 已实现    |
-| `npm`  | 从 NPM  registry 安装| ⚠️ 占位实现  |
-| `git`  | 从 Git 仓库克隆      | ⚠️ 占位实现  |
-| `file` | 本地文件             | ✅ 已实现    |
+| 类型   | 说明                 | 状态        |
+| ------ | -------------------- | ----------- |
+| `http` | 从 HTTP/HTTPS 下载   | ✅ 已实现   |
+| `npm`  | 从 NPM registry 安装 | ⚠️ 占位实现 |
+| `git`  | 从 Git 仓库克隆      | ⚠️ 占位实现 |
+| `file` | 本地文件             | ✅ 已实现   |
 
 注册远程源：
 
@@ -1135,16 +1137,11 @@ const registry = new PluginRegistry(loader);
 
 ```typescript
 // 注册插件
-const pluginInfo = registry.register(
-  'my-plugin',
-  metadata,
-  '/path/to/plugin',
-  { enabled: true }
-);
+const pluginInfo = registry.register('my-plugin', metadata, '/path/to/plugin', { enabled: true });
 
 // 查询
-console.log(registry.isRegistered('my-plugin'));  // true
-console.log(registry.getPluginInfo('my-plugin'));  // PluginInfo
+console.log(registry.isRegistered('my-plugin')); // true
+console.log(registry.getPluginInfo('my-plugin')); // PluginInfo
 
 // 列出所有插件
 const all = registry.listAll();
@@ -1153,10 +1150,10 @@ const disabled = registry.listDisabled();
 
 // 搜索插件
 const results = registry.search({
-  name: 'tool',           // 名称包含 "tool"
-  enabled: true,          // 已启用
-  minVersion: '1.0.0',    // 最低版本 1.0.0
-  hasDependency: 'core',  // 依赖 core
+  name: 'tool', // 名称包含 "tool"
+  enabled: true, // 已启用
+  minVersion: '1.0.0', // 最低版本 1.0.0
+  hasDependency: 'core', // 依赖 core
 });
 ```
 
@@ -1187,12 +1184,12 @@ registry.unregister('my-plugin');
 
 ```typescript
 // 订阅事件
-const unsubscribe = registry.on('plugin:registered', (event) => {
+const unsubscribe = registry.on('plugin:registered', event => {
   console.log(`Plugin registered: ${event.data.pluginId}`);
 });
 
 // 只订阅一次
-registry.once('plugin:loaded', (event) => {
+registry.once('plugin:loaded', event => {
   console.log(`Plugin loaded: ${event.data.pluginId}`);
 });
 
@@ -1202,16 +1199,16 @@ unsubscribe();
 
 可用事件：
 
-| 事件               | 说明               |
-|--------------------|--------------------|
-| `plugin:registered` | 插件已注册         |
-| `plugin:unregistered` | 插件已注销       |
-| `plugin:loaded` | 插件已加载         |
-| `plugin:unloaded` | 插件已卸载         |
-| `plugin:enabled` | 插件已启用         |
-| `plugin:disabled` | 插件已禁用         |
-| `plugin:status_changed` | 状态变更       |
-| `registry:cleared` | 注册表已清空       |
+| 事件                    | 说明         |
+| ----------------------- | ------------ |
+| `plugin:registered`     | 插件已注册   |
+| `plugin:unregistered`   | 插件已注销   |
+| `plugin:loaded`         | 插件已加载   |
+| `plugin:unloaded`       | 插件已卸载   |
+| `plugin:enabled`        | 插件已启用   |
+| `plugin:disabled`       | 插件已禁用   |
+| `plugin:status_changed` | 状态变更     |
+| `registry:cleared`      | 注册表已清空 |
 
 事件格式：
 
@@ -1245,6 +1242,7 @@ CoreConversationPlugin/
 ### 13.2 组件职责
 
 **SessionManager** - 管理会话生命周期：
+
 - 创建、恢复、关闭会话
 - 过期会话自动清理
 - 支持持久化存储后端
@@ -1264,6 +1262,7 @@ const session = await sessionManager.createSession({
 ```
 
 **ContextManager** - 管理对话上下文：
+
 - 维护消息历史
 - 支持多种上下文窗口策略（最近 N 条、Token 限制、语义选择）
 - 自动压缩避免上下文溢出
@@ -1284,6 +1283,7 @@ const contextWindow = await contextManager.getContextWindow(sessionId, {
 ```
 
 **InputParser** - 解析用户输入：
+
 - 区分纯文本和命令
 - 支持 `/command` 格式
 - 支持 `key: value` 参数解析
@@ -1303,6 +1303,7 @@ const parsed = parser.parse('/greet name:Alice');
 ```
 
 **OutputFormatter** - 格式化输出：
+
 - 支持多种输出格式
 - 支持 ANSI 彩色输出
 - 流式输出支持
@@ -1459,9 +1460,10 @@ export class CodeStatsPlugin extends BasePlugin {
 
   private async handleStats(params: Record<string, unknown> = {}): Promise<unknown> {
     const projectRoot = this.kernel!.info.getProjectRoot();
-    const ignorePatterns = (params.ignorePatterns as string[] || this.config.ignorePatterns) as string[];
-    const extensions = (params.extensions as string[] || this.config.extensions) as string[];
-    const maxDepth = (params.maxDepth as number || this.config.maxDepth) as number;
+    const ignorePatterns = ((params.ignorePatterns as string[]) ||
+      this.config.ignorePatterns) as string[];
+    const extensions = ((params.extensions as string[]) || this.config.extensions) as string[];
+    const maxDepth = ((params.maxDepth as number) || this.config.maxDepth) as number;
 
     const stats = await this.walkDirectory(projectRoot, ignorePatterns, extensions, maxDepth);
     return stats;
@@ -1469,9 +1471,10 @@ export class CodeStatsPlugin extends BasePlugin {
 
   private async handleList(params: Record<string, unknown> = {}): Promise<unknown> {
     const projectRoot = this.kernel!.info.getProjectRoot();
-    const ignorePatterns = (params.ignorePatterns as string[] || this.config.ignorePatterns) as string[];
-    const extensions = (params.extensions as string[] || this.config.extensions) as string[];
-    const maxDepth = (params.maxDepth as number || this.config.maxDepth) as number;
+    const ignorePatterns = ((params.ignorePatterns as string[]) ||
+      this.config.ignorePatterns) as string[];
+    const extensions = ((params.extensions as string[]) || this.config.extensions) as string[];
+    const maxDepth = ((params.maxDepth as number) || this.config.maxDepth) as number;
 
     const files = await this.listFiles(projectRoot, ignorePatterns, extensions, maxDepth);
     return { files };
@@ -1721,9 +1724,7 @@ export class MarkdownDocPlugin extends BasePlugin {
   }
 
   private buildPrompt(question: string, results: any[]): string {
-    const context = results
-      .map(r => `### ${r.title}\n\n${r.content}`)
-      .join('\n\n---\n\n');
+    const context = results.map(r => `### ${r.title}\n\n${r.content}`).join('\n\n---\n\n');
 
     return `基于以下上下文回答问题。如果答案不在上下文中，说明不知道。
 
@@ -1972,14 +1973,14 @@ export function createMockKernel(): KernelApi {
   const mockTextService: TextServiceInterface = {
     print: () => {},
     println: () => {},
-    formatTable: (data) => JSON.stringify(data),
-    formatList: (items) => items.join('\n'),
+    formatTable: data => JSON.stringify(data),
+    formatList: items => items.join('\n'),
     formatSection: (title, content) => `${title}\n${content}`,
-    styled: (text) => text,
-    success: (text) => text,
-    error: (text) => text,
-    warning: (text) => text,
-    info: (text) => text,
+    styled: text => text,
+    success: text => text,
+    error: text => text,
+    warning: text => text,
+    info: text => text,
     createStream: () => ({}),
     progress: () => '',
     spinner: () => ({}),
@@ -2276,69 +2277,69 @@ export default FullFeaturedPlugin;
 
 ### 20.1 BasePlugin 方法
 
-| 方法/属性             | 说明                     | 重写？ |
-|----------------------|--------------------------|--------|
-| `constructor(options)` | 构造函数               | 可选   |
-| `getMetadata()`       | 获取元数据               | 默认提供 |
-| `initialize(context)` | 初始化                 | 默认提供，调用 `onInitialize` |
-| `execute(input)`      | 执行                   | 默认提供，调用 `onExecute` |
-| `shutdown()`          | 关闭                   | 默认提供，调用 `onShutdown` |
-| `validateConfig()`    | 验证配置               | 默认提供，使用 `getConfigSchema` |
-| `onInitialize()`      | 自定义初始化           | 需要，默认空实现 |
-| `onExecute()`         | 自定义执行             | 需要，默认返回 not implemented |
-| `onShutdown()`        | 自定义关闭清理         | 可选，默认空实现 |
-| `getConfigSchema()`   | 获取配置验证 schema     | 可选，默认不验证 |
-| `updateConfig()`      | 更新配置               | 可用，自动调用 `onConfigChange` |
-| `getConfig()`         | 获取当前配置           | 可用 |
-| `isInitialized()`     | 检查是否已初始化       | 可用 |
-| `config`              | 当前配置               | 可用（protected） |
-| `kernel`              | Kernel API 引用        | 可用（protected） |
+| 方法/属性              | 说明                | 重写？                           |
+| ---------------------- | ------------------- | -------------------------------- |
+| `constructor(options)` | 构造函数            | 可选                             |
+| `getMetadata()`        | 获取元数据          | 默认提供                         |
+| `initialize(context)`  | 初始化              | 默认提供，调用 `onInitialize`    |
+| `execute(input)`       | 执行                | 默认提供，调用 `onExecute`       |
+| `shutdown()`           | 关闭                | 默认提供，调用 `onShutdown`      |
+| `validateConfig()`     | 验证配置            | 默认提供，使用 `getConfigSchema` |
+| `onInitialize()`       | 自定义初始化        | 需要，默认空实现                 |
+| `onExecute()`          | 自定义执行          | 需要，默认返回 not implemented   |
+| `onShutdown()`         | 自定义关闭清理      | 可选，默认空实现                 |
+| `getConfigSchema()`    | 获取配置验证 schema | 可选，默认不验证                 |
+| `updateConfig()`       | 更新配置            | 可用，自动调用 `onConfigChange`  |
+| `getConfig()`          | 获取当前配置        | 可用                             |
+| `isInitialized()`      | 检查是否已初始化    | 可用                             |
+| `config`               | 当前配置            | 可用（protected）                |
+| `kernel`               | Kernel API 引用     | 可用（protected）                |
 
 ### 20.2 PluginLoader 方法
 
-| 方法               | 返回类型               | 说明                     |
-|--------------------|------------------------|--------------------------|
-| `load(id, config?)` | `Promise<PluginLoadResult>` | 加载插件 |
-| `unload(id)`        | `Promise<void>`         | 卸载插件 |
-| `reload(id)`        | `Promise<PluginLoadResult>` | 重新加载 |
-| `discover()`        | `Promise<PluginDiscoveryResult[]>` | 发现插件 |
-| `isLoaded(id)`      | `boolean`              | 检查是否已加载 |
-| `listLoaded()`      | `string[]`             | 列出所有已加载 |
-| `getStatus(id)`     | `PluginStatus | undefined` | 获取状态 |
+| 方法                | 返回类型                           | 说明           |
+| ------------------- | ---------------------------------- | -------------- | -------- |
+| `load(id, config?)` | `Promise<PluginLoadResult>`        | 加载插件       |
+| `unload(id)`        | `Promise<void>`                    | 卸载插件       |
+| `reload(id)`        | `Promise<PluginLoadResult>`        | 重新加载       |
+| `discover()`        | `Promise<PluginDiscoveryResult[]>` | 发现插件       |
+| `isLoaded(id)`      | `boolean`                          | 检查是否已加载 |
+| `listLoaded()`      | `string[]`                         | 列出所有已加载 |
+| `getStatus(id)`     | `PluginStatus                      | undefined`     | 获取状态 |
 
 ### 20.3 PluginRegistry 方法
 
-| 方法               | 返回类型               | 说明                     |
-|--------------------|------------------------|--------------------------|
-| `register(id, metadata, path, config?)` | `PluginInfo` | 注册插件 |
-| `unregister(id)`  | `void`                 | 注销插件 |
-| `getPluginInfo(id)` | `PluginInfo | null`   | 获取插件信息 |
-| `isRegistered(id)` | `boolean`              | 检查是否已注册 |
-| `listAll()`        | `PluginInfo[]`         | 列出所有 |
-| `listIds()`        | `string[]`             | 列出所有 ID |
-| `listEnabled()`    | `PluginInfo[]`         | 列出已启用 |
-| `listDisabled()`   | `PluginInfo[]`         | 列出已禁用 |
-| `search(options)`  | `PluginInfo[]`         | 搜索插件 |
-| `load(id, config?)` | `Promise<PluginLoadResult>` | 加载插件 |
-| `unload(id)`       | `Promise<void>`         | 卸载插件 |
-| `enable(id)`        | `void`                 | 启用插件 |
-| `disable(id)`       | `void`                 | 禁用插件 |
-| `discoverPlugins()` | `Promise<PluginDiscoveryResult[]>` | 发现并注册 |
-| `on(event, listener)` | `() => void`           | 订阅事件，返回取消订阅函数 |
+| 方法                                    | 返回类型                           | 说明                       |
+| --------------------------------------- | ---------------------------------- | -------------------------- | ------------ |
+| `register(id, metadata, path, config?)` | `PluginInfo`                       | 注册插件                   |
+| `unregister(id)`                        | `void`                             | 注销插件                   |
+| `getPluginInfo(id)`                     | `PluginInfo                        | null`                      | 获取插件信息 |
+| `isRegistered(id)`                      | `boolean`                          | 检查是否已注册             |
+| `listAll()`                             | `PluginInfo[]`                     | 列出所有                   |
+| `listIds()`                             | `string[]`                         | 列出所有 ID                |
+| `listEnabled()`                         | `PluginInfo[]`                     | 列出已启用                 |
+| `listDisabled()`                        | `PluginInfo[]`                     | 列出已禁用                 |
+| `search(options)`                       | `PluginInfo[]`                     | 搜索插件                   |
+| `load(id, config?)`                     | `Promise<PluginLoadResult>`        | 加载插件                   |
+| `unload(id)`                            | `Promise<void>`                    | 卸载插件                   |
+| `enable(id)`                            | `void`                             | 启用插件                   |
+| `disable(id)`                           | `void`                             | 禁用插件                   |
+| `discoverPlugins()`                     | `Promise<PluginDiscoveryResult[]>` | 发现并注册                 |
+| `on(event, listener)`                   | `() => void`                       | 订阅事件，返回取消订阅函数 |
 
 ### 20.4 KernelApi 方法
 
-| 方法               | 返回类型               | 说明                     |
-|--------------------|------------------------|--------------------------|
-| `getConfig()`      | `KernelConfig`         | 获取 Kernel 配置 |
-| `getVersion()`     | `string`               | 获取 Kernel 版本 |
-| `registerPlugin()` | `Promise<void>`         | 注册插件 |
-| `unregisterPlugin(name)` | `Promise<void>`     | 注销插件 |
-| `getPlugin(name)`  | `PluginInterface | undefined` | 获取插件 |
-| `listPlugins()`    | `PluginInterface[]`     | 列出所有插件 |
-| `executeTool(name, params)` | `Promise<ToolResult>` | 执行工具 |
-| `text.*`           | -                      | 文本服务 |
-| `info.*`           | -                      | 信息服务 |
+| 方法                        | 返回类型              | 说明             |
+| --------------------------- | --------------------- | ---------------- | -------- |
+| `getConfig()`               | `KernelConfig`        | 获取 Kernel 配置 |
+| `getVersion()`              | `string`              | 获取 Kernel 版本 |
+| `registerPlugin()`          | `Promise<void>`       | 注册插件         |
+| `unregisterPlugin(name)`    | `Promise<void>`       | 注销插件         |
+| `getPlugin(name)`           | `PluginInterface      | undefined`       | 获取插件 |
+| `listPlugins()`             | `PluginInterface[]`   | 列出所有插件     |
+| `executeTool(name, params)` | `Promise<ToolResult>` | 执行工具         |
+| `text.*`                    | -                     | 文本服务         |
+| `info.*`                    | -                     | 信息服务         |
 
 ---
 
@@ -2422,30 +2423,30 @@ protected async onExecute(input: PluginInput): Promise<unknown> {
 
 ## 术语定义
 
-| 术语         | 定义                                   |
-|--------------|----------------------------------------|
-| Kernel       | 系统核心引擎，提供基础服务和运行环境   |
-| Plugin       | 功能扩展单元，实现具体业务逻辑         |
-| Skill        | Plugin 的同义词，强调能力扩展         |
-| Extension    | Plugin 的同义词                       |
-| Lifecycle    | 插件从发现到卸载的完整生命周期         |
-| Metadata     | 插件元数据，描述插件基本信息           |
-| Dependency   | 插件对其他插件的依赖关系               |
-| Hook         | 生命周期钩子，在特定事件点执行回调     |
-| KernelApi    | Kernel 暴露给插件的接口               |
-| PluginLoader | 负责从文件系统或远程加载插件代码       |
-| PluginRegistry | 插件注册表，管理已发现的插件信息       |
+| 术语           | 定义                                 |
+| -------------- | ------------------------------------ |
+| Kernel         | 系统核心引擎，提供基础服务和运行环境 |
+| Plugin         | 功能扩展单元，实现具体业务逻辑       |
+| Skill          | Plugin 的同义词，强调能力扩展        |
+| Extension      | Plugin 的同义词                      |
+| Lifecycle      | 插件从发现到卸载的完整生命周期       |
+| Metadata       | 插件元数据，描述插件基本信息         |
+| Dependency     | 插件对其他插件的依赖关系             |
+| Hook           | 生命周期钩子，在特定事件点执行回调   |
+| KernelApi      | Kernel 暴露给插件的接口              |
+| PluginLoader   | 负责从文件系统或远程加载插件代码     |
+| PluginRegistry | 插件注册表，管理已发现的插件信息     |
 
 ---
 
 ## 验收标准
 
-| 序号 | 验收项           | 验收标准                                                               |
-| ---- | ---------------- | ---------------------------------------------------------------------- |
-| 1    | 架构描述清晰     | 清晰描述了 Kernel-Plugin 双层架构和职责划分                             |
-| 2    | 接口文档完整     | 所有核心接口都有完整文档和代码示例                                     |
-| 3    | 生命周期完整     | 完整覆盖从发现到卸载的所有生命周期阶段                                 |
-| 4    | 提供示例代码     | 提供多种类型插件的完整可运行示例                                       |
-| 5    | 测试指南         | 包含单元测试、集成测试和 mocking 指南                                   |
-| 6    | 最佳实践         | 总结错误处理、性能、安全、命名等最佳实践                               |
-| 7    | 开发流程完整     | 从创建到发布的完整开发流程                                             |
+| 序号 | 验收项       | 验收标准                                    |
+| ---- | ------------ | ------------------------------------------- |
+| 1    | 架构描述清晰 | 清晰描述了 Kernel-Plugin 双层架构和职责划分 |
+| 2    | 接口文档完整 | 所有核心接口都有完整文档和代码示例          |
+| 3    | 生命周期完整 | 完整覆盖从发现到卸载的所有生命周期阶段      |
+| 4    | 提供示例代码 | 提供多种类型插件的完整可运行示例            |
+| 5    | 测试指南     | 包含单元测试、集成测试和 mocking 指南       |
+| 6    | 最佳实践     | 总结错误处理、性能、安全、命名等最佳实践    |
+| 7    | 开发流程完整 | 从创建到发布的完整开发流程                  |

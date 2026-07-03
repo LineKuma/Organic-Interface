@@ -12,15 +12,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  Sandbox,
-  createSandbox,
-  DEFAULT_SANDBOX_CONFIG,
-  type SandboxSession,
-  type PermissionCheckResult,
-  type UIOperationType,
-  type UIPermissionLevel,
-} from '@organic/ui';
+import { Sandbox, createSandbox, type SandboxSession, type UIOperationType } from '@organic/ui';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
@@ -321,8 +313,15 @@ describe('用户沙箱会话完整流程', () => {
     it('L4 用户可以执行所有操作', () => {
       const session = sandbox.createSession('agent-admin', 'L4');
       const allOps: UIOperationType[] = [
-        'click', 'input', 'select', 'scroll', 'hover',
-        'wait', 'getText', 'getAttribute', 'screenshot',
+        'click',
+        'input',
+        'select',
+        'scroll',
+        'hover',
+        'wait',
+        'getText',
+        'getAttribute',
+        'screenshot',
       ];
 
       for (const op of allOps) {
@@ -422,7 +421,12 @@ describe('用户沙箱会话完整流程', () => {
       const history = sandbox.getOperationHistory(session.sessionId);
       expect(history.length).toBe(6);
       expect(history.map(h => h.operation)).toEqual([
-        'click', 'input', 'input', 'click', 'wait', 'getText',
+        'click',
+        'input',
+        'input',
+        'click',
+        'wait',
+        'getText',
       ]);
     });
 
@@ -561,7 +565,7 @@ describe('用户沙箱会话完整流程', () => {
   describe('场景十二：用户监听沙箱事件', () => {
     it('用户创建会话时收到 session:created 事件', () => {
       const events: Array<{ sessionId: string }> = [];
-      sandbox.on('session:created', (data) => {
+      sandbox.on('session:created', data => {
         events.push({ sessionId: data.session.sessionId });
       });
 
@@ -571,7 +575,7 @@ describe('用户沙箱会话完整流程', () => {
 
     it('用户终止会话时收到 session:terminated 事件', () => {
       const events: string[] = [];
-      sandbox.on('session:terminated', (data) => {
+      sandbox.on('session:terminated', data => {
         events.push(data.session.sessionId);
       });
 
@@ -582,7 +586,7 @@ describe('用户沙箱会话完整流程', () => {
 
     it('用户记录操作时收到 operation:recorded 事件', () => {
       const events: string[] = [];
-      sandbox.on('operation:recorded', (data) => {
+      sandbox.on('operation:recorded', data => {
         events.push(data.context.operation);
       });
 

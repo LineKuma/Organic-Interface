@@ -171,7 +171,9 @@ export class ConfigWizard {
         this.results[step.key] = value;
         this.history.push(i);
       } catch (error) {
-        this.logger.error(`Step ${step.id} failed: ${error instanceof Error ? error.message : String(error)}`);
+        this.logger.error(
+          `Step ${step.id} failed: ${error instanceof Error ? error.message : String(error)}`
+        );
         // Continue with remaining steps
       }
     }
@@ -250,9 +252,7 @@ export class ConfigWizard {
   goBack(): void {
     if (this.history.length > 0) {
       this.history.pop();
-      this.currentStepIndex = this.history.length > 0
-        ? this.history[this.history.length - 1]
-        : 0;
+      this.currentStepIndex = this.history.length > 0 ? this.history[this.history.length - 1] : 0;
       this.logger.debug(`Went back to step index: ${this.currentStepIndex}`);
     }
   }

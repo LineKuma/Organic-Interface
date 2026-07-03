@@ -1,9 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import {
-  SessionAutoRecovery,
-  type RecoveryState,
-  type RecoveryResult,
-} from '../SessionAutoRecovery.js';
+import { SessionAutoRecovery, type RecoveryState } from '../SessionAutoRecovery.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({

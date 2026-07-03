@@ -111,10 +111,7 @@ export {
   type ReplayEvents,
 } from './core/OperationReplayer.js';
 
-export {
-  OperationDiff,
-  type OperationDiffResult,
-} from './core/OperationDiff.js';
+export { OperationDiff, type OperationDiffResult } from './core/OperationDiff.js';
 
 // Configuration wizard
 export {

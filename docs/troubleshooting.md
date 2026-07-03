@@ -19,6 +19,7 @@
 ### 安装脚本 404 错误
 
 **症状**:
+
 ```
 curl: (22) The requested URL returned error: 404
 ```
@@ -26,6 +27,7 @@ curl: (22) The requested URL returned error: 404
 **原因**: 指定的版本或分支不存在。
 
 **解决方案**:
+
 ```bash
 # 1. 确认使用正确的分支
 curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash
@@ -43,6 +45,7 @@ pnpm build
 ### 权限被拒绝
 
 **症状**:
+
 ```
 EACCES: permission denied, mkdir '/usr/local/lib/organic'
 ```
@@ -50,6 +53,7 @@ EACCES: permission denied, mkdir '/usr/local/lib/organic'
 **原因**: 安装目录需要管理员权限。
 
 **解决方案**:
+
 ```bash
 # 安装到用户目录
 curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/scripts/install.sh | bash -s -- --dir ~/organic
@@ -58,11 +62,13 @@ curl -fsSL https://raw.githubusercontent.com/LineKuma/Organic-Interface/master/s
 ### pnpm 未安装
 
 **症状**:
+
 ```
 pnpm: command not found
 ```
 
 **解决方案**:
+
 ```bash
 # 安装 pnpm
 npm install -g pnpm
@@ -79,6 +85,7 @@ corepack prepare pnpm@latest --activate
 ### 命令未找到
 
 **症状**:
+
 ```
 organic: command not found
 ```
@@ -86,6 +93,7 @@ organic: command not found
 **原因**: 安装后未刷新环境变量，或 PATH 未包含安装目录。
 
 **解决方案**:
+
 ```bash
 # 刷新环境变量
 source ~/.bashrc  # 或 source ~/.zshrc
@@ -100,6 +108,7 @@ export PATH="$HOME/.organic/bin:$PATH"
 ### 模块未找到
 
 **症状**:
+
 ```
 Cannot find module '@organic/kernel'
 ```
@@ -107,6 +116,7 @@ Cannot find module '@organic/kernel'
 **原因**: 依赖未正确安装或构建产物缺失。
 
 **解决方案**:
+
 ```bash
 # 重新安装依赖
 pnpm install --no-frozen-lockfile
@@ -123,6 +133,7 @@ pnpm build
 ### 类型错误
 
 **症状**:
+
 ```
 Type 'string' is not assignable to type 'UIPermissionLevel'
 ```
@@ -130,12 +141,13 @@ Type 'string' is not assignable to type 'UIPermissionLevel'
 **原因**: 使用了不正确的类型值。
 
 **解决方案**:
+
 ```typescript
 // 正确的权限级别值
 type UIPermissionLevel = 'L1' | 'L2' | 'L3' | 'L4';
 
 // 使用正确的值
-const level: UIPermissionLevel = 'L2';  // ✓
+const level: UIPermissionLevel = 'L2'; // ✓
 // const level: UIPermissionLevel = 'L5';  // ✗ 不存在
 ```
 
@@ -146,6 +158,7 @@ const level: UIPermissionLevel = 'L2';  // ✓
 ### 权限被拒绝
 
 **症状**:
+
 ```
 Operation denied: Insufficient permission level
 ```
@@ -153,6 +166,7 @@ Operation denied: Insufficient permission level
 **原因**: 当前权限级别不足，无法执行该操作。
 
 **解决方案**:
+
 ```typescript
 // 1. 检查当前权限级别
 const session = sandbox.getSession(sessionId);
@@ -170,6 +184,7 @@ sandbox.updateConfig({
 ### 操作被拒绝
 
 **症状**:
+
 ```
 Operation denied: Operation not allowed
 ```
@@ -177,6 +192,7 @@ Operation denied: Operation not allowed
 **原因**: 该操作类型不在允许列表中。
 
 **解决方案**:
+
 ```typescript
 // 检查当前允许的操作
 const config = sandbox.getConfig();
@@ -191,6 +207,7 @@ sandbox.updateConfig({
 ### 达到最大操作数限制
 
 **症状**:
+
 ```
 Maximum operations per session reached
 ```
@@ -198,6 +215,7 @@ Maximum operations per session reached
 **原因**: 单会话操作数超过 `maxOperationsPerSession` 限制。
 
 **解决方案**:
+
 ```typescript
 // 1. 提高限制
 sandbox.updateConfig({ maxOperationsPerSession: 5000 });
@@ -209,6 +227,7 @@ const newSession = sandbox.createSession('agent-001');
 ### 会话已终止
 
 **症状**:
+
 ```
 Session is not active
 ```
@@ -216,6 +235,7 @@ Session is not active
 **原因**: 会话已被终止，无法继续操作。
 
 **解决方案**:
+
 ```typescript
 // 创建新会话
 const newSession = sandbox.createSession('agent-001');
@@ -228,6 +248,7 @@ const newSession = sandbox.createSession('agent-001');
 ### 无活跃会话
 
 **症状**:
+
 ```
 No active session
 ```
@@ -235,6 +256,7 @@ No active session
 **原因**: 在调用 `execute()` 前未创建会话。
 
 **解决方案**:
+
 ```typescript
 // 确保先启动 Agent 再创建会话
 await agent.start();
@@ -247,6 +269,7 @@ await agent.execute({ type: 'click', input: { selector: '#btn' } });
 ### 操作被取消
 
 **症状**:
+
 ```
 Operation cancelled
 ```
@@ -254,6 +277,7 @@ Operation cancelled
 **原因**: 敏感操作（如 input）需要用户确认，但未确认。
 
 **解决方案**:
+
 ```typescript
 // 方案一：启用自动确认
 const agent = new UIAgent({
@@ -271,6 +295,7 @@ await agent.execute({
 ### Agent 未启动
 
 **症状**:
+
 ```
 Cannot create session: Agent is not running
 ```
@@ -278,6 +303,7 @@ Cannot create session: Agent is not running
 **原因**: 在调用 `startSession()` 前未调用 `start()`。
 
 **解决方案**:
+
 ```typescript
 // 正确顺序
 await agent.start();
@@ -291,6 +317,7 @@ const session = agent.startSession(); // 必须在 start() 之后
 ### 未知命令
 
 **症状**:
+
 ```
 Unknown command: 'xxx'
 ```
@@ -298,6 +325,7 @@ Unknown command: 'xxx'
 **原因**: 命令未注册或拼写错误。
 
 **解决方案**:
+
 ```typescript
 // 1. 查看可用命令
 await cli.run(['--help']);
@@ -306,17 +334,20 @@ await cli.run(['--help']);
 cli.register(myCommand);
 
 // 3. 使用别名
-cli.register(createCommand({
-  name: 'generate',
-  aliases: ['g', 'gen'],
-  // ...
-}));
+cli.register(
+  createCommand({
+    name: 'generate',
+    aliases: ['g', 'gen'],
+    // ...
+  })
+);
 await cli.run(['g']); // 通过别名调用
 ```
 
 ### 命令参数缺失
 
 **症状**:
+
 ```
 Missing required argument: 'name'
 ```
@@ -324,6 +355,7 @@ Missing required argument: 'name'
 **原因**: 未提供必填参数。
 
 **解决方案**:
+
 ```typescript
 // 查看命令参数要求
 await cli.run(['help', 'command-name']);
@@ -335,6 +367,7 @@ await cli.run(['greet', 'Alice']); // 提供 name 参数
 ### 解析错误
 
 **症状**:
+
 ```
 Empty input
 ```
@@ -342,6 +375,7 @@ Empty input
 **原因**: 传递给 `parser.parse()` 的字符串为空。
 
 **解决方案**:
+
 ```typescript
 const input = ''; // 空输入
 // 添加非空检查
@@ -363,6 +397,7 @@ const result = parser.parse(input);
 **原因**: 终端不支持鼠标功能，或未启用。
 
 **解决方案**:
+
 ```typescript
 // 检查终端支持
 const terminal = Terminal.init();
@@ -381,6 +416,7 @@ const terminal = Terminal.init({ mouse: 'on' });
 **原因**: 终端颜色深度不足。
 
 **解决方案**:
+
 ```typescript
 // 强制指定颜色深度
 Terminal.init({ colorDepth: '256' });
@@ -401,6 +437,7 @@ import { noneTheme } from '@organic/ui';
 **原因**: 终端不支持 Unicode 或字体不支持。
 
 **解决方案**:
+
 ```typescript
 // 强制禁用 Unicode
 Terminal.init({ unicode: 'off' });
@@ -416,11 +453,13 @@ Terminal.init({ unicode: 'off' });
 ### 测试超时
 
 **症状**:
+
 ```
 Test timed out in 5000ms
 ```
 
 **解决方案**:
+
 ```typescript
 // 增加超时时间
 it('长时间操作', async () => {
@@ -431,11 +470,13 @@ it('长时间操作', async () => {
 ### 模拟模块未找到
 
 **症状**:
+
 ```
 Cannot find module '@organic/utils'
 ```
 
 **解决方案**:
+
 ```typescript
 // 在测试文件中添加 mock
 vi.mock('@organic/utils', () => ({
@@ -455,11 +496,13 @@ vi.mock('@organic/utils', () => ({
 ### TypeScript 编译错误
 
 **症状**:
+
 ```
 error TS2307: Cannot find module '@organic/kernel'
 ```
 
 **解决方案**:
+
 ```bash
 # 确保先构建依赖包
 pnpm turbo build
@@ -476,11 +519,13 @@ pnpm --filter @organic/ui build
 ### 锁文件冲突
 
 **症状**:
+
 ```
 ERR_PNPM_OUTDATED_LOCKFILE
 ```
 
 **解决方案**:
+
 ```bash
 # 使用非冻结模式安装
 pnpm install --no-frozen-lockfile

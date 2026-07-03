@@ -529,7 +529,7 @@ describe('ConfigWizard', () => {
     it('should have correct steps for initial-setup', () => {
       const wizard = BUILTIN_WIZARDS['initial-setup'];
       expect(wizard.steps).toHaveLength(5);
-      expect(wizard.steps.map((s) => s.key)).toEqual([
+      expect(wizard.steps.map(s => s.key)).toEqual([
         'language',
         'securityPreset',
         'storageBackend',

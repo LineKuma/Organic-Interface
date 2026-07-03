@@ -40,10 +40,10 @@ organic <command> [options] [arguments]
 
 ## 全局选项
 
-| 选项 | 简写 | 说明 |
-|------|------|------|
-| `--help` | `-h` | 显示帮助信息 |
-| `--version` | `-v` | 显示版本号 |
+| 选项        | 简写 | 说明         |
+| ----------- | ---- | ------------ |
+| `--help`    | `-h` | 显示帮助信息 |
+| `--version` | `-v` | 显示版本号   |
 
 ---
 
@@ -61,6 +61,7 @@ organic help <command>
 ```
 
 **输出示例**:
+
 ```
 organic-cli v0.1.0
 
@@ -83,6 +84,7 @@ organic history --limit 10
 ```
 
 **输出示例**:
+
 ```
 Operation History (2 entries):
 1. click  #submit-btn  [success]  agent-001
@@ -112,6 +114,7 @@ organic log --agent agent-001 --type click --status success
 ```
 
 **输出示例**:
+
 ```
 Operation Logs (3 entries):
 1. click  #login  success  agent-001  2024-01-15T10:30:00Z
@@ -131,18 +134,21 @@ Operation Logs (3 entries):
 import { createCommand } from '@organic/ui/cli/Command.js';
 
 const cmd = createCommand({
-  name: 'greet',                    // 命令名称（必填）
-  description: '打招呼',            // 命令描述
-  aliases: ['hello'],               // 命令别名
-  arguments: [                      // 位置参数
+  name: 'greet', // 命令名称（必填）
+  description: '打招呼', // 命令描述
+  aliases: ['hello'], // 命令别名
+  arguments: [
+    // 位置参数
     { name: 'name', description: '名字', required: true },
     { name: 'language', description: '语言', required: false, defaultValue: 'zh' },
   ],
-  options: [                        // 命名选项
+  options: [
+    // 命名选项
     { short: 'u', long: 'uppercase', description: '大写输出', valueType: 'boolean' },
     { short: 't', long: 'times', description: '重复次数', valueType: 'number', defaultValue: 1 },
   ],
-  handler: async (args) => ({       // 命令处理器
+  handler: async args => ({
+    // 命令处理器
     success: true,
     code: 0,
     message: `Hello, ${args.name}!`,
@@ -199,22 +205,22 @@ organic gen
 
 ### 参数类型
 
-| 类型 | 说明 | 示例 |
-|------|------|------|
-| 位置参数 | 按位置顺序传递 | `organic deploy app.tar.gz` |
-| 长选项 | `--name value` 格式 | `organic --env production` |
-| 短选项 | `-n value` 格式 | `organic -e production` |
-| 布尔选项 | 无值，出现即为 true | `organic --force` |
-| 等号选项 | `--name=value` 格式 | `organic --env=production` |
-| 数字选项 | 自动转换为 number | `organic --limit 10` |
+| 类型     | 说明                | 示例                        |
+| -------- | ------------------- | --------------------------- |
+| 位置参数 | 按位置顺序传递      | `organic deploy app.tar.gz` |
+| 长选项   | `--name value` 格式 | `organic --env production`  |
+| 短选项   | `-n value` 格式     | `organic -e production`     |
+| 布尔选项 | 无值，出现即为 true | `organic --force`           |
+| 等号选项 | `--name=value` 格式 | `organic --env=production`  |
+| 数字选项 | 自动转换为 number   | `organic --limit 10`        |
 
 ### 选项值类型
 
-| 类型 | 说明 | 示例 |
-|------|------|------|
-| `string` | 字符串值（默认） | `--name myapp` |
-| `number` | 数字值，自动转换 | `--port 8080` |
-| `boolean` | 布尔值，无值参数 | `--verbose` |
+| 类型      | 说明             | 示例           |
+| --------- | ---------------- | -------------- |
+| `string`  | 字符串值（默认） | `--name myapp` |
+| `number`  | 数字值，自动转换 | `--port 8080`  |
+| `boolean` | 布尔值，无值参数 | `--verbose`    |
 
 ### 引号处理
 
@@ -231,12 +237,12 @@ organic echo hello\ world
 
 ### 解析错误
 
-| 错误 | 说明 |
-|------|------|
-| `Empty input` | 输入为空 |
-| `Unknown command` | 命令未注册 |
+| 错误                        | 说明         |
+| --------------------------- | ------------ |
+| `Empty input`               | 输入为空     |
+| `Unknown command`           | 命令未注册   |
 | `Missing required argument` | 缺少必填参数 |
-| `Missing required option` | 缺少必填选项 |
+| `Missing required option`   | 缺少必填选项 |
 
 ---
 
@@ -304,23 +310,23 @@ await cli.startInteractive();
 
 ```typescript
 const terminal = cli.getTerminal();
-console.log(terminal.features.termType);    // 终端类型
-console.log(terminal.features.colorDepth);  // 颜色深度
-console.log(terminal.features.mouse);       // 鼠标支持
+console.log(terminal.features.termType); // 终端类型
+console.log(terminal.features.colorDepth); // 颜色深度
+console.log(terminal.features.mouse); // 鼠标支持
 ```
 
 ### 获取主题
 
 ```typescript
 const theme = cli.getTheme();
-console.log(theme.colors.primary);   // 主色调
-console.log(theme.colors.success);   // 成功色
+console.log(theme.colors.primary); // 主色调
+console.log(theme.colors.success); // 成功色
 ```
 
 ### 获取屏幕
 
 ```typescript
-const screen = cli.getScreen();  // 交互模式启动后可用
+const screen = cli.getScreen(); // 交互模式启动后可用
 ```
 
 ---

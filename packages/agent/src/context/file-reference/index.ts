@@ -27,7 +27,4 @@ export { FileParser } from './FileParser.js';
 export { SymbolIndexer } from './SymbolIndexer.js';
 
 // FileReferenceService
-export {
-  FileReferenceService,
-  type FileReferenceServiceConfig,
-} from './FileReferenceService.js';
+export { FileReferenceService, type FileReferenceServiceConfig } from './FileReferenceService.js';

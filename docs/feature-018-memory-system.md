@@ -81,10 +81,10 @@ import {
 
 // 创建上下文管理器
 const ctxManager = new ContextManager({
-  maxWindowSize: 100,        // 最大消息数
-  ttl: 3600000,              // 1小时过期
-  compressMessages: false,   // 不压缩消息
-  persistStates: false,      // 不持久化状态
+  maxWindowSize: 100, // 最大消息数
+  ttl: 3600000, // 1小时过期
+  compressMessages: false, // 不压缩消息
+  persistStates: false, // 不持久化状态
   defaultNamespace: 'default',
 });
 
@@ -96,19 +96,14 @@ const context = ctxManager.create('session_abc123', [
 
 // 添加用户消息
 ctxManager.addUserMessage(
-  context.id,          // 上下文ID
-  'user_1',            // 用户ID
-  'Alice',             // 用户名
-  '帮我分析这段代码'     // 消息内容
+  context.id, // 上下文ID
+  'user_1', // 用户ID
+  'Alice', // 用户名
+  '帮我分析这段代码' // 消息内容
 );
 
 // 添加助手回复
-ctxManager.addAssistantMessage(
-  context.id,
-  'agent_1',
-  'Assistant',
-  '好的，让我分析一下这段代码...'
-);
+ctxManager.addAssistantMessage(context.id, 'agent_1', 'Assistant', '好的，让我分析一下这段代码...');
 
 // 获取最近消息
 const recent = ctxManager.getRecentMessages(context.id, 10);
@@ -119,15 +114,15 @@ const recent = ctxManager.getRecentMessages(context.id, 10);
 ```typescript
 // 对话上下文
 interface ConversationContext {
-  id: string;                    // 上下文唯一ID
-  sessionId: string;             // 会话ID，用于分组
-  participants: Participant[];   // 参与者列表
-  messages: Message[];           // 消息历史
-  metadata: ContextMetadata;     // 元数据
-  createdAt: number;             // 创建时间
-  updatedAt: number;             // 最后更新时间
-  expiresAt?: number;            // 过期时间
-  status: ContextStatus;         // 当前状态
+  id: string; // 上下文唯一ID
+  sessionId: string; // 会话ID，用于分组
+  participants: Participant[]; // 参与者列表
+  messages: Message[]; // 消息历史
+  metadata: ContextMetadata; // 元数据
+  createdAt: number; // 创建时间
+  updatedAt: number; // 最后更新时间
+  expiresAt?: number; // 过期时间
+  status: ContextStatus; // 当前状态
 }
 
 // 参与者
@@ -167,11 +162,16 @@ ctxManager.setState(context.id, 'user_theme', 'dark', {
 });
 
 // 设置临时状态（任务完成后自动清除）
-ctxManager.setState(context.id, 'temp_result', { score: 0.95 }, {
-  type: StateType.TEMPORARY,
-  namespace: 'task',
-  expiresAt: Date.now() + 300000, // 5分钟后过期
-});
+ctxManager.setState(
+  context.id,
+  'temp_result',
+  { score: 0.95 },
+  {
+    type: StateType.TEMPORARY,
+    namespace: 'task',
+    expiresAt: Date.now() + 300000, // 5分钟后过期
+  }
+);
 
 // 读取状态
 const language = ctxManager.getState<string>(context.id, 'language', 'preferences');
@@ -310,8 +310,8 @@ const size = calculateContextItemSize(messageItem);
 // → 约 350 字节
 
 // 排序比较
-const sorted = items.sort((a, b) =>
-  compareContextItems(a, b, 'accessed') // 按访问时间降序
+const sorted = items.sort(
+  (a, b) => compareContextItems(a, b, 'accessed') // 按访问时间降序
 );
 ```
 
@@ -324,7 +324,7 @@ const filter: ContextItemFilter = {
   priority: ContextItemPriority.HIGH,
   includeExpired: false,
   timeRange: {
-    start: Date.now() - 3600000,  // 最近1小时
+    start: Date.now() - 3600000, // 最近1小时
     end: Date.now(),
   },
 };
@@ -357,13 +357,12 @@ import {
 const userMsg = createUserMessage('user_1', 'Alice', '分析这段代码', context.id);
 
 // 创建助手消息
-const assistantMsg = createAssistantMessage(
-  'agent_1', 'Assistant', '分析结果如下...', context.id
-);
+const assistantMsg = createAssistantMessage('agent_1', 'Assistant', '分析结果如下...', context.id);
 
 // 创建工具调用消息
 const toolCallMsg = createToolCallMessage(
-  'agent_1', 'Assistant',
+  'agent_1',
+  'Assistant',
   'read_file',
   { path: '/src/main.ts' },
   context.id
@@ -371,7 +370,8 @@ const toolCallMsg = createToolCallMessage(
 
 // 创建工具响应消息
 const toolResponseMsg = createToolResponseMessage(
-  'system', 'ToolSystem',
+  'system',
+  'ToolSystem',
   {
     name: 'read_file',
     success: true,
@@ -393,17 +393,17 @@ const errMsg = createErrorMessage('agent_1', 'Assistant', '无法读取文件', 
 
 ```typescript
 interface Message {
-  id: string;                      // 消息唯一ID
-  sender: MessageSender;           // 发送者
-  content: MessageContent;         // 消息内容
-  type: MessageType;               // 消息类型
-  tool_call?: ToolCall;            // 工具调用
-  tool_response?: ToolResponse;    // 工具响应
-  timestamp: number;               // 时间戳
-  status: MessageStatus;           // 消息状态
-  flags: MessageFlag[];            // 消息标记
-  reply_to?: string;               // 回复目标消息ID
-  context_id?: string;             // 所属上下文
+  id: string; // 消息唯一ID
+  sender: MessageSender; // 发送者
+  content: MessageContent; // 消息内容
+  type: MessageType; // 消息类型
+  tool_call?: ToolCall; // 工具调用
+  tool_response?: ToolResponse; // 工具响应
+  timestamp: number; // 时间戳
+  status: MessageStatus; // 消息状态
+  flags: MessageFlag[]; // 消息标记
+  reply_to?: string; // 回复目标消息ID
+  context_id?: string; // 所属上下文
   metadata?: Record<string, unknown>;
 }
 
@@ -442,7 +442,7 @@ enum ContentFormat {
 
 // 附件
 interface Attachment {
-  type: AttachmentType;  // IMAGE | VIDEO | AUDIO | DOCUMENT | CODE_FILE | OTHER
+  type: AttachmentType; // IMAGE | VIDEO | AUDIO | DOCUMENT | CODE_FILE | OTHER
   url: string;
   name: string;
   size?: number;
@@ -457,13 +457,15 @@ const messageWithAttachment = createMessage({
   content: {
     text: '请分析这张截图',
     format: ContentFormat.PLAIN_TEXT,
-    attachments: [{
-      type: AttachmentType.IMAGE,
-      url: '/files/screenshot.png',
-      name: 'screenshot.png',
-      size: 204800,
-      mime_type: 'image/png',
-    }],
+    attachments: [
+      {
+        type: AttachmentType.IMAGE,
+        url: '/files/screenshot.png',
+        name: 'screenshot.png',
+        size: 204800,
+        mime_type: 'image/png',
+      },
+    ],
     structured_data: { page: 'dashboard', version: '2.0' },
   },
   type: MessageType.USER_MESSAGE,
@@ -495,10 +497,10 @@ const windowManager = new ContextWindowManager({
 
 // 四种窗口类型
 enum ContextWindowType {
-  RECENT_MESSAGES = 'recent_messages',  // 最近N条消息
-  RECENT_MINUTES = 'recent_minutes',    // 最近N分钟内
-  TOKEN_BASED = 'token_based',          // 基于Token数量
-  SEMANTIC_BASED = 'semantic_based',    // 基于语义相关性
+  RECENT_MESSAGES = 'recent_messages', // 最近N条消息
+  RECENT_MINUTES = 'recent_minutes', // 最近N分钟内
+  TOKEN_BASED = 'token_based', // 基于Token数量
+  SEMANTIC_BASED = 'semantic_based', // 基于语义相关性
 }
 ```
 
@@ -514,12 +516,12 @@ const window = windowManager.createWindow(context.id, allMessages, {
   includeSystemMessages: true,
   includeToolCalls: true,
   maxTokens: 4096,
-  overlapSize: 5,  // 滑动时保留5条重叠
+  overlapSize: 5, // 滑动时保留5条重叠
 });
 
-console.log(window.tokenCount);   // Token 估算值
-console.log(window.hasPrevious);  // 是否有更早的消息
-console.log(window.hasNext);      // 是否有更新的消息
+console.log(window.tokenCount); // Token 估算值
+console.log(window.hasPrevious); // 是否有更早的消息
+console.log(window.hasNext); // 是否有更新的消息
 
 // 向前滑动（获取更早的消息）
 const prevWindow = windowManager.slideBackward(window.id, allMessages);
@@ -537,7 +539,7 @@ const tokenWindow = windowManager.createWindow(context.id, allMessages, {
   windowType: ContextWindowType.TOKEN_BASED,
   maxTokens: 4096,
   includeSystemMessages: true,
-  includeToolCalls: false,  // 排除工具调用节省 Token
+  includeToolCalls: false, // 排除工具调用节省 Token
 });
 
 // 自动优化：如果超出 Token 限制，保留最近的消息
@@ -620,7 +622,12 @@ const refResult = ctxService.propagateContext(
   context.id,
   'sub_agent_2',
   PropagationMode.REFERENCE,
-  { includeMessages: true, includeStates: false, includeToolCalls: false, includeAttachments: false }
+  {
+    includeMessages: true,
+    includeStates: false,
+    includeToolCalls: false,
+    includeAttachments: false,
+  }
 );
 // → { referenceId: 'ctx_xxx' }
 // 子 Agent 按需加载上下文
@@ -675,15 +682,14 @@ const childFrame = ctxService.pushExecutionFrame(context.id, 'sub_agent_2');
 // 退出子 Agent
 const completedFrame = ctxService.popExecutionFrame(
   context.id,
-  { result: 'analysis complete' },  // 结果
+  { result: 'analysis complete' } // 结果
 );
 
 // 带错误的退出
-const failedFrame = ctxService.popExecutionFrame(
-  context.id,
-  undefined,
-  { code: 'ANALYSIS_FAILED', message: '无法完成分析' }
-);
+const failedFrame = ctxService.popExecutionFrame(context.id, undefined, {
+  code: 'ANALYSIS_FAILED',
+  message: '无法完成分析',
+});
 
 // 获取当前执行帧
 const currentFrame = ctxService.getCurrentFrame(context.id);
@@ -753,27 +759,24 @@ import {
 } from '@organic/storage';
 
 // 创建会话持久化存储
-const sessionStorage = await createSessionPersistenceStorage(
-  '/data/sessions.db',
-  {
-    autoSave: true,
-    entityTtl: 24 * 60 * 60 * 1000, // 24小时
-  }
-);
+const sessionStorage = await createSessionPersistenceStorage('/data/sessions.db', {
+  autoSave: true,
+  entityTtl: 24 * 60 * 60 * 1000, // 24小时
+});
 
 // 会话数据结构
 interface SessionPersistence {
-  id: string;                                    // 会话ID
-  title: string;                                 // 会话标题
-  status: SessionPersistenceStatus;               // 状态
-  tags: string[];                                // 标签
-  metadata: Record<string, unknown>;              // 元数据
+  id: string; // 会话ID
+  title: string; // 会话标题
+  status: SessionPersistenceStatus; // 状态
+  tags: string[]; // 标签
+  metadata: Record<string, unknown>; // 元数据
   contextWindow: SessionPersistenceContextWindow; // 窗口配置
-  createdAt: number;                             // 创建时间
-  lastActiveAt: number;                          // 最后活跃时间
-  expiresAt?: number;                            // 过期时间
-  messageCount: number;                          // 消息数量
-  projectId?: string;                            // 关联项目
+  createdAt: number; // 创建时间
+  lastActiveAt: number; // 最后活跃时间
+  expiresAt?: number; // 过期时间
+  messageCount: number; // 消息数量
+  projectId?: string; // 关联项目
 }
 
 // 会话状态
@@ -866,17 +869,21 @@ const storage = new StorageService(backend, logger);
 await storage.initialize();
 
 // 创建实体
-const result = await storage.create('user_preference', {
-  theme: 'dark',
-  fontSize: 14,
-  language: 'zh-CN',
-}, {
-  id: 'pref_user_1',
-  metadata: {
-    tags: ['user', 'preference'],
-    createdBy: 'system',
+const result = await storage.create(
+  'user_preference',
+  {
+    theme: 'dark',
+    fontSize: 14,
+    language: 'zh-CN',
   },
-});
+  {
+    id: 'pref_user_1',
+    metadata: {
+      tags: ['user', 'preference'],
+      createdBy: 'system',
+    },
+  }
+);
 
 if (result.success) {
   console.log(`实体已创建: ${result.entity.id}`);
@@ -889,10 +896,14 @@ if (entity) {
 }
 
 // 更新实体
-const updateResult = await storage.update('pref_user_1', {
-  theme: 'light',
-  fontSize: 16,
-}, 'user_1');
+const updateResult = await storage.update(
+  'pref_user_1',
+  {
+    theme: 'light',
+    fontSize: 16,
+  },
+  'user_1'
+);
 
 // 删除实体
 await storage.delete('pref_user_1');
@@ -949,7 +960,7 @@ try {
   // 开始事务
   const tx = await storage.beginTransaction({
     isolation: IsolationLevel.READ_COMMITTED,
-    timeout: 30000,           // 30秒超时
+    timeout: 30000, // 30秒超时
     retryOnConflict: true,
   });
 
@@ -1149,10 +1160,7 @@ Plugin 层的 ContextManager 支持三种压缩策略：
 // → 适用于：最近对话最重要，早期对话仅保留开头
 
 // 使用示例
-await pluginContextManager.compressContext(
-  sessionId,
-  CompressionStrategy.TRIM_MIDDLE
-);
+await pluginContextManager.compressContext(sessionId, CompressionStrategy.TRIM_MIDDLE);
 ```
 
 ### 窗口滑动优化
@@ -1161,7 +1169,7 @@ await pluginContextManager.compressContext(
 // 重叠窗口：滑动时保留部分重叠，避免上下文断裂
 const window = windowManager.createWindow(context.id, allMessages, {
   windowSize: 50,
-  overlapSize: 10,  // 滑动时保留 10 条重叠消息
+  overlapSize: 10, // 滑动时保留 10 条重叠消息
   maxTokens: 4096,
 });
 
@@ -1244,7 +1252,7 @@ class ConversationAgent {
     private sessionStore: SessionPersistenceStorage,
     private storage: StorageService,
     private agentId: string,
-    private agentName: string,
+    private agentName: string
   ) {}
 
   // 开始新会话
@@ -1259,10 +1267,10 @@ class ConversationAgent {
     this.contextId = context.id;
 
     // 添加系统消息
-    this.ctxService.addMessage(context.id, createSystemMessage(
-      '你是一个代码审查助手，帮助用户分析和改进代码。',
-      context.id
-    ));
+    this.ctxService.addMessage(
+      context.id,
+      createSystemMessage('你是一个代码审查助手，帮助用户分析和改进代码。', context.id)
+    );
 
     // 初始化会话状态
     this.ctxService.setState(context.id, 'turn', 0, { namespace: 'conversation' });
@@ -1326,7 +1334,10 @@ class ConversationAgent {
 
     // 6. 添加助手回复
     const assistantMsg = createAssistantMessage(
-      this.agentId, this.agentName, response, this.contextId
+      this.agentId,
+      this.agentName,
+      response,
+      this.contextId
     );
     this.ctxService.addMessage(this.contextId, assistantMsg);
 
@@ -1353,17 +1364,21 @@ class ConversationAgent {
     });
 
     // 8. 存储长期记忆（用户偏好等）
-    await this.storage.create('conversation_summary', {
-      sessionId: this.sessionId,
-      turn: turn + 1,
-      userInput: text,
-      assistantResponse: response.substring(0, 200),
-    }, {
-      metadata: {
-        tags: ['conversation', 'summary'],
-        createdBy: this.agentId,
+    await this.storage.create(
+      'conversation_summary',
+      {
+        sessionId: this.sessionId,
+        turn: turn + 1,
+        userInput: text,
+        assistantResponse: response.substring(0, 200),
       },
-    });
+      {
+        metadata: {
+          tags: ['conversation', 'summary'],
+          createdBy: this.agentId,
+        },
+      }
+    );
 
     return response;
   }
@@ -1450,21 +1465,17 @@ const agent = new ConversationAgent(
   sessionStore,
   storageService,
   'agent_main',
-  'CodeReviewer',
+  'CodeReviewer'
 );
 
 // 开始会话
 await agent.startSession('session_20260703', 'user_1', 'Alice');
 
 // 多轮对话
-const response1 = await agent.processUserInput(
-  'user_1', 'Alice', '请帮我审查 src/main.ts 的代码'
-);
+const response1 = await agent.processUserInput('user_1', 'Alice', '请帮我审查 src/main.ts 的代码');
 console.log(response1);
 
-const response2 = await agent.processUserInput(
-  'user_1', 'Alice', '类型定义有什么问题吗？'
-);
+const response2 = await agent.processUserInput('user_1', 'Alice', '类型定义有什么问题吗？');
 console.log(response2);
 
 // 调用子 Agent
@@ -1486,11 +1497,11 @@ await agent.endSession();
 
 ```typescript
 interface ContextManagerConfig {
-  maxWindowSize?: number;      // 最大上下文窗口大小（消息数），默认 100
-  ttl?: number;                // 上下文 TTL（毫秒），默认 3600000（1小时）
-  compressMessages?: boolean;  // 启用消息压缩，默认 false
-  persistStates?: boolean;     // 启用状态持久化，默认 false
-  defaultNamespace?: string;   // 默认命名空间，默认 'default'
+  maxWindowSize?: number; // 最大上下文窗口大小（消息数），默认 100
+  ttl?: number; // 上下文 TTL（毫秒），默认 3600000（1小时）
+  compressMessages?: boolean; // 启用消息压缩，默认 false
+  persistStates?: boolean; // 启用状态持久化，默认 false
+  defaultNamespace?: string; // 默认命名空间，默认 'default'
 }
 
 const DEFAULT_CONTEXT_CONFIG: Required<ContextManagerConfig> = {
@@ -1506,20 +1517,20 @@ const DEFAULT_CONTEXT_CONFIG: Required<ContextManagerConfig> = {
 
 ```typescript
 interface ContextWindowManagerConfig {
-  defaultConfig?: Partial<ContextWindowConfig>;  // 默认窗口配置
-  autoOptimize?: boolean;                        // 启用自动优化，默认 true
-  maxWindowsPerContext?: number;                 // 每个上下文最大窗口数，默认 10
-  charsPerToken?: number;                        // 每 Token 字符数估算，默认 4
+  defaultConfig?: Partial<ContextWindowConfig>; // 默认窗口配置
+  autoOptimize?: boolean; // 启用自动优化，默认 true
+  maxWindowsPerContext?: number; // 每个上下文最大窗口数，默认 10
+  charsPerToken?: number; // 每 Token 字符数估算，默认 4
 }
 
 interface ContextWindowConfig {
-  windowSize: number;              // 窗口大小（消息数），默认 50
-  windowType: ContextWindowType;   // 窗口类型，默认 RECENT_MESSAGES
-  includeSystemMessages: boolean;  // 包含系统消息，默认 true
-  includeToolCalls: boolean;       // 包含工具调用，默认 true
-  maxTokens?: number;              // 最大 Token 限制，默认 4096
-  timeWindowMinutes?: number;      // 时间窗口（分钟），默认 30
-  overlapSize?: number;            // 滑动重叠大小，默认 5
+  windowSize: number; // 窗口大小（消息数），默认 50
+  windowType: ContextWindowType; // 窗口类型，默认 RECENT_MESSAGES
+  includeSystemMessages: boolean; // 包含系统消息，默认 true
+  includeToolCalls: boolean; // 包含工具调用，默认 true
+  maxTokens?: number; // 最大 Token 限制，默认 4096
+  timeWindowMinutes?: number; // 时间窗口（分钟），默认 30
+  overlapSize?: number; // 滑动重叠大小，默认 5
 }
 ```
 
@@ -1527,11 +1538,11 @@ interface ContextWindowConfig {
 
 ```typescript
 interface ContextServiceConfig extends ContextManagerConfig {
-  enablePropagation?: boolean;   // 启用上下文传播，默认 true
-  maxNestingDepth?: number;      // 最大嵌套深度，默认 5
-  autoCleanup?: boolean;         // 启用自动清理，默认 true
-  cleanupInterval?: number;      // 清理间隔（毫秒），默认 60000
-  enableCompression?: boolean;   // 启用上下文压缩，默认 false
+  enablePropagation?: boolean; // 启用上下文传播，默认 true
+  maxNestingDepth?: number; // 最大嵌套深度，默认 5
+  autoCleanup?: boolean; // 启用自动清理，默认 true
+  cleanupInterval?: number; // 清理间隔（毫秒），默认 60000
+  enableCompression?: boolean; // 启用上下文压缩，默认 false
 }
 ```
 
@@ -1539,9 +1550,9 @@ interface ContextServiceConfig extends ContextManagerConfig {
 
 ```typescript
 interface SessionPersistenceStorageConfig {
-  storage: StorageService;    // 存储服务实例
-  autoSave?: boolean;         // 变更时自动保存，默认 true
-  entityTtl?: number;         // 实体 TTL（毫秒），默认 86400000（24小时）
+  storage: StorageService; // 存储服务实例
+  autoSave?: boolean; // 变更时自动保存，默认 true
+  entityTtl?: number; // 实体 TTL（毫秒），默认 86400000（24小时）
 }
 ```
 
@@ -1549,23 +1560,23 @@ interface SessionPersistenceStorageConfig {
 
 ```typescript
 interface TransactionOptions {
-  isolation?: IsolationLevel;      // 隔离级别
-  timeout?: number;                // 超时（毫秒）
-  retryOnConflict?: boolean;       // 冲突时重试
+  isolation?: IsolationLevel; // 隔离级别
+  timeout?: number; // 超时（毫秒）
+  retryOnConflict?: boolean; // 冲突时重试
 }
 
 interface QueryFilter {
-  where?: Record<string, unknown>;     // AND 条件
-  orWhere?: Record<string, unknown>;   // OR 条件
-  orderBy?: OrderSpec[];               // 排序
-  limit?: number;                      // 限制数量
-  offset?: number;                     // 偏移量
-  include?: string[];                  // 包含字段
-  exclude?: string[];                  // 排除字段
-  createdAfter?: number;              // 创建时间下限
-  createdBefore?: number;             // 创建时间上限
-  updatedAfter?: number;              // 更新时间下限
-  updatedBefore?: number;             // 更新时间上限
+  where?: Record<string, unknown>; // AND 条件
+  orWhere?: Record<string, unknown>; // OR 条件
+  orderBy?: OrderSpec[]; // 排序
+  limit?: number; // 限制数量
+  offset?: number; // 偏移量
+  include?: string[]; // 包含字段
+  exclude?: string[]; // 排除字段
+  createdAfter?: number; // 创建时间下限
+  createdBefore?: number; // 创建时间上限
+  updatedAfter?: number; // 更新时间下限
+  updatedBefore?: number; // 更新时间上限
 }
 ```
 
@@ -1575,15 +1586,16 @@ interface QueryFilter {
 
 ### 窗口大小配置
 
-| 场景 | 推荐 windowType | 推荐 windowSize | 推荐 maxTokens |
-|------|----------------|-----------------|----------------|
-| 简单问答 | RECENT_MESSAGES | 20 | 2048 |
-| 代码审查 | TOKEN_BASED | 50 | 8192 |
-| 长文档分析 | TOKEN_BASED | 100 | 16384 |
-| 多 Agent 协作 | TOKEN_BASED | 50 | 4096 |
-| 实时对话 | RECENT_MINUTES | 100 | 4096 |
+| 场景          | 推荐 windowType | 推荐 windowSize | 推荐 maxTokens |
+| ------------- | --------------- | --------------- | -------------- |
+| 简单问答      | RECENT_MESSAGES | 20              | 2048           |
+| 代码审查      | TOKEN_BASED     | 50              | 8192           |
+| 长文档分析    | TOKEN_BASED     | 100             | 16384          |
+| 多 Agent 协作 | TOKEN_BASED     | 50              | 4096           |
+| 实时对话      | RECENT_MINUTES  | 100             | 4096           |
 
 **原则**：
+
 - 始终设置 `maxTokens` 限制，防止超出 LLM 上下文窗口
 - 使用 `overlapSize` 保持窗口连续性，推荐 5-10 条
 - 对于工具调用密集的场景，设置 `includeToolCalls: false` 可节省 Token
@@ -1611,6 +1623,7 @@ interface QueryFilter {
 ```
 
 **原则**：
+
 - 不要在每轮对话后持久化完整消息历史（性能开销大）
 - 使用 `autoSave: true` 让 SessionPersistenceStorage 自动管理保存
 - 设置合理的 `entityTtl` 避免存储无限增长
@@ -1619,14 +1632,20 @@ interface QueryFilter {
 
 ```typescript
 // 1. 定期清理过期上下文
-setInterval(() => {
-  ctxService.cleanup();
-}, 5 * 60 * 1000); // 每5分钟
+setInterval(
+  () => {
+    ctxService.cleanup();
+  },
+  5 * 60 * 1000
+); // 每5分钟
 
 // 2. 定期清理过期存储实体
-setInterval(async () => {
-  await storageService.clearExpired();
-}, 60 * 60 * 1000); // 每小时
+setInterval(
+  async () => {
+    await storageService.clearExpired();
+  },
+  60 * 60 * 1000
+); // 每小时
 
 // 3. 会话关闭时清理
 async function gracefulShutdown() {
@@ -1652,12 +1671,12 @@ async function gracefulShutdown() {
 
 ### 传播模式选择
 
-| 场景 | 推荐模式 | 原因 |
-|------|---------|------|
-| 子 Agent 需要完整上下文 | DIRECT | 传递完整上下文，子 Agent 无需额外请求 |
-| 大量子 Agent 并行调用 | REFERENCE | 仅传递 ID，减少内存和传输开销 |
-| 高频短交互 | INCREMENTAL | 只传递增量变化，效率最高 |
-| 不确定场景 | HYBRID | 自动根据上下文大小选择最优模式 |
+| 场景                    | 推荐模式    | 原因                                  |
+| ----------------------- | ----------- | ------------------------------------- |
+| 子 Agent 需要完整上下文 | DIRECT      | 传递完整上下文，子 Agent 无需额外请求 |
+| 大量子 Agent 并行调用   | REFERENCE   | 仅传递 ID，减少内存和传输开销         |
+| 高频短交互              | INCREMENTAL | 只传递增量变化，效率最高              |
+| 不确定场景              | HYBRID      | 自动根据上下文大小选择最优模式        |
 
 ### 常见陷阱
 
@@ -1672,18 +1691,18 @@ async function gracefulShutdown() {
 
 ## 验收条件
 
-| 序号 | 验收项 | 验收标准 |
-|------|--------|----------|
-| 1 | 记忆层次架构 | 实现 Working Memory → Episodic Memory → Semantic Memory 三层记忆 |
-| 2 | 上下文管理 | ContextManager 支持创建、获取、归档、恢复、删除上下文 |
-| 3 | 消息系统 | 支持 7 种消息类型、5 种内容格式、6 种附件类型 |
-| 4 | 状态管理 | 支持 SESSION / PERSISTENT / TEMPORARY 三种状态类型，带命名空间隔离 |
-| 5 | 上下文窗口 | 支持 4 种窗口类型，滑动窗口带重叠，Token 自动优化 |
-| 6 | 上下文传播 | 支持 DIRECT / REFERENCE / INCREMENTAL / HYBRID 四种传播模式 |
-| 7 | 执行帧栈 | 维护嵌套调用的父子关系，支持最大深度限制 |
-| 8 | 会话持久化 | SessionPersistenceStorage 支持 save / load / list / delete / clear |
-| 9 | 长期存储 | StorageService 支持 CRUD、批量操作、事务、查询、过期清理 |
-| 10 | 完整示例 | 提供从初始化到多轮对话的完整可运行示例 |
+| 序号 | 验收项       | 验收标准                                                           |
+| ---- | ------------ | ------------------------------------------------------------------ |
+| 1    | 记忆层次架构 | 实现 Working Memory → Episodic Memory → Semantic Memory 三层记忆   |
+| 2    | 上下文管理   | ContextManager 支持创建、获取、归档、恢复、删除上下文              |
+| 3    | 消息系统     | 支持 7 种消息类型、5 种内容格式、6 种附件类型                      |
+| 4    | 状态管理     | 支持 SESSION / PERSISTENT / TEMPORARY 三种状态类型，带命名空间隔离 |
+| 5    | 上下文窗口   | 支持 4 种窗口类型，滑动窗口带重叠，Token 自动优化                  |
+| 6    | 上下文传播   | 支持 DIRECT / REFERENCE / INCREMENTAL / HYBRID 四种传播模式        |
+| 7    | 执行帧栈     | 维护嵌套调用的父子关系，支持最大深度限制                           |
+| 8    | 会话持久化   | SessionPersistenceStorage 支持 save / load / list / delete / clear |
+| 9    | 长期存储     | StorageService 支持 CRUD、批量操作、事务、查询、过期清理           |
+| 10   | 完整示例     | 提供从初始化到多轮对话的完整可运行示例                             |
 
 ---
 
@@ -1717,18 +1736,18 @@ async function gracefulShutdown() {
 
 ## 术语定义
 
-| 术语 | 定义 |
-|------|------|
-| Working Memory | 工作记忆，当前对话的即时上下文，对应 ContextManager |
-| Episodic Memory | 情节记忆，跨会话的会话持久化，对应 SessionPersistenceStorage |
-| Semantic Memory | 语义记忆，长期结构化数据存储，对应 StorageService |
-| ContextWindow | 上下文窗口，控制 Agent 一次处理的消息范围 |
-| Token Budget | Token 预算，LLM 调用的上下文大小限制 |
-| ContextItem | 上下文条目，统一的上下文数据容器 |
-| PropagationMode | 传播模式，上下文在 Agent 间传递的方式 |
-| ExecutionFrame | 执行帧，嵌套调用的单次调用上下文信息 |
-| SessionPersistence | 会话持久化，将会话状态保存到存储后端 |
-| SessionAdapter | 会话适配器，在 Plugin 层和持久化层之间转换会话格式 |
+| 术语               | 定义                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| Working Memory     | 工作记忆，当前对话的即时上下文，对应 ContextManager          |
+| Episodic Memory    | 情节记忆，跨会话的会话持久化，对应 SessionPersistenceStorage |
+| Semantic Memory    | 语义记忆，长期结构化数据存储，对应 StorageService            |
+| ContextWindow      | 上下文窗口，控制 Agent 一次处理的消息范围                    |
+| Token Budget       | Token 预算，LLM 调用的上下文大小限制                         |
+| ContextItem        | 上下文条目，统一的上下文数据容器                             |
+| PropagationMode    | 传播模式，上下文在 Agent 间传递的方式                        |
+| ExecutionFrame     | 执行帧，嵌套调用的单次调用上下文信息                         |
+| SessionPersistence | 会话持久化，将会话状态保存到存储后端                         |
+| SessionAdapter     | 会话适配器，在 Plugin 层和持久化层之间转换会话格式           |
 
 ---
 

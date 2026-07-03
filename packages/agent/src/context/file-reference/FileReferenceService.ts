@@ -16,7 +16,7 @@ import {
 } from './types.js';
 import { FileParser } from './FileParser.js';
 import { SymbolIndexer } from './SymbolIndexer.js';
-import { ContextManager } from '../ContextManager.js';
+import type { ContextManager } from '../ContextManager.js';
 import {
   type ContextItem,
   type ContextItemMetadata,
@@ -70,10 +70,7 @@ export class FileReferenceService {
   /**
    * Create a new FileReferenceService
    */
-  constructor(
-    contextManager: ContextManager,
-    config: FileReferenceServiceConfig = {},
-  ) {
+  constructor(contextManager: ContextManager, config: FileReferenceServiceConfig = {}) {
     this.config = { ...DEFAULT_CONFIG, ...config };
     this.parser = new FileParser();
     this.indexer = new SymbolIndexer();
@@ -87,7 +84,7 @@ export class FileReferenceService {
   async referenceFile(
     filePath: string,
     contextId: string,
-    options?: ParseOptions,
+    options?: ParseOptions
   ): Promise<FileReferenceResult> {
     const opts = { ...this.config.defaultParseOptions, ...options };
 
@@ -132,7 +129,7 @@ export class FileReferenceService {
   async referenceDirectory(
     dirPath: string,
     contextId: string,
-    options?: ParseOptions,
+    options?: ParseOptions
   ): Promise<FileReferenceResult[]> {
     const opts = { ...this.config.defaultParseOptions, ...options };
     const depth = opts.depth ?? 1;
@@ -180,7 +177,7 @@ export class FileReferenceService {
    * Get full project structure
    */
   async getProjectStructure(
-    rootPath: string,
+    rootPath: string
   ): Promise<{ files: ParsedFile[]; dependencies: Map<string, string[]> }> {
     const files: ParsedFile[] = [];
     const allDeps = new Map<string, string[]>();
@@ -314,7 +311,15 @@ export class FileReferenceService {
 
         // Skip common non-source directories
         if (entry.isDirectory()) {
-          const skipDirs = ['node_modules', '.git', 'dist', 'build', '__pycache__', '.turbo', 'coverage'];
+          const skipDirs = [
+            'node_modules',
+            '.git',
+            'dist',
+            'build',
+            '__pycache__',
+            '.turbo',
+            'coverage',
+          ];
           if (!skipDirs.includes(entry.name) && !entry.name.startsWith('.')) {
             await collect(fullPath, currentDepth + 1);
           }
@@ -322,10 +327,35 @@ export class FileReferenceService {
           // Only include source files
           const ext = path.extname(entry.name).toLowerCase();
           const sourceExts = [
-            '.ts', '.tsx', '.js', '.jsx', '.mjs', '.cjs',
-            '.py', '.pyi', '.java', '.go', '.rs', '.cpp', '.cc', '.cxx', '.c', '.h', '.hpp',
-            '.cs', '.rb', '.php', '.swift', '.kt', '.kts',
-            '.sql', '.yaml', '.yml', '.json', '.md', '.mdx',
+            '.ts',
+            '.tsx',
+            '.js',
+            '.jsx',
+            '.mjs',
+            '.cjs',
+            '.py',
+            '.pyi',
+            '.java',
+            '.go',
+            '.rs',
+            '.cpp',
+            '.cc',
+            '.cxx',
+            '.c',
+            '.h',
+            '.hpp',
+            '.cs',
+            '.rb',
+            '.php',
+            '.swift',
+            '.kt',
+            '.kts',
+            '.sql',
+            '.yaml',
+            '.yml',
+            '.json',
+            '.md',
+            '.mdx',
           ];
           if (sourceExts.includes(ext)) {
             results.push(fullPath);

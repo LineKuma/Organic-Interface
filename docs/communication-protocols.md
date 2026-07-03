@@ -79,26 +79,26 @@ EventBus 实现经典的发布/订阅（Pub/Sub）模式，支持精确事件匹
 
 事件类型使用 `namespace:action` 命名规范，采用冒号分隔的层级结构：
 
-| 命名空间 | 说明 | 示例 |
-|----------|------|------|
-| `kernel:*` | 内核生命周期事件 | `kernel:init`, `kernel:start`, `kernel:stop` |
-| `plugin:*` | 插件管理事件 | `plugin:register`, `plugin:unregister`, `plugin:error` |
-| `config:*` | 配置变更事件 | `config:update` |
-| `tool:*` | 工具管理事件 | `tool:registered`, `tool:unregistered` |
-| `execution:*` | 工具执行事件 | `execution:start`, `execution:complete`, `execution:error` |
-| `queue:*` | 消息队列事件 | `queue:full`, `queue:empty`, `queue:cleared` |
-| `message:*` | 消息生命周期事件 | `message:enqueued`, `message:dequeued` |
-| `session:*` | 沙箱会话事件 | `session:created`, `session:terminated` |
+| 命名空间      | 说明             | 示例                                                       |
+| ------------- | ---------------- | ---------------------------------------------------------- |
+| `kernel:*`    | 内核生命周期事件 | `kernel:init`, `kernel:start`, `kernel:stop`               |
+| `plugin:*`    | 插件管理事件     | `plugin:register`, `plugin:unregister`, `plugin:error`     |
+| `config:*`    | 配置变更事件     | `config:update`                                            |
+| `tool:*`      | 工具管理事件     | `tool:registered`, `tool:unregistered`                     |
+| `execution:*` | 工具执行事件     | `execution:start`, `execution:complete`, `execution:error` |
+| `queue:*`     | 消息队列事件     | `queue:full`, `queue:empty`, `queue:cleared`               |
+| `message:*`   | 消息生命周期事件 | `message:enqueued`, `message:dequeued`                     |
+| `session:*`   | 沙箱会话事件     | `session:created`, `session:terminated`                    |
 
 ### 2.3 通配符匹配
 
 EventBus 支持三种通配符模式：
 
-| 模式 | 说明 | 示例 |
-|------|------|------|
-| `prefix:*` | 匹配所有以 `prefix:` 开头的类型 | `kernel:*` 匹配 `kernel:init`, `kernel:start` |
-| `*:suffix` | 匹配所有以 `:suffix` 结尾的类型 | `*:error` 匹配 `plugin:error`, `execution:error` |
-| `prefix*` | 正则匹配含 `*` 的模式 | `exec*` 匹配 `execution:start`, `execution:complete` |
+| 模式       | 说明                            | 示例                                                 |
+| ---------- | ------------------------------- | ---------------------------------------------------- |
+| `prefix:*` | 匹配所有以 `prefix:` 开头的类型 | `kernel:*` 匹配 `kernel:init`, `kernel:start`        |
+| `*:suffix` | 匹配所有以 `:suffix` 结尾的类型 | `*:error` 匹配 `plugin:error`, `execution:error`     |
+| `prefix*`  | 正则匹配含 `*` 的模式           | `exec*` 匹配 `execution:start`, `execution:complete` |
 
 **核心实现逻辑（`matchesPattern` 方法）：**
 
@@ -143,13 +143,13 @@ emit(type, data)
 
 ```typescript
 export const KernelEvents = {
-  KERNEL_INIT:       'kernel:init',
-  KERNEL_START:      'kernel:start',
-  KERNEL_STOP:       'kernel:stop',
-  PLUGIN_REGISTER:   'plugin:register',
+  KERNEL_INIT: 'kernel:init',
+  KERNEL_START: 'kernel:start',
+  KERNEL_STOP: 'kernel:stop',
+  PLUGIN_REGISTER: 'plugin:register',
   PLUGIN_UNREGISTER: 'plugin:unregister',
-  PLUGIN_ERROR:      'plugin:error',
-  CONFIG_UPDATE:     'config:update',
+  PLUGIN_ERROR: 'plugin:error',
+  CONFIG_UPDATE: 'config:update',
 } as const;
 ```
 
@@ -157,13 +157,18 @@ ToolService 定义的工具事件：
 
 ```typescript
 export interface ToolServiceEvents {
-  'tool:registered':   { toolId: string; timestamp: number };
+  'tool:registered': { toolId: string; timestamp: number };
   'tool:unregistered': { toolId: string; timestamp: number };
-  'tool:enabled':      { toolId: string; timestamp: number };
-  'tool:disabled':     { toolId: string; timestamp: number };
-  'execution:start':   { toolId: string; executionId: string; timestamp: number };
-  'execution:complete': { toolId: string; executionId: string; result: ToolResult; timestamp: number };
-  'execution:error':   { toolId: string; executionId: string; error: Error; timestamp: number };
+  'tool:enabled': { toolId: string; timestamp: number };
+  'tool:disabled': { toolId: string; timestamp: number };
+  'execution:start': { toolId: string; executionId: string; timestamp: number };
+  'execution:complete': {
+    toolId: string;
+    executionId: string;
+    result: ToolResult;
+    timestamp: number;
+  };
+  'execution:error': { toolId: string; executionId: string; error: Error; timestamp: number };
 }
 ```
 
@@ -171,10 +176,15 @@ Sandbox 定义的会话事件：
 
 ```typescript
 export interface SandboxEvents {
-  'session:created':    { session: SandboxSession; timestamp: number };
+  'session:created': { session: SandboxSession; timestamp: number };
   'session:terminated': { session: SandboxSession; timestamp: number };
   'operation:recorded': { context: SandboxOperationContext; timestamp: number };
-  'permission:denied':  { sessionId: string; operation: UIOperationType; reason: string; timestamp: number };
+  'permission:denied': {
+    sessionId: string;
+    operation: UIOperationType;
+    reason: string;
+    timestamp: number;
+  };
 }
 ```
 
@@ -184,10 +194,10 @@ export interface SandboxEvents {
 
 ```typescript
 interface KernelEvent<T = unknown> {
-  type: string;       // 事件类型名称
-  data: T;            // 事件载荷数据
-  timestamp: number;  // 事件触发时间戳（毫秒）
-  source?: string;    // 事件来源标识
+  type: string; // 事件类型名称
+  data: T; // 事件载荷数据
+  timestamp: number; // 事件触发时间戳（毫秒）
+  source?: string; // 事件来源标识
 }
 ```
 
@@ -212,31 +222,31 @@ EventBus 提供完整的订阅生命周期管理：
 
 ```typescript
 // 精确订阅
-const sub = eventBus.on('kernel:start', (event) => {
+const sub = eventBus.on('kernel:start', event => {
   console.log(`Kernel started: ${event.data.name}`);
 });
 
 // 通配符订阅
-const wildcardSub = eventBus.onWildcard('plugin:*', (event) => {
+const wildcardSub = eventBus.onWildcard('plugin:*', event => {
   console.log(`Plugin event: ${event.type}`);
 });
 
 // 一次性订阅
-eventBus.once('kernel:init', (event) => {
+eventBus.once('kernel:init', event => {
   console.log('Kernel initialized once');
 });
 
 // 取消订阅
-sub.unsubscribe();           // 内部调用 off()
-wildcardSub.unsubscribe();   // 内部调用 offWildcard()
+sub.unsubscribe(); // 内部调用 off()
+wildcardSub.unsubscribe(); // 内部调用 offWildcard()
 
 // 移除所有监听器
-eventBus.removeAllListeners();        // 移除全部
+eventBus.removeAllListeners(); // 移除全部
 eventBus.removeAllListeners('kernel:start'); // 移除特定事件
 
 // 查询
 eventBus.listenerCount('kernel:init'); // 监听器数量
-eventBus.eventTypes();                 // 所有已注册事件类型
+eventBus.eventTypes(); // 所有已注册事件类型
 ```
 
 ### 2.8 错误处理
@@ -298,12 +308,12 @@ AgentChannel 位于 `packages/agent/src/communication/AgentChannel.ts`，提供 
 ```typescript
 // 通道配置
 interface AgentChannelConfig {
-  channelId?: string;         // 通道标识符
-  agentId: string;            // 所属 Agent 标识
-  defaultTimeout?: number;    // 默认超时（默认 5000ms）
-  maxRetries?: number;        // 最大重试次数（默认 3）
-  retryDelayBase?: number;    // 重试延迟基数（默认 100ms）
-  persistMessages?: boolean;  // 是否持久化消息（默认 false）
+  channelId?: string; // 通道标识符
+  agentId: string; // 所属 Agent 标识
+  defaultTimeout?: number; // 默认超时（默认 5000ms）
+  maxRetries?: number; // 最大重试次数（默认 3）
+  retryDelayBase?: number; // 重试延迟基数（默认 100ms）
+  persistMessages?: boolean; // 是否持久化消息（默认 false）
 }
 
 // 默认配置
@@ -325,8 +335,12 @@ const channel = new AgentChannel({ agentId: 'agent-001' });
 
 // 带预设 handler 创建
 const channel = createAgentChannel('agent-001', {
-  [MessageAction.EXECUTE]: async (msg) => { /* ... */ },
-  [MessageAction.QUERY]: async (msg) => { /* ... */ },
+  [MessageAction.EXECUTE]: async msg => {
+    /* ... */
+  },
+  [MessageAction.QUERY]: async msg => {
+    /* ... */
+  },
 });
 ```
 
@@ -407,8 +421,8 @@ async sendAndWait<R = unknown>(
 
 ### 3.6 通道生命周期事件
 
-| 事件 | 触发时机 | 数据 |
-|------|---------|------|
+| 事件           | 触发时机   | 数据           |
+| -------------- | ---------- | -------------- |
 | `message:sent` | 消息发送后 | `AgentMessage` |
 
 ---
@@ -421,17 +435,17 @@ AgentMessage 位于 `packages/agent/src/communication/AgentMessage.ts`，定义�
 
 ```typescript
 interface AgentMessage<T = unknown> {
-  id: string;                 // 唯一消息标识符
-  source: string;             // 源 Agent 标识符
-  target: string;             // 目标 Agent 标识符（或 '*' 表示广播）
-  action: MessageAction;      // 消息动作类型
-  payload: T;                 // 消息载荷
-  priority: MessagePriority;  // 消息优先级
+  id: string; // 唯一消息标识符
+  source: string; // 源 Agent 标识符
+  target: string; // 目标 Agent 标识符（或 '*' 表示广播）
+  action: MessageAction; // 消息动作类型
+  payload: T; // 消息载荷
+  priority: MessagePriority; // 消息优先级
   deliveryMode: DeliveryMode; // 投递模式
-  timestamp: number;          // 创建时间戳
-  expiresAt?: number;         // 过期时间（可选）
+  timestamp: number; // 创建时间戳
+  expiresAt?: number; // 过期时间（可选）
   metadata?: MessageMetadata; // 元数据
-  error?: MessageError;       // 错误信息（仅 error 消息）
+  error?: MessageError; // 错误信息（仅 error 消息）
 }
 ```
 
@@ -471,13 +485,13 @@ interface AgentMessage<T = unknown> {
 
 ```typescript
 enum MessageAction {
-  EXECUTE   = 'execute',    // 执行任务
-  QUERY     = 'query',      // 查询信息
-  RESPONSE  = 'response',   // 响应消息
-  SUBSCRIBE = 'subscribe',  // 订阅事件
-  NOTIFY    = 'notify',     // 通知事件
-  HEARTBEAT = 'heartbeat',  // 心跳检测
-  ERROR     = 'error',      // 错误响应
+  EXECUTE = 'execute', // 执行任务
+  QUERY = 'query', // 查询信息
+  RESPONSE = 'response', // 响应消息
+  SUBSCRIBE = 'subscribe', // 订阅事件
+  NOTIFY = 'notify', // 通知事件
+  HEARTBEAT = 'heartbeat', // 心跳检测
+  ERROR = 'error', // 错误响应
 }
 ```
 
@@ -485,9 +499,9 @@ enum MessageAction {
 
 ```typescript
 enum MessagePriority {
-  HIGH   = 0,  // 最高优先级，优先处理
-  NORMAL = 1,  // 默认优先级
-  LOW    = 2,  // 最低优先级
+  HIGH = 0, // 最高优先级，优先处理
+  NORMAL = 1, // 默认优先级
+  LOW = 2, // 最低优先级
 }
 ```
 
@@ -495,9 +509,9 @@ enum MessagePriority {
 
 ```typescript
 enum DeliveryMode {
-  ONE_WAY          = 'one_way',           // 发后即忘（Fire and Forget）
-  REQUEST_RESPONSE = 'request_response',  // 请求-响应模式
-  BROADCAST        = 'broadcast',         // 广播模式（发布到多个订阅者）
+  ONE_WAY = 'one_way', // 发后即忘（Fire and Forget）
+  REQUEST_RESPONSE = 'request_response', // 请求-响应模式
+  BROADCAST = 'broadcast', // 广播模式（发布到多个订阅者）
 }
 ```
 
@@ -505,18 +519,18 @@ enum DeliveryMode {
 
 ```typescript
 interface MessageMetadata {
-  correlationId?: string;              // 关联 ID，用于请求-响应匹配
-  replyTo?: string;                    // 回复地址
-  ttl?: number;                        // 生存时间（毫秒）
-  flags?: MessageFlag[];               // 消息标志
-  headers?: Record<string, string>;    // 自定义头部
+  correlationId?: string; // 关联 ID，用于请求-响应匹配
+  replyTo?: string; // 回复地址
+  ttl?: number; // 生存时间（毫秒）
+  flags?: MessageFlag[]; // 消息标志
+  headers?: Record<string, string>; // 自定义头部
 }
 
 enum MessageFlag {
-  PERSISTENT = 'persistent',  // 持久化消息
-  REDELIVER  = 'redeliver',   // 重新投递标记
-  PRIORITY   = 'priority',    // 优先级标记
-  BATCH      = 'batch',       // 批量消息标记
+  PERSISTENT = 'persistent', // 持久化消息
+  REDELIVER = 'redeliver', // 重新投递标记
+  PRIORITY = 'priority', // 优先级标记
+  BATCH = 'batch', // 批量消息标记
 }
 ```
 
@@ -524,9 +538,9 @@ enum MessageFlag {
 
 ```typescript
 interface MessageError {
-  code: string;       // 错误代码
-  message: string;    // 错误描述
-  details?: unknown;  // 错误详情
+  code: string; // 错误代码
+  message: string; // 错误描述
+  details?: unknown; // 错误详情
 }
 ```
 
@@ -557,14 +571,14 @@ interface MessageError {
 
 ### 4.7 消息工厂函数
 
-| 函数 | 用途 | 默认 deliveryMode |
-|------|------|-------------------|
-| `createAgentMessage(options)` | 创建通用消息 | `REQUEST_RESPONSE` |
-| `createExecuteMessage(source, target, payload)` | 创建执行消息 | `REQUEST_RESPONSE` |
-| `createQueryMessage(source, target, payload)` | 创建查询消息 | `REQUEST_RESPONSE` |
-| `createResponseMessage(source, target, payload, correlationId)` | 创建响应消息 | `REQUEST_RESPONSE` |
-| `createHeartbeatMessage(source, target, stats?)` | 创建心跳消息 | `ONE_WAY` |
-| `createNotifyMessage(source, target, event, data?)` | 创建通知消息 | `BROADCAST` |
+| 函数                                                                | 用途         | 默认 deliveryMode  |
+| ------------------------------------------------------------------- | ------------ | ------------------ |
+| `createAgentMessage(options)`                                       | 创建通用消息 | `REQUEST_RESPONSE` |
+| `createExecuteMessage(source, target, payload)`                     | 创建执行消息 | `REQUEST_RESPONSE` |
+| `createQueryMessage(source, target, payload)`                       | 创建查询消息 | `REQUEST_RESPONSE` |
+| `createResponseMessage(source, target, payload, correlationId)`     | 创建响应消息 | `REQUEST_RESPONSE` |
+| `createHeartbeatMessage(source, target, stats?)`                    | 创建心跳消息 | `ONE_WAY`          |
+| `createNotifyMessage(source, target, event, data?)`                 | 创建通知消息 | `BROADCAST`        |
 | `createErrorMessage(source, target, code, message, correlationId?)` | 创建错误消息 | `REQUEST_RESPONSE` |
 
 ### 4.8 消息验证
@@ -634,11 +648,11 @@ MessageQueue 位于 `packages/agent/src/communication/MessageQueue.ts`，提供�
 
 ```typescript
 interface MessageQueueConfig {
-  maxSize?: number;            // 最大队列大小（默认 1000）
-  defaultTTL?: number;         // 默认消息 TTL（默认 30000ms）
-  enableDeadLetter?: boolean;  // 启用死信队列（默认 true）
-  deadLetterMaxSize?: number;  // 死信队列最大大小（默认 100）
-  persistMessages?: boolean;   // 启用消息持久化（默认 false）
+  maxSize?: number; // 最大队列大小（默认 1000）
+  defaultTTL?: number; // 默认消息 TTL（默认 30000ms）
+  enableDeadLetter?: boolean; // 启用死信队列（默认 true）
+  deadLetterMaxSize?: number; // 死信队列最大大小（默认 100）
+  persistMessages?: boolean; // 启用消息持久化（默认 false）
 }
 
 const DEFAULT_QUEUE_CONFIG = {
@@ -699,7 +713,7 @@ const deadLetter = {
     ...message.metadata,
     headers: {
       ...message.metadata?.headers,
-      'x-dead-letter-reason': reason,    // 进入死信的原因
+      'x-dead-letter-reason': reason, // 进入死信的原因
       'x-dead-letter-at': String(Date.now()), // 进入死信的时间
     },
   },
@@ -721,9 +735,9 @@ retryDeadLetter(messageId: string): boolean {
 
 ```typescript
 interface QueueFilter {
-  source?: string;           // 按源过滤
-  target?: string;           // 按目标过滤
-  action?: string;           // 按动作类型过滤
+  source?: string; // 按源过滤
+  target?: string; // 按目标过滤
+  action?: string; // 按动作类型过滤
   minPriority?: MessagePriority; // 最小优先级
   maxPriority?: MessagePriority; // 最大优先级
 }
@@ -751,21 +765,21 @@ queue.stopProcessing();
 
 ```typescript
 interface QueueStats {
-  size: number;            // 当前队列大小
-  enqueuedCount: number;   // 累计入队数
-  dequeuedCount: number;   // 累计出队数
-  expiredCount: number;    // 累计过期数
+  size: number; // 当前队列大小
+  enqueuedCount: number; // 累计入队数
+  dequeuedCount: number; // 累计出队数
+  expiredCount: number; // 累计过期数
   deadLetterCount: number; // 累计死信数
 }
 ```
 
 ### 5.9 投递保证
 
-| 保证级别 | 说明 |
-|----------|------|
-| **At-Most-Once** | 默认模式，消息可能因过期或队列满而丢失 |
-| **At-Least-Once** | 通过死信重试机制实现，过期消息可重试 |
-| **Persistent** | 通过 `MessageFlag.PERSISTENT` 标志和 `persistMessages` 配置实现 |
+| 保证级别          | 说明                                                            |
+| ----------------- | --------------------------------------------------------------- |
+| **At-Most-Once**  | 默认模式，消息可能因过期或队列满而丢失                          |
+| **At-Least-Once** | 通过死信重试机制实现，过期消息可重试                            |
+| **Persistent**    | 通过 `MessageFlag.PERSISTENT` 标志和 `persistMessages` 配置实现 |
 
 ### 5.10 重试策略
 
@@ -809,14 +823,14 @@ Plugin 通过 `PluginContext.kernel` 获取 `KernelApi` 接口，实现与 Kerne
 
 ```typescript
 interface KernelApi {
-  getConfig(): KernelConfig;                                      // 获取 Kernel 配置
-  getVersion(): string;                                           // 获取 Kernel 版本
-  text: TextServiceInterface;                                     // 文本输出服务
-  info: InfoServiceInterface;                                     // 系统信息服务
-  registerPlugin(plugin: PluginInterface): Promise<void>;         // 注册插件
-  unregisterPlugin(name: string): Promise<void>;                  // 注销插件
-  getPlugin(name: string): PluginInterface | undefined;           // 获取插件
-  listPlugins(): PluginInterface[];                               // 列出所有插件
+  getConfig(): KernelConfig; // 获取 Kernel 配置
+  getVersion(): string; // 获取 Kernel 版本
+  text: TextServiceInterface; // 文本输出服务
+  info: InfoServiceInterface; // 系统信息服务
+  registerPlugin(plugin: PluginInterface): Promise<void>; // 注册插件
+  unregisterPlugin(name: string): Promise<void>; // 注销插件
+  getPlugin(name: string): PluginInterface | undefined; // 获取插件
+  listPlugins(): PluginInterface[]; // 列出所有插件
   executeTool(name: string, params: Record<string, unknown>): Promise<ToolResult>; // 执行工具
 }
 ```
@@ -881,14 +895,14 @@ Plugin 间通信也支持通过 EventBus 进行发布/订阅模式：
 
 ```typescript
 interface PluginContext {
-  kernel: KernelApi;        // Kernel API 接口
-  config: PluginConfig;     // Plugin 配置
+  kernel: KernelApi; // Kernel API 接口
+  config: PluginConfig; // Plugin 配置
 }
 
 interface PluginConfig {
-  name: string;                           // Plugin 名称
-  enabled: boolean;                       // 是否启用
-  options?: Record<string, unknown>;      // 自定义配置项
+  name: string; // Plugin 名称
+  enabled: boolean; // 是否启用
+  options?: Record<string, unknown>; // 自定义配置项
 }
 ```
 
@@ -921,8 +935,8 @@ interface PluginInterface extends BasePluginInterface {
 
 ```typescript
 interface PluginInput {
-  action: string;                      // 执行的动作名称
-  params?: Record<string, unknown>;    // 动作参数
+  action: string; // 执行的动作名称
+  params?: Record<string, unknown>; // 动作参数
 }
 ```
 
@@ -930,9 +944,9 @@ interface PluginInput {
 
 ```typescript
 interface PluginOutput {
-  success: boolean;    // 是否成功
-  data?: unknown;      // 成功时的返回数据
-  error?: string;      // 失败时的错误信息
+  success: boolean; // 是否成功
+  data?: unknown; // 成功时的返回数据
+  error?: string; // 失败时的错误信息
 }
 ```
 
@@ -969,8 +983,8 @@ interface PluginOutput {
 
 ```typescript
 interface InitializeResult {
-  success: boolean;    // 初始化是否成功
-  error?: string;      // 失败时的错误信息
+  success: boolean; // 初始化是否成功
+  error?: string; // 失败时的错误信息
 }
 ```
 
@@ -978,16 +992,16 @@ interface InitializeResult {
 
 ```typescript
 enum PluginLifecycleState {
-  DISCOVERED    = 'discovered',     // 已发现
-  RESOLVED      = 'resolved',       // 已解析依赖
-  LOADING       = 'loading',        // 加载中
-  INITIALIZED   = 'initialized',    // 已初始化
-  ACTIVE        = 'active',         // 已激活
-  RUNNING       = 'running',        // 运行中
-  SHUTTING_DOWN = 'shutting_down',  // 关闭中
-  SHUTDOWN      = 'shutdown',       // 已关闭
-  ERROR         = 'error',          // 错误状态
-  UNLOADED      = 'unloaded',       // 已卸载
+  DISCOVERED = 'discovered', // 已发现
+  RESOLVED = 'resolved', // 已解析依赖
+  LOADING = 'loading', // 加载中
+  INITIALIZED = 'initialized', // 已初始化
+  ACTIVE = 'active', // 已激活
+  RUNNING = 'running', // 运行中
+  SHUTTING_DOWN = 'shutting_down', // 关闭中
+  SHUTDOWN = 'shutdown', // 已关闭
+  ERROR = 'error', // 错误状态
+  UNLOADED = 'unloaded', // 已卸载
 }
 ```
 
@@ -995,16 +1009,16 @@ enum PluginLifecycleState {
 
 ```typescript
 interface PluginMetadata {
-  readonly id: string;                               // 唯一标识符
-  readonly name: string;                             // 名称
-  readonly version: string;                          // 版本（semver）
-  readonly description?: string;                     // 描述
-  readonly apiVersion: string;                       // 兼容的 API 版本
-  readonly minKernelVersion?: string;                // 最低 Kernel 版本
-  readonly dependencies?: PluginDependency[];         // 插件依赖
-  readonly defaultConfig?: Record<string, unknown>;  // 默认配置
-  readonly hooks?: PluginHooks;                      // 生命周期钩子
-  readonly author?: string;                          // 作者
+  readonly id: string; // 唯一标识符
+  readonly name: string; // 名称
+  readonly version: string; // 版本（semver）
+  readonly description?: string; // 描述
+  readonly apiVersion: string; // 兼容的 API 版本
+  readonly minKernelVersion?: string; // 最低 Kernel 版本
+  readonly dependencies?: PluginDependency[]; // 插件依赖
+  readonly defaultConfig?: Record<string, unknown>; // 默认配置
+  readonly hooks?: PluginHooks; // 生命周期钩子
+  readonly author?: string; // 作者
 }
 ```
 
@@ -1034,15 +1048,15 @@ interface PluginMetadata {
 
 ```typescript
 interface ToolResult {
-  success: boolean;      // 执行是否成功
-  data?: unknown;        // 执行结果数据
-  error?: ToolError;     // 错误信息
+  success: boolean; // 执行是否成功
+  data?: unknown; // 执行结果数据
+  error?: ToolError; // 错误信息
   metadata: {
-    tool_name: string;       // 工具名称
-    start_time: number;      // 开始时间戳
-    end_time: number;        // 结束时间戳
-    execution_time: number;  // 执行耗时（毫秒）
-    request_id: string;      // 请求标识
+    tool_name: string; // 工具名称
+    start_time: number; // 开始时间戳
+    end_time: number; // 结束时间戳
+    execution_time: number; // 执行耗时（毫秒）
+    request_id: string; // 请求标识
   };
 }
 ```
@@ -1070,19 +1084,19 @@ interface ToolResult {
 
 ```typescript
 interface ToolError {
-  code: ToolErrorCode;    // 错误代码
-  message: string;        // 错误描述
-  details?: unknown;      // 错误详情
+  code: ToolErrorCode; // 错误代码
+  message: string; // 错误描述
+  details?: unknown; // 错误详情
 }
 
 enum ToolErrorCode {
-  INVALID_ARGUMENTS  = 'invalid_arguments',   // 参数无效
-  PERMISSION_DENIED  = 'permission_denied',   // 权限不足
-  TOOL_NOT_FOUND     = 'tool_not_found',      // 工具未找到
-  TIMEOUT            = 'timeout',              // 执行超时
-  EXECUTION_ERROR    = 'execution_error',      // 执行错误
-  RESOURCE_EXHAUSTED = 'resource_exhausted',   // 资源耗尽
-  TOOL_DISABLED      = 'tool_disabled',        // 工具已禁用
+  INVALID_ARGUMENTS = 'invalid_arguments', // 参数无效
+  PERMISSION_DENIED = 'permission_denied', // 权限不足
+  TOOL_NOT_FOUND = 'tool_not_found', // 工具未找到
+  TIMEOUT = 'timeout', // 执行超时
+  EXECUTION_ERROR = 'execution_error', // 执行错误
+  RESOURCE_EXHAUSTED = 'resource_exhausted', // 资源耗尽
+  TOOL_DISABLED = 'tool_disabled', // 工具已禁用
 }
 ```
 
@@ -1113,15 +1127,15 @@ enum ToolErrorCode {
 
 ```typescript
 interface ToolDefinition {
-  name: string;                        // 工具名称
-  version: string;                     // 工具版本
-  description: string;                 // 功能描述
-  type: ToolType;                      // 工具类别
-  call_level: ToolCallLevel;           // 调用级别
+  name: string; // 工具名称
+  version: string; // 工具版本
+  description: string; // 功能描述
+  type: ToolType; // 工具类别
+  call_level: ToolCallLevel; // 调用级别
   parameters: ToolParameterDefinition; // 参数定义
-  permissions?: string[];              // 所需权限
-  max_execution_time?: number;         // 最大执行时间
-  max_memory?: number;                 // 最大内存使用
+  permissions?: string[]; // 所需权限
+  max_execution_time?: number; // 最大执行时间
+  max_memory?: number; // 最大内存使用
 }
 
 interface ToolParameterDefinition {
@@ -1150,11 +1164,11 @@ interface ToolParameter {
 
 ```typescript
 interface ToolExecutionContext {
-  request_id: string;          // 请求标识
-  caller_plugin_id: string;    // 调用方 Plugin ID
-  caller_plugin_name: string;  // 调用方 Plugin 名称
-  timestamp: number;           // 执行时间戳
-  logger: Logger;              // 日志实例
+  request_id: string; // 请求标识
+  caller_plugin_id: string; // 调用方 Plugin ID
+  caller_plugin_name: string; // 调用方 Plugin 名称
+  timestamp: number; // 执行时间戳
+  logger: Logger; // 日志实例
 }
 ```
 
@@ -1217,26 +1231,36 @@ delete(id: string): Promise<DeleteResult>;
 **操作结果格式：**
 
 ```typescript
-interface CreateResult { success: boolean; entity?: StorageEntity; error?: string; }
-interface UpdateResult { success: boolean; error?: string; }
-interface DeleteResult { success: boolean; error?: string; }
+interface CreateResult {
+  success: boolean;
+  entity?: StorageEntity;
+  error?: string;
+}
+interface UpdateResult {
+  success: boolean;
+  error?: string;
+}
+interface DeleteResult {
+  success: boolean;
+  error?: string;
+}
 ```
 
 ### 8.2 查询过滤器格式
 
 ```typescript
 interface QueryFilter {
-  where?: Record<string, unknown>;        // AND 条件
-  orWhere?: Record<string, unknown>;      // OR 条件
-  orderBy?: OrderSpec[];                  // 排序规则
-  limit?: number;                         // 限制数量
-  offset?: number;                        // 偏移量
-  include?: string[];                     // 包含字段
-  exclude?: string[];                     // 排除字段
-  createdAfter?: number;                  // 创建时间下限
-  createdBefore?: number;                 // 创建时间上限
-  updatedAfter?: number;                  // 更新时间下限
-  updatedBefore?: number;                 // 更新时间上限
+  where?: Record<string, unknown>; // AND 条件
+  orWhere?: Record<string, unknown>; // OR 条件
+  orderBy?: OrderSpec[]; // 排序规则
+  limit?: number; // 限制数量
+  offset?: number; // 偏移量
+  include?: string[]; // 包含字段
+  exclude?: string[]; // 排除字段
+  createdAfter?: number; // 创建时间下限
+  createdBefore?: number; // 创建时间上限
+  updatedAfter?: number; // 更新时间下限
+  updatedBefore?: number; // 更新时间上限
 }
 
 interface OrderSpec {
@@ -1250,9 +1274,7 @@ interface OrderSpec {
 ```json
 {
   "where": { "type": "session", "status": "active" },
-  "orderBy": [
-    { "field": "created_at", "direction": "desc" }
-  ],
+  "orderBy": [{ "field": "created_at", "direction": "desc" }],
   "limit": 10,
   "offset": 0,
   "createdAfter": 1719876543210
@@ -1263,24 +1285,24 @@ interface OrderSpec {
 
 ```typescript
 interface Transaction {
-  id: string;                    // 事务 ID
-  startTime: number;             // 开始时间
-  isolation: IsolationLevel;     // 隔离级别
-  status: TransactionStatus;     // 事务状态
+  id: string; // 事务 ID
+  startTime: number; // 开始时间
+  isolation: IsolationLevel; // 隔离级别
+  status: TransactionStatus; // 事务状态
 }
 
 enum IsolationLevel {
   READ_UNCOMMITTED = 'read_uncommitted',
-  READ_COMMITTED   = 'read_committed',
-  REPEATABLE_READ  = 'repeatable_read',
-  SERIALIZABLE     = 'serializable',
+  READ_COMMITTED = 'read_committed',
+  REPEATABLE_READ = 'repeatable_read',
+  SERIALIZABLE = 'serializable',
 }
 
 enum TransactionStatus {
-  ACTIVE     = 'active',
-  COMMITTED  = 'committed',
+  ACTIVE = 'active',
+  COMMITTED = 'committed',
   ROLLED_BACK = 'rolled_back',
-  EXPIRED    = 'expired',
+  EXPIRED = 'expired',
 }
 
 interface TransactionOptions {
@@ -1335,13 +1357,13 @@ interface BatchDeleteResult {
 
 ```typescript
 interface StorageEntity {
-  id: string;                          // 唯一标识符
-  type: string;                        // 实体类型
-  data: Record<string, unknown>;       // 实体数据
-  metadata: EntityMetadata;            // 实体元数据
-  created_at: number;                  // 创建时间戳
-  updated_at: number;                  // 更新时间戳
-  version: number;                     // 版本号（冲突检测）
+  id: string; // 唯一标识符
+  type: string; // 实体类型
+  data: Record<string, unknown>; // 实体数据
+  metadata: EntityMetadata; // 实体元数据
+  created_at: number; // 创建时间戳
+  updated_at: number; // 更新时间戳
+  version: number; // 版本号（冲突检测）
 }
 ```
 
@@ -1413,8 +1435,15 @@ interface CommandResult {
 
 ```typescript
 type UIOperationType =
-  | 'click' | 'input' | 'select' | 'scroll' | 'hover'
-  | 'wait' | 'getText' | 'getAttribute' | 'screenshot';
+  | 'click'
+  | 'input'
+  | 'select'
+  | 'scroll'
+  | 'hover'
+  | 'wait'
+  | 'getText'
+  | 'getAttribute'
+  | 'screenshot';
 
 interface UIOperationResult<T = unknown> {
   operationId: string;
@@ -1423,13 +1452,13 @@ interface UIOperationResult<T = unknown> {
   data?: T;
   error?: string;
   executionTime: number;
-  status: UIOperationStatus;  // 'pending' | 'running' | 'success' | 'failed' | 'cancelled'
+  status: UIOperationStatus; // 'pending' | 'running' | 'success' | 'failed' | 'cancelled'
   timestamp: number;
   metadata?: Record<string, unknown>;
 }
 
 interface UIOperationInput {
-  selector: string;                    // 目标选择器
+  selector: string; // 目标选择器
   options?: UIOperationOptions;
 }
 
@@ -1500,7 +1529,7 @@ interface SandboxSession {
   endTime?: number;
   operationCount: number;
   permissionLevel: UIPermissionLevel;
-  status: SandboxSessionStatus;  // 'active' | 'terminated' | 'expired'
+  status: SandboxSessionStatus; // 'active' | 'terminated' | 'expired'
 }
 ```
 
@@ -1579,15 +1608,15 @@ interface OperationLog {
 
 所有跨包通信通过 `@organic/utils` 导出的共享类型进行契约约束：
 
-| 包 | 对外暴露的契约接口 |
-|----|-------------------|
-| `@organic/utils` | `KernelApi`, `PluginInterface`, `PluginContext`, `PluginInput`, `PluginOutput`, `ToolResult`, `ToolError`, `KernelConfig`, `PluginConfig`, `BaseError`, `Result`, `Logger` |
-| `@organic/kernel` | `Kernel`, `EventBus`, `KernelEvents`, `PluginManager`, `LifecycleManager`, `LifecycleState` |
-| `@organic/agent` | `AgentMessage`, `AgentChannel`, `MessageQueue`, `MessageAction`, `MessagePriority`, `DeliveryMode` |
-| `@organic/plugins` | `PluginLoader`, `PluginRegistry`, `BasePlugin`, `CoreConversationPlugin`, `PluginMetadata`, `PluginLifecycleState` |
-| `@organic/tools` | `ToolService`, `ToolExecutor`, `ToolContext`, `ToolDefinition`, `ToolExecutionContext`, `SecurityGuard` |
-| `@organic/storage` | `StorageService`, `StorageManager`, `StorageEntity`, `QueryFilter`, `Transaction`, `IStorageBackend` |
-| `@organic/ui` | `CLI`, `UIAgent`, `Sandbox`, `UIOperationManager`, `UIOperationType`, `UIOperationResult` |
+| 包                 | 对外暴露的契约接口                                                                                                                                                         |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@organic/utils`   | `KernelApi`, `PluginInterface`, `PluginContext`, `PluginInput`, `PluginOutput`, `ToolResult`, `ToolError`, `KernelConfig`, `PluginConfig`, `BaseError`, `Result`, `Logger` |
+| `@organic/kernel`  | `Kernel`, `EventBus`, `KernelEvents`, `PluginManager`, `LifecycleManager`, `LifecycleState`                                                                                |
+| `@organic/agent`   | `AgentMessage`, `AgentChannel`, `MessageQueue`, `MessageAction`, `MessagePriority`, `DeliveryMode`                                                                         |
+| `@organic/plugins` | `PluginLoader`, `PluginRegistry`, `BasePlugin`, `CoreConversationPlugin`, `PluginMetadata`, `PluginLifecycleState`                                                         |
+| `@organic/tools`   | `ToolService`, `ToolExecutor`, `ToolContext`, `ToolDefinition`, `ToolExecutionContext`, `SecurityGuard`                                                                    |
+| `@organic/storage` | `StorageService`, `StorageManager`, `StorageEntity`, `QueryFilter`, `Transaction`, `IStorageBackend`                                                                       |
+| `@organic/ui`      | `CLI`, `UIAgent`, `Sandbox`, `UIOperationManager`, `UIOperationType`, `UIOperationResult`                                                                                  |
 
 ### 10.3 版本兼容性
 
@@ -1661,9 +1690,9 @@ interface CompatibilityIssue {
 
 ```typescript
 class BaseError extends Error {
-  public readonly code: string;       // 错误代码
-  public readonly details?: unknown;  // 错误详情
-  public readonly timestamp: number;  // 时间戳
+  public readonly code: string; // 错误代码
+  public readonly details?: unknown; // 错误详情
+  public readonly timestamp: number; // 时间戳
 
   toJSON(): Record<string, unknown> {
     return {
@@ -1746,23 +1775,23 @@ try {
 
 ### 11.4 超时和重试协议
 
-| 场景 | 默认超时 | 默认重试 | 退避策略 |
-|------|---------|---------|---------|
-| AgentChannel sendAndWait | 5000ms | 3 次 | 指数退避：100ms, 200ms, 400ms |
-| MessageQueue TTL | 30000ms | 死信重试 | 手动 retryDeadLetter() |
-| Tool 执行 | 配置项 max_execution_time | 取决于 ToolRetryConfig | 可配置 backoffMultiplier |
-| UI 操作 | 30000ms | 3 次 | — |
-| Plugin 初始化 | — | 取决于 ErrorHandlingStrategy | — |
+| 场景                     | 默认超时                  | 默认重试                     | 退避策略                      |
+| ------------------------ | ------------------------- | ---------------------------- | ----------------------------- |
+| AgentChannel sendAndWait | 5000ms                    | 3 次                         | 指数退避：100ms, 200ms, 400ms |
+| MessageQueue TTL         | 30000ms                   | 死信重试                     | 手动 retryDeadLetter()        |
+| Tool 执行                | 配置项 max_execution_time | 取决于 ToolRetryConfig       | 可配置 backoffMultiplier      |
+| UI 操作                  | 30000ms                   | 3 次                         | —                             |
+| Plugin 初始化            | —                         | 取决于 ErrorHandlingStrategy | —                             |
 
 **ToolRetryConfig：**
 
 ```typescript
 interface ToolRetryConfig {
-  maxAttempts: number;         // 最大重试次数
-  initialDelay: number;        // 初始延迟
-  maxDelay: number;            // 最大延迟
-  backoffMultiplier: number;   // 退避乘数
-  retryableErrors?: string[];  // 可重试的错误代码
+  maxAttempts: number; // 最大重试次数
+  initialDelay: number; // 初始延迟
+  maxDelay: number; // 最大延迟
+  backoffMultiplier: number; // 退避乘数
+  retryableErrors?: string[]; // 可重试的错误代码
 }
 ```
 
@@ -1807,28 +1836,28 @@ interface ToolRetryConfig {
 type UIPermissionLevel = 'L1' | 'L2' | 'L3' | 'L4';
 ```
 
-| 级别 | 说明 |
-|------|------|
-| L1 | 最低权限，仅允许只读操作 |
-| L2 | 默认级别，允许基本交互操作 |
-| L3 | 高级权限，允许敏感操作（需确认） |
-| L4 | 最高权限，沙箱中限制为 L3 |
+| 级别 | 说明                             |
+| ---- | -------------------------------- |
+| L1   | 最低权限，仅允许只读操作         |
+| L2   | 默认级别，允许基本交互操作       |
+| L3   | 高级权限，允许敏感操作（需确认） |
+| L4   | 最高权限，沙箱中限制为 L3        |
 
 **权限检查结果：**
 
 ```typescript
 interface PermissionCheckResult {
-  allowed: boolean;              // 是否允许
-  reason?: string;               // 拒绝原因
+  allowed: boolean; // 是否允许
+  reason?: string; // 拒绝原因
   requiresConfirmation: boolean; // 是否需要确认
-  warnings: string[];            // 警告信息
+  warnings: string[]; // 警告信息
 }
 ```
 
 **Sandbox 默认拒绝路径：**
 
 ```typescript
-deniedPaths: ['/etc', '/root', '/sys', '/proc', '/var']
+deniedPaths: ['/etc', '/root', '/sys', '/proc', '/var'];
 ```
 
 **敏感操作列表：**
@@ -1844,15 +1873,15 @@ const SENSITIVE_OPERATIONS: UIOperationType[] = [
 ```typescript
 interface AuditLog {
   id: string;
-  actor: AuditActor;          // 操作者
-  action: AuditAction;        // 动作
-  resource: AuditResource;    // 资源
-  result: AuditResult;        // 结果
-  request?: AuditRequest;     // 请求信息
-  response?: AuditResponse;   // 响应信息
-  timestamp: number;          // 时间戳
-  session_id?: string;        // 会话 ID
-  correlation_id?: string;    // 关联 ID
+  actor: AuditActor; // 操作者
+  action: AuditAction; // 动作
+  resource: AuditResource; // 资源
+  result: AuditResult; // 结果
+  request?: AuditRequest; // 请求信息
+  response?: AuditResponse; // 响应信息
+  timestamp: number; // 时间戳
+  session_id?: string; // 会话 ID
+  correlation_id?: string; // 关联 ID
   metadata?: Record<string, any>;
 }
 
@@ -1871,13 +1900,13 @@ interface AuditAction {
 }
 
 enum AuditCategory {
-  AUTHENTICATION  = 'authentication',
-  AUTHORIZATION   = 'authorization',
+  AUTHENTICATION = 'authentication',
+  AUTHORIZATION = 'authorization',
   RESOURCE_ACCESS = 'resource_access',
-  CONFIG_CHANGE   = 'config_change',
+  CONFIG_CHANGE = 'config_change',
   SECURITY_POLICY = 'security_policy',
-  ADMINISTRATION  = 'administration',
-  DATA_OPERATION  = 'data_operation',
+  ADMINISTRATION = 'administration',
+  DATA_OPERATION = 'data_operation',
 }
 
 enum AuditStatus {
@@ -1961,14 +1990,14 @@ interface SandboxConfig {
 
 ## 附录 A：消息生成规则
 
-| 字段 | 格式 | 示例 |
-|------|------|------|
-| `message.id` | `msg_{timestamp}_{random}` | `msg_1719876543210_a1b2c3d4e5` |
-| `channel.channelId` | `channel_{timestamp}` | `channel_1719876543210` |
-| `subscription.id` | `sub_{timestamp}_{random}` | `sub_1719876543210_x7y8z9` |
-| `session.sessionId` | `session_{timestamp}_{random}` | `session_1719876543210_a1b2c` |
-| `request.id` | `req_{timestamp}_{counter}` | `req_1719876543210_1` |
-| `operation.log_id` | `op_{timestamp}_{random}` | `op_1719876543210_a1b2c3` |
+| 字段                | 格式                           | 示例                           |
+| ------------------- | ------------------------------ | ------------------------------ |
+| `message.id`        | `msg_{timestamp}_{random}`     | `msg_1719876543210_a1b2c3d4e5` |
+| `channel.channelId` | `channel_{timestamp}`          | `channel_1719876543210`        |
+| `subscription.id`   | `sub_{timestamp}_{random}`     | `sub_1719876543210_x7y8z9`     |
+| `session.sessionId` | `session_{timestamp}_{random}` | `session_1719876543210_a1b2c`  |
+| `request.id`        | `req_{timestamp}_{counter}`    | `req_1719876543210_1`          |
+| `operation.log_id`  | `op_{timestamp}_{random}`      | `op_1719876543210_a1b2c3`      |
 
 ## 附录 B：核心时序图
 
@@ -2070,31 +2099,31 @@ UIAgent          Sandbox            Security
 
 ## 附录 C：参考源文件
 
-| 协议 | 源文件路径 |
-|------|-----------|
-| EventBus | `packages/kernel/src/kernel/EventBus.ts` |
-| AgentChannel | `packages/agent/src/communication/AgentChannel.ts` |
-| AgentMessage | `packages/agent/src/communication/AgentMessage.ts` |
-| MessageQueue | `packages/agent/src/communication/MessageQueue.ts` |
-| Kernel | `packages/kernel/src/kernel/Kernel.ts` |
-| PluginManager | `packages/kernel/src/kernel/PluginManager.ts` |
-| LifecycleManager | `packages/kernel/src/kernel/LifecycleManager.ts` |
-| PluginInterface | `packages/utils/src/types/Plugin.ts` |
-| PluginInterface (扩展) | `packages/plugins/src/interfaces/PluginInterface.ts` |
-| PluginLoader | `packages/plugins/src/loaders/PluginLoader.ts` |
-| PluginLoaderInterface | `packages/plugins/src/interfaces/PluginLoaderInterface.ts` |
-| Tool 类型 | `packages/utils/src/types/Tool.ts` |
-| ToolService | `packages/tools/src/services/ToolService.ts` |
-| ToolContext | `packages/tools/src/executor/ToolContext.ts` |
-| Tool 类型 (扩展) | `packages/tools/src/types/index.ts` |
-| StorageService | `packages/storage/src/services/StorageService.ts` |
-| StorageManager | `packages/storage/src/services/StorageManager.ts` |
-| IStorageBackend | `packages/storage/src/backends/IStorageBackend.ts` |
-| StorageEntity | `packages/storage/src/models/StorageEntity.ts` |
-| CLI | `packages/ui/src/cli/CLI.ts` |
-| UIOperation | `packages/ui/src/core/UIOperation.ts` |
-| UIAgent | `packages/ui/src/core/UIAgent.ts` |
-| Sandbox | `packages/ui/src/core/Sandbox.ts` |
-| BaseError | `packages/utils/src/errors/BaseError.ts` |
-| Result | `packages/utils/src/types/Result.ts` |
-| Config | `packages/utils/src/types/Config.ts` |
+| 协议                   | 源文件路径                                                 |
+| ---------------------- | ---------------------------------------------------------- |
+| EventBus               | `packages/kernel/src/kernel/EventBus.ts`                   |
+| AgentChannel           | `packages/agent/src/communication/AgentChannel.ts`         |
+| AgentMessage           | `packages/agent/src/communication/AgentMessage.ts`         |
+| MessageQueue           | `packages/agent/src/communication/MessageQueue.ts`         |
+| Kernel                 | `packages/kernel/src/kernel/Kernel.ts`                     |
+| PluginManager          | `packages/kernel/src/kernel/PluginManager.ts`              |
+| LifecycleManager       | `packages/kernel/src/kernel/LifecycleManager.ts`           |
+| PluginInterface        | `packages/utils/src/types/Plugin.ts`                       |
+| PluginInterface (扩展) | `packages/plugins/src/interfaces/PluginInterface.ts`       |
+| PluginLoader           | `packages/plugins/src/loaders/PluginLoader.ts`             |
+| PluginLoaderInterface  | `packages/plugins/src/interfaces/PluginLoaderInterface.ts` |
+| Tool 类型              | `packages/utils/src/types/Tool.ts`                         |
+| ToolService            | `packages/tools/src/services/ToolService.ts`               |
+| ToolContext            | `packages/tools/src/executor/ToolContext.ts`               |
+| Tool 类型 (扩展)       | `packages/tools/src/types/index.ts`                        |
+| StorageService         | `packages/storage/src/services/StorageService.ts`          |
+| StorageManager         | `packages/storage/src/services/StorageManager.ts`          |
+| IStorageBackend        | `packages/storage/src/backends/IStorageBackend.ts`         |
+| StorageEntity          | `packages/storage/src/models/StorageEntity.ts`             |
+| CLI                    | `packages/ui/src/cli/CLI.ts`                               |
+| UIOperation            | `packages/ui/src/core/UIOperation.ts`                      |
+| UIAgent                | `packages/ui/src/core/UIAgent.ts`                          |
+| Sandbox                | `packages/ui/src/core/Sandbox.ts`                          |
+| BaseError              | `packages/utils/src/errors/BaseError.ts`                   |
+| Result                 | `packages/utils/src/types/Result.ts`                       |
+| Config                 | `packages/utils/src/types/Config.ts`                       |

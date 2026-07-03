@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { OperationRecorder } from '../OperationRecorder.js';
-import type { RecordedOperation, RecordingSession, RecordingFilter } from '../OperationRecorder.js';
+import type { RecordingSession } from '../OperationRecorder.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
@@ -221,9 +221,9 @@ describe('OperationRecorder', () => {
 
   describe('listSessions', () => {
     it('should list all sessions', () => {
-      const s1 = recorder.startRecording('Session 1');
+      recorder.startRecording('Session 1');
       recorder.stopRecording();
-      const s2 = recorder.startRecording('Session 2');
+      recorder.startRecording('Session 2');
       recorder.stopRecording();
       const sessions = recorder.listSessions();
       expect(sessions).toHaveLength(2);
@@ -357,10 +357,26 @@ describe('OperationRecorder', () => {
 
     beforeEach(() => {
       session = recorder.startRecording('Filter Test');
-      recorder.recordOperation('click', createMockInput('#btn'), createMockResult({ status: 'success', executionTime: 100 }));
-      recorder.recordOperation('input', createMockInput('#field'), createMockResult({ status: 'failed', executionTime: 200 }));
-      recorder.recordOperation('scroll', createMockInput('#page'), createMockResult({ status: 'success', executionTime: 50 }));
-      recorder.recordOperation('wait', createMockInput('#loader'), createMockResult({ status: 'cancelled', executionTime: 300 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#btn'),
+        createMockResult({ status: 'success', executionTime: 100 })
+      );
+      recorder.recordOperation(
+        'input',
+        createMockInput('#field'),
+        createMockResult({ status: 'failed', executionTime: 200 })
+      );
+      recorder.recordOperation(
+        'scroll',
+        createMockInput('#page'),
+        createMockResult({ status: 'success', executionTime: 50 })
+      );
+      recorder.recordOperation(
+        'wait',
+        createMockInput('#loader'),
+        createMockResult({ status: 'cancelled', executionTime: 300 })
+      );
       recorder.stopRecording();
     });
 
@@ -433,10 +449,26 @@ describe('OperationRecorder', () => {
 
     it('should calculate correct statistics', () => {
       const session = recorder.startRecording('Stats');
-      recorder.recordOperation('click', createMockInput('#a'), createMockResult({ status: 'success', executionTime: 100 }));
-      recorder.recordOperation('click', createMockInput('#b'), createMockResult({ status: 'success', executionTime: 200 }));
-      recorder.recordOperation('input', createMockInput('#c'), createMockResult({ status: 'failed', executionTime: 150 }));
-      recorder.recordOperation('scroll', createMockInput('#d'), createMockResult({ status: 'cancelled', executionTime: 50 }));
+      recorder.recordOperation(
+        'click',
+        createMockInput('#a'),
+        createMockResult({ status: 'success', executionTime: 100 })
+      );
+      recorder.recordOperation(
+        'click',
+        createMockInput('#b'),
+        createMockResult({ status: 'success', executionTime: 200 })
+      );
+      recorder.recordOperation(
+        'input',
+        createMockInput('#c'),
+        createMockResult({ status: 'failed', executionTime: 150 })
+      );
+      recorder.recordOperation(
+        'scroll',
+        createMockInput('#d'),
+        createMockResult({ status: 'cancelled', executionTime: 50 })
+      );
       recorder.stopRecording();
 
       const stats = recorder.getOperationStats(session.id);

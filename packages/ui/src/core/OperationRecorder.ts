@@ -7,7 +7,12 @@
 
 import { EventEmitter } from 'events';
 import { createLogger, type Logger } from '@organic/utils';
-import type { UIOperationType, UIOperationInput, UIOperationResult, UIOperationStatus } from './UIOperation.js';
+import type {
+  UIOperationType,
+  UIOperationInput,
+  UIOperationResult,
+  UIOperationStatus,
+} from './UIOperation.js';
 
 /**
  * A single recorded operation within a session
@@ -190,7 +195,9 @@ export class OperationRecorder extends EventEmitter {
     session.status = 'stopped';
     this.currentSession = null;
 
-    this.logger.info(`Stopped recording session: ${session.id} (${session.operations.length} operations)`);
+    this.logger.info(
+      `Stopped recording session: ${session.id} (${session.operations.length} operations)`
+    );
 
     this.emit('recording:stop', { session, timestamp: Date.now() });
 
@@ -317,7 +324,9 @@ export class OperationRecorder extends EventEmitter {
     try {
       parsed = JSON.parse(json);
     } catch (error) {
-      throw new Error(`Failed to parse session JSON: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to parse session JSON: ${error instanceof Error ? error.message : String(error)}`
+      );
     }
 
     if (!parsed.id || !parsed.operations || !parsed.startTime) {

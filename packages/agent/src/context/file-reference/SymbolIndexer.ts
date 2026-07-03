@@ -154,8 +154,8 @@ export class SymbolIndexer {
       const contentLower = parsedFile.content.toLowerCase();
       if (contentLower.includes(lowerQuery)) {
         // Find relevant symbols (those matching the query)
-        const matchingSymbols = parsedFile.symbols.filter(
-          s => s.name.toLowerCase().includes(lowerQuery),
+        const matchingSymbols = parsedFile.symbols.filter(s =>
+          s.name.toLowerCase().includes(lowerQuery)
         );
 
         results.push({
@@ -257,10 +257,12 @@ export class SymbolIndexer {
    */
   private pathsMatch(dep: string, target: string): boolean {
     const normalizedDep = this.normalizePath(dep);
-    return normalizedDep === target ||
+    return (
+      normalizedDep === target ||
       normalizedDep.includes(target) ||
       target.includes(normalizedDep) ||
       dep.includes(target) ||
-      target.includes(dep);
+      target.includes(dep)
+    );
   }
 }

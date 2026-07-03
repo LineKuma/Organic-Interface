@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { OperationDiff } from '../OperationDiff.js';
-import { OperationRecorder } from '../OperationRecorder.js';
 import type { RecordedOperation, RecordingSession } from '../OperationRecorder.js';
 
 vi.mock('@organic/utils', () => ({
@@ -55,11 +54,9 @@ function createMockSession(overrides: Partial<RecordingSession> = {}): Recording
 
 describe('OperationDiff', () => {
   let diff: OperationDiff;
-  let recorder: OperationRecorder;
 
   beforeEach(() => {
     diff = new OperationDiff();
-    recorder = new OperationRecorder();
   });
 
   // ==================== Construction ====================
@@ -102,15 +99,11 @@ describe('OperationDiff', () => {
 
     it('should detect modified operations', () => {
       const session1 = createMockSession({
-        operations: [
-          createMockOp({ id: 'op1', type: 'click', status: 'success' }),
-        ],
+        operations: [createMockOp({ id: 'op1', type: 'click', status: 'success' })],
       });
 
       const session2 = createMockSession({
-        operations: [
-          createMockOp({ id: 'op1', type: 'click', status: 'failed' }),
-        ],
+        operations: [createMockOp({ id: 'op1', type: 'click', status: 'failed' })],
       });
 
       const result = diff.diff(session1, session2);
@@ -122,15 +115,11 @@ describe('OperationDiff', () => {
 
     it('should detect type changes as modified', () => {
       const session1 = createMockSession({
-        operations: [
-          createMockOp({ id: 'op1', type: 'click' }),
-        ],
+        operations: [createMockOp({ id: 'op1', type: 'click' })],
       });
 
       const session2 = createMockSession({
-        operations: [
-          createMockOp({ id: 'op1', type: 'input' }),
-        ],
+        operations: [createMockOp({ id: 'op1', type: 'input' })],
       });
 
       const result = diff.diff(session1, session2);
@@ -139,15 +128,11 @@ describe('OperationDiff', () => {
 
     it('should detect selector changes as modified', () => {
       const session1 = createMockSession({
-        operations: [
-          createMockOp({ id: 'op1', input: createMockInput('#old') }),
-        ],
+        operations: [createMockOp({ id: 'op1', input: createMockInput('#old') })],
       });
 
       const session2 = createMockSession({
-        operations: [
-          createMockOp({ id: 'op1', input: createMockInput('#new') }),
-        ],
+        operations: [createMockOp({ id: 'op1', input: createMockInput('#new') })],
       });
 
       const result = diff.diff(session1, session2);
@@ -168,10 +153,7 @@ describe('OperationDiff', () => {
     it('should handle all added operations', () => {
       const session1 = createMockSession({ operations: [] });
       const session2 = createMockSession({
-        operations: [
-          createMockOp({ id: 'op1' }),
-          createMockOp({ id: 'op2' }),
-        ],
+        operations: [createMockOp({ id: 'op1' }), createMockOp({ id: 'op2' })],
       });
 
       const result = diff.diff(session1, session2);
@@ -181,10 +163,7 @@ describe('OperationDiff', () => {
 
     it('should handle all removed operations', () => {
       const session1 = createMockSession({
-        operations: [
-          createMockOp({ id: 'op1' }),
-          createMockOp({ id: 'op2' }),
-        ],
+        operations: [createMockOp({ id: 'op1' }), createMockOp({ id: 'op2' })],
       });
       const session2 = createMockSession({ operations: [] });
 
@@ -241,26 +220,18 @@ describe('OperationDiff', () => {
     });
 
     it('should detect metadata changes', () => {
-      const ops1: RecordedOperation[] = [
-        createMockOp({ id: 'op1', metadata: { key: 'value1' } }),
-      ];
+      const ops1: RecordedOperation[] = [createMockOp({ id: 'op1', metadata: { key: 'value1' } })];
 
-      const ops2: RecordedOperation[] = [
-        createMockOp({ id: 'op1', metadata: { key: 'value2' } }),
-      ];
+      const ops2: RecordedOperation[] = [createMockOp({ id: 'op1', metadata: { key: 'value2' } })];
 
       const result = diff.diffOperations(ops1, ops2);
       expect(result.modified).toHaveLength(1);
     });
 
     it('should detect significant duration changes', () => {
-      const ops1: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 100 }),
-      ];
+      const ops1: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 100 })];
 
-      const ops2: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 200 }),
-      ];
+      const ops2: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 200 })];
 
       const result = diff.diffOperations(ops1, ops2);
       // 100 vs 200: diff = 100, max = 200, ratio = 0.5 > 0.1 => modified
@@ -268,13 +239,9 @@ describe('OperationDiff', () => {
     });
 
     it('should not detect small duration changes as modified', () => {
-      const ops1: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 100 }),
-      ];
+      const ops1: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 100 })];
 
-      const ops2: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 105 }),
-      ];
+      const ops2: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 105 })];
 
       const result = diff.diffOperations(ops1, ops2);
       // 100 vs 105: diff = 5, max = 105, ratio = 0.047 < 0.1 => unchanged
@@ -287,7 +254,11 @@ describe('OperationDiff', () => {
 
   describe('findSimilar', () => {
     it('should find similar operations by type', () => {
-      const target = createMockOp({ id: 'target', type: 'click', input: createMockInput('#submit-btn') });
+      const target = createMockOp({
+        id: 'target',
+        type: 'click',
+        input: createMockInput('#submit-btn'),
+      });
 
       const session = createMockSession({
         operations: [
@@ -304,7 +275,11 @@ describe('OperationDiff', () => {
     });
 
     it('should filter by threshold', () => {
-      const target = createMockOp({ id: 'target', type: 'click', input: createMockInput('#submit-btn') });
+      const target = createMockOp({
+        id: 'target',
+        type: 'click',
+        input: createMockInput('#submit-btn'),
+      });
 
       const session = createMockSession({
         operations: [
@@ -334,11 +309,19 @@ describe('OperationDiff', () => {
     });
 
     it('should return empty array when no similar operations found', () => {
-      const target = createMockOp({ id: 'target', type: 'click', input: createMockInput('#unique-selector-xyz') });
+      const target = createMockOp({
+        id: 'target',
+        type: 'click',
+        input: createMockInput('#unique-selector-xyz'),
+      });
 
       const session = createMockSession({
         operations: [
-          createMockOp({ id: 'op1', type: 'input', input: createMockInput('#completely-different') }),
+          createMockOp({
+            id: 'op1',
+            type: 'input',
+            input: createMockInput('#completely-different'),
+          }),
           createMockOp({ id: 'op2', type: 'scroll', input: createMockInput('#also-different') }),
         ],
       });
@@ -351,12 +334,20 @@ describe('OperationDiff', () => {
       const target = createMockOp({ id: 'target' });
       const session = createMockSession({ operations: [] });
 
-      expect(() => diff.findSimilar(target, session, -0.1)).toThrow('Threshold must be between 0 and 1');
-      expect(() => diff.findSimilar(target, session, 1.1)).toThrow('Threshold must be between 0 and 1');
+      expect(() => diff.findSimilar(target, session, -0.1)).toThrow(
+        'Threshold must be between 0 and 1'
+      );
+      expect(() => diff.findSimilar(target, session, 1.1)).toThrow(
+        'Threshold must be between 0 and 1'
+      );
     });
 
     it('should rank results by similarity score', () => {
-      const target = createMockOp({ id: 'target', type: 'click', input: createMockInput('#submit-btn') });
+      const target = createMockOp({
+        id: 'target',
+        type: 'click',
+        input: createMockInput('#submit-btn'),
+      });
 
       const session = createMockSession({
         operations: [
@@ -387,24 +378,16 @@ describe('OperationDiff', () => {
     });
 
     it('should handle operations with zero duration', () => {
-      const ops1: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 0 }),
-      ];
-      const ops2: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 0 }),
-      ];
+      const ops1: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 0 })];
+      const ops2: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 0 })];
 
       const result = diff.diffOperations(ops1, ops2);
       expect(result.unchanged).toHaveLength(1);
     });
 
     it('should handle one zero and one non-zero duration', () => {
-      const ops1: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 0 }),
-      ];
-      const ops2: RecordedOperation[] = [
-        createMockOp({ id: 'op1', duration: 100 }),
-      ];
+      const ops1: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 0 })];
+      const ops2: RecordedOperation[] = [createMockOp({ id: 'op1', duration: 100 })];
 
       const result = diff.diffOperations(ops1, ops2);
       expect(result.modified).toHaveLength(1);

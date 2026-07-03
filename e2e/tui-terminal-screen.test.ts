@@ -17,15 +17,12 @@ import {
   inAlternateScreen,
   ANSI,
   esc,
-  DEFAULT_FEATURE_CONFIG,
   defaultTheme,
   lowColorTheme,
   noneTheme,
   createAutoTheme,
   createTheme,
-  type FeatureConfig,
   type ColorDepth,
-  type TerminalFeatures,
 } from '@organic/ui';
 
 // ── 测试辅助 ──────────────────────────────────────────────────────
@@ -270,7 +267,6 @@ describe('TUI 终端能力检测与屏幕管理', () => {
 
     it('用户刷新终端尺寸', () => {
       const terminal = Terminal.init();
-      const before = { ...terminal.dimensions };
 
       terminal.refreshDimensions();
       const after = terminal.dimensions;
@@ -329,7 +325,7 @@ describe('TUI 终端能力检测与屏幕管理', () => {
     it('用户使用 inAlternateScreen 辅助函数', async () => {
       let screenPassed: Screen | null = null;
 
-      await inAlternateScreen(async (screen) => {
+      await inAlternateScreen(async screen => {
         screenPassed = screen;
       });
 

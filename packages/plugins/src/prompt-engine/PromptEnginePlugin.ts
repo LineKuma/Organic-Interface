@@ -575,7 +575,8 @@ export class PromptEnginePlugin {
         name: 'Code Review',
         description: 'Prompt for reviewing code changes',
         category: 'code',
-        content: 'Please review the following code:\n\n```{{language}}\n{{code}}\n```\n\nFocus on:\n{{#if focus}}\n{{#each focus as item}}\n- {{item}}\n{{/each}}\n{{/if}}\n{{default "Please provide a thorough review."}}',
+        content:
+          'Please review the following code:\n\n```{{language}}\n{{code}}\n```\n\nFocus on:\n{{#if focus}}\n{{#each focus as item}}\n- {{item}}\n{{/each}}\n{{/if}}\n{{default "Please provide a thorough review."}}',
         variables: [
           { name: 'language', type: 'string', required: true, description: 'Programming language' },
           { name: 'code', type: 'string', required: true, description: 'Code to review' },
@@ -593,7 +594,8 @@ export class PromptEnginePlugin {
         name: 'Refactoring',
         description: 'Prompt for code refactoring',
         category: 'code',
-        content: 'Refactor the following {{language}} code:\n\n```{{language}}\n{{code}}\n```\n\n{{#if goal}}Goal: {{goal}}{{/if}}\n{{#if constraints}}\nConstraints:\n{{#each constraints as item}}\n- {{item}}\n{{/each}}\n{{/if}}',
+        content:
+          'Refactor the following {{language}} code:\n\n```{{language}}\n{{code}}\n```\n\n{{#if goal}}Goal: {{goal}}{{/if}}\n{{#if constraints}}\nConstraints:\n{{#each constraints as item}}\n- {{item}}\n{{/each}}\n{{/if}}',
         variables: [
           { name: 'language', type: 'string', required: true, description: 'Programming language' },
           { name: 'code', type: 'string', required: true, description: 'Code to refactor' },
@@ -612,7 +614,8 @@ export class PromptEnginePlugin {
         name: 'Bug Fix',
         description: 'Prompt for fixing bugs',
         category: 'code',
-        content: 'Fix the bug in the following {{language}} code:\n\n```{{language}}\n{{code}}\n```\n\nError: {{error}}\n\n{{#if expected}}Expected behavior: {{expected}}{{/if}}',
+        content:
+          'Fix the bug in the following {{language}} code:\n\n```{{language}}\n{{code}}\n```\n\nError: {{error}}\n\n{{#if expected}}Expected behavior: {{expected}}{{/if}}',
         variables: [
           { name: 'language', type: 'string', required: true, description: 'Programming language' },
           { name: 'code', type: 'string', required: true, description: 'Code with bug' },
@@ -631,7 +634,8 @@ export class PromptEnginePlugin {
         name: 'Documentation',
         description: 'Prompt for generating documentation',
         category: 'documentation',
-        content: 'Generate documentation for the following {{language}} code:\n\n```{{language}}\n{{code}}\n```\n\n{{#if style}}Style: {{style}}{{/if}}\n{{#if audience}}Target audience: {{audience}}{{/if}}',
+        content:
+          'Generate documentation for the following {{language}} code:\n\n```{{language}}\n{{code}}\n```\n\n{{#if style}}Style: {{style}}{{/if}}\n{{#if audience}}Target audience: {{audience}}{{/if}}',
         variables: [
           { name: 'language', type: 'string', required: true, description: 'Programming language' },
           { name: 'code', type: 'string', required: true, description: 'Code to document' },
@@ -650,11 +654,18 @@ export class PromptEnginePlugin {
         name: 'Explain Code',
         description: 'Prompt for explaining code',
         category: 'explanation',
-        content: 'Explain the following {{language}} code:\n\n```{{language}}\n{{code}}\n```\n\n{{#if level}}Detail level: {{level}}{{/if}}',
+        content:
+          'Explain the following {{language}} code:\n\n```{{language}}\n{{code}}\n```\n\n{{#if level}}Detail level: {{level}}{{/if}}',
         variables: [
           { name: 'language', type: 'string', required: true, description: 'Programming language' },
           { name: 'code', type: 'string', required: true, description: 'Code to explain' },
-          { name: 'level', type: 'string', required: false, description: 'Detail level', defaultValue: 'intermediate' },
+          {
+            name: 'level',
+            type: 'string',
+            required: false,
+            description: 'Detail level',
+            defaultValue: 'intermediate',
+          },
         ],
         versions: [],
         currentVersion: '1.0.0',
@@ -668,7 +679,8 @@ export class PromptEnginePlugin {
         name: 'Test Generation',
         description: 'Prompt for generating unit tests',
         category: 'testing',
-        content: 'Generate unit tests for the following {{language}} code:\n\n```{{language}}\n{{code}}\n```\n\n{{#if framework}}Using test framework: {{framework}}{{/if}}\n{{#if coverage}}Target coverage: {{coverage}}{{/if}}',
+        content:
+          'Generate unit tests for the following {{language}} code:\n\n```{{language}}\n{{code}}\n```\n\n{{#if framework}}Using test framework: {{framework}}{{/if}}\n{{#if coverage}}Target coverage: {{coverage}}{{/if}}',
         variables: [
           { name: 'language', type: 'string', required: true, description: 'Programming language' },
           { name: 'code', type: 'string', required: true, description: 'Code to test' },

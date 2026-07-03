@@ -71,19 +71,29 @@ let counter = 0;
       // Symbols
       expect(result.symbols.length).toBeGreaterThan(0);
 
-      const interfaceSymbol = result.symbols.find(s => s.name === 'User' && s.kind === SymbolKind.INTERFACE);
+      const interfaceSymbol = result.symbols.find(
+        s => s.name === 'User' && s.kind === SymbolKind.INTERFACE
+      );
       expect(interfaceSymbol).toBeDefined();
 
-      const typeSymbol = result.symbols.find(s => s.name === 'UserId' && s.kind === SymbolKind.TYPE);
+      const typeSymbol = result.symbols.find(
+        s => s.name === 'UserId' && s.kind === SymbolKind.TYPE
+      );
       expect(typeSymbol).toBeDefined();
 
-      const enumSymbol = result.symbols.find(s => s.name === 'Status' && s.kind === SymbolKind.ENUM);
+      const enumSymbol = result.symbols.find(
+        s => s.name === 'Status' && s.kind === SymbolKind.ENUM
+      );
       expect(enumSymbol).toBeDefined();
 
-      const classSymbol = result.symbols.find(s => s.name === 'UserService' && s.kind === SymbolKind.CLASS);
+      const classSymbol = result.symbols.find(
+        s => s.name === 'UserService' && s.kind === SymbolKind.CLASS
+      );
       expect(classSymbol).toBeDefined();
 
-      const funcSymbol = result.symbols.find(s => s.name === 'createUser' && s.kind === SymbolKind.FUNCTION);
+      const funcSymbol = result.symbols.find(
+        s => s.name === 'createUser' && s.kind === SymbolKind.FUNCTION
+      );
       expect(funcSymbol).toBeDefined();
 
       // Imports
@@ -123,10 +133,14 @@ module.exports = { Calculator, multiply, PI };
       expect(result).toBeDefined();
       expect(result.language).toBe(SupportedLanguage.JAVASCRIPT);
 
-      const classSymbol = result.symbols.find(s => s.name === 'Calculator' && s.kind === SymbolKind.CLASS);
+      const classSymbol = result.symbols.find(
+        s => s.name === 'Calculator' && s.kind === SymbolKind.CLASS
+      );
       expect(classSymbol).toBeDefined();
 
-      const funcSymbol = result.symbols.find(s => s.name === 'multiply' && s.kind === SymbolKind.FUNCTION);
+      const funcSymbol = result.symbols.find(
+        s => s.name === 'multiply' && s.kind === SymbolKind.FUNCTION
+      );
       expect(funcSymbol).toBeDefined();
 
       // require() imports
@@ -170,13 +184,19 @@ __all__ = ['User', 'calculate_total', 'PI']
       expect(result).toBeDefined();
       expect(result.language).toBe(SupportedLanguage.PYTHON);
 
-      const classSymbol = result.symbols.find(s => s.name === 'User' && s.kind === SymbolKind.CLASS);
+      const classSymbol = result.symbols.find(
+        s => s.name === 'User' && s.kind === SymbolKind.CLASS
+      );
       expect(classSymbol).toBeDefined();
 
-      const funcSymbol = result.symbols.find(s => s.name === 'calculate_total' && s.kind === SymbolKind.FUNCTION);
+      const funcSymbol = result.symbols.find(
+        s => s.name === 'calculate_total' && s.kind === SymbolKind.FUNCTION
+      );
       expect(funcSymbol).toBeDefined();
 
-      const methodSymbol = result.symbols.find(s => s.name === 'greet' && s.kind === SymbolKind.FUNCTION);
+      const methodSymbol = result.symbols.find(
+        s => s.name === 'greet' && s.kind === SymbolKind.FUNCTION
+      );
       expect(methodSymbol).toBeDefined();
 
       // Imports
@@ -236,13 +256,19 @@ public enum UserRole {
       expect(result).toBeDefined();
       expect(result.language).toBe(SupportedLanguage.JAVA);
 
-      const classSymbol = result.symbols.find(s => s.name === 'UserService' && s.kind === SymbolKind.CLASS);
+      const classSymbol = result.symbols.find(
+        s => s.name === 'UserService' && s.kind === SymbolKind.CLASS
+      );
       expect(classSymbol).toBeDefined();
 
-      const interfaceSymbol = result.symbols.find(s => s.name === 'Repository' && s.kind === SymbolKind.INTERFACE);
+      const interfaceSymbol = result.symbols.find(
+        s => s.name === 'Repository' && s.kind === SymbolKind.INTERFACE
+      );
       expect(interfaceSymbol).toBeDefined();
 
-      const enumSymbol = result.symbols.find(s => s.name === 'UserRole' && s.kind === SymbolKind.ENUM);
+      const enumSymbol = result.symbols.find(
+        s => s.name === 'UserRole' && s.kind === SymbolKind.ENUM
+      );
       expect(enumSymbol).toBeDefined();
 
       // Imports
@@ -286,13 +312,19 @@ var defaultName = "anonymous"
       expect(result).toBeDefined();
       expect(result.language).toBe(SupportedLanguage.GO);
 
-      const structSymbol = result.symbols.find(s => s.name === 'User' && s.kind === SymbolKind.CLASS);
+      const structSymbol = result.symbols.find(
+        s => s.name === 'User' && s.kind === SymbolKind.CLASS
+      );
       expect(structSymbol).toBeDefined();
 
-      const interfaceSymbol = result.symbols.find(s => s.name === 'Greeter' && s.kind === SymbolKind.INTERFACE);
+      const interfaceSymbol = result.symbols.find(
+        s => s.name === 'Greeter' && s.kind === SymbolKind.INTERFACE
+      );
       expect(interfaceSymbol).toBeDefined();
 
-      const funcSymbol = result.symbols.find(s => s.name === 'NewUser' && s.kind === SymbolKind.FUNCTION);
+      const funcSymbol = result.symbols.find(
+        s => s.name === 'NewUser' && s.kind === SymbolKind.FUNCTION
+      );
       expect(funcSymbol).toBeDefined();
 
       // Imports

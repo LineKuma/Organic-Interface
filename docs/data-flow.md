@@ -65,15 +65,15 @@ Organic-Interface 是一个基于 monorepo 架构的 AI 工作台系统，由 7 
 
 ### 1.2 各包职责
 
-| 包名 | 层级 | 职责 |
-|------|------|------|
-| `@organic/utils` | Level 0 | 共享类型定义、错误基类、日志工具、验证工具、异步工具 |
-| `@organic/kernel` | Level 1 | 核心运行时：Kernel 生命周期、EventBus 事件系统、PluginManager 插件管理、TextService 和 InfoService 基础服务 |
-| `@organic/plugins` | Level 2 | 插件系统：PluginInterface 接口定义、PluginLoader 加载器、PluginRegistry 注册表、BasePlugin 基类、CoreConversationPlugin 核心对话插件 |
-| `@organic/tools` | Level 2 | 工具系统：ToolService 工具注册执行、ToolExecutor 执行器、SecurityGuard 安全守卫、ApprovalService 审批服务、FileTool/ShellTool/SearchTool 内置工具 |
-| `@organic/storage` | Level 2 | 存储系统：StorageService CRUD 服务、StorageManager 后端管理、MemoryStorage/FileStorage/DatabaseStorage 三种后端、SessionPersistenceStorage 会话持久化 |
-| `@organic/agent` | Level 3 | Agent 系统：Agent 核心执行体、TaskQueue/TaskScheduler 任务调度、ContextManager/ContextWindowManager/ContextService 上下文管理、WorkflowEngine/WorkflowExecutor 工作流引擎、OrchestrationLayer/ExecutionCoordinator 编排层、AgentRegistry/AgentChannel/MessageQueue 通信基础设施 |
-| `@organic/ui` | Level 4 | 用户界面：CLI 命令行接口、Terminal 终端能力检测、Screen 屏幕缓冲管理、Theme 主题系统、Output/Spinner/Banner/Box 终端组件、Prompt/Progress/Table 交互组件、MouseHandler 鼠标事件、UIOperationManager/UIAgent/Sandbox UI 操作体系 |
+| 包名               | 层级    | 职责                                                                                                                                                                                                                                                                            |
+| ------------------ | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `@organic/utils`   | Level 0 | 共享类型定义、错误基类、日志工具、验证工具、异步工具                                                                                                                                                                                                                            |
+| `@organic/kernel`  | Level 1 | 核心运行时：Kernel 生命周期、EventBus 事件系统、PluginManager 插件管理、TextService 和 InfoService 基础服务                                                                                                                                                                     |
+| `@organic/plugins` | Level 2 | 插件系统：PluginInterface 接口定义、PluginLoader 加载器、PluginRegistry 注册表、BasePlugin 基类、CoreConversationPlugin 核心对话插件                                                                                                                                            |
+| `@organic/tools`   | Level 2 | 工具系统：ToolService 工具注册执行、ToolExecutor 执行器、SecurityGuard 安全守卫、ApprovalService 审批服务、FileTool/ShellTool/SearchTool 内置工具                                                                                                                               |
+| `@organic/storage` | Level 2 | 存储系统：StorageService CRUD 服务、StorageManager 后端管理、MemoryStorage/FileStorage/DatabaseStorage 三种后端、SessionPersistenceStorage 会话持久化                                                                                                                           |
+| `@organic/agent`   | Level 3 | Agent 系统：Agent 核心执行体、TaskQueue/TaskScheduler 任务调度、ContextManager/ContextWindowManager/ContextService 上下文管理、WorkflowEngine/WorkflowExecutor 工作流引擎、OrchestrationLayer/ExecutionCoordinator 编排层、AgentRegistry/AgentChannel/MessageQueue 通信基础设施 |
+| `@organic/ui`      | Level 4 | 用户界面：CLI 命令行接口、Terminal 终端能力检测、Screen 屏幕缓冲管理、Theme 主题系统、Output/Spinner/Banner/Box 终端组件、Prompt/Progress/Table 交互组件、MouseHandler 鼠标事件、UIOperationManager/UIAgent/Sandbox UI 操作体系                                                 |
 
 ### 1.3 核心数据流图
 
@@ -2029,53 +2029,53 @@ Terminal FeatureConfig:
 
 ### A. 关键常量汇总
 
-| 常量 | 值 | 所属模块 |
-|------|-----|---------|
-| `DEFAULT_TOOL_SERVICE_CONFIG.defaultTimeout` | 30000ms | tools |
-| `DEFAULT_TOOL_SERVICE_CONFIG.maxConcurrentExecutions` | 10 | tools |
-| `DEFAULT_EXECUTOR_CONFIG.maxConcurrent` | 5 | tools |
-| `DEFAULT_EXECUTOR_CONFIG.maxQueueSize` | 100 | tools |
-| `DEFAULT_EXECUTOR_CONFIG.defaultTimeout` | 30000ms | tools |
-| `DEFAULT_APPROVAL_CONFIG.defaultTimeout` | 60000ms | tools |
-| `DEFAULT_CONTEXT_CONFIG.maxWindowSize` | 100 | agent |
-| `DEFAULT_CONTEXT_CONFIG.ttl` | 3600000ms (1h) | agent |
-| `DEFAULT_CONTEXT_WINDOW_CONFIG.windowSize` | 50 | agent |
-| `DEFAULT_CONTEXT_WINDOW_CONFIG.maxTokens` | 4096 | agent |
-| `DEFAULT_CONTEXT_SERVICE_CONFIG.maxNestingDepth` | 5 | agent |
-| `DEFAULT_CONTEXT_SERVICE_CONFIG.cleanupInterval` | 60000ms | agent |
-| `DEFAULT_WORKFLOW_ENGINE_CONFIG.maxParallelNodes` | 10 | agent |
-| `DEFAULT_WORKFLOW_ENGINE_CONFIG.snapshotInterval` | 30000ms | agent |
-| `DEFAULT_WORKFLOW_ENGINE_CONFIG.defaultTimeout` | 3600000ms (1h) | agent |
-| `DEFAULT_ORCHESTRATION_CONFIG.defaultTimeout` | 60000ms | agent |
-| `DEFAULT_ORCHESTRATION_CONFIG.maxConcurrentOrchestrations` | 10 | agent |
-| `DEFAULT_RETRY_CONFIG.maxAttempts` | 3 | agent |
-| `DEFAULT_RETRY_CONFIG.baseDelay` | 100ms | agent |
-| `DEFAULT_RETRY_CONFIG.maxDelay` | 5000ms | agent |
-| `DEFAULT_CHANNEL_CONFIG.defaultTimeout` | 5000ms | agent |
-| `DEFAULT_CHANNEL_CONFIG.maxRetries` | 3 | agent |
-| `DEFAULT_QUEUE_CONFIG.maxSize` | 1000 | agent |
-| `DEFAULT_QUEUE_CONFIG.defaultTTL` | 30000ms | agent |
-| `DEFAULT_QUEUE_CONFIG.deadLetterMaxSize` | 100 | agent |
+| 常量                                                       | 值             | 所属模块 |
+| ---------------------------------------------------------- | -------------- | -------- |
+| `DEFAULT_TOOL_SERVICE_CONFIG.defaultTimeout`               | 30000ms        | tools    |
+| `DEFAULT_TOOL_SERVICE_CONFIG.maxConcurrentExecutions`      | 10             | tools    |
+| `DEFAULT_EXECUTOR_CONFIG.maxConcurrent`                    | 5              | tools    |
+| `DEFAULT_EXECUTOR_CONFIG.maxQueueSize`                     | 100            | tools    |
+| `DEFAULT_EXECUTOR_CONFIG.defaultTimeout`                   | 30000ms        | tools    |
+| `DEFAULT_APPROVAL_CONFIG.defaultTimeout`                   | 60000ms        | tools    |
+| `DEFAULT_CONTEXT_CONFIG.maxWindowSize`                     | 100            | agent    |
+| `DEFAULT_CONTEXT_CONFIG.ttl`                               | 3600000ms (1h) | agent    |
+| `DEFAULT_CONTEXT_WINDOW_CONFIG.windowSize`                 | 50             | agent    |
+| `DEFAULT_CONTEXT_WINDOW_CONFIG.maxTokens`                  | 4096           | agent    |
+| `DEFAULT_CONTEXT_SERVICE_CONFIG.maxNestingDepth`           | 5              | agent    |
+| `DEFAULT_CONTEXT_SERVICE_CONFIG.cleanupInterval`           | 60000ms        | agent    |
+| `DEFAULT_WORKFLOW_ENGINE_CONFIG.maxParallelNodes`          | 10             | agent    |
+| `DEFAULT_WORKFLOW_ENGINE_CONFIG.snapshotInterval`          | 30000ms        | agent    |
+| `DEFAULT_WORKFLOW_ENGINE_CONFIG.defaultTimeout`            | 3600000ms (1h) | agent    |
+| `DEFAULT_ORCHESTRATION_CONFIG.defaultTimeout`              | 60000ms        | agent    |
+| `DEFAULT_ORCHESTRATION_CONFIG.maxConcurrentOrchestrations` | 10             | agent    |
+| `DEFAULT_RETRY_CONFIG.maxAttempts`                         | 3              | agent    |
+| `DEFAULT_RETRY_CONFIG.baseDelay`                           | 100ms          | agent    |
+| `DEFAULT_RETRY_CONFIG.maxDelay`                            | 5000ms         | agent    |
+| `DEFAULT_CHANNEL_CONFIG.defaultTimeout`                    | 5000ms         | agent    |
+| `DEFAULT_CHANNEL_CONFIG.maxRetries`                        | 3              | agent    |
+| `DEFAULT_QUEUE_CONFIG.maxSize`                             | 1000           | agent    |
+| `DEFAULT_QUEUE_CONFIG.defaultTTL`                          | 30000ms        | agent    |
+| `DEFAULT_QUEUE_CONFIG.deadLetterMaxSize`                   | 100            | agent    |
 
 ### B. 状态枚举汇总
 
-| 枚举 | 值 | 所属模块 |
-|------|-----|---------|
-| `LifecycleState` | CREATED, INITIALIZING, INITIALIZED, STARTING, RUNNING, STOPPING, STOPPED, ERROR | kernel |
-| `AgentStatus` | INITIALIZING, IDLE, BUSY, ERROR, SHUTTING_DOWN, OFFLINE | agent |
-| `ContextStatus` | INITIALIZING, ACTIVE, IDLE, ARCHIVED, DELETED | agent |
-| `ContextWindowType` | RECENT_MESSAGES, RECENT_MINUTES, TOKEN_BASED, SEMANTIC_BASED | agent |
-| `PropagationMode` | DIRECT, REFERENCE, INCREMENTAL, HYBRID | agent |
-| `WorkflowExecutionStatus` | PENDING, RUNNING, PAUSED, COMPLETED, FAILED, CANCELLED | agent |
-| `TaskStatus` | PENDING, RUNNING, COMPLETED, FAILED, RETRYING, TIMEOUT, CANCELLED | agent |
-| `OrchestrationStrategy` | PARALLEL, SEQUENTIAL, AUTO | agent |
-| `OrchestrationPlanStatus` | PENDING, RUNNING, PAUSED, COMPLETED, FAILED, CANCELLED | agent |
-| `TransactionStatus` | ACTIVE, COMMITTED, ROLLED_BACK, EXPIRED | storage |
-| `IsolationLevel` | READ_UNCOMMITTED, READ_COMMITTED, REPEATABLE_READ, SERIALIZABLE | storage |
-| `StorageBackendType` | MEMORY, FILE, DATABASE | storage |
-| `SecurityPreset` | plan, create, work, yolo | tools |
-| `ContextItemType` | MESSAGE, STATE, TOOL_CALL, RESULT, ATTACHMENT, CUSTOM | agent |
-| `StateType` | SESSION, PERSISTENT, TEMPORARY | agent |
+| 枚举                      | 值                                                                              | 所属模块 |
+| ------------------------- | ------------------------------------------------------------------------------- | -------- |
+| `LifecycleState`          | CREATED, INITIALIZING, INITIALIZED, STARTING, RUNNING, STOPPING, STOPPED, ERROR | kernel   |
+| `AgentStatus`             | INITIALIZING, IDLE, BUSY, ERROR, SHUTTING_DOWN, OFFLINE                         | agent    |
+| `ContextStatus`           | INITIALIZING, ACTIVE, IDLE, ARCHIVED, DELETED                                   | agent    |
+| `ContextWindowType`       | RECENT_MESSAGES, RECENT_MINUTES, TOKEN_BASED, SEMANTIC_BASED                    | agent    |
+| `PropagationMode`         | DIRECT, REFERENCE, INCREMENTAL, HYBRID                                          | agent    |
+| `WorkflowExecutionStatus` | PENDING, RUNNING, PAUSED, COMPLETED, FAILED, CANCELLED                          | agent    |
+| `TaskStatus`              | PENDING, RUNNING, COMPLETED, FAILED, RETRYING, TIMEOUT, CANCELLED               | agent    |
+| `OrchestrationStrategy`   | PARALLEL, SEQUENTIAL, AUTO                                                      | agent    |
+| `OrchestrationPlanStatus` | PENDING, RUNNING, PAUSED, COMPLETED, FAILED, CANCELLED                          | agent    |
+| `TransactionStatus`       | ACTIVE, COMMITTED, ROLLED_BACK, EXPIRED                                         | storage  |
+| `IsolationLevel`          | READ_UNCOMMITTED, READ_COMMITTED, REPEATABLE_READ, SERIALIZABLE                 | storage  |
+| `StorageBackendType`      | MEMORY, FILE, DATABASE                                                          | storage  |
+| `SecurityPreset`          | plan, create, work, yolo                                                        | tools    |
+| `ContextItemType`         | MESSAGE, STATE, TOOL_CALL, RESULT, ATTACHMENT, CUSTOM                           | agent    |
+| `StateType`               | SESSION, PERSISTENT, TEMPORARY                                                  | agent    |
 
 ### C. 包依赖关系
 

@@ -14,12 +14,12 @@
 
 Sub-agents（子代理）是 `@organic/agent` 的核心编排能力，允许一个 **父 Agent** 将复杂任务分解为多个子任务，委托给多个 **子 Agent** 并行或串行执行，并最终聚合结果。整套机制由四个核心组件协作完成：
 
-| 组件 | 职责 |
-| --- | --- |
-| **Agent** | 创建和管理子 Agent，建立父子关系，提供嵌套执行上下文 |
-| **OrchestrationLayer** | 任务分解、Agent 选择、编排计划创建与执行 |
-| **ExecutionCoordinator** | 执行计划管理、重试与超时控制、并发限流、进度追踪 |
-| **AgentRegistry** | Agent 注册与发现、健康检查、心跳维持、负载均衡 |
+| 组件                     | 职责                                                 |
+| ------------------------ | ---------------------------------------------------- |
+| **Agent**                | 创建和管理子 Agent，建立父子关系，提供嵌套执行上下文 |
+| **OrchestrationLayer**   | 任务分解、Agent 选择、编排计划创建与执行             |
+| **ExecutionCoordinator** | 执行计划管理、重试与超时控制、并发限流、进度追踪     |
+| **AgentRegistry**        | Agent 注册与发现、健康检查、心跳维持、负载均衡       |
 
 ### 典型使用场景
 
@@ -85,8 +85,8 @@ const parentAgent = new Agent({
     name: 'Orchestrator',
     type: AgentType.ORCHESTRATOR,
     priority: AgentPriority.HIGH,
-    maxDepth: 3,               // 最大嵌套深度
-    maxParallelTasks: 10,      // 最大并行任务数
+    maxDepth: 3, // 最大嵌套深度
+    maxParallelTasks: 10, // 最大并行任务数
     capabilities: ['orchestration', 'planning'],
   },
 });
@@ -98,7 +98,7 @@ const childAgent = new Agent({
     id: 'worker-001',
     name: 'DataProcessor',
     type: AgentType.EXECUTOR,
-    parentId: 'orchestrator-001',  // 指定父 Agent
+    parentId: 'orchestrator-001', // 指定父 Agent
     capabilities: ['csv', 'json', 'data-validation'],
     maxParallelTasks: 5,
   },
@@ -125,12 +125,12 @@ const config: Partial<AgentConfig> = {
   version: '1.0.0',
   type: AgentType.ORCHESTRATOR,
   priority: AgentPriority.HIGH,
-  maxDepth: 3,               // 子 Agent 最大嵌套深度（默认 3）
-  maxParallelTasks: 10,      // 最大并行任务数（默认 10）
+  maxDepth: 3, // 子 Agent 最大嵌套深度（默认 3）
+  maxParallelTasks: 10, // 最大并行任务数（默认 10）
   communicationTimeout: 5000, // 通信超时 ms（默认 5000）
-  heartbeatInterval: 30,      // 心跳间隔 秒（默认 30）
+  heartbeatInterval: 30, // 心跳间隔 秒（默认 30）
   capabilities: ['orchestration', 'planning', 'decomposition'],
-  parentId: undefined,        // 顶级 Agent 不设置
+  parentId: undefined, // 顶级 Agent 不设置
 };
 ```
 
@@ -192,9 +192,9 @@ import {
 
 const orchestration = new OrchestrationLayer(
   registry,
-  undefined,  // 使用默认 ExecutionCoordinator
+  undefined, // 使用默认 ExecutionCoordinator
   {
-    autoDecompose: true,                  // 启用自动分解
+    autoDecompose: true, // 启用自动分解
     defaultStrategy: OrchestrationStrategy.AUTO,
     defaultTimeout: 60000,
     maxConcurrentOrchestrations: 10,
@@ -247,8 +247,8 @@ const result = await orchestration.orchestrate({
   strategy: OrchestrationStrategy.AUTO,
 });
 
-console.log(result.success);     // true
-console.log(result.duration);    // 执行耗时 ms
+console.log(result.success); // true
+console.log(result.duration); // 执行耗时 ms
 console.log(result.stepResults); // 每个子步骤的执行结果
 ```
 
@@ -374,15 +374,15 @@ enum OrchestrationPlanStatus {
 interface ExecutionPlan {
   requestId: string;
   steps: ExecutionStep[];
-  parallelGroups: string[][];     // 可并行执行的步骤组
+  parallelGroups: string[][]; // 可并行执行的步骤组
   estimatedDuration?: number;
 }
 
 interface ExecutionStep {
   stepId: string;
   request: ExecutionRequest;
-  dependsOn: string[];             // 依赖的步骤 ID
-  agentId?: string;                // 分配的 Agent
+  dependsOn: string[]; // 依赖的步骤 ID
+  agentId?: string; // 分配的 Agent
   status: 'pending' | 'running' | 'completed' | 'failed' | 'skipped';
   result?: ExecutionResult;
 }
@@ -458,9 +458,27 @@ const result = await orchestration.orchestrate({
   taskName: 'multi-format-report',
   payload: {
     subTasks: [
-      { subTaskId: 'pdf',  taskName: 'PDF Report',  payload: {}, dependsOn: [], requiredCapability: 'pdf' },
-      { subTaskId: 'html', taskName: 'HTML Report', payload: {}, dependsOn: [], requiredCapability: 'html' },
-      { subTaskId: 'csv',  taskName: 'CSV Report',  payload: {}, dependsOn: [], requiredCapability: 'csv' },
+      {
+        subTaskId: 'pdf',
+        taskName: 'PDF Report',
+        payload: {},
+        dependsOn: [],
+        requiredCapability: 'pdf',
+      },
+      {
+        subTaskId: 'html',
+        taskName: 'HTML Report',
+        payload: {},
+        dependsOn: [],
+        requiredCapability: 'html',
+      },
+      {
+        subTaskId: 'csv',
+        taskName: 'CSV Report',
+        payload: {},
+        dependsOn: [],
+        requiredCapability: 'csv',
+      },
     ],
   },
   strategy: OrchestrationStrategy.PARALLEL,
@@ -544,10 +562,10 @@ const DEFAULT_RETRY_CONFIG: Required<RetryConfig> = {
 
 **指数退避计算**：`delay = min(baseDelay × backoffFactor^(attempt-1), maxDelay)`
 
-| 尝试次数 | 延迟 |
-| --- | --- |
-| 第 1 次失败后 | 100ms |
-| 第 2 次失败后 | 200ms |
+| 尝试次数      | 延迟                               |
+| ------------- | ---------------------------------- |
+| 第 1 次失败后 | 100ms                              |
+| 第 2 次失败后 | 200ms                              |
 | 第 3 次失败后 | 400ms（然后达到 maxAttempts 停止） |
 
 ### 8.2 超时控制
@@ -563,7 +581,7 @@ const result = await orchestration.orchestrate({
   requestId: 'timeout-demo',
   taskName: 'long-task',
   payload: {},
-  timeout: 120000,  // 120 秒超时
+  timeout: 120000, // 120 秒超时
   retryConfig: {
     maxAttempts: 2,
     baseDelay: 1000,
@@ -581,7 +599,7 @@ coordinator.setDefaultTimeout(60000);
 ```typescript
 // 编排层最大并发编排数
 const orchestration = new OrchestrationLayer(registry, undefined, {
-  maxConcurrentOrchestrations: 10,  // 同时最多 10 个编排
+  maxConcurrentOrchestrations: 10, // 同时最多 10 个编排
 });
 
 // 达到上限时返回错误
@@ -628,9 +646,9 @@ interface ExecutionResult<T = unknown> {
   data?: T;
   error?: string;
   errorCode?: string;
-  duration: number;       // 执行耗时 ms
-  agentId?: string;       // 执行的 Agent
-  attempts: number;        // 实际尝试次数
+  duration: number; // 执行耗时 ms
+  agentId?: string; // 执行的 Agent
+  attempts: number; // 实际尝试次数
   metadata?: Record<string, unknown>;
 }
 ```
@@ -693,7 +711,7 @@ parentAgent.registerTaskHandler('complex-task', async (input, context) => {
   const result = await childAgent.execute({
     taskId: 'sub-task-001',
     payload: { data: input.someData },
-    parentTaskId: context.taskId,  // 建立父子关联
+    parentTaskId: context.taskId, // 建立父子关联
     timeout: 10000,
   });
 
@@ -736,12 +754,12 @@ import { AgentRegistry, AgentType, AgentRegistryStatus } from '@organic/agent';
 // 创建注册中心
 const registry = new AgentRegistry({
   name: 'production',
-  heartbeatTimeout: 30000,      // 心跳超时（默认 30000ms）
-  leaseDuration: 60000,          // 租约时长（默认 60000ms）
-  enableAutoCleanup: true,       // 自动清理过期条目
-  cleanupInterval: 60000,        // 清理间隔（默认 60000ms）
-  enableHealthCheck: true,       // 启用健康检查
-  healthCheckInterval: 10000,    // 健康检查间隔（默认 10000ms）
+  heartbeatTimeout: 30000, // 心跳超时（默认 30000ms）
+  leaseDuration: 60000, // 租约时长（默认 60000ms）
+  enableAutoCleanup: true, // 自动清理过期条目
+  cleanupInterval: 60000, // 清理间隔（默认 60000ms）
+  enableHealthCheck: true, // 启用健康检查
+  healthCheckInterval: 10000, // 健康检查间隔（默认 10000ms）
 });
 
 // 启动注册中心
@@ -768,20 +786,15 @@ registry.register({
 });
 
 // 方式 2：通过便捷方法注册
-registry.registerAgent(
-  'worker-002',
-  'ReportGenerator',
-  AgentType.EXECUTOR,
-  {
-    version: '1.0.0',
-    capabilities: [
-      { id: 'pdf', description: 'PDF generation' },
-      { id: 'html', description: 'HTML generation' },
-    ],
-    maxConcurrentTasks: 3,
-    tags: ['production', 'reporting'],
-  }
-);
+registry.registerAgent('worker-002', 'ReportGenerator', AgentType.EXECUTOR, {
+  version: '1.0.0',
+  capabilities: [
+    { id: 'pdf', description: 'PDF generation' },
+    { id: 'html', description: 'HTML generation' },
+  ],
+  maxConcurrentTasks: 3,
+  tags: ['production', 'reporting'],
+});
 ```
 
 ### 10.2 发现 Agent
@@ -893,23 +906,23 @@ registry.dispose();
 
 ```typescript
 interface AgentMetadata {
-  id: string;                           // 唯一标识
-  name: string;                         // 可读名称
-  type: AgentType;                      // ORCHESTRATOR | EXECUTOR | PLANNER | MONITOR | CUSTOM
-  version: string;                      // 版本号
-  capabilities: AgentCapability[];      // 能力列表
-  status: AgentRegistryStatus;          // ONLINE | BUSY | UNAVAILABLE | OFFLINE
-  load: number;                         // 当前负载 0-1
-  endpoint?: string;                    // 端点 URL
-  parentId?: string;                    // 父 Agent ID
-  childIds: string[];                   // 子 Agent ID 列表
-  maxConcurrentTasks: number;           // 最大并发任务数
-  activeTaskCount: number;              // 活跃任务数
-  tags: string[];                       // 标签
-  metadata?: Record<string, unknown>;   // 自定义元数据
-  registeredAt: number;                 // 注册时间戳
-  lastHeartbeatAt: number;              // 最后心跳时间戳
-  healthCheck?: HealthCheckResult;      // 健康检查结果
+  id: string; // 唯一标识
+  name: string; // 可读名称
+  type: AgentType; // ORCHESTRATOR | EXECUTOR | PLANNER | MONITOR | CUSTOM
+  version: string; // 版本号
+  capabilities: AgentCapability[]; // 能力列表
+  status: AgentRegistryStatus; // ONLINE | BUSY | UNAVAILABLE | OFFLINE
+  load: number; // 当前负载 0-1
+  endpoint?: string; // 端点 URL
+  parentId?: string; // 父 Agent ID
+  childIds: string[]; // 子 Agent ID 列表
+  maxConcurrentTasks: number; // 最大并发任务数
+  activeTaskCount: number; // 活跃任务数
+  tags: string[]; // 标签
+  metadata?: Record<string, unknown>; // 自定义元数据
+  registeredAt: number; // 注册时间戳
+  lastHeartbeatAt: number; // 最后心跳时间戳
+  healthCheck?: HealthCheckResult; // 健康检查结果
 }
 ```
 
@@ -951,16 +964,16 @@ OrchestrationLayer.cancel(requestId)
 
 ### 11.3 错误码
 
-| 错误码 | 说明 | 触发场景 |
-| --- | --- | --- |
-| `CANCELLED` | 任务被取消 | AbortSignal 触发 |
-| `NO_AGENT` | 无可用 Agent | 注册中心无匹配 Agent |
-| `EXECUTION_FAILED` | 执行失败 | 所有重试耗尽 |
-| `MAX_CONCURRENT` | 达到最大并发 | 活跃编排数 ≥ maxConcurrent |
-| `ORCHESTRATION_ERROR` | 编排异常 | 编排过程中抛出异常 |
-| `PLAN_NOT_FOUND` | 计划未找到 | resume 不存在的计划 |
-| `NOT_PAUSED` | 计划未暂停 | resume 非暂停状态的计划 |
-| `RESUME_FAILED` | 恢复执行失败 | 恢复执行过程中异常 |
+| 错误码                | 说明         | 触发场景                   |
+| --------------------- | ------------ | -------------------------- |
+| `CANCELLED`           | 任务被取消   | AbortSignal 触发           |
+| `NO_AGENT`            | 无可用 Agent | 注册中心无匹配 Agent       |
+| `EXECUTION_FAILED`    | 执行失败     | 所有重试耗尽               |
+| `MAX_CONCURRENT`      | 达到最大并发 | 活跃编排数 ≥ maxConcurrent |
+| `ORCHESTRATION_ERROR` | 编排异常     | 编排过程中抛出异常         |
+| `PLAN_NOT_FOUND`      | 计划未找到   | resume 不存在的计划        |
+| `NOT_PAUSED`          | 计划未暂停   | resume 非暂停状态的计划    |
+| `RESUME_FAILED`       | 恢复执行失败 | 恢复执行过程中异常         |
 
 ### 11.4 错误处理最佳实践
 
@@ -1067,12 +1080,7 @@ const orchestration = new OrchestrationLayer(
 // ============================================================
 // 3. 创建并注册 Worker Agents
 // ============================================================
-function createWorkerAgent(
-  id: string,
-  name: string,
-  capabilities: string[],
-  kernel: any
-): Agent {
+function createWorkerAgent(id: string, name: string, capabilities: string[], kernel: any): Agent {
   const agent = new Agent({
     kernel,
     config: {
@@ -1089,48 +1097,92 @@ function createWorkerAgent(
 }
 
 // 创建 4 个 Worker Agent
-const fetcher = createWorkerAgent('fetcher-01', 'DataFetcher',
-  ['http', 'file', 'database'], kernelApi);
-const cleaner = createWorkerAgent('cleaner-01', 'DataCleaner',
-  ['data-cleaning', 'validation'], kernelApi);
-const reporter = createWorkerAgent('reporter-01', 'ReportGenerator',
-  ['csv', 'json', 'pdf', 'html'], kernelApi);
-const publisher = createWorkerAgent('publisher-01', 'Publisher',
-  ['dashboard', 'email', 'slack'], kernelApi);
+const fetcher = createWorkerAgent(
+  'fetcher-01',
+  'DataFetcher',
+  ['http', 'file', 'database'],
+  kernelApi
+);
+const cleaner = createWorkerAgent(
+  'cleaner-01',
+  'DataCleaner',
+  ['data-cleaning', 'validation'],
+  kernelApi
+);
+const reporter = createWorkerAgent(
+  'reporter-01',
+  'ReportGenerator',
+  ['csv', 'json', 'pdf', 'html'],
+  kernelApi
+);
+const publisher = createWorkerAgent(
+  'publisher-01',
+  'Publisher',
+  ['dashboard', 'email', 'slack'],
+  kernelApi
+);
 
 // 注册到注册中心
 const agentMetas: AgentMetadata[] = [
   {
-    id: 'fetcher-01', name: 'DataFetcher', type: AgentType.EXECUTOR,
-    version: '1.0.0', status: AgentRegistryStatus.ONLINE, load: 0,
+    id: 'fetcher-01',
+    name: 'DataFetcher',
+    type: AgentType.EXECUTOR,
+    version: '1.0.0',
+    status: AgentRegistryStatus.ONLINE,
+    load: 0,
     capabilities: [{ id: 'http' }, { id: 'file' }, { id: 'database' }],
-    childIds: [], maxConcurrentTasks: 5, activeTaskCount: 0,
+    childIds: [],
+    maxConcurrentTasks: 5,
+    activeTaskCount: 0,
     tags: ['production', 'data-ingestion'],
-    registeredAt: Date.now(), lastHeartbeatAt: Date.now(),
+    registeredAt: Date.now(),
+    lastHeartbeatAt: Date.now(),
   },
   {
-    id: 'cleaner-01', name: 'DataCleaner', type: AgentType.EXECUTOR,
-    version: '1.0.0', status: AgentRegistryStatus.ONLINE, load: 0,
+    id: 'cleaner-01',
+    name: 'DataCleaner',
+    type: AgentType.EXECUTOR,
+    version: '1.0.0',
+    status: AgentRegistryStatus.ONLINE,
+    load: 0,
     capabilities: [{ id: 'data-cleaning' }, { id: 'validation' }],
-    childIds: [], maxConcurrentTasks: 5, activeTaskCount: 0,
+    childIds: [],
+    maxConcurrentTasks: 5,
+    activeTaskCount: 0,
     tags: ['production', 'data-processing'],
-    registeredAt: Date.now(), lastHeartbeatAt: Date.now(),
+    registeredAt: Date.now(),
+    lastHeartbeatAt: Date.now(),
   },
   {
-    id: 'reporter-01', name: 'ReportGenerator', type: AgentType.EXECUTOR,
-    version: '1.0.0', status: AgentRegistryStatus.ONLINE, load: 0,
+    id: 'reporter-01',
+    name: 'ReportGenerator',
+    type: AgentType.EXECUTOR,
+    version: '1.0.0',
+    status: AgentRegistryStatus.ONLINE,
+    load: 0,
     capabilities: [{ id: 'csv' }, { id: 'json' }, { id: 'pdf' }, { id: 'html' }],
-    childIds: [], maxConcurrentTasks: 5, activeTaskCount: 0,
+    childIds: [],
+    maxConcurrentTasks: 5,
+    activeTaskCount: 0,
     tags: ['production', 'reporting'],
-    registeredAt: Date.now(), lastHeartbeatAt: Date.now(),
+    registeredAt: Date.now(),
+    lastHeartbeatAt: Date.now(),
   },
   {
-    id: 'publisher-01', name: 'Publisher', type: AgentType.EXECUTOR,
-    version: '1.0.0', status: AgentRegistryStatus.ONLINE, load: 0,
+    id: 'publisher-01',
+    name: 'Publisher',
+    type: AgentType.EXECUTOR,
+    version: '1.0.0',
+    status: AgentRegistryStatus.ONLINE,
+    load: 0,
     capabilities: [{ id: 'dashboard' }, { id: 'email' }, { id: 'slack' }],
-    childIds: [], maxConcurrentTasks: 3, activeTaskCount: 0,
+    childIds: [],
+    maxConcurrentTasks: 3,
+    activeTaskCount: 0,
     tags: ['production', 'publishing'],
-    registeredAt: Date.now(), lastHeartbeatAt: Date.now(),
+    registeredAt: Date.now(),
+    lastHeartbeatAt: Date.now(),
   },
 ];
 
@@ -1259,7 +1311,9 @@ orchestration.on('orchestration:step-start', ({ stepId }) => {
 
 orchestration.on('orchestration:step-complete', ({ stepId, result }) => {
   const icon = result.success ? '✓' : '✗';
-  console.log(`  ${icon} Step completed: ${stepId} (${result.duration}ms, agent: ${result.agentId})`);
+  console.log(
+    `  ${icon} Step completed: ${stepId} (${result.duration}ms, agent: ${result.agentId})`
+  );
 });
 
 orchestration.on('orchestration:step-failed', ({ stepId, error }) => {
@@ -1298,7 +1352,9 @@ async function runPipeline(): Promise<OrchestrationResult> {
 
     console.log('\n📋 Step Details:');
     for (const step of result.stepResults ?? []) {
-      console.log(`   [${step.agentId}] ${step.success ? '✓' : '✗'} (${step.attempts} attempts, ${step.duration}ms)`);
+      console.log(
+        `   [${step.agentId}] ${step.success ? '✓' : '✗'} (${step.attempts} attempts, ${step.duration}ms)`
+      );
     }
   } else {
     console.error(`\n❌ Pipeline failed: ${result.error}`);
@@ -1349,87 +1405,87 @@ runPipeline().then(() => {
 
 ### 13.1 AgentConfig
 
-| 配置项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `id` | `string` | `agent_<timestamp>` | Agent 唯一标识 |
-| `name` | `string` | `'Agent'` | Agent 名称 |
-| `version` | `string` | `'0.1.0'` | 版本号 |
-| `type` | `AgentType` | `EXECUTOR` | Agent 类型 |
-| `priority` | `AgentPriority` | `NORMAL` | 优先级 |
-| `maxDepth` | `number` | `3` | 子 Agent 最大嵌套深度 |
-| `maxParallelTasks` | `number` | `10` | 最大并行任务数 |
-| `communicationTimeout` | `number` | `5000` | 通信超时（ms） |
-| `heartbeatInterval` | `number` | `30` | 心跳间隔（秒） |
-| `capabilities` | `string[]` | `[]` | 能力列表 |
-| `parentId` | `string` | `undefined` | 父 Agent ID |
+| 配置项                 | 类型            | 默认值              | 说明                  |
+| ---------------------- | --------------- | ------------------- | --------------------- |
+| `id`                   | `string`        | `agent_<timestamp>` | Agent 唯一标识        |
+| `name`                 | `string`        | `'Agent'`           | Agent 名称            |
+| `version`              | `string`        | `'0.1.0'`           | 版本号                |
+| `type`                 | `AgentType`     | `EXECUTOR`          | Agent 类型            |
+| `priority`             | `AgentPriority` | `NORMAL`            | 优先级                |
+| `maxDepth`             | `number`        | `3`                 | 子 Agent 最大嵌套深度 |
+| `maxParallelTasks`     | `number`        | `10`                | 最大并行任务数        |
+| `communicationTimeout` | `number`        | `5000`              | 通信超时（ms）        |
+| `heartbeatInterval`    | `number`        | `30`                | 心跳间隔（秒）        |
+| `capabilities`         | `string[]`      | `[]`                | 能力列表              |
+| `parentId`             | `string`        | `undefined`         | 父 Agent ID           |
 
 ### 13.2 OrchestrationLayerConfig
 
-| 配置项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `defaultTimeout` | `number` | `60000` | 默认编排超时（ms） |
-| `maxConcurrentOrchestrations` | `number` | `10` | 最大并发编排数 |
-| `autoDecompose` | `boolean` | `false` | 启用自动任务分解 |
-| `defaultStrategy` | `OrchestrationStrategy` | `AUTO` | 默认执行策略 |
+| 配置项                        | 类型                    | 默认值  | 说明               |
+| ----------------------------- | ----------------------- | ------- | ------------------ |
+| `defaultTimeout`              | `number`                | `60000` | 默认编排超时（ms） |
+| `maxConcurrentOrchestrations` | `number`                | `10`    | 最大并发编排数     |
+| `autoDecompose`               | `boolean`               | `false` | 启用自动任务分解   |
+| `defaultStrategy`             | `OrchestrationStrategy` | `AUTO`  | 默认执行策略       |
 
 ### 13.3 RetryConfig
 
-| 配置项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `maxAttempts` | `number` | `3` | 最大重试次数 |
-| `baseDelay` | `number` | `100` | 基础延迟（ms） |
-| `maxDelay` | `number` | `5000` | 最大延迟（ms） |
-| `backoffFactor` | `number` | `2` | 指数退避因子 |
+| 配置项          | 类型     | 默认值 | 说明           |
+| --------------- | -------- | ------ | -------------- |
+| `maxAttempts`   | `number` | `3`    | 最大重试次数   |
+| `baseDelay`     | `number` | `100`  | 基础延迟（ms） |
+| `maxDelay`      | `number` | `5000` | 最大延迟（ms） |
+| `backoffFactor` | `number` | `2`    | 指数退避因子   |
 
 ### 13.4 AgentRegistryConfig
 
-| 配置项 | 类型 | 默认值 | 说明 |
-| --- | --- | --- | --- |
-| `name` | `string` | `'default'` | 注册中心名称 |
-| `heartbeatTimeout` | `number` | `30000` | 心跳超时（ms） |
-| `leaseDuration` | `number` | `60000` | 租约时长（ms） |
-| `enableAutoCleanup` | `boolean` | `true` | 启用自动清理 |
-| `cleanupInterval` | `number` | `60000` | 清理间隔（ms） |
-| `enableHealthCheck` | `boolean` | `true` | 启用健康检查 |
-| `healthCheckInterval` | `number` | `10000` | 健康检查间隔（ms） |
+| 配置项                | 类型      | 默认值      | 说明               |
+| --------------------- | --------- | ----------- | ------------------ |
+| `name`                | `string`  | `'default'` | 注册中心名称       |
+| `heartbeatTimeout`    | `number`  | `30000`     | 心跳超时（ms）     |
+| `leaseDuration`       | `number`  | `60000`     | 租约时长（ms）     |
+| `enableAutoCleanup`   | `boolean` | `true`      | 启用自动清理       |
+| `cleanupInterval`     | `number`  | `60000`     | 清理间隔（ms）     |
+| `enableHealthCheck`   | `boolean` | `true`      | 启用健康检查       |
+| `healthCheckInterval` | `number`  | `10000`     | 健康检查间隔（ms） |
 
 ### 13.5 OrchestrationStrategy 枚举
 
-| 值 | 说明 |
-| --- | --- |
-| `PARALLEL` | 所有步骤并行执行，适用于无依赖的独立任务 |
-| `SEQUENTIAL` | 按顺序执行，前一步结果自动注入下一步 |
-| `AUTO` | 根据依赖关系自动决定并行/串行，依赖满足则执行 |
+| 值           | 说明                                          |
+| ------------ | --------------------------------------------- |
+| `PARALLEL`   | 所有步骤并行执行，适用于无依赖的独立任务      |
+| `SEQUENTIAL` | 按顺序执行，前一步结果自动注入下一步          |
+| `AUTO`       | 根据依赖关系自动决定并行/串行，依赖满足则执行 |
 
 ### 13.6 OrchestrationPlanStatus 枚举
 
-| 值 | 说明 |
-| --- | --- |
-| `PENDING` | 计划已创建，等待执行 |
-| `RUNNING` | 计划正在执行中 |
-| `PAUSED` | 计划已暂停 |
-| `COMPLETED` | 计划执行完毕 |
-| `FAILED` | 计划执行失败 |
-| `CANCELLED` | 计划已取消 |
+| 值          | 说明                 |
+| ----------- | -------------------- |
+| `PENDING`   | 计划已创建，等待执行 |
+| `RUNNING`   | 计划正在执行中       |
+| `PAUSED`    | 计划已暂停           |
+| `COMPLETED` | 计划执行完毕         |
+| `FAILED`    | 计划执行失败         |
+| `CANCELLED` | 计划已取消           |
 
 ### 13.7 AgentType 枚举
 
-| 值 | 说明 |
-| --- | --- |
+| 值             | 说明                           |
+| -------------- | ------------------------------ |
 | `ORCHESTRATOR` | 编排 Agent，负责任务分解和调度 |
-| `EXECUTOR` | 执行 Agent，执行具体任务 |
-| `PLANNER` | 规划 Agent，创建执行计划 |
-| `MONITOR` | 监控 Agent，观察系统状态 |
-| `CUSTOM` | 自定义类型 |
+| `EXECUTOR`     | 执行 Agent，执行具体任务       |
+| `PLANNER`      | 规划 Agent，创建执行计划       |
+| `MONITOR`      | 监控 Agent，观察系统状态       |
+| `CUSTOM`       | 自定义类型                     |
 
 ### 13.8 AgentRegistryStatus 枚举
 
-| 值 | 说明 |
-| --- | --- |
-| `ONLINE` | 在线且就绪 |
-| `BUSY` | 忙碌中 |
+| 值            | 说明       |
+| ------------- | ---------- |
+| `ONLINE`      | 在线且就绪 |
+| `BUSY`        | 忙碌中     |
 | `UNAVAILABLE` | 暂时不可用 |
-| `OFFLINE` | 离线 |
+| `OFFLINE`     | 离线       |
 
 ---
 
@@ -1458,7 +1514,7 @@ runPipeline().then(() => {
 const parentAgent = new Agent({
   kernel,
   config: {
-    maxDepth: 3,  // 最多 3 层嵌套：Parent → Child → Grandchild
+    maxDepth: 3, // 最多 3 层嵌套：Parent → Child → Grandchild
     // 超过 maxDepth 时应拒绝创建更深层的子 Agent
   },
 });
@@ -1496,7 +1552,7 @@ const ioAgent = new Agent({
 
 // ✅ 编排层全局并发限制
 const orchestration = new OrchestrationLayer(registry, undefined, {
-  maxConcurrentOrchestrations: 5,  // 防止编排风暴
+  maxConcurrentOrchestrations: 5, // 防止编排风暴
 });
 ```
 
@@ -1605,29 +1661,29 @@ process.on('SIGINT', gracefulShutdown);
 
 ## 附录 A：事件总线速查
 
-| 事件名 | 来源 | 参数 |
-| --- | --- | --- |
-| `orchestration:start` | OrchestrationLayer | `{ requestId }` |
-| `orchestration:step-start` | OrchestrationLayer | `{ requestId, stepId }` |
-| `orchestration:step-complete` | OrchestrationLayer | `{ requestId, stepId, result }` |
-| `orchestration:step-failed` | OrchestrationLayer | `{ requestId, stepId, error }` |
-| `orchestration:complete` | OrchestrationLayer | `{ requestId, result }` |
-| `orchestration:failed` | OrchestrationLayer | `{ requestId, error }` |
-| `orchestration:paused` | OrchestrationLayer | `{ planId }` |
-| `orchestration:resumed` | OrchestrationLayer | `{ planId }` |
-| `agent:registered` | OrchestrationLayer / AgentRegistry | `{ agentId }` / `{ agentId, metadata }` |
-| `agent:unregistered` | OrchestrationLayer / AgentRegistry | `{ agentId }` |
-| `agent:updated` | AgentRegistry | `{ agentId, metadata }` |
-| `agent:heartbeat` | AgentRegistry | `{ agentId, timestamp }` |
-| `agent:health-check` | AgentRegistry | `{ agentId, result }` |
-| `cleanup:completed` | AgentRegistry | `{ removed }` |
-| `task:start` | Agent | `{ taskId, timestamp }` |
-| `task:complete` | Agent | `{ taskId, result, timestamp }` |
-| `task:error` | Agent | `{ taskId, error, timestamp }` |
-| `child:register` | Agent | `{ childId, timestamp }` |
-| `child:unregister` | Agent | `{ childId, timestamp }` |
-| `status:change` | Agent | `{ oldStatus, newStatus, timestamp }` |
-| `heartbeat` | Agent | `{ timestamp, load }` |
+| 事件名                        | 来源                               | 参数                                    |
+| ----------------------------- | ---------------------------------- | --------------------------------------- |
+| `orchestration:start`         | OrchestrationLayer                 | `{ requestId }`                         |
+| `orchestration:step-start`    | OrchestrationLayer                 | `{ requestId, stepId }`                 |
+| `orchestration:step-complete` | OrchestrationLayer                 | `{ requestId, stepId, result }`         |
+| `orchestration:step-failed`   | OrchestrationLayer                 | `{ requestId, stepId, error }`          |
+| `orchestration:complete`      | OrchestrationLayer                 | `{ requestId, result }`                 |
+| `orchestration:failed`        | OrchestrationLayer                 | `{ requestId, error }`                  |
+| `orchestration:paused`        | OrchestrationLayer                 | `{ planId }`                            |
+| `orchestration:resumed`       | OrchestrationLayer                 | `{ planId }`                            |
+| `agent:registered`            | OrchestrationLayer / AgentRegistry | `{ agentId }` / `{ agentId, metadata }` |
+| `agent:unregistered`          | OrchestrationLayer / AgentRegistry | `{ agentId }`                           |
+| `agent:updated`               | AgentRegistry                      | `{ agentId, metadata }`                 |
+| `agent:heartbeat`             | AgentRegistry                      | `{ agentId, timestamp }`                |
+| `agent:health-check`          | AgentRegistry                      | `{ agentId, result }`                   |
+| `cleanup:completed`           | AgentRegistry                      | `{ removed }`                           |
+| `task:start`                  | Agent                              | `{ taskId, timestamp }`                 |
+| `task:complete`               | Agent                              | `{ taskId, result, timestamp }`         |
+| `task:error`                  | Agent                              | `{ taskId, error, timestamp }`          |
+| `child:register`              | Agent                              | `{ childId, timestamp }`                |
+| `child:unregister`            | Agent                              | `{ childId, timestamp }`                |
+| `status:change`               | Agent                              | `{ oldStatus, newStatus, timestamp }`   |
+| `heartbeat`                   | Agent                              | `{ timestamp, load }`                   |
 
 ---
 
@@ -1635,32 +1691,65 @@ process.on('SIGINT', gracefulShutdown);
 
 ```typescript
 // 核心 Agent
-Agent, AgentResult<T>, AgentTaskInput, AgentTaskHandler<T,R>,
-AgentExecutionContext, AgentEvents, AgentConfig, AgentConfigOptions,
-AgentType, AgentPriority, AgentState, AgentStateOptions, AgentStats,
-AgentStatus, createAgentConfig, createAgentState, getAgentStats
+(Agent,
+  AgentResult<T>,
+  AgentTaskInput,
+  AgentTaskHandler<T, R>,
+  AgentExecutionContext,
+  AgentEvents,
+  AgentConfig,
+  AgentConfigOptions,
+  AgentType,
+  AgentPriority,
+  AgentState,
+  AgentStateOptions,
+  AgentStats,
+  AgentStatus,
+  createAgentConfig,
+  createAgentState,
+  getAgentStats);
 
 // 编排层
-OrchestrationLayer, OrchestrationLayerConfig,
-OrchestrationRequest, OrchestrationResult<T>,
-OrchestrationLayerPlan, OrchestrationStrategy,
-OrchestrationPlanStatus, DecomposedTask,
-AgentSelectionStrategy, OrchestrationLayerEvents,
-createOrchestrationLayer
+(OrchestrationLayer,
+  OrchestrationLayerConfig,
+  OrchestrationRequest,
+  OrchestrationResult<T>,
+  OrchestrationLayerPlan,
+  OrchestrationStrategy,
+  OrchestrationPlanStatus,
+  DecomposedTask,
+  AgentSelectionStrategy,
+  OrchestrationLayerEvents,
+  createOrchestrationLayer);
 
 // 执行协调器
-ExecutionCoordinator, ExecutionRequest, ExecutionResult<T>,
-ExecutionPlan, ExecutionStep, RetryConfig,
-DEFAULT_RETRY_CONFIG, CoordinatorEvents
+(ExecutionCoordinator,
+  ExecutionRequest,
+  ExecutionResult<T>,
+  ExecutionPlan,
+  ExecutionStep,
+  RetryConfig,
+  DEFAULT_RETRY_CONFIG,
+  CoordinatorEvents);
 
 // 注册中心
-AgentRegistry, AgentRegistryConfig, AgentRegistryStatus,
-AgentMetadata, AgentType, AgentCapability, AgentSelector,
-RegistryEntry, RegistryStats, HealthCheckResult,
-RegistryEvents, createRegistry, createAgentMetadata,
-isAgentHealthy, canAgentAcceptTasks, compareByLoad
+(AgentRegistry,
+  AgentRegistryConfig,
+  AgentRegistryStatus,
+  AgentMetadata,
+  AgentType,
+  AgentCapability,
+  AgentSelector,
+  RegistryEntry,
+  RegistryStats,
+  HealthCheckResult,
+  RegistryEvents,
+  createRegistry,
+  createAgentMetadata,
+  isAgentHealthy,
+  canAgentAcceptTasks,
+  compareByLoad);
 
 // 默认配置
-DEFAULT_AGENT_CONFIG, DEFAULT_ORCHESTRATION_CONFIG, DEFAULT_RETRY_CONFIG,
-DEFAULT_REGISTRY_CONFIG
+(DEFAULT_AGENT_CONFIG, DEFAULT_ORCHESTRATION_CONFIG, DEFAULT_RETRY_CONFIG, DEFAULT_REGISTRY_CONFIG);
 ```

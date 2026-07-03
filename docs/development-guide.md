@@ -151,15 +151,15 @@ pnpm --filter @organic/ui test:watch
 
 ### 命名规范
 
-| 元素 | 规范 | 示例 |
-|------|------|------|
-| 变量 | camelCase | `userName` |
-| 函数 | camelCase | `getConfig()` |
-| 类 | PascalCase | `Sandbox` |
-| 接口 | PascalCase | `SandboxConfig` |
-| 类型别名 | PascalCase | `UIPermissionLevel` |
-| 常量 | UPPER_SNAKE_CASE | `DEFAULT_CONFIG` |
-| 文件名 | kebab-case | `sandbox.ts` |
+| 元素     | 规范             | 示例                |
+| -------- | ---------------- | ------------------- |
+| 变量     | camelCase        | `userName`          |
+| 函数     | camelCase        | `getConfig()`       |
+| 类       | PascalCase       | `Sandbox`           |
+| 接口     | PascalCase       | `SandboxConfig`     |
+| 类型别名 | PascalCase       | `UIPermissionLevel` |
+| 常量     | UPPER_SNAKE_CASE | `DEFAULT_CONFIG`    |
+| 文件名   | kebab-case       | `sandbox.ts`        |
 
 ### ESLint
 
@@ -205,10 +205,10 @@ e2e/                     # 端到端测试
 
 ### 测试类型
 
-| 类型 | 位置 | 说明 |
-|------|------|------|
-| 单元测试 | `packages/<pkg>/src/__tests__/` | 测试单个模块 |
-| E2E 测试 | `e2e/` | 测试用户操作流程 |
+| 类型     | 位置                            | 说明             |
+| -------- | ------------------------------- | ---------------- |
+| 单元测试 | `packages/<pkg>/src/__tests__/` | 测试单个模块     |
+| E2E 测试 | `e2e/`                          | 测试用户操作流程 |
 
 ### 运行测试
 
@@ -273,11 +273,13 @@ logger.error('Error');
 ### 步骤
 
 1. 创建包目录：
+
 ```bash
 mkdir -p packages/my-package/src
 ```
 
 2. 创建 `package.json`：
+
 ```json
 {
   "name": "@organic/my-package",
@@ -294,6 +296,7 @@ mkdir -p packages/my-package/src
 ```
 
 3. 创建 `tsconfig.json`：
+
 ```json
 {
   "extends": "../../tsconfig.base.json",
@@ -308,6 +311,7 @@ mkdir -p packages/my-package/src
 4. 创建 `src/index.ts` 导出入口。
 
 5. 安装依赖并构建：
+
 ```bash
 pnpm install
 pnpm build

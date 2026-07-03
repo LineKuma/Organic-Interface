@@ -1,16 +1,12 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { ExecutionPreview } from '../ExecutionPreview.js';
+import type { OrchestrationLayerPlan } from '../OrchestrationLayer.js';
+import { OrchestrationPlanStatus, OrchestrationStrategy } from '../OrchestrationLayer.js';
 import {
-  ExecutionPreview,
-  type PreviewItem,
-  type PreviewResult,
-} from '../ExecutionPreview.js';
-import {
-  OrchestrationLayerPlan,
-  OrchestrationPlanStatus,
-  OrchestrationStrategy,
-  type OrchestrationRequest,
-} from '../OrchestrationLayer.js';
-import { type ExecutionPlan, type ExecutionStep, type ExecutionRequest } from '../ExecutionCoordinator.js';
+  type ExecutionPlan,
+  type ExecutionStep,
+  type ExecutionRequest,
+} from '../ExecutionCoordinator.js';
 
 vi.mock('@organic/utils', () => ({
   createLogger: () => ({
@@ -87,10 +83,7 @@ describe('ExecutionPreview', () => {
 
   describe('preview', () => {
     it('should generate preview for a plan', () => {
-      const steps = [
-        createStep('step_0', 'Task A'),
-        createStep('step_1', 'Task B', ['step_0']),
-      ];
+      const steps = [createStep('step_0', 'Task A'), createStep('step_1', 'Task B', ['step_0'])];
       const plan = createOrchPlan('plan_1', steps);
 
       const result = preview.preview(plan);
@@ -111,17 +104,12 @@ describe('ExecutionPreview', () => {
     });
 
     it('should include risk breakdown', () => {
-      const steps = [
-        createStep('step_0', 'Task A'),
-        createStep('step_1', 'Task B', ['step_0']),
-      ];
+      const steps = [createStep('step_0', 'Task A'), createStep('step_1', 'Task B', ['step_0'])];
       const plan = createOrchPlan('plan_1', steps);
 
       const result = preview.preview(plan);
       expect(result.risks).toBeDefined();
-      expect(result.risks.high + result.risks.medium + result.risks.low).toBe(
-        result.items.length
-      );
+      expect(result.risks.high + result.risks.medium + result.risks.low).toBe(result.items.length);
     });
   });
 
@@ -183,13 +171,9 @@ describe('ExecutionPreview', () => {
 
     it('should account for payload complexity', () => {
       const simplePayload = createStep('step_0', 'Task A', [], undefined, { small: 'data' });
-      const complexPayload = createStep(
-        'step_0',
-        'Task A',
-        [],
-        undefined,
-        { large: 'x'.repeat(2000) }
-      );
+      const complexPayload = createStep('step_0', 'Task A', [], undefined, {
+        large: 'x'.repeat(2000),
+      });
 
       const planSimple = createOrchPlan('plan_1', [simplePayload]);
       const planComplex = createOrchPlan('plan_2', [complexPayload]);
@@ -270,7 +254,7 @@ describe('ExecutionPreview', () => {
       const risks = preview.detectRisks(plan);
       // step_0 has many dependents, should be medium or higher risk
       const step0Risk = [...risks.high, ...risks.medium, ...risks.low].find(
-        (item) => item.id === 'step_0'
+        item => item.id === 'step_0'
       );
       expect(step0Risk).toBeDefined();
       expect(['medium', 'high']).toContain(step0Risk!.risk);
@@ -294,7 +278,7 @@ describe('ExecutionPreview', () => {
       const plan = createOrchPlan('plan_1', steps);
 
       const warnings = preview.generateWarnings(plan);
-      expect(warnings.some((w) => w.includes('parallel execution'))).toBe(true);
+      expect(warnings.some(w => w.includes('parallel execution'))).toBe(true);
     });
 
     it('should warn about high-risk steps', () => {
@@ -310,7 +294,7 @@ describe('ExecutionPreview', () => {
       const plan = createOrchPlan('plan_1', steps);
 
       const warnings = preview.generateWarnings(plan);
-      expect(warnings.some((w) => w.includes('high risk'))).toBe(true);
+      expect(warnings.some(w => w.includes('high risk'))).toBe(true);
     });
 
     it('should warn about steps with many dependencies', () => {
@@ -322,13 +306,18 @@ describe('ExecutionPreview', () => {
         createStep('step_4', 'Task E'),
         createStep('step_5', 'Task F'),
         createStep('step_6', 'Complex', [
-          'step_0', 'step_1', 'step_2', 'step_3', 'step_4', 'step_5',
+          'step_0',
+          'step_1',
+          'step_2',
+          'step_3',
+          'step_4',
+          'step_5',
         ]),
       ];
       const plan = createOrchPlan('plan_1', steps);
 
       const warnings = preview.generateWarnings(plan);
-      expect(warnings.some((w) => w.includes('bottlenecks'))).toBe(true);
+      expect(warnings.some(w => w.includes('bottlenecks'))).toBe(true);
     });
 
     it('should detect circular dependencies', () => {
@@ -355,7 +344,7 @@ describe('ExecutionPreview', () => {
       const plan = createOrchPlan('plan_1', [stepA, stepB]);
 
       const warnings = preview.generateWarnings(plan);
-      expect(warnings.some((w) => w.includes('Circular'))).toBe(true);
+      expect(warnings.some(w => w.includes('Circular'))).toBe(true);
     });
   });
 
@@ -398,10 +387,7 @@ describe('ExecutionPreview', () => {
     });
 
     it('should use tree connectors', () => {
-      const steps = [
-        createStep('step_0', 'Root'),
-        createStep('step_1', 'Child', ['step_0']),
-      ];
+      const steps = [createStep('step_0', 'Root'), createStep('step_1', 'Child', ['step_0'])];
       const plan = createOrchPlan('plan_1', steps);
       const result = preview.preview(plan);
 
@@ -412,10 +398,7 @@ describe('ExecutionPreview', () => {
 
   describe('formatTimeline', () => {
     it('should format as timeline', () => {
-      const steps = [
-        createStep('step_0', 'Task A'),
-        createStep('step_1', 'Task B'),
-      ];
+      const steps = [createStep('step_0', 'Task A'), createStep('step_1', 'Task B')];
       const plan = createOrchPlan('plan_1', steps);
       const result = preview.preview(plan);
 

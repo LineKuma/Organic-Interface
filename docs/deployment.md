@@ -85,22 +85,22 @@ pnpm build
 
 ### 生产环境
 
-| 项目 | 要求 |
-|------|------|
+| 项目     | 要求                               |
+| -------- | ---------------------------------- |
 | 操作系统 | Linux (Ubuntu 20.04+ / Debian 11+) |
-| Node.js | 18.0.0+（推荐 20 LTS） |
-| 内存 | 最少 512MB |
-| 磁盘 | 最少 1GB 可用空间 |
+| Node.js  | 18.0.0+（推荐 20 LTS）             |
+| 内存     | 最少 512MB                         |
+| 磁盘     | 最少 1GB 可用空间                  |
 
 ### 开发环境
 
-| 项目 | 要求 |
-|------|------|
+| 项目     | 要求                           |
+| -------- | ------------------------------ |
 | 操作系统 | macOS / Linux / Windows (WSL2) |
-| Node.js | 20 LTS（推荐） |
-| pnpm | 8.0.0+ |
-| 内存 | 最少 2GB |
-| 磁盘 | 最少 1GB 可用空间 |
+| Node.js  | 20 LTS（推荐）                 |
+| pnpm     | 8.0.0+                         |
+| 内存     | 最少 2GB                       |
+| 磁盘     | 最少 1GB 可用空间              |
 
 ---
 
@@ -108,20 +108,20 @@ pnpm build
 
 ### 配置文件位置
 
-| 配置 | 路径 | 说明 |
-|------|------|------|
+| 配置     | 路径                       | 说明   |
+| -------- | -------------------------- | ------ |
 | 系统配置 | `/etc/organic/config.json` | 系统级 |
-| 项目配置 | `./.organic.json` | 项目级 |
-| 用户配置 | `~/.organic/config.json` | 用户级 |
+| 项目配置 | `./.organic.json`          | 项目级 |
+| 用户配置 | `~/.organic/config.json`   | 用户级 |
 
 ### 环境变量
 
-| 变量 | 说明 | 示例 |
-|------|------|------|
-| `ORGANIC_HOME` | 安装目录 | `/opt/organic` |
-| `ORGANIC_CONFIG` | 配置文件路径 | `/etc/organic/config.json` |
-| `ORGANIC_LOG_LEVEL` | 日志级别 | `info` / `debug` / `warn` / `error` |
-| `ORGANIC_PERMISSION_LEVEL` | 默认权限级别 | `L2` |
+| 变量                       | 说明         | 示例                                |
+| -------------------------- | ------------ | ----------------------------------- |
+| `ORGANIC_HOME`             | 安装目录     | `/opt/organic`                      |
+| `ORGANIC_CONFIG`           | 配置文件路径 | `/etc/organic/config.json`          |
+| `ORGANIC_LOG_LEVEL`        | 日志级别     | `info` / `debug` / `warn` / `error` |
+| `ORGANIC_PERMISSION_LEVEL` | 默认权限级别 | `L2`                                |
 
 ### 生产配置示例
 
@@ -199,16 +199,19 @@ docker run -d --name organic organic-interface:latest
 ### 生产环境优化
 
 1. **仅安装生产依赖**:
+
 ```bash
 pnpm install --prod
 ```
 
 2. **使用生产模式**:
+
 ```bash
 NODE_ENV=production organic
 ```
 
 3. **限制内存使用**:
+
 ```bash
 NODE_OPTIONS="--max-old-space-size=512" organic
 ```
@@ -251,12 +254,12 @@ sandbox.updateConfig({
 
 ### 日志级别
 
-| 级别 | 说明 | 使用场景 |
-|------|------|----------|
-| `debug` | 调试信息 | 开发环境 |
-| `info` | 一般信息 | 生产环境 |
-| `warn` | 警告 | 需要关注 |
-| `error` | 错误 | 需要立即处理 |
+| 级别    | 说明     | 使用场景     |
+| ------- | -------- | ------------ |
+| `debug` | 调试信息 | 开发环境     |
+| `info`  | 一般信息 | 生产环境     |
+| `warn`  | 警告     | 需要关注     |
+| `error` | 错误     | 需要立即处理 |
 
 ### 设置日志级别
 

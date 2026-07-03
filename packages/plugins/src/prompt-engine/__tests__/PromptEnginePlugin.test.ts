@@ -126,10 +126,12 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should compile inline template', async () => {
-      const result = await plugin.execute(createPluginInput('compile', {
-        template: 'Hello {{name}}!',
-        variables: { name: 'World' },
-      }));
+      const result = await plugin.execute(
+        createPluginInput('compile', {
+          template: 'Hello {{name}}!',
+          variables: { name: 'World' },
+        })
+      );
 
       expect(result.success).toBe(true);
       const data = result.data as { compiled: string };
@@ -138,14 +140,18 @@ describe('PromptEnginePlugin', () => {
 
     it('should compile registered template by ID', async () => {
       // Register a custom template first
-      await plugin.execute(createPluginInput('register', {
-        template: createTestTemplate({ id: 'hello-tpl', content: 'Hi {{name}}' }),
-      }));
+      await plugin.execute(
+        createPluginInput('register', {
+          template: createTestTemplate({ id: 'hello-tpl', content: 'Hi {{name}}' }),
+        })
+      );
 
-      const result = await plugin.execute(createPluginInput('compile', {
-        templateId: 'hello-tpl',
-        variables: { name: 'Alice' },
-      }));
+      const result = await plugin.execute(
+        createPluginInput('compile', {
+          templateId: 'hello-tpl',
+          variables: { name: 'Alice' },
+        })
+      );
 
       expect(result.success).toBe(true);
       const data = result.data as { compiled: string };
@@ -159,10 +165,12 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should throw error for non-existent template ID', async () => {
-      const result = await plugin.execute(createPluginInput('compile', {
-        templateId: 'non-existent',
-        variables: {},
-      }));
+      const result = await plugin.execute(
+        createPluginInput('compile', {
+          templateId: 'non-existent',
+          variables: {},
+        })
+      );
       expect(result.success).toBe(false);
       expect(result.error).toContain('not found');
     });
@@ -176,9 +184,11 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should register a new template', async () => {
-      const result = await plugin.execute(createPluginInput('register', {
-        template: createTestTemplate(),
-      }));
+      const result = await plugin.execute(
+        createPluginInput('register', {
+          template: createTestTemplate(),
+        })
+      );
 
       expect(result.success).toBe(true);
       const template = result.data as PromptTemplate;
@@ -187,9 +197,11 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should create initial version', async () => {
-      const result = await plugin.execute(createPluginInput('register', {
-        template: createTestTemplate(),
-      }));
+      const result = await plugin.execute(
+        createPluginInput('register', {
+          template: createTestTemplate(),
+        })
+      );
 
       expect(result.success).toBe(true);
       const template = result.data as PromptTemplate;
@@ -211,9 +223,11 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should get a template by ID', async () => {
-      await plugin.execute(createPluginInput('register', {
-        template: createTestTemplate(),
-      }));
+      await plugin.execute(
+        createPluginInput('register', {
+          template: createTestTemplate(),
+        })
+      );
 
       const result = await plugin.execute(createPluginInput('get', { id: 'custom-1' }));
       expect(result.success).toBe(true);
@@ -249,9 +263,11 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should list with filter', async () => {
-      const result = await plugin.execute(createPluginInput('list', {
-        filter: { category: 'code' },
-      }));
+      const result = await plugin.execute(
+        createPluginInput('list', {
+          filter: { category: 'code' },
+        })
+      );
       expect(result.success).toBe(true);
       const templates = result.data as PromptTemplate[];
       for (const t of templates) {
@@ -287,16 +303,20 @@ describe('PromptEnginePlugin', () => {
   describe('update action', () => {
     beforeEach(async () => {
       await plugin.initialize(createMockContext());
-      await plugin.execute(createPluginInput('register', {
-        template: createTestTemplate(),
-      }));
+      await plugin.execute(
+        createPluginInput('register', {
+          template: createTestTemplate(),
+        })
+      );
     });
 
     it('should update template properties', async () => {
-      const result = await plugin.execute(createPluginInput('update', {
-        id: 'custom-1',
-        updates: { name: 'Updated Name' },
-      }));
+      const result = await plugin.execute(
+        createPluginInput('update', {
+          id: 'custom-1',
+          updates: { name: 'Updated Name' },
+        })
+      );
 
       expect(result.success).toBe(true);
       const template = result.data as PromptTemplate;
@@ -304,11 +324,13 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should create version when content changes', async () => {
-      const result = await plugin.execute(createPluginInput('update', {
-        id: 'custom-1',
-        updates: { content: 'New content {{name}}' },
-        message: 'Content update',
-      }));
+      const result = await plugin.execute(
+        createPluginInput('update', {
+          id: 'custom-1',
+          updates: { content: 'New content {{name}}' },
+          message: 'Content update',
+        })
+      );
 
       expect(result.success).toBe(true);
       const template = result.data as PromptTemplate;
@@ -316,10 +338,12 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should throw for non-existent template', async () => {
-      const result = await plugin.execute(createPluginInput('update', {
-        id: 'non-existent',
-        updates: { name: 'test' },
-      }));
+      const result = await plugin.execute(
+        createPluginInput('update', {
+          id: 'non-existent',
+          updates: { name: 'test' },
+        })
+      );
       expect(result.success).toBe(false);
       expect(result.error).toContain('not found');
     });
@@ -330,9 +354,11 @@ describe('PromptEnginePlugin', () => {
   describe('delete action', () => {
     beforeEach(async () => {
       await plugin.initialize(createMockContext());
-      await plugin.execute(createPluginInput('register', {
-        template: createTestTemplate(),
-      }));
+      await plugin.execute(
+        createPluginInput('register', {
+          template: createTestTemplate(),
+        })
+      );
     });
 
     it('should delete a template', async () => {
@@ -358,26 +384,32 @@ describe('PromptEnginePlugin', () => {
   describe('version actions', () => {
     beforeEach(async () => {
       await plugin.initialize(createMockContext());
-      await plugin.execute(createPluginInput('register', {
-        template: createTestTemplate({
-          id: 'tpl-1',
-          content: 'Version 1 content',
-        }),
-      }));
+      await plugin.execute(
+        createPluginInput('register', {
+          template: createTestTemplate({
+            id: 'tpl-1',
+            content: 'Version 1 content',
+          }),
+        })
+      );
     });
 
     it('should get version history', async () => {
       // Update to create new versions
-      await plugin.execute(createPluginInput('update', {
-        id: 'tpl-1',
-        updates: { content: 'Version 2 content' },
-        message: 'v2',
-      }));
-      await plugin.execute(createPluginInput('update', {
-        id: 'tpl-1',
-        updates: { content: 'Version 3 content' },
-        message: 'v3',
-      }));
+      await plugin.execute(
+        createPluginInput('update', {
+          id: 'tpl-1',
+          updates: { content: 'Version 2 content' },
+          message: 'v2',
+        })
+      );
+      await plugin.execute(
+        createPluginInput('update', {
+          id: 'tpl-1',
+          updates: { content: 'Version 3 content' },
+          message: 'v3',
+        })
+      );
 
       const result = await plugin.execute(createPluginInput('history', { templateId: 'tpl-1' }));
       expect(result.success).toBe(true);
@@ -386,17 +418,21 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should diff two versions', async () => {
-      await plugin.execute(createPluginInput('update', {
-        id: 'tpl-1',
-        updates: { content: 'Modified content' },
-        message: 'modified',
-      }));
+      await plugin.execute(
+        createPluginInput('update', {
+          id: 'tpl-1',
+          updates: { content: 'Modified content' },
+          message: 'modified',
+        })
+      );
 
-      const result = await plugin.execute(createPluginInput('diff', {
-        templateId: 'tpl-1',
-        v1: '1.0.0',
-        v2: '1.0.1',
-      }));
+      const result = await plugin.execute(
+        createPluginInput('diff', {
+          templateId: 'tpl-1',
+          v1: '1.0.0',
+          v2: '1.0.1',
+        })
+      );
 
       expect(result.success).toBe(true);
       const data = result.data as { diff: string };
@@ -405,16 +441,20 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should rollback to a previous version', async () => {
-      await plugin.execute(createPluginInput('update', {
-        id: 'tpl-1',
-        updates: { content: 'Modified content' },
-        message: 'modified',
-      }));
+      await plugin.execute(
+        createPluginInput('update', {
+          id: 'tpl-1',
+          updates: { content: 'Modified content' },
+          message: 'modified',
+        })
+      );
 
-      const result = await plugin.execute(createPluginInput('rollback', {
-        templateId: 'tpl-1',
-        targetVersion: '1.0.0',
-      }));
+      const result = await plugin.execute(
+        createPluginInput('rollback', {
+          templateId: 'tpl-1',
+          targetVersion: '1.0.0',
+        })
+      );
 
       expect(result.success).toBe(true);
       const version = result.data as TemplateVersion;
@@ -423,10 +463,12 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should throw rollback for non-existent version', async () => {
-      const result = await plugin.execute(createPluginInput('rollback', {
-        templateId: 'tpl-1',
-        targetVersion: '9.9.9',
-      }));
+      const result = await plugin.execute(
+        createPluginInput('rollback', {
+          templateId: 'tpl-1',
+          targetVersion: '9.9.9',
+        })
+      );
 
       expect(result.success).toBe(false);
       expect(result.error).toContain('not found');
@@ -460,9 +502,11 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should export specific templates', async () => {
-      const result = await plugin.execute(createPluginInput('export', {
-        ids: ['builtin-code-review', 'builtin-bug-fix'],
-      }));
+      const result = await plugin.execute(
+        createPluginInput('export', {
+          ids: ['builtin-code-review', 'builtin-bug-fix'],
+        })
+      );
       expect(result.success).toBe(true);
       const templates = result.data as PromptTemplate[];
       expect(templates).toHaveLength(2);
@@ -477,10 +521,12 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should validate a correct template', async () => {
-      const result = await plugin.execute(createPluginInput('validate', {
-        template: 'Hello {{name}}!',
-        variables: [{ name: 'name', type: 'string', required: true }],
-      }));
+      const result = await plugin.execute(
+        createPluginInput('validate', {
+          template: 'Hello {{name}}!',
+          variables: [{ name: 'name', type: 'string', required: true }],
+        })
+      );
 
       expect(result.success).toBe(true);
       const data = result.data as { valid: boolean };
@@ -488,10 +534,12 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should detect invalid template', async () => {
-      const result = await plugin.execute(createPluginInput('validate', {
-        template: 'Hello {{name',
-        variables: [],
-      }));
+      const result = await plugin.execute(
+        createPluginInput('validate', {
+          template: 'Hello {{name',
+          variables: [],
+        })
+      );
 
       expect(result.success).toBe(true);
       const data = result.data as { valid: boolean };
@@ -507,9 +555,11 @@ describe('PromptEnginePlugin', () => {
     });
 
     it('should extract variables from template', async () => {
-      const result = await plugin.execute(createPluginInput('extractVariables', {
-        template: 'Hello {{name}}, your role is {{role}}',
-      }));
+      const result = await plugin.execute(
+        createPluginInput('extractVariables', {
+          template: 'Hello {{name}}, your role is {{role}}',
+        })
+      );
 
       expect(result.success).toBe(true);
       const data = result.data as { variables: string[] };
@@ -587,9 +637,11 @@ describe('PromptEnginePlugin', () => {
       await plugin.initialize(createMockContext());
 
       // 1. Register a template
-      const regResult = await plugin.execute(createPluginInput('register', {
-        template: createTestTemplate({ id: 'lifecycle-test', content: 'Hello {{name}}!' }),
-      }));
+      const regResult = await plugin.execute(
+        createPluginInput('register', {
+          template: createTestTemplate({ id: 'lifecycle-test', content: 'Hello {{name}}!' }),
+        })
+      );
       expect(regResult.success).toBe(true);
 
       // 2. Get the template
@@ -597,42 +649,54 @@ describe('PromptEnginePlugin', () => {
       expect(getResult.success).toBe(true);
 
       // 3. Compile the template
-      const compileResult = await plugin.execute(createPluginInput('compile', {
-        templateId: 'lifecycle-test',
-        variables: { name: 'World' },
-      }));
+      const compileResult = await plugin.execute(
+        createPluginInput('compile', {
+          templateId: 'lifecycle-test',
+          variables: { name: 'World' },
+        })
+      );
       expect(compileResult.success).toBe(true);
       expect((compileResult.data as { compiled: string }).compiled).toBe('Hello World!');
 
       // 4. Update the template
-      const updateResult = await plugin.execute(createPluginInput('update', {
-        id: 'lifecycle-test',
-        updates: { content: 'Goodbye {{name}}!' },
-        message: 'Changed greeting',
-      }));
+      const updateResult = await plugin.execute(
+        createPluginInput('update', {
+          id: 'lifecycle-test',
+          updates: { content: 'Goodbye {{name}}!' },
+          message: 'Changed greeting',
+        })
+      );
       expect(updateResult.success).toBe(true);
 
       // 5. Check history
-      const historyResult = await plugin.execute(createPluginInput('history', { templateId: 'lifecycle-test' }));
+      const historyResult = await plugin.execute(
+        createPluginInput('history', { templateId: 'lifecycle-test' })
+      );
       expect(historyResult.success).toBe(true);
       const history = historyResult.data as TemplateVersion[];
       expect(history.length).toBeGreaterThanOrEqual(2);
 
       // 6. Rollback
-      const rollbackResult = await plugin.execute(createPluginInput('rollback', {
-        templateId: 'lifecycle-test',
-        targetVersion: '1.0.0',
-      }));
+      const rollbackResult = await plugin.execute(
+        createPluginInput('rollback', {
+          templateId: 'lifecycle-test',
+          targetVersion: '1.0.0',
+        })
+      );
       expect(rollbackResult.success).toBe(true);
 
       // 7. Export
-      const exportResult = await plugin.execute(createPluginInput('export', { ids: ['lifecycle-test'] }));
+      const exportResult = await plugin.execute(
+        createPluginInput('export', { ids: ['lifecycle-test'] })
+      );
       expect(exportResult.success).toBe(true);
       const exported = exportResult.data as PromptTemplate[];
       expect(exported).toHaveLength(1);
 
       // 8. Delete
-      const deleteResult = await plugin.execute(createPluginInput('delete', { id: 'lifecycle-test' }));
+      const deleteResult = await plugin.execute(
+        createPluginInput('delete', { id: 'lifecycle-test' })
+      );
       expect(deleteResult.success).toBe(true);
       expect((deleteResult.data as { deleted: boolean }).deleted).toBe(true);
     });
@@ -640,14 +704,16 @@ describe('PromptEnginePlugin', () => {
     it('should handle built-in template compilation', async () => {
       await plugin.initialize(createMockContext());
 
-      const result = await plugin.execute(createPluginInput('compile', {
-        templateId: 'builtin-code-review',
-        variables: {
-          language: 'typescript',
-          code: 'function add(a: number, b: number) { return a + b; }',
-          focus: ['security', 'performance'],
-        },
-      }));
+      const result = await plugin.execute(
+        createPluginInput('compile', {
+          templateId: 'builtin-code-review',
+          variables: {
+            language: 'typescript',
+            code: 'function add(a: number, b: number) { return a + b; }',
+            focus: ['security', 'performance'],
+          },
+        })
+      );
 
       expect(result.success).toBe(true);
       const data = result.data as { compiled: string };

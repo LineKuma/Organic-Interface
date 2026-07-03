@@ -129,9 +129,6 @@ export class SearchFilterSelect {
       cursor: 0,
     };
 
-    // Collect all unique tags
-    const allTags = this.collectTags(options);
-
     // Initial filter
     this.applyFilters(options, mergedConfig, state);
 
@@ -185,7 +182,7 @@ export class SearchFilterSelect {
     state: SearchFilterState
   ): void {
     // Always filter out disabled options first
-    let filtered = options.filter((o) => !o.disabled);
+    let filtered = options.filter(o => !o.disabled);
 
     // Filter by search text
     if (config.enableSearch && state.query.trim()) {
@@ -221,7 +218,7 @@ export class SearchFilterSelect {
   ): SearchFilterOption[] {
     const searchQuery = caseSensitive ? query : query.toLowerCase();
 
-    return options.filter((option) => {
+    return options.filter(option => {
       if (option.disabled) return false;
 
       const label = caseSensitive ? option.label : option.label.toLowerCase();
@@ -232,9 +229,11 @@ export class SearchFilterSelect {
           : option.description.toLowerCase()
         : '';
 
-      return this.fuzzyMatch(label, searchQuery) ||
+      return (
+        this.fuzzyMatch(label, searchQuery) ||
         this.fuzzyMatch(value, searchQuery) ||
-        this.fuzzyMatch(desc, searchQuery);
+        this.fuzzyMatch(desc, searchQuery)
+      );
     });
   }
 
@@ -262,10 +261,10 @@ export class SearchFilterSelect {
     options: SearchFilterOption[],
     selectedTags: Set<string>
   ): SearchFilterOption[] {
-    return options.filter((option) => {
+    return options.filter(option => {
       if (option.disabled) return false;
       if (!option.tags || option.tags.length === 0) return false;
-      return option.tags.some((tag) => selectedTags.has(tag));
+      return option.tags.some(tag => selectedTags.has(tag));
     });
   }
 
@@ -402,17 +401,13 @@ export class SearchFilterSelect {
 
     // Search bar
     if (config.enableSearch) {
-      lines.push(
-        `\x1b[36mSearch:\x1b[0m ${state.query || '\x1b[2m(empty)\x1b[0m'}`
-      );
+      lines.push(`\x1b[36mSearch:\x1b[0m ${state.query || '\x1b[2m(empty)\x1b[0m'}`);
     }
 
     // Tag filters
     if (config.enableTags && allTags.length > 0) {
       const tagDisplay = allTags
-        .map((tag) =>
-          state.selectedTags.has(tag) ? `\x1b[7m${tag}\x1b[0m` : `\x1b[2m${tag}\x1b[0m`
-        )
+        .map(tag => (state.selectedTags.has(tag) ? `\x1b[7m${tag}\x1b[0m` : `\x1b[2m${tag}\x1b[0m`))
         .join(' ');
       lines.push(`\x1b[36mTags:\x1b[0m ${tagDisplay}`);
     }
@@ -447,7 +442,9 @@ export class SearchFilterSelect {
 
     // Help text
     if (multi) {
-      lines.push('\x1b[2m[↑/↓] Navigate  [Space] Toggle  [Enter] Confirm  [Esc] Cancel  [←/→] Page\x1b[0m');
+      lines.push(
+        '\x1b[2m[↑/↓] Navigate  [Space] Toggle  [Enter] Confirm  [Esc] Cancel  [←/→] Page\x1b[0m'
+      );
     } else {
       lines.push('\x1b[2m[↑/↓] Navigate  [Enter] Select  [Esc] Cancel  [←/→] Page\x1b[0m');
     }
@@ -465,8 +462,12 @@ export class SearchFilterSelect {
   /**
    * Filter options by search text only (utility method)
    */
-  search(options: SearchFilterOption[], query: string, caseSensitive: boolean = false): SearchFilterOption[] {
-    if (!query.trim()) return options.filter((o) => !o.disabled);
+  search(
+    options: SearchFilterOption[],
+    query: string,
+    caseSensitive: boolean = false
+  ): SearchFilterOption[] {
+    if (!query.trim()) return options.filter(o => !o.disabled);
     return this.filterBySearch(options, query, caseSensitive);
   }
 
@@ -474,7 +475,7 @@ export class SearchFilterSelect {
    * Filter options by tags only (utility method)
    */
   filterByTag(options: SearchFilterOption[], tags: string[]): SearchFilterOption[] {
-    if (tags.length === 0) return options.filter((o) => !o.disabled);
+    if (tags.length === 0) return options.filter(o => !o.disabled);
     const tagSet = new Set(tags);
     return this.filterByTags(options, tagSet);
   }

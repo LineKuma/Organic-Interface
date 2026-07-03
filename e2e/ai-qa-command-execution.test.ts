@@ -488,8 +488,8 @@ describe('AI Q&A Command Execution', () => {
 
       // Tool execution should fail due to timeout.
       // Either the agent itself fails (timeout propagated), or the tool result is unsuccessful.
-      const overallFailure = !result.success ||
-        (result.data?.toolResults?.[0] && !result.data.toolResults[0].success);
+      const overallFailure =
+        !result.success || (result.data?.toolResults?.[0] && !result.data.toolResults[0].success);
       expect(overallFailure).toBe(true);
     });
   });
