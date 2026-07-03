@@ -486,16 +486,11 @@ describe('AI Q&A Command Execution', () => {
         payload: { query: 'timeout' },
       });
 
-      // Tool execution should fail due to timeout
-      // The agent may return an error if the handler fails, or data with failed tool results
-      if (result.success && result.data) {
-        const toolResult = result.data!.toolResults[0];
-        expect(toolResult.success).toBe(false);
-      } else {
-        // Agent itself failed (e.g., timeout propagated)
-        expect(result.success).toBe(false);
-        expect(result.error).toBeDefined();
-      }
+      // Tool execution should fail due to timeout.
+      // Either the agent itself fails (timeout propagated), or the tool result is unsuccessful.
+      const overallFailure = !result.success ||
+        (result.data?.toolResults?.[0] && !result.data.toolResults[0].success);
+      expect(overallFailure).toBe(true);
     });
   });
 

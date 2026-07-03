@@ -20,9 +20,7 @@ describe('Storage Service', () => {
 
   afterEach(async () => {
     await storageManager.close();
-    if (kernel.getStatus().state !== LifecycleState.STOPPED) {
-      await kernel.stop();
-    }
+    await kernel.stop();
   });
 
   describe('StorageManager', () => {

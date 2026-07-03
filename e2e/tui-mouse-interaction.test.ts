@@ -160,11 +160,10 @@ describe('TUI 鼠标事件处理', () => {
 
       expect(events.length).toBeGreaterThan(0);
       const mousedown = events.find(e => e.type === 'mousedown');
-      if (mousedown) {
-        expect(mousedown.button).toBe('left');
-        expect(mousedown.x).toBe(10);
-        expect(mousedown.y).toBe(5);
-      }
+      expect(mousedown).toBeDefined();
+      expect(mousedown!.button).toBe('left');
+      expect(mousedown!.x).toBe(10);
+      expect(mousedown!.y).toBe(5);
     });
 
     it('用户点击鼠标中键', () => {
@@ -173,9 +172,8 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMouseRelease(1, 15, 8));
 
       const mousedown = events.find(e => e.type === 'mousedown');
-      if (mousedown) {
-        expect(mousedown.button).toBe('middle');
-      }
+      expect(mousedown).toBeDefined();
+      expect(mousedown!.button).toBe('middle');
     });
 
     it('用户点击鼠标右键', () => {
@@ -184,9 +182,8 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMouseRelease(2, 20, 10));
 
       const mousedown = events.find(e => e.type === 'mousedown');
-      if (mousedown) {
-        expect(mousedown.button).toBe('right');
-      }
+      expect(mousedown).toBeDefined();
+      expect(mousedown!.button).toBe('right');
     });
 
     it('用户鼠标移动', () => {
@@ -205,9 +202,8 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMouseRelease(0, 10, 5, true, false, false));
 
       const mousedown = events.find(e => e.type === 'mousedown');
-      if (mousedown) {
-        expect(mousedown.shift).toBe(true);
-      }
+      expect(mousedown).toBeDefined();
+      expect(mousedown!.shift).toBe(true);
     });
 
     it('用户使用修饰键点击（Ctrl+Click）', () => {
@@ -216,9 +212,8 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMouseRelease(0, 10, 5, false, false, true));
 
       const mousedown = events.find(e => e.type === 'mousedown');
-      if (mousedown) {
-        expect(mousedown.ctrl).toBe(true);
-      }
+      expect(mousedown).toBeDefined();
+      expect(mousedown!.ctrl).toBe(true);
     });
 
     it('用户使用修饰键点击（Alt+Click）', () => {
@@ -227,9 +222,8 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMouseRelease(0, 10, 5, false, true, false));
 
       const mousedown = events.find(e => e.type === 'mousedown');
-      if (mousedown) {
-        expect(mousedown.alt).toBe(true);
-      }
+      expect(mousedown).toBeDefined();
+      expect(mousedown!.alt).toBe(true);
     });
 
     it('用户使用组合修饰键点击（Ctrl+Shift+Click）', () => {
@@ -238,10 +232,9 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMouseRelease(0, 10, 5, true, false, true));
 
       const mousedown = events.find(e => e.type === 'mousedown');
-      if (mousedown) {
-        expect(mousedown.shift).toBe(true);
-        expect(mousedown.ctrl).toBe(true);
-      }
+      expect(mousedown).toBeDefined();
+      expect(mousedown!.shift).toBe(true);
+      expect(mousedown!.ctrl).toBe(true);
     });
 
     it('用户鼠标滚轮向上', () => {
@@ -249,9 +242,8 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMouseWheel(true, 10, 5));
 
       const wheel = events.find(e => e.type === 'wheel');
-      if (wheel) {
-        expect(wheel.button).toBe('wheelUp');
-      }
+      expect(wheel).toBeDefined();
+      expect(wheel!.button).toBe('wheelUp');
     });
 
     it('用户鼠标滚轮向下', () => {
@@ -259,9 +251,8 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMouseWheel(false, 10, 5));
 
       const wheel = events.find(e => e.type === 'wheel');
-      if (wheel) {
-        expect(wheel.button).toBe('wheelDown');
-      }
+      expect(wheel).toBeDefined();
+      expect(wheel!.button).toBe('wheelDown');
     });
 
     it('用户滚轮事件同时触发 wheel 事件', () => {
@@ -270,9 +261,7 @@ describe('TUI 鼠标事件处理', () => {
 
       const wheel = events.find(e => e.type === 'wheel');
       expect(wheel).toBeDefined();
-      if (wheel) {
-        expect(wheel.button).toBe('wheelUp');
-      }
+      expect(wheel!.button).toBe('wheelUp');
     });
 
     it('用户监听所有事件（* 通配符）', () => {
@@ -293,10 +282,9 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMousePress(0, 10, 5));
 
       const mousedown = events.find(e => e.type === 'mousedown');
-      if (mousedown) {
-        expect(mousedown.timestamp).toBeDefined();
-        expect(typeof mousedown.timestamp).toBe('number');
-      }
+      expect(mousedown).toBeDefined();
+      expect(mousedown!.timestamp).toBeDefined();
+      expect(typeof mousedown!.timestamp).toBe('number');
     });
 
     it('用户鼠标事件的坐标是 1-indexed', () => {
@@ -304,10 +292,9 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMousePress(0, 1, 1));
 
       const mousedown = events.find(e => e.type === 'mousedown');
-      if (mousedown) {
-        expect(mousedown.x).toBeGreaterThanOrEqual(1);
-        expect(mousedown.y).toBeGreaterThanOrEqual(1);
-      }
+      expect(mousedown).toBeDefined();
+      expect(mousedown!.x).toBeGreaterThanOrEqual(1);
+      expect(mousedown!.y).toBeGreaterThanOrEqual(1);
     });
   });
 
@@ -406,12 +393,11 @@ describe('TUI 鼠标事件处理', () => {
       injectStdinData(sgrMouseDrag(0, 20, 12));
       injectStdinData(sgrMouseRelease(0, 20, 12));
 
-      if (dragEvents.length >= 2) {
-        expect(dragEvents[0].x).toBe(15);
-        expect(dragEvents[0].y).toBe(8);
-        expect(dragEvents[1].x).toBe(20);
-        expect(dragEvents[1].y).toBe(12);
-      }
+      expect(dragEvents.length).toBeGreaterThanOrEqual(2);
+      expect(dragEvents[0].x).toBe(15);
+      expect(dragEvents[0].y).toBe(8);
+      expect(dragEvents[1].x).toBe(20);
+      expect(dragEvents[1].y).toBe(12);
     });
   });
 
