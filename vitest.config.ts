@@ -15,6 +15,7 @@ export default defineConfig({
       'packages/utils/src/errors/__tests__/*.test.ts',
       'packages/plugins/src/core-conversation/src/__tests__/*.test.ts',
       'packages/plugins/src/core-conversation/src/errors/__tests__/*.test.ts',
+      'packages/plugins/src/prompt-engine/__tests__/*.test.ts',
       'packages/storage/src/__tests__/*.test.ts',
       'packages/agent/src/**/*.test.ts',
       'packages/tools/src/**/*.test.ts',

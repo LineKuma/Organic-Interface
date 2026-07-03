@@ -37,6 +37,12 @@ export {
   renderTable,
 } from './components/Table.js';
 
+export {
+  SearchFilterSelect,
+  type SearchFilterOption,
+  type SearchFilterConfig,
+} from './components/SearchFilterSelect.js';
+
 // Re-export UI core modules
 export {
   UIOperationManager,
@@ -86,6 +92,39 @@ export {
   type UIOperationRequest,
   DEFAULT_UI_AGENT_CONFIG,
 } from './core/UIAgent.js';
+
+export {
+  OperationRecorder,
+  type RecordedOperation,
+  type RecordingSession,
+  type RecordingFilter,
+  type OperationStats,
+  type OperationRecorderEvents,
+} from './core/OperationRecorder.js';
+
+export {
+  OperationReplayer,
+  type ReplayOptions,
+  type ReplayProgress,
+  type ReplayResult,
+  type ReplayError,
+  type ReplayEvents,
+} from './core/OperationReplayer.js';
+
+export {
+  OperationDiff,
+  type OperationDiffResult,
+} from './core/OperationDiff.js';
+
+// Configuration wizard
+export {
+  ConfigWizard,
+  type WizardStep,
+  type WizardStepType,
+  type WizardConfig,
+  type WizardResult,
+  BUILTIN_WIZARDS,
+} from './core/ConfigWizard.js';
 
 // CLI interface
 export { CLI } from './cli/CLI.js';

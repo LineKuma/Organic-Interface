@@ -80,6 +80,33 @@ export type {
   ContextError,
 } from './core-conversation/src/index.js';
 
+// Re-export prompt-engine plugin
+export {
+  PromptEnginePlugin,
+  TemplateEngine,
+  VersionManager,
+  PromptRegistry,
+  METADATA as PROMPT_ENGINE_METADATA,
+  PLUGIN_ID as PROMPT_ENGINE_PLUGIN_ID,
+} from './prompt-engine/index.js';
+
+export type {
+  TemplateVariableType,
+  TemplateVariableValidation,
+  TemplateVariable,
+  TemplateBlockType,
+  TemplateBlock,
+  TemplateVersion,
+  PromptTemplate,
+  TemplateCategory,
+  TemplateFilter,
+  ImportResult,
+  ImportError,
+  TemplateValidationResult,
+  TemplateValidationError,
+  TemplateValidationWarning,
+} from './prompt-engine/index.js';
+
 /**
  * Module version
  */

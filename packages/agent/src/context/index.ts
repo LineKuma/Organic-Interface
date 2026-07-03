@@ -86,3 +86,23 @@ export {
   PropagationMode,
   DEFAULT_CONTEXT_SERVICE_CONFIG,
 } from './services/ContextService.js';
+
+// File reference exports
+export {
+  SupportedLanguage,
+  SymbolKind,
+  type LanguageConfig,
+  type FileSymbol,
+  type ParsedFile,
+  type FileIndex,
+  type FileReferenceResult,
+  type ParseOptions,
+  type IndexOptions,
+  DEFAULT_PARSE_OPTIONS,
+  DEFAULT_INDEX_OPTIONS,
+  LanguageRegistry,
+  FileParser,
+  SymbolIndexer,
+  FileReferenceService,
+  type FileReferenceServiceConfig,
+} from './file-reference/index.js';

@@ -32,3 +32,17 @@ export {
   type CoordinatorEvents,
   ExecutionCoordinator,
 } from './ExecutionCoordinator.js';
+
+// ExecutionPreview - Preview and analyze execution plans
+export {
+  ExecutionPreview,
+  type PreviewItem,
+  type PreviewResult,
+} from './ExecutionPreview.js';
+
+// SessionAutoRecovery - Automatic session recovery
+export {
+  SessionAutoRecovery,
+  type RecoveryState,
+  type RecoveryResult,
+} from './SessionAutoRecovery.js';
