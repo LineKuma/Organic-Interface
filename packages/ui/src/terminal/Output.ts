@@ -19,7 +19,7 @@ export class Output {
   private theme: Theme;
   private verbose: boolean;
 
-  constructor(theme?: Theme, verbose: boolean = false) {
+  constructor(theme?: Theme, verbose = false) {
     this.theme = theme ?? defaultTheme;
     this.verbose = verbose;
   }
@@ -93,25 +93,25 @@ export class Output {
   }
 
   /** Print a key-value pair */
-  keyValue(key: string, value: string, indent: number = 0): void {
+  keyValue(key: string, value: string, indent = 0): void {
     const prefix = ' '.repeat(indent);
     console.log(`${prefix}${this.theme.colors.muted(key)} ${value}`);
   }
 
   /** Print a bullet list item */
-  bullet(text: string, indent: number = 0): void {
+  bullet(text: string, indent = 0): void {
     const prefix = ' '.repeat(indent);
     console.log(`${prefix}${this.theme.colors.accent('•')} ${text}`);
   }
 
   /** Print a numbered list item */
-  numbered(index: number, text: string, indent: number = 0): void {
+  numbered(index: number, text: string, indent = 0): void {
     const prefix = ' '.repeat(indent);
     console.log(`${prefix}${this.theme.colors.accent(`${index}.`)} ${text}`);
   }
 
   /** Print a divider line */
-  divider(width: number = 60): void {
+  divider(width = 60): void {
     console.log(this.theme.colors.border('─'.repeat(width)));
   }
 

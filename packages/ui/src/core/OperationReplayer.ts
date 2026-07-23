@@ -126,13 +126,13 @@ export class OperationReplayer extends EventEmitter {
   private progress: ReplayProgress | null = null;
 
   /** Replay start time */
-  private startTime: number = 0;
+  private startTime = 0;
 
   /** Elapsed time before pause */
-  private elapsedBeforePause: number = 0;
+  private elapsedBeforePause = 0;
 
   /** Pause timestamp */
-  private pauseTime: number = 0;
+  private pauseTime = 0;
 
   /** Abort controller for stopping replay */
   private abortController: AbortController | null = null;
@@ -141,10 +141,10 @@ export class OperationReplayer extends EventEmitter {
   private pauseResolve: (() => void) | null = null;
 
   /** Current operation index */
-  private currentIndex: number = 0;
+  private currentIndex = 0;
 
   /** Total operations in current replay */
-  private totalOps: number = 0;
+  private totalOps = 0;
 
   /** Current operation */
   private currentOp: RecordedOperation | null = null;

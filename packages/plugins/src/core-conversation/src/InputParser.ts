@@ -20,7 +20,7 @@ import {
 /**
  * Regular expression patterns for command parsing
  */
-const JSON_PATTERN = /^\s*[\[{]/;
+const JSON_PATTERN = /^\s*[[{]/;
 
 /**
  * Input parser options
@@ -394,9 +394,7 @@ Usage:
     let current = '';
     let inQuote: string | null = null;
 
-    for (let i = 0; i < str.length; i++) {
-      const char = str[i];
-
+    for (const char of str) {
       if (inQuote) {
         if (char === inQuote) {
           inQuote = null;

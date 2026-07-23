@@ -70,14 +70,14 @@ export class EventBus {
   private matchesPattern(type: string, pattern: string): boolean {
     if (pattern.endsWith(':*')) {
       const prefix = pattern.slice(0, -2);
-      return type.startsWith(prefix + ':') || type.startsWith(prefix + '/');
+      return type.startsWith(`${prefix}:`) || type.startsWith(`${prefix}/`);
     }
     if (pattern.startsWith('*:')) {
       const suffix = pattern.slice(2);
-      return type.endsWith(':' + suffix) || type.endsWith('/' + suffix);
+      return type.endsWith(`:${suffix}`) || type.endsWith(`/${suffix}`);
     }
     if (pattern.includes('*')) {
-      const regex = new RegExp('^' + pattern.replace(/\*/g, '[^:]*') + '$');
+      const regex = new RegExp(`^${pattern.replace(/\*/g, '[^:]*')}$`);
       return regex.test(type);
     }
     return false;
@@ -162,7 +162,7 @@ export class EventBus {
     this.logger.debug(`Emitting event: ${type}`);
 
     const listeners = this.listeners.get(type);
-    const hasExactListeners = listeners && listeners.length > 0;
+    const hasExactListeners = listeners !== undefined && listeners.length > 0;
     const hasWildcardListeners = this.wildcardListeners.size > 0;
 
     if (!hasExactListeners && !hasWildcardListeners) {
@@ -171,8 +171,8 @@ export class EventBus {
 
     if (this.async) {
       setImmediate(() => {
-        if (hasExactListeners) {
-          for (const listener of listeners!) {
+        if (listeners !== undefined && listeners.length > 0) {
+          for (const listener of listeners) {
             try {
               listener(event);
             } catch (error) {
@@ -194,8 +194,8 @@ export class EventBus {
         }
       });
     } else {
-      if (hasExactListeners) {
-        for (const listener of listeners!) {
+      if (listeners !== undefined && listeners.length > 0) {
+        for (const listener of listeners) {
           try {
             listener(event);
           } catch (error) {

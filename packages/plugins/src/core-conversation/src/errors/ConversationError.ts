@@ -21,7 +21,7 @@ export class ConversationError extends Error {
    * @param code - Error code
    * @param details - Additional error details
    */
-  constructor(message: string, code: string = 'CONVERSATION_ERROR', details?: unknown) {
+  constructor(message: string, code = 'CONVERSATION_ERROR', details?: unknown) {
     super(message);
     this.name = 'ConversationError';
     this.code = code;

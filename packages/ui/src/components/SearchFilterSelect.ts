@@ -299,7 +299,7 @@ export class SearchFilterSelect {
    * Highlight matching text in a string
    * Returns the string with matches wrapped in ANSI highlight codes
    */
-  highlightText(text: string, query: string, caseSensitive: boolean = false): string {
+  highlightText(text: string, query: string, caseSensitive = false): string {
     if (!query) return text;
 
     const searchQuery = caseSensitive ? query : query.toLowerCase();
@@ -344,8 +344,8 @@ export class SearchFilterSelect {
     index: number,
     config: Required<SearchFilterConfig>,
     searchQuery: string,
-    isSelected: boolean = false,
-    isCursor: boolean = false
+    isSelected = false,
+    isCursor = false
   ): string {
     const parts: string[] = [];
     const cursor = isCursor ? '>' : ' ';
@@ -465,7 +465,7 @@ export class SearchFilterSelect {
   search(
     options: SearchFilterOption[],
     query: string,
-    caseSensitive: boolean = false
+    caseSensitive = false
   ): SearchFilterOption[] {
     if (!query.trim()) return options.filter(o => !o.disabled);
     return this.filterBySearch(options, query, caseSensitive);
@@ -486,7 +486,7 @@ export class SearchFilterSelect {
   paginate(
     options: SearchFilterOption[],
     page: number,
-    pageSize: number = 10
+    pageSize = 10
   ): SearchFilterOption[] {
     const start = page * pageSize;
     const end = start + pageSize;

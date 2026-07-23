@@ -61,7 +61,7 @@ export class Progress {
   private config: ProgressConfig;
   private state: ProgressState;
   private intervalId?: ReturnType<typeof setInterval>;
-  private lastUpdate: string = '';
+  private lastUpdate = '';
 
   constructor(config: ProgressConfig, logger?: Logger) {
     this.logger = logger ?? createLogger({ prefix: 'progress' });
@@ -120,7 +120,7 @@ export class Progress {
   /**
    * Increment progress by a value
    */
-  increment(delta: number = 1): ProgressState {
+  increment(delta = 1): ProgressState {
     return this.update(this.state.current + delta);
   }
 
@@ -173,7 +173,7 @@ export class Progress {
 
     // Clear previous line and write new
     if (this.lastUpdate) {
-      process.stdout.write('\r' + ' '.repeat(this.lastUpdate.length) + '\r');
+      process.stdout.write(`\r${  ' '.repeat(this.lastUpdate.length)  }\r`);
     }
     process.stdout.write(output);
     this.lastUpdate = output;
@@ -329,7 +329,7 @@ export class Progress {
    */
   private createInitialState(): ProgressState {
     const current = this.config.current ?? 0;
-    const total = this.config.total;
+    const {total} = this.config;
     return {
       current,
       total,

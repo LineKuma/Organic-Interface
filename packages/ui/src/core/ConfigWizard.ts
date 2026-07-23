@@ -136,7 +136,7 @@ export const BUILTIN_WIZARDS: Record<string, WizardConfig> = {
 export class ConfigWizard {
   private logger: Logger;
   private config: WizardConfig | null = null;
-  private currentStepIndex: number = 0;
+  private currentStepIndex = 0;
   private results: Record<string, unknown> = {};
   private skippedSteps: Set<string> = new Set();
   private history: number[] = [];

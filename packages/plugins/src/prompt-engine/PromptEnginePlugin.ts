@@ -89,7 +89,7 @@ export class PromptEnginePlugin {
   private config: Record<string, unknown> = {};
 
   /** Whether plugin is initialized */
-  private initialized: boolean = false;
+  private initialized = false;
 
   /** Template engine instance */
   private templateEngine: TemplateEngine | null = null;

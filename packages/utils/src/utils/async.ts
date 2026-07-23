@@ -114,10 +114,10 @@ export async function withConcurrencyLimit<T>(
 
     if (executing.length >= limit) {
       await Promise.race(executing);
-      executing.splice(
-        executing.findIndex(e => e === p),
-        1
-      );
+      const index = executing.findIndex(e => e === p);
+      if (index !== -1) {
+        void executing.splice(index, 1);
+      }
     }
   }
 
@@ -147,7 +147,7 @@ export class AsyncQueue {
       });
 
       if (!this.isProcessing) {
-        this.process();
+        void this.process();
       }
     });
   }

@@ -134,9 +134,7 @@ export class CommandParser {
     let quoteChar = '';
     let escaped = false;
 
-    for (let i = 0; i < input.length; i++) {
-      const char = input[i];
-
+    for (const char of input) {
       if (escaped) {
         current += char;
         escaped = false;
@@ -294,7 +292,7 @@ export class CommandParser {
     let usage = `Usage: ${command.name}`;
     if (command.arguments && command.arguments.length > 0) {
       usage +=
-        ' ' + command.arguments.map(a => (a.required ? `<${a.name}>` : `[${a.name}]`)).join(' ');
+        ` ${  command.arguments.map(a => (a.required ? `<${a.name}>` : `[${a.name}]`)).join(' ')}`;
     }
     if (command.options && command.options.length > 0) {
       usage += ' [options]';
@@ -302,7 +300,7 @@ export class CommandParser {
     if (command.subcommands && command.subcommands.size > 0) {
       usage += ' <subcommand>';
     }
-    lines.push(usage + '\n');
+    lines.push(`${usage  }\n`);
 
     // Arguments
     if (command.arguments && command.arguments.length > 0) {

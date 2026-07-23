@@ -179,7 +179,7 @@ export class SearchTool implements Tool {
   validate(input: unknown): ToolValidationError[] {
     const errors: ToolValidationError[] = [];
     const data = input as Partial<SearchToolInput>;
-    const operation = data.operation;
+    const {operation} = data;
 
     if (!operation) {
       errors.push({
@@ -237,15 +237,15 @@ export class SearchTool implements Tool {
           break;
 
         case 'query':
-          result = await this.query(data.query!, data.index!, data.options);
+          result = this.query(data.query!, data.index!, data.options);
           break;
 
         case 'index':
-          result = await this.indexDocument(data.index!, data.documentId!, data.document!);
+          result = this.indexDocument(data.index!, data.documentId!, data.document!);
           break;
 
         case 'suggest':
-          result = await this.suggest(data.query!, data.index!);
+          result = this.suggest(data.query!, data.index!);
           break;
 
         default:

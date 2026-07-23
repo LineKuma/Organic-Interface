@@ -24,7 +24,7 @@ export interface MemoryStorageConfig {
 export class MemoryStorage implements IStorageBackend {
   private store: Map<string, StorageEntity> = new Map();
   private typeIndex: Map<string, Set<string>> = new Map();
-  private connected: boolean = false;
+  private connected = false;
   private config: MemoryStorageConfig;
 
   constructor(config: MemoryStorageConfig = {}) {

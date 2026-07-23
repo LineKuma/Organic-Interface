@@ -64,7 +64,7 @@ export interface RecoveryResult {
 export class SessionAutoRecovery {
   private logger: Logger;
   private storage: StorageProvider | null = null;
-  private checkpointPrefix: string = 'recovery_checkpoint_';
+  private checkpointPrefix = 'recovery_checkpoint_';
 
   constructor(logger?: Logger) {
     this.logger = logger ?? createLogger({ prefix: 'session-auto-recovery' });
@@ -203,7 +203,7 @@ export class SessionAutoRecovery {
   /**
    * Clean up old checkpoints, keeping only the most recent ones
    */
-  async cleanup(sessionId: string, keepLast: number = 5): Promise<void> {
+  async cleanup(sessionId: string, keepLast = 5): Promise<void> {
     this.ensureStorage();
 
     try {
@@ -312,7 +312,7 @@ export class SessionAutoRecovery {
     data: Record<string, unknown>;
   }): RecoveryState | null {
     try {
-      const metadata = (session.data as Record<string, unknown>) ?? {};
+      const metadata = (session.data) ?? {};
       return {
         sessionId: (metadata.sessionId as string) ?? session.id,
         lastCheckpoint: (metadata.lastCheckpoint as number) ?? 0,

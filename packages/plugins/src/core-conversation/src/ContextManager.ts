@@ -225,7 +225,7 @@ export class ContextManager {
       throw ContextError.notFound(sessionId);
     }
 
-    const messages = context.messages;
+    const {messages} = context;
     const systemMessages = messages.filter(m => m.sender === MessageSender.SYSTEM);
     const toolMessages = messages.filter(m => m.sender === MessageSender.TOOL);
 
@@ -446,7 +446,7 @@ export class ContextManager {
    * Trim middle messages
    */
   private trimMiddle(context: ConversationContext): void {
-    const messages = context.messages;
+    const {messages} = context;
     if (messages.length <= 2) return;
 
     const keepFirst = Math.ceil(messages.length * 0.2);
@@ -469,7 +469,7 @@ export class ContextManager {
    * Selective trim - keep important messages
    */
   private selectiveTrim(context: ConversationContext): void {
-    const messages = context.messages;
+    const {messages} = context;
 
     // Keep first N and last N messages
     const keepFirst = 5;
@@ -497,7 +497,7 @@ export class ContextManager {
    */
   private estimateMessageTokens(message: Message): number {
     // Rough estimate: ~4 characters per token
-    const contentTokens = Math.ceil((message.content?.length ?? 0) / 4);
+    const contentTokens = Math.ceil((message.content.length ?? 0) / 4);
     return contentTokens + DEFAULT_TOKEN_ESTIMATE;
   }
 }

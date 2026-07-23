@@ -89,7 +89,7 @@ export class FileParser {
   extractSymbols(
     content: string,
     language: SupportedLanguage,
-    filePath: string = ''
+    filePath = ''
   ): FileSymbol[] {
     const symbols: FileSymbol[] = [];
 
@@ -368,7 +368,7 @@ export class FileParser {
     this.addSymbols(content, funcRegex, SymbolKind.FUNCTION, filePath, symbols);
 
     // Class definitions
-    const classRegex = /class\s+(\w+)\s*[:\(]/g;
+    const classRegex = /class\s+(\w+)\s*[:(]/g;
     this.addSymbols(content, classRegex, SymbolKind.CLASS, filePath, symbols);
 
     // Variable assignments (top-level)
@@ -465,7 +465,7 @@ export class FileParser {
     const stripped = this.stripComments(content, '//', ['/*', '*/']);
 
     // Function declarations
-    const funcRegex = /fn\s+(\w+)\s*[<\(]/g;
+    const funcRegex = /fn\s+(\w+)\s*[<(]/g;
     this.addSymbols(stripped, funcRegex, SymbolKind.FUNCTION, filePath, symbols);
 
     // Struct declarations
@@ -544,7 +544,7 @@ export class FileParser {
 
     // Method declarations
     const methodRegex =
-      /(?:public|private|protected|internal)?\s*(?:static|virtual|abstract|override|async)?\s*(?:\w+(?:<[^>]*>)?)\s+(\w+)\s*[<\(]/g;
+      /(?:public|private|protected|internal)?\s*(?:static|virtual|abstract|override|async)?\s*(?:\w+(?:<[^>]*>)?)\s+(\w+)\s*[<(]/g;
     this.addSymbols(stripped, methodRegex, SymbolKind.METHOD, filePath, symbols);
 
     // Namespace declarations

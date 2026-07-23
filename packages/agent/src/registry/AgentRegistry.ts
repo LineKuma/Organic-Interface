@@ -84,7 +84,7 @@ export class AgentRegistry extends EventEmitter {
   private heartbeatTimers: Map<string, ReturnType<typeof setTimeout>> = new Map();
   private cleanupTimer?: ReturnType<typeof setInterval>;
   private healthCheckTimer?: ReturnType<typeof setInterval>;
-  private isRunning: boolean = false;
+  private isRunning = false;
 
   /**
    * Create a new AgentRegistry

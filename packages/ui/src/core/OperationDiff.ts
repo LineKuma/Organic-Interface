@@ -126,7 +126,7 @@ export class OperationDiff {
   findSimilar(
     operation: RecordedOperation,
     session: RecordingSession,
-    threshold: number = 0.5
+    threshold = 0.5
   ): RecordedOperation[] {
     if (threshold < 0 || threshold > 1) {
       throw new Error('Threshold must be between 0 and 1');

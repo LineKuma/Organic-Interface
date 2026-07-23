@@ -11,7 +11,7 @@ vi.mock('@organic/utils', () => ({
   }),
 }));
 
-const createMockTool = (id: string = 'mock-tool'): Tool => ({
+const createMockTool = (id = 'mock-tool'): Tool => ({
   getDefinition: () => ({
     id,
     name: 'MockTool',

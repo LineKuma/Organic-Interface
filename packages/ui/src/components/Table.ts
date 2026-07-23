@@ -64,7 +64,7 @@ export class Table<T extends Record<string, unknown> = Record<string, unknown>> 
 
   constructor(columns: TableColumn<T>[], config: TableConfig = {}, logger?: Logger) {
     this.logger = logger ?? createLogger({ prefix: 'table' });
-    this.columns = columns as TableColumn<T>[];
+    this.columns = columns;
     this.config = {
       title: config.title ?? '',
       showHeader: config.showHeader ?? true,
@@ -347,9 +347,9 @@ export class Table<T extends Record<string, unknown> = Record<string, unknown>> 
   private renderBorder(
     widths: number[],
     corner: string,
-    horizontal: string = '-',
-    leftConnector: string = '-',
-    rightConnector: string = '-'
+    horizontal = '-',
+    leftConnector = '-',
+    rightConnector = '-'
   ): string {
     const parts = widths.map(w => horizontal.repeat(w));
     return `${corner}${leftConnector}${parts.join(`${rightConnector}${corner}${leftConnector}`)}${rightConnector}${corner}`;
@@ -372,7 +372,7 @@ export class Table<T extends Record<string, unknown> = Record<string, unknown>> 
     if (str.length <= maxLength) {
       return str;
     }
-    return str.slice(0, maxLength - 1) + '..';
+    return `${str.slice(0, maxLength - 1)  }..`;
   }
 
   /**

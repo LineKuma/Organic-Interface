@@ -5,7 +5,7 @@ import { PluginLoader } from '../PluginLoader.js';
 import type { PluginInterface, PluginMetadata } from '../../interfaces/PluginInterface.js';
 import { PluginLifecycleState } from '../../interfaces/PluginInterface.js';
 
-const createMockPlugin = (id: string = 'mock-plugin'): PluginInterface => ({
+const createMockPlugin = (id = 'mock-plugin'): PluginInterface => ({
   name: 'Mock Plugin',
   version: '1.0.0',
   description: 'Mock plugin for testing',
@@ -369,7 +369,7 @@ describe('PluginLoader', () => {
 
     beforeEach(() => {
       tempBaseDir =
-        '/tmp/test-discover-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+        `/tmp/test-discover-${  Date.now()  }-${  Math.random().toString(36).slice(2, 8)}`;
 
       // 创建临时目录结构
       fs.mkdirSync(path.join(tempBaseDir, 'plugin-a'), { recursive: true });
@@ -1061,7 +1061,7 @@ describe('PluginLoader', () => {
     let tempDir: string;
 
     beforeEach(() => {
-      tempDir = '/tmp/test-resolve-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+      tempDir = `/tmp/test-resolve-${  Date.now()  }-${  Math.random().toString(36).slice(2, 8)}`;
       // 创建模拟插件目录结构
       fs.mkdirSync(path.join(tempDir, 'test-plugin', 'dist'), { recursive: true });
       fs.writeFileSync(path.join(tempDir, 'test-plugin', 'dist', 'index.js'), '// test');
@@ -1097,7 +1097,7 @@ describe('PluginLoader', () => {
 
     beforeEach(() => {
       tempDir =
-        '/tmp/test-extract-pkg-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+        `/tmp/test-extract-pkg-${  Date.now()  }-${  Math.random().toString(36).slice(2, 8)}`;
       // 创建包含 package.json 的目录结构
       fs.mkdirSync(path.join(tempDir, 'my-plugin', 'dist'), { recursive: true });
       fs.writeFileSync(path.join(tempDir, 'my-plugin', 'dist', 'index.js'), '// test');
@@ -1260,7 +1260,7 @@ describe('PluginLoader', () => {
     let tempDir: string;
 
     beforeEach(() => {
-      tempDir = '/tmp/test-multi-loc-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+      tempDir = `/tmp/test-multi-loc-${  Date.now()  }-${  Math.random().toString(36).slice(2, 8)}`;
     });
 
     afterEach(() => {
@@ -1349,7 +1349,7 @@ describe('PluginLoader', () => {
     it('should handle readdirSync error gracefully', async () => {
       // 异常路径：readdirSync 抛出错误
       // 创建一个文件（非目录）作为 baseDir，使 readdirSync 抛出 ENOTDIR 错误
-      const tempFile = '/tmp/test-discover-error-' + Date.now() + '.txt';
+      const tempFile = `/tmp/test-discover-error-${  Date.now()  }.txt`;
       fs.writeFileSync(tempFile, 'not a directory');
 
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -1372,7 +1372,7 @@ describe('PluginLoader', () => {
 
     it('should skip non-directory entries during discovery', async () => {
       // 边界情况：跳过非目录条目
-      const tempDir = '/tmp/test-skip-files-' + Date.now();
+      const tempDir = `/tmp/test-skip-files-${  Date.now()}`;
       fs.mkdirSync(tempDir, { recursive: true });
       fs.mkdirSync(path.join(tempDir, 'real-plugin'), { recursive: true });
       fs.writeFileSync(path.join(tempDir, 'real-plugin', 'package.json'), '{"name":"real"}');
@@ -1400,7 +1400,7 @@ describe('PluginLoader', () => {
 
     beforeEach(() => {
       tempDir =
-        '/tmp/test-load-import-' + Date.now() + '-' + Math.random().toString(36).slice(2, 8);
+        `/tmp/test-load-import-${  Date.now()  }-${  Math.random().toString(36).slice(2, 8)}`;
     });
 
     afterEach(() => {

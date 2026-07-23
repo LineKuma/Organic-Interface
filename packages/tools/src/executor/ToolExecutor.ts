@@ -112,7 +112,7 @@ export class ToolExecutor extends EventEmitter {
   private logger: Logger;
 
   /** Whether executor is running */
-  private running: boolean = false;
+  private running = false;
 
   /** Process interval ID */
   private processIntervalId?: ReturnType<typeof setInterval>;
@@ -196,7 +196,7 @@ export class ToolExecutor extends EventEmitter {
 
     // Add to queue
     return new Promise((resolve, reject) => {
-      const priority = (context.metadata?.priority as number) ?? 0;
+      const priority = (context.metadata.priority as number) ?? 0;
 
       const queueItem: QueueItem = {
         request: { tool, input, context, options },
@@ -232,7 +232,7 @@ export class ToolExecutor extends EventEmitter {
     options: ToolExecutionOptions
   ): Promise<ToolResult> {
     const definition = tool.getDefinition();
-    const executionId = context.executionId;
+    const {executionId} = context;
 
     this.activeExecutions.set(executionId, { tool, input, context, options });
 
@@ -301,7 +301,7 @@ export class ToolExecutor extends EventEmitter {
       this.activeExecutions.delete(executionId);
 
       // Clear timeout timer if exists
-      const timeoutTimer = context.metadata?._timeoutTimer as
+      const timeoutTimer = context.metadata._timeoutTimer as
         | ReturnType<typeof setTimeout>
         | undefined;
       if (timeoutTimer) {
@@ -381,7 +381,7 @@ export class ToolExecutor extends EventEmitter {
     if (this.processIntervalId) return;
 
     this.processIntervalId = setInterval(() => {
-      this.processQueue();
+      void this.processQueue();
     }, 100); // Process every 100ms
   }
 

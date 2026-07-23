@@ -50,7 +50,7 @@ export class ToolContext {
   private logger: Logger;
   private workingDirectory: string;
   private state: ExecutionState;
-  private cancelled: boolean = false;
+  private cancelled = false;
 
   constructor(options: ToolContextOptions) {
     this.requestId = options.request_id;

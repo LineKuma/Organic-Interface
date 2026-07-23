@@ -318,7 +318,7 @@ export class ContextWindowManager extends EventEmitter {
       return null;
     }
 
-    const maxTokens = window.config.maxTokens;
+    const {maxTokens} = window.config;
     if (!maxTokens) {
       return window;
     }
@@ -336,7 +336,7 @@ export class ContextWindowManager extends EventEmitter {
       tokenCount: this.estimateTokenCount(optimizedMessages),
       endIndex: window.startIndex + optimizedMessages.length - 1,
       hasPrevious: window.startIndex > 0,
-      hasNext: window.endIndex < window.endIndex,
+      hasNext: window.startIndex + optimizedMessages.length - 1 < window.endIndex,
     };
 
     this.windows.set(windowId, optimizedWindow);

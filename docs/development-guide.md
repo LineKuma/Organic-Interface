@@ -68,7 +68,7 @@ organic-interface/
 ├── scripts/                     # 构建和安装脚本
 ├── vitest.config.ts             # Vitest 配置
 ├── turbo.json                   # Turborepo 配置
-├── eslint.config.js             # ESLint 配置
+├── eslint.config.mjs            # ESLint 配置
 └── tsconfig.base.json           # 基础 TypeScript 配置
 ```
 

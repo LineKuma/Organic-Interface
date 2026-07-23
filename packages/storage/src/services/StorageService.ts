@@ -578,8 +578,8 @@ export class StorageService {
 
     // Set timeout if specified
     if (options?.timeout) {
-      this.transactionTimeout = setTimeout(async () => {
-        await this.rollbackTransaction();
+      this.transactionTimeout = setTimeout(() => {
+        void this.rollbackTransaction();
       }, options.timeout);
     }
 
@@ -704,8 +704,8 @@ export class StorageService {
         if (aVal === bVal) continue;
 
         // Handle null/undefined comparisons
-        if (aVal == null) return spec.direction === 'desc' ? 1 : -1;
-        if (bVal == null) return spec.direction === 'desc' ? -1 : 1;
+        if (aVal === null || aVal === undefined) return spec.direction === 'desc' ? 1 : -1;
+        if (bVal === null || bVal === undefined) return spec.direction === 'desc' ? -1 : 1;
 
         // Handle different types by converting to string for comparison
         const aStr = String(aVal);
@@ -753,14 +753,13 @@ export class StorageService {
     }
 
     if (exclude && exclude.length > 0) {
-      const filteredData = { ...entity.data };
-      for (const field of exclude) {
-        if (field.startsWith('data.')) {
-          const dataKey = field.substring(5);
-          delete filteredData[dataKey];
-        }
-      }
-      result.data = filteredData;
+      const excludeKeys = exclude
+        .filter((field) => field.startsWith('data.'))
+        .map((field) => field.substring(5));
+      const filteredData = Object.fromEntries(
+        Object.entries(entity.data).filter(([key]) => !excludeKeys.includes(key)),
+      );
+      result.data = filteredData as Record<string, unknown>;
     }
 
     return result;

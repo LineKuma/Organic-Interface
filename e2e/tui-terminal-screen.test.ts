@@ -42,7 +42,7 @@ describe('TUI 终端能力检测与屏幕管理', () => {
     it('用户启动终端管理器后获得终端能力报告', () => {
       const terminal = Terminal.init();
 
-      const features = terminal.features;
+      const {features} = terminal;
       expect(features).toBeDefined();
       expect(features.termType).toBeDefined();
       expect(features.termProgram).toBeDefined();
@@ -92,7 +92,7 @@ describe('TUI 终端能力检测与屏幕管理', () => {
   describe('场景二：用户查看终端功能详细报告', () => {
     it('用户查看终端类型和程序', () => {
       const terminal = Terminal.init();
-      const features = terminal.features;
+      const {features} = terminal;
 
       // 这些是环境变量，至少有一个有值
       expect(typeof features.termType).toBe('string');
@@ -255,7 +255,7 @@ describe('TUI 终端能力检测与屏幕管理', () => {
 
     it('用户查看默认配置', () => {
       const terminal = Terminal.init();
-      const config = terminal.config;
+      const {config} = terminal;
 
       expect(config.mouse).toBe('auto');
       expect(config.unicode).toBe('auto');

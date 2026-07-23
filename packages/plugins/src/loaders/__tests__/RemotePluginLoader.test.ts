@@ -398,7 +398,7 @@ describe('RemotePluginLoader', () => {
       });
 
       // Mock localLoader.load 以避免真实文件系统操作
-      const localLoader = (loader as any).localLoader;
+      const {localLoader} = (loader as any);
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'downloaded' },
@@ -435,7 +435,7 @@ describe('RemotePluginLoader', () => {
         type: 'http',
       });
 
-      const localLoader = (loader as any).localLoader;
+      const {localLoader} = (loader as any);
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'secure' },
@@ -478,7 +478,7 @@ describe('RemotePluginLoader', () => {
         type: 'http',
       });
 
-      const localLoader = (loader as any).localLoader;
+      const {localLoader} = (loader as any);
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'redirected' },
@@ -517,7 +517,7 @@ describe('RemotePluginLoader', () => {
         type: 'http',
       });
 
-      const localLoader = (loader as any).localLoader;
+      const {localLoader} = (loader as any);
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'final' },
@@ -642,7 +642,7 @@ describe('RemotePluginLoader', () => {
       const installCache = (loader as any).installCache as Map<string, string>;
       installCache.set('cached-remote-plugin', 'http://example.com/plugin.js');
 
-      const localLoader = (loader as any).localLoader;
+      const {localLoader} = (loader as any);
       const loadSpy = vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'cached' },
@@ -730,7 +730,7 @@ describe('RemotePluginLoader', () => {
         type: 'http',
       });
 
-      const localLoader = (loader as any).localLoader;
+      const {localLoader} = (loader as any);
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'updated' },
@@ -766,7 +766,7 @@ describe('RemotePluginLoader', () => {
         type: 'http',
       });
 
-      const localLoader = (loader as any).localLoader;
+      const {localLoader} = (loader as any);
       const unloadSpy = vi.spyOn(localLoader, 'unload').mockResolvedValue(undefined);
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
@@ -822,7 +822,7 @@ describe('RemotePluginLoader', () => {
         type: 'http',
       });
 
-      const localLoader = (loader as any).localLoader;
+      const {localLoader} = (loader as any);
       vi.spyOn(localLoader, 'load').mockResolvedValue({
         success: true,
         plugin: { name: 'test' },

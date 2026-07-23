@@ -307,7 +307,7 @@ export class ContextService extends EventEmitter {
   /**
    * Get recent messages
    */
-  getRecentMessages(contextId: string, count: number = 10): Message[] {
+  getRecentMessages(contextId: string, count = 10): Message[] {
     return this.contextManager.getRecentMessages(contextId, count);
   }
 
@@ -417,7 +417,7 @@ export class ContextService extends EventEmitter {
     }
 
     const updatedItem = updateContextItem(item, updates);
-    store.set(itemId, updatedItem as ContextItem<T>);
+    store.set(itemId, updatedItem);
 
     this.emit('item:updated', { contextId, itemId, item: updatedItem });
 
@@ -516,7 +516,7 @@ export class ContextService extends EventEmitter {
       id: `frame_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       contextId,
       agentId,
-      parentFrameId: parentFrame?.id,
+      parentFrameId: parentFrame.id,
       childFrameIds: [],
       enterTime: Date.now(),
       status: 'running',

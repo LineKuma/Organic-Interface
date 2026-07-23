@@ -35,7 +35,7 @@ export class FileStorage implements IStorageBackend {
   private flushInterval: number;
   private cache: Map<string, StorageEntity> = new Map();
   private flushTimer?: NodeJS.Timeout;
-  private connected: boolean = false;
+  private connected = false;
   private dirty: Set<string> = new Set();
   private metadataFile: string;
   private entityDir: string;
@@ -97,8 +97,8 @@ export class FileStorage implements IStorageBackend {
    * Start the auto-flush timer
    */
   private startFlushTimer(): void {
-    this.flushTimer = setInterval(async () => {
-      await this.flush();
+    this.flushTimer = setInterval(() => {
+      void this.flush();
     }, this.flushInterval);
   }
 

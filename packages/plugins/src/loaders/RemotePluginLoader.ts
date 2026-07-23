@@ -206,7 +206,7 @@ export class RemotePluginLoader implements PluginLoaderInterface {
           res.headers.location
         ) {
           const redirectSource = { ...source, url: res.headers.location };
-          this.downloadPlugin(redirectSource).then(resolve);
+          void this.downloadPlugin(redirectSource).then(resolve);
           return;
         }
 
@@ -222,31 +222,33 @@ export class RemotePluginLoader implements PluginLoaderInterface {
         // Collect data
         const chunks: Buffer[] = [];
         res.on('data', (chunk: Buffer) => chunks.push(chunk));
-        res.on('end', async () => {
-          try {
-            const buffer = Buffer.concat(chunks);
-            const pluginDir = this.getPluginInstallPath(source.pluginId);
+        res.on('end', () => {
+          void (async () => {
+            try {
+              const buffer = Buffer.concat(chunks);
+              const pluginDir = this.getPluginInstallPath(source.pluginId);
 
-            // Ensure directory exists
-            fs.mkdirSync(pluginDir, { recursive: true });
+              // Ensure directory exists
+              fs.mkdirSync(pluginDir, { recursive: true });
 
-            // Try to extract archive or save as file
-            // For now, save raw content (would need proper archive extraction)
-            const filePath = path.join(pluginDir, 'plugin.js');
-            fs.writeFileSync(filePath, buffer);
+              // Try to extract archive or save as file
+              // For now, save raw content (would need proper archive extraction)
+              const filePath = path.join(pluginDir, 'plugin.js');
+              fs.writeFileSync(filePath, buffer);
 
-            resolve({
-              success: true,
-              source,
-              installPath: pluginDir,
-            });
-          } catch (error) {
-            resolve({
-              success: false,
-              error: error instanceof Error ? error.message : String(error),
-              source,
-            });
-          }
+              resolve({
+                success: true,
+                source,
+                installPath: pluginDir,
+              });
+            } catch (error) {
+              resolve({
+                success: false,
+                error: error instanceof Error ? error.message : String(error),
+                source,
+              });
+            }
+          })();
         });
       });
 

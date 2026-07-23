@@ -62,7 +62,7 @@ export abstract class BasePlugin implements PluginInterface {
   protected kernel: KernelApi | null = null;
 
   /** Whether plugin is initialized */
-  protected initialized: boolean = false;
+  protected initialized = false;
 
   /** Lifecycle hooks */
   private hooks?: BasePluginOptions['hooks'];

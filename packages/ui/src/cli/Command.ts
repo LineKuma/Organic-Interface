@@ -126,5 +126,5 @@ export function addSubcommand(parent: Command, subcommand: Command): Command {
  * Find a command by name or alias
  */
 export function findCommand(root: Command, name: string): Command | undefined {
-  return root.subcommands?.get(name);
+  return root.subcommands.get(name);
 }

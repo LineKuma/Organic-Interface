@@ -271,7 +271,7 @@ export interface WorkflowVersion {
  */
 export function createWorkflow(
   name: string,
-  version: string = '1.0.0',
+  version = '1.0.0',
   options?: {
     id?: string;
     description?: string;

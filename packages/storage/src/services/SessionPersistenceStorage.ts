@@ -84,7 +84,7 @@ export class SessionPersistenceStorage {
   private autoSave: boolean;
   private entityTtl: number;
   private cache: Map<string, SessionPersistence> = new Map();
-  private initialized: boolean = false;
+  private initialized = false;
 
   /**
    * Create a new session persistence storage
@@ -132,11 +132,11 @@ export class SessionPersistenceStorage {
       // Check if session exists first
       const existing = await this.storage.read(session.id);
       if (existing) {
-        await this.storage.update(session.id, entity.data as Record<string, unknown>);
+        await this.storage.update(session.id, entity.data);
       } else {
         const result = await this.storage.create(
           SESSION_ENTITY_TYPE,
-          entity.data as Record<string, unknown>,
+          entity.data,
           {
             id: session.id,
             metadata: entity.metadata,
@@ -145,7 +145,7 @@ export class SessionPersistenceStorage {
 
         // If create failed due to duplicate, update instead
         if (!result.success && result.error?.includes('already exists')) {
-          await this.storage.update(session.id, entity.data as Record<string, unknown>);
+          await this.storage.update(session.id, entity.data);
         }
       }
     }
@@ -268,7 +268,7 @@ export class SessionPersistenceStorage {
     if (this.autoSave) {
       for (const session of this.cache.values()) {
         const entity = this.sessionToEntity(session);
-        await this.storage.update(session.id, entity.data as Record<string, unknown>);
+        await this.storage.update(session.id, entity.data);
       }
     }
 
@@ -326,7 +326,7 @@ export class SessionPersistenceStorage {
     metadata: { tags?: string[]; expires_at?: number };
   }): SessionPersistence | null {
     try {
-      const data = entity.data;
+      const {data} = entity;
       return {
         id: entity.id,
         title: (data.title as string) || `Session ${entity.id.substring(0, 8)}`,

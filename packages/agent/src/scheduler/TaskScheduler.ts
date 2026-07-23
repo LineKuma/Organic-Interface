@@ -82,8 +82,8 @@ export class TaskScheduler extends EventEmitter {
   private config: Required<SchedulerConfig>;
   private queue: TaskQueue;
   private logger: Logger;
-  private running: boolean = false;
-  private processing: boolean = false;
+  private running = false;
+  private processing = false;
   private processingInterval?: ReturnType<typeof setInterval>;
   private activeTasks: Map<string, { task: Task; abortController: AbortController }> = new Map();
   private taskExecutor?: TaskExecutor;
@@ -169,7 +169,7 @@ export class TaskScheduler extends EventEmitter {
 
     // Trigger processing if auto-process is off
     if (!this.config.autoProcess) {
-      this.processQueue();
+      void this.processQueue();
     }
 
     return task;
@@ -391,7 +391,7 @@ export class TaskScheduler extends EventEmitter {
 
     // Continue processing
     if (this.running && this.hasCapacity()) {
-      this.processQueue();
+      void this.processQueue();
     }
   }
 

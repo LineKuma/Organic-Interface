@@ -386,7 +386,7 @@ export class ContextManager extends EventEmitter {
       return [];
     }
 
-    let messages = context.messages;
+    let {messages} = context;
 
     // Filter by types
     if (options?.types && options.types.length > 0) {
@@ -403,7 +403,7 @@ export class ContextManager extends EventEmitter {
   /**
    * Get last N messages
    */
-  getRecentMessages(contextId: string, count: number = 10): Message[] {
+  getRecentMessages(contextId: string, count = 10): Message[] {
     const context = this.get(contextId);
     if (!context) {
       return [];

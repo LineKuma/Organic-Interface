@@ -52,7 +52,7 @@ e2e/                    - 端到端测试
 
 - **分支策略**: agent-develop 单分支开发
 - **提交规范**: conventional commits
-- **代码规范**: ESLint (@typescript-eslint) + Prettier，配置在 eslint.config.js
+- **代码规范**: ESLint (@typescript-eslint) + Prettier，配置在 eslint.config.mjs
 - **测试要求**: vitest 测试框架，78 个测试文件，2386 个测试用例
 
 ## 关键依赖
@@ -89,7 +89,7 @@ e2e/                    - 端到端测试
 | pnpm-workspace.yaml      | Monorepo workspace 配置                   |
 | turbo.json               | 构建编排任务配置                          |
 | tsconfig.base.json       | 共享 TypeScript 配置                      |
-| eslint.config.js         | ESLint 代码检查配置                       |
+| eslint.config.mjs        | ESLint 代码检查配置                       |
 | vitest.config.ts         | Vitest 测试配置                           |
 | Dockerfile               | Docker 多阶段构建镜像                     |
 | docker-compose.yml       | 容器编排                                  |

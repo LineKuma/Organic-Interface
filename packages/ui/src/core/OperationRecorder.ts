@@ -143,7 +143,7 @@ export class OperationRecorder extends EventEmitter {
   private logger: Logger;
 
   /** Operation counter for ID generation */
-  private operationCounter: number = 0;
+  private operationCounter = 0;
 
   /**
    * Create a new OperationRecorder

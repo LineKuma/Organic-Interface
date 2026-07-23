@@ -207,7 +207,7 @@ export class Terminal {
    * Detect all terminal features
    */
   private detectFeatures(): TerminalFeatures {
-    const isTTY = process.stdout.isTTY === true;
+    const {isTTY} = process.stdout;
     const termType = process.env.TERM || '';
     const termProgram = process.env.TERM_PROGRAM || '';
 
@@ -449,13 +449,13 @@ export const ANSI = {
   /** Move cursor to position (1-indexed) */
   moveTo: (row: number, col: number): string => esc(`${row};${col}H`),
   /** Move cursor up N rows */
-  up: (n: number = 1): string => esc(`${n}A`),
+  up: (n = 1): string => esc(`${n}A`),
   /** Move cursor down N rows */
-  down: (n: number = 1): string => esc(`${n}B`),
+  down: (n = 1): string => esc(`${n}B`),
   /** Move cursor right N columns */
-  right: (n: number = 1): string => esc(`${n}C`),
+  right: (n = 1): string => esc(`${n}C`),
   /** Move cursor left N columns */
-  left: (n: number = 1): string => esc(`${n}D`),
+  left: (n = 1): string => esc(`${n}D`),
   /** Erase from cursor to end of line */
   eraseLine: esc('K'),
   /** Erase from cursor to end of screen */

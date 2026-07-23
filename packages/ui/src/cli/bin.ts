@@ -1,15 +1,19 @@
 #!/usr/bin/env node
 /**
- * Organic-Interface CLI 入口 (构建后)
+ * Organic-Interface CLI 入口
  *
  * 用于打包发布的启动脚本
  */
 
-// 导入 CLI 模块
-const { createCLI } = await import('./dist/cli/index.js');
+import { createCLI } from './index.js';
 
-async function main() {
-  // 创建 CLI
+interface CLIRunResult {
+  error?: string;
+  message?: string;
+  code: number;
+}
+
+async function main(): Promise<void> {
   const cli = createCLI({
     name: 'organic',
     version: '0.1.0',
@@ -17,15 +21,12 @@ async function main() {
     interactive: process.argv.length <= 2,
   });
 
-  // 获取命令行参数
   const args = process.argv.slice(2);
 
-  // 如果是交互式模式
   if (args.length === 0) {
     await cli.startInteractive();
   } else {
-    // 执行命令
-    const result = await cli.run(args);
+    const result = (await cli.run(args)) as CLIRunResult;
 
     if (result.error) {
       console.error(`Error: ${result.error}`);
@@ -40,7 +41,7 @@ async function main() {
   }
 }
 
-main().catch(error => {
+main().catch((error: unknown) => {
   console.error('Fatal error:', error);
   process.exit(1);
 });

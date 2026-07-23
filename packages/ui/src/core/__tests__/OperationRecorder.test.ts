@@ -11,7 +11,7 @@ vi.mock('@organic/utils', () => ({
   }),
 }));
 
-function createMockInput(selector: string = '#test') {
+function createMockInput(selector = '#test') {
   return { selector };
 }
 

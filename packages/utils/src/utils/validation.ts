@@ -206,7 +206,7 @@ export function validateSchema(
       .filter(([_, schema]) => schema.required)
       .map(([name]) => name);
 
-    validateRequired(objValue, requiredFields as (keyof typeof objValue)[]);
+    validateRequired(objValue, requiredFields);
 
     // Validate each property
     for (const [key, propSchema] of Object.entries(schema.properties || {})) {

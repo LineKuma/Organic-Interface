@@ -179,7 +179,7 @@ export class WorkflowEngine extends EventEmitter {
     }
 
     // Begin execution
-    this.scheduleNextNodes(execution.id, workflow);
+    void this.scheduleNextNodes(execution.id, workflow);
 
     return execution.id;
   }
@@ -236,7 +236,7 @@ export class WorkflowEngine extends EventEmitter {
     this.emit('execution:resumed', { execution });
 
     // Resume scheduling
-    this.scheduleNextNodes(executionId, workflow);
+    void this.scheduleNextNodes(executionId, workflow);
 
     return true;
   }
@@ -351,7 +351,7 @@ export class WorkflowEngine extends EventEmitter {
 
     // Execute nodes
     for (const { task, execution: taskExec } of executableNodes) {
-      this.executeNode(executionId, workflow, task, taskExec);
+      void this.executeNode(executionId, workflow, task, taskExec);
     }
   }
 
@@ -506,9 +506,9 @@ export class WorkflowEngine extends EventEmitter {
 
     // Continue execution or handle completion
     if (result.success || this.config.continueOnError) {
-      this.scheduleNextNodes(executionId, workflow);
+      void this.scheduleNextNodes(executionId, workflow);
     } else {
-      this.handleWorkflowFailure(executionId, workflow, task.id, result.error);
+      void this.handleWorkflowFailure(executionId, workflow, task.id, result.error);
     }
   }
 

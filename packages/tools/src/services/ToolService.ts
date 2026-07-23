@@ -66,7 +66,7 @@ export class ToolService extends EventEmitter {
   private activeExecutions: Map<string, { toolId: string; startTime: number }> = new Map();
 
   /** Execution counter */
-  private executionCounter: number = 0;
+  private executionCounter = 0;
 
   /** Security guard for preset-based authorization */
   private securityGuard: SecurityGuard | null = null;

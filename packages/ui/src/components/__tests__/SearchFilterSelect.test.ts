@@ -15,7 +15,7 @@ vi.mock('@organic/utils', () => ({
 }));
 
 // Helper to create test options
-function createOptions(count: number, prefix: string = 'Option'): SearchFilterOption[] {
+function createOptions(count: number, prefix = 'Option'): SearchFilterOption[] {
   return Array.from({ length: count }, (_, i) => ({
     value: `${prefix.toLowerCase()}-${i + 1}`,
     label: `${prefix} ${i + 1}`,

@@ -132,7 +132,7 @@ export class ExecutionCoordinator extends EventEmitter {
       abortController: AbortController;
     }
   > = new Map();
-  private defaultTimeout: number = 30000;
+  private defaultTimeout = 30000;
 
   /**
    * Create a new ExecutionCoordinator
@@ -429,7 +429,7 @@ export class ExecutionCoordinator extends EventEmitter {
       const step: ExecutionStep = {
         stepId: `step_${i}`,
         request,
-        dependsOn: (request.payload?.dependsOn as string[]) ?? [],
+        dependsOn: (request.payload.dependsOn as string[]) ?? [],
         status: 'pending',
       };
 
@@ -491,7 +491,7 @@ export class ExecutionCoordinator extends EventEmitter {
   private getOrCreateChannel(agentId: string): AgentChannel {
     let channel = this.channels.get(agentId);
     if (!channel) {
-      channel = new AgentChannel({ agentId: agentId });
+      channel = new AgentChannel({ agentId });
       this.channels.set(agentId, channel);
     }
     return channel;

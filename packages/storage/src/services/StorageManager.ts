@@ -51,10 +51,10 @@ interface BackendEntry {
  */
 export class StorageManager {
   private backends: Map<string, BackendEntry> = new Map();
-  private defaultName: string = 'default';
+  private defaultName = 'default';
   private config: StorageManagerConfig;
   private logger: Logger;
-  private initialized: boolean = false;
+  private initialized = false;
 
   constructor(config: StorageManagerConfig = {}, logger?: Logger) {
     this.config = {

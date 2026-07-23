@@ -44,11 +44,11 @@ export interface BatchOperationResult {
 export class DatabaseStorage implements IStorageBackend {
   private dbPath: string;
   private dbFile: string;
-  private connected: boolean = false;
+  private connected = false;
   private entities: Map<string, StorageEntity> = new Map();
   private typeIndex: Map<string, Set<string>> = new Map();
-  private initialized: boolean = false;
-  private dirty: boolean = false;
+  private initialized = false;
+  private dirty = false;
   private autoSaveInterval: number;
   private enableTypeIndex: boolean;
   private saveTimer?: NodeJS.Timeout;
@@ -103,9 +103,9 @@ export class DatabaseStorage implements IStorageBackend {
    * Start auto-save timer for periodic persistence
    */
   private startAutoSaveTimer(): void {
-    this.saveTimer = setInterval(async () => {
+    this.saveTimer = setInterval(() => {
       if (this.dirty) {
-        await this.saveDatabase();
+        void this.saveDatabase();
       }
     }, this.autoSaveInterval);
   }

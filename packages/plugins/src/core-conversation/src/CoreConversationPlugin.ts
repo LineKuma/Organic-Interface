@@ -135,7 +135,7 @@ export class CoreConversationPlugin implements PluginInterface {
   private config: Record<string, unknown> = {};
 
   /** Whether plugin is initialized */
-  private initialized: boolean = false;
+  private initialized = false;
 
   /** Session manager instance */
   private sessionManager: SessionManager | null = null;

@@ -630,7 +630,7 @@ describe('Message', () => {
     });
 
     it('should return false when id is missing', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const { id: _, ...noId } = makeMsg();
       expect(isValidMessage(noId)).toBe(false);
     });
@@ -640,7 +640,7 @@ describe('Message', () => {
     });
 
     it('should return false when sender is missing', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const { sender: _, ...noSender } = makeMsg();
       expect(isValidMessage(noSender)).toBe(false);
     });
@@ -652,7 +652,7 @@ describe('Message', () => {
     });
 
     it('should return false when content is missing', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const { content: _, ...noContent } = makeMsg();
       expect(isValidMessage(noContent)).toBe(false);
     });

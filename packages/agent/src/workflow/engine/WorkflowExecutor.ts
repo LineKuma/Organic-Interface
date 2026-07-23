@@ -348,13 +348,15 @@ export class WorkflowExecutor extends EventEmitter {
         retryCount: execution.retryCount + 1,
       });
 
-      setTimeout(async () => {
-        try {
-          const result = await this.executeTask(task, retryExecution, input, context);
-          resolve(result);
-        } catch (error) {
-          reject(error);
-        }
+      setTimeout(() => {
+        void (async () => {
+          try {
+            const result = await this.executeTask(task, retryExecution, input, context);
+            resolve(result);
+          } catch (error) {
+            reject(error);
+          }
+        })();
       }, interval);
     });
   }

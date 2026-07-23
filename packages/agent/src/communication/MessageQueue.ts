@@ -92,7 +92,7 @@ export class MessageQueue extends EventEmitter {
     deadLetterCount: 0,
   };
   private processingInterval?: ReturnType<typeof setInterval>;
-  private isProcessing: boolean = false;
+  private isProcessing = false;
 
   /**
    * Create a new MessageQueue
@@ -173,8 +173,7 @@ export class MessageQueue extends EventEmitter {
    */
   peek(): AgentMessage | null {
     // Find next non-expired message
-    for (let i = 0; i < this.queue.length; i++) {
-      const entry = this.queue[i];
+    for (const entry of this.queue) {
       if (!isMessageExpired(entry.message)) {
         return entry.message;
       }
@@ -322,7 +321,7 @@ export class MessageQueue extends EventEmitter {
   /**
    * Start automatic processing
    */
-  startProcessing(interval: number = 1000): void {
+  startProcessing(interval = 1000): void {
     if (this.isProcessing) {
       return;
     }

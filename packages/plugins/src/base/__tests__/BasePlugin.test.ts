@@ -60,7 +60,7 @@ describe('BasePlugin', () => {
     });
 
     it('should set default configuration', () => {
-      const config = (plugin as any).config;
+      const {config} = (plugin as any);
       expect(config.key1).toBe('value1');
     });
   });
@@ -102,7 +102,7 @@ describe('BasePlugin', () => {
 
       await plugin.initialize(contextWithConfig);
 
-      const config = (plugin as any).config;
+      const {config} = (plugin as any);
       expect(config.key1).toBe('value1');
       expect(config.key2).toBe('value2');
     });
@@ -326,7 +326,7 @@ describe('BasePlugin', () => {
 
       (plugin as any).updateConfig({ key3: 'value3' });
 
-      const config = (plugin as any).config;
+      const {config} = (plugin as any);
       expect(config.key3).toBe('value3');
       expect(config.key1).toBe('value1'); // Existing config preserved
     });

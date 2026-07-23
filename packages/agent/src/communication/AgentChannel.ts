@@ -97,7 +97,7 @@ export class AgentChannel extends EventEmitter {
   private subscriptions: Map<string, Subscription> = new Map();
   private pendingRequests: Map<string, PendingRequest> = new Map();
   private messageHistory: AgentMessage[] = [];
-  private maxHistorySize: number = 100;
+  private maxHistorySize = 100;
 
   /**
    * Create a new AgentChannel

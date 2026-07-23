@@ -216,7 +216,7 @@ export class InfoService {
       };
     }
 
-    const platform = process.platform;
+    const {platform} = process;
     const isCI = this.detectCI();
 
     this.cachedPlatformInfo = {
@@ -227,7 +227,7 @@ export class InfoService {
       homeDir: os.homedir(),
       tempDir: os.tmpdir(),
       cwd: process.cwd(),
-      terminalType: process.env.TERM || 'unknown',
+      terminalType: process.env.TERM ?? 'unknown',
       colorSupport: this.detectColorSupport(),
     };
 

@@ -43,7 +43,7 @@ export class BaseError extends Error {
    * @param code - Error code for programmatic handling (default: 'UNKNOWN_ERROR')
    * @param details - Additional error context for debugging
    */
-  constructor(message: string, code: string = 'UNKNOWN_ERROR', details?: unknown) {
+  constructor(message: string, code = 'UNKNOWN_ERROR', details?: unknown) {
     super(message);
     this.name = this.constructor.name;
     this.code = code;

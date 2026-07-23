@@ -538,7 +538,7 @@ describe('ContextItem', () => {
     });
 
     it('should return false when missing id', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const { id: _, ...withoutId } = makeItem();
       expect(isValidContextItem(withoutId)).toBe(false);
     });
@@ -552,7 +552,7 @@ describe('ContextItem', () => {
     });
 
     it('should return false when missing contextId', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const { contextId: _, ...withoutContextId } = makeItem();
       expect(isValidContextItem(withoutContextId)).toBe(false);
     });
@@ -562,7 +562,7 @@ describe('ContextItem', () => {
     });
 
     it('should return false when missing createdAt', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const { createdAt: _, ...withoutCreatedAt } = makeItem();
       expect(isValidContextItem(withoutCreatedAt)).toBe(false);
     });
@@ -572,7 +572,7 @@ describe('ContextItem', () => {
     });
 
     it('should return false when missing accessedAt', () => {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+       
       const { accessedAt: _, ...withoutAccessedAt } = makeItem();
       expect(isValidContextItem(withoutAccessedAt)).toBe(false);
     });

@@ -86,16 +86,16 @@ export interface MouseEvents {
  * Requires SGR mouse mode (supported by most modern terminals).
  */
 export class MouseHandler extends EventEmitter {
-  private enabled: boolean = false;
+  private enabled = false;
   private terminal: Terminal;
-  private rawMode: boolean = false;
+  private rawMode = false;
   /** Debounce threshold for click vs double-click (ms) */
-  private clickTimeout: number = 300;
+  private clickTimeout = 300;
   private lastClick: { button: MouseButton; x: number; y: number; time: number } | null = null;
   private lastButton: MouseButton = 'none';
-  private isDragging: boolean = false;
+  private isDragging = false;
   /** Buffer for partial SGR sequences */
-  private buffer: string = '';
+  private buffer = '';
 
   constructor(terminal?: Terminal) {
     super();

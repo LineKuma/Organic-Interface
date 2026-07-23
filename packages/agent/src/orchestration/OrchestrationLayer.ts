@@ -409,7 +409,7 @@ export class OrchestrationLayer extends EventEmitter {
    */
   private shouldDecompose(request: OrchestrationRequest): boolean {
     return (
-      Array.isArray(request.payload?.subTasks) && (request.payload.subTasks as unknown[]).length > 0
+      Array.isArray(request.payload.subTasks) && (request.payload.subTasks as unknown[]).length > 0
     );
   }
 

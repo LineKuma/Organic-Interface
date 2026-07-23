@@ -29,9 +29,9 @@ function sgrMousePress(
   button: number,
   x: number,
   y: number,
-  shift: boolean = false,
-  alt: boolean = false,
-  ctrl: boolean = false
+  shift = false,
+  alt = false,
+  ctrl = false
 ): Buffer {
   let cb = button;
   if (shift) cb |= 4;
@@ -45,9 +45,9 @@ function sgrMouseRelease(
   button: number,
   x: number,
   y: number,
-  shift: boolean = false,
-  alt: boolean = false,
-  ctrl: boolean = false
+  shift = false,
+  alt = false,
+  ctrl = false
 ): Buffer {
   let cb = button;
   if (shift) cb |= 4;

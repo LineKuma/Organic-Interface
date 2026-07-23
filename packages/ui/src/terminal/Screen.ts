@@ -31,11 +31,11 @@ export interface ScreenEvents {
  */
 export class Screen extends EventEmitter {
   private terminal: Terminal;
-  private altScreenActive: boolean = false;
-  private cursorVisible: boolean = true;
+  private altScreenActive = false;
+  private cursorVisible = true;
   private resizeHandler: (() => void) | null = null;
   private exitHandler: (() => void) | null = null;
-  private cleanupDone: boolean = false;
+  private cleanupDone = false;
 
   constructor(terminal?: Terminal) {
     super();
@@ -105,19 +105,19 @@ export class Screen extends EventEmitter {
   /**
    * Move cursor relative
    */
-  moveUp(n: number = 1): void {
+  moveUp(n = 1): void {
     process.stdout.write(ANSI.up(n));
   }
 
-  moveDown(n: number = 1): void {
+  moveDown(n = 1): void {
     process.stdout.write(ANSI.down(n));
   }
 
-  moveRight(n: number = 1): void {
+  moveRight(n = 1): void {
     process.stdout.write(ANSI.right(n));
   }
 
-  moveLeft(n: number = 1): void {
+  moveLeft(n = 1): void {
     process.stdout.write(ANSI.left(n));
   }
 

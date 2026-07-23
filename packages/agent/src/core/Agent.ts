@@ -142,13 +142,13 @@ export class Agent extends EventEmitter {
   private heartbeatInterval?: ReturnType<typeof setInterval>;
 
   /** Execution counter for statistics */
-  private executionCount: number = 0;
+  private executionCount = 0;
 
   /** Total execution time for statistics */
-  private totalExecutionTime: number = 0;
+  private totalExecutionTime = 0;
 
   /** Whether agent is initialized */
-  private initialized: boolean = false;
+  private initialized = false;
 
   /**
    * Create a new Agent instance

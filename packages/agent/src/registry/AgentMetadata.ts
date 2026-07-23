@@ -225,7 +225,7 @@ export function createHealthCheckResult(
 /**
  * Check if agent is healthy based on metadata
  */
-export function isAgentHealthy(agent: AgentMetadata, heartbeatTimeout: number = 30000): boolean {
+export function isAgentHealthy(agent: AgentMetadata, heartbeatTimeout = 30000): boolean {
   const now = Date.now();
   const lastHeartbeat = now - agent.lastHeartbeatAt;
 

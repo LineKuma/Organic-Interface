@@ -109,7 +109,7 @@ export class Prompt {
   /**
    * Ask a confirmation (async)
    */
-  async askConfirm(message: string, defaultValue: boolean = false): Promise<boolean> {
+  async askConfirm(message: string, defaultValue = false): Promise<boolean> {
     const suffix = defaultValue ? ' [Y/n]' : ' [y/N]';
     const result = await this.askAsync(message + suffix, {
       type: 'confirm',
@@ -307,7 +307,7 @@ export class Prompt {
    */
   renderConfirm(
     message: string,
-    defaultValue: boolean = false,
+    defaultValue = false,
     options?: {
       validate?: (value: unknown) => string | null;
     }

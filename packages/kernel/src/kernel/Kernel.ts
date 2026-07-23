@@ -48,7 +48,7 @@ export class Kernel implements KernelApi {
   private eventBus: EventBus;
   private lifecycle: LifecycleManager;
   private pluginManager: PluginManager;
-  private requestCounter: number = 0;
+  private requestCounter = 0;
 
   /** Text service for CLI output */
   public readonly text: TextService;

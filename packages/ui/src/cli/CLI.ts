@@ -201,7 +201,7 @@ export class CLI {
         // Execute subcommand
         const subArgs = this.parser.extractArgs(parsed, command);
         if (subcommand.handler) {
-          return await subcommand.handler(subArgs, this.logger);
+          return subcommand.handler(subArgs, this.logger);
         }
       }
     }
@@ -209,7 +209,7 @@ export class CLI {
     // Execute main command
     if (command.handler) {
       const args = this.parser.extractArgs(parsed, command);
-      return await command.handler(args, this.logger);
+      return command.handler(args, this.logger);
     }
 
     return {
@@ -453,7 +453,8 @@ export class CLI {
 
     rl.prompt();
 
-    rl.on('line', async (line: string) => {
+    rl.on('line', (line: string) => {
+      void (async () => {
       const trimmed = line.trim();
 
       if (!trimmed) {
@@ -487,6 +488,7 @@ export class CLI {
 
       console.log('');
       rl.prompt();
+      })();
     });
 
     rl.on('close', () => {

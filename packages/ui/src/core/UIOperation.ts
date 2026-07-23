@@ -268,7 +268,7 @@ export class UIOperationManager extends EventEmitter {
   private logger: Logger;
 
   /** Operation counter */
-  private operationCounter: number = 0;
+  private operationCounter = 0;
 
   /**
    * Create a new UIOperationManager

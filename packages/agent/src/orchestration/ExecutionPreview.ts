@@ -96,7 +96,7 @@ export class ExecutionPreview {
    * Estimate total duration of the execution plan
    */
   estimateDuration(plan: OrchestrationLayerPlan): number {
-    const steps = plan.executionPlan.steps;
+    const {steps} = plan.executionPlan;
     if (steps.length === 0) return 0;
 
     // Build dependency graph
@@ -136,7 +136,7 @@ export class ExecutionPreview {
    * Returns step IDs in order of the longest dependency chain
    */
   findCriticalPath(plan: OrchestrationLayerPlan): string[] {
-    const steps = plan.executionPlan.steps;
+    const {steps} = plan.executionPlan;
     if (steps.length === 0) return [];
 
     const durations = new Map<string, number>();
@@ -237,7 +237,7 @@ export class ExecutionPreview {
    */
   generateWarnings(plan: OrchestrationLayerPlan): string[] {
     const warnings: string[] = [];
-    const steps = plan.executionPlan.steps;
+    const {steps} = plan.executionPlan;
 
     // Check for circular dependencies
     if (this.hasCircularDependencies(steps)) {
@@ -425,7 +425,7 @@ export class ExecutionPreview {
     let duration = 1000;
 
     // Adjust based on payload complexity
-    const payload = step.request.payload;
+    const {payload} = step.request;
     if (payload && typeof payload === 'object') {
       const payloadStr = JSON.stringify(payload);
       const sizeFactor = Math.min(payloadStr.length / 100, 5);
@@ -457,7 +457,7 @@ export class ExecutionPreview {
     if (step.request.requiredCapability) riskScore += 1;
 
     // Complex payload increases risk
-    const payload = step.request.payload;
+    const {payload} = step.request;
     if (payload && typeof payload === 'object') {
       const payloadStr = JSON.stringify(payload);
       if (payloadStr.length > 1000) riskScore += 2;
@@ -480,7 +480,7 @@ export class ExecutionPreview {
   private findParallelGroups(plan: OrchestrationLayerPlan): string[][] {
     const groups: string[][] = [];
     const assigned = new Set<string>();
-    const steps = plan.executionPlan.steps;
+    const {steps} = plan.executionPlan;
 
     for (const step of steps) {
       if (assigned.has(step.stepId)) continue;
