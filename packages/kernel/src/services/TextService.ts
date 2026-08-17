@@ -517,7 +517,13 @@ export class TextService {
     let isRunning = false;
     let intervalId: ReturnType<typeof setInterval> | null = null;
     const frames = SPINNER_FRAMES[type];
-    const { enableColor, styled, success, error: errorStyle, warning, info } = this;
+    const { enableColor } = this;
+    // Bind style helpers to `this` so they work when invoked as bare functions
+    const styled = (text: string, style: TextStyle): string => this.styled(text, style);
+    const success = (text: string): string => this.success(text);
+    const errorStyle = (text: string): string => this.error(text);
+    const warning = (text: string): string => this.warning(text);
+    const info = (text: string): string => this.info(text);
 
     const clearLine = (): void => {
       process.stdout.write(`\r${' '.repeat(80)}\r`);
