@@ -5,13 +5,11 @@ on:
     branches:
       - master
       - develop
-      - agent-develop
       - 'feature/**'
   pull_request:
     branches:
       - master
       - develop
-      - agent-develop
 
 permissions:
   contents: read
