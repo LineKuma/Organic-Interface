@@ -516,7 +516,7 @@ export class ContextService extends EventEmitter {
       id: `frame_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
       contextId,
       agentId,
-      parentFrameId: parentFrame.id,
+      parentFrameId: parentFrame?.id,
       childFrameIds: [],
       enterTime: Date.now(),
       status: 'running',

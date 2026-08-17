@@ -207,7 +207,8 @@ export class Terminal {
    * Detect all terminal features
    */
   private detectFeatures(): TerminalFeatures {
-    const { isTTY } = process.stdout;
+    // Coerce to boolean: process.stdout.isTTY is `undefined` when not a TTY
+    const isTTY = Boolean(process.stdout.isTTY);
     const termType = process.env.TERM || '';
     const termProgram = process.env.TERM_PROGRAM || '';
 
