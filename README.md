@@ -2,7 +2,7 @@
 
 [![Node.js](https://img.shields.io/badge/node-%3E%3D18.0.0-green.svg)](https://nodejs.org/)
 [![pnpm](https://img.shields.io/badge/pnpm-%3E%3D8.0.0-blue.svg)](https://pnpm.js.org/)
-[![License](https://img.shields.io/badge/license-MIT-yellow.svg)](LICENSE)
+[![License](https://img.shields.io/badge/license-AGPL--3.0-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-0.1.0-orange.svg)](package.json)
 
 **Organic-Interface** 是一个多模态自动化 AI CLI 工具，采用三层分离架构（内核层 / 外围模块化交互层 / 自定义层）设计，专注于代码领域的智能代理应用。
