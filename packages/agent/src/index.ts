@@ -212,6 +212,43 @@ export {
   ExecutionCoordinator,
 } from './orchestration/index.js';
 
+// Re-export from runner module
+export {
+  AgentRunner,
+  RunnerMode,
+  RunnerHealthStatus,
+  type RunnerCapability,
+  type RunnerConfig,
+  type RunnerStats,
+  type RunnerEvents,
+  DEFAULT_RUNNER_CONFIG,
+  LocalRunner,
+  type LocalRunnerConfig,
+  RemoteRunner,
+  RemoteTransport,
+  type RemoteRunnerConfig,
+  DEFAULT_REMOTE_RUNNER_CONFIG,
+  RemoteRunnerServer,
+  type RemoteRunnerServerConfig,
+  RunnerRegistry,
+  type RunnerSelector,
+  type RunnerRegistryStats,
+} from './runner/index.js';
+
+// Re-export from isolation module
+export {
+  type ExecutionIsolation,
+  type IsolatedExecutionRequest,
+  type IsolatedExecutionResult,
+  type IsolatedTaskHandler,
+  InProcessIsolation,
+  type InProcessIsolationConfig,
+  DEFAULT_IN_PROCESS_CONFIG,
+  ChildProcessIsolation,
+  type ChildProcessIsolationConfig,
+  DEFAULT_CHILD_PROCESS_CONFIG,
+} from './runner/isolation/index.js';
+
 /**
  * Module version
  */
