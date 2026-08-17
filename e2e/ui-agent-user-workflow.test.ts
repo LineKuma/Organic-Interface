@@ -11,16 +11,21 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import type * as OrganicUtils from '@organic/utils';
 import { UIAgent, createUIAgent, type UIOperationRequest } from '@organic/ui';
 
-vi.mock('@organic/utils', () => ({
-  createLogger: () => ({
-    debug: vi.fn(),
-    info: vi.fn(),
-    warn: vi.fn(),
-    error: vi.fn(),
-  }),
-}));
+vi.mock('@organic/utils', async importOriginal => {
+  const actual = await importOriginal<typeof OrganicUtils>();
+  return {
+    ...actual,
+    createLogger: () => ({
+      debug: vi.fn(),
+      info: vi.fn(),
+      warn: vi.fn(),
+      error: vi.fn(),
+    }),
+  };
+});
 
 // ── 用户场景：启动 Agent 并开始工作 ───────────────────────────────
 

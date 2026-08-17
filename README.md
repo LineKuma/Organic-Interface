@@ -328,25 +328,27 @@ organic-interface/
 
 ### 功能文档
 
-| 编号     | 文档                                                          | 说明                                |
-| -------- | ------------------------------------------------------------- | ----------------------------------- |
-| FEAT-002 | [交互界面作为工具](docs/feature-002-ui-as-tool.md)            | UI 操作接口、AI 自主操作界面        |
-| FEAT-003 | [高度自定义提示词系统](docs/feature-003-prompt-system.md)     | 模板引擎、版本管理、变量系统        |
-| FEAT-004 | [文件引用功能](docs/feature-004-file-reference.md)            | 代码文件引用、上下文关联            |
-| FEAT-005 | [项目定位与设计原则](docs/feature-005-product-positioning.md) | 产品定位、差异化方向                |
-| FEAT-006 | [Plugin 插件系统架构](docs/feature-006-plugin-spec.md)        | Kernel-Plugin 双层架构、接口规范    |
-| FEAT-007 | [Kernel 工具调用服务](docs/feature-007-tool-system.md)        | 工具分类、注册、执行、权限控制      |
-| FEAT-008 | [上下文管理](docs/feature-008-context-management.md)          | 对话上下文、消息管理、状态传播      |
-| FEAT-009 | [工作流引擎](docs/feature-009-workflow-engine.md)             | DAG 工作流、串行/并行/条件/循环执行 |
-| FEAT-010 | [配置管理系统](docs/feature-010-config-system.md)             | 多级配置、继承覆盖、热更新          |
-| FEAT-011 | [安全管理系统](docs/feature-011-security-system.md)           | RBAC 权限模型、审计日志             |
-| FEAT-012 | [Storage 存储系统](docs/feature-012-storage-system.md)        | 多后端存储、事务、数据迁移          |
-| FEAT-014 | [核心对话插件](docs/feature-014-core-conversation-plugin.md)  | CoreConversationPlugin 完整规格     |
-| FEAT-015 | [Agent SDK](docs/feature-015-agent-sdk.md)                    | Agent 创建、任务执行、调度、上下文  |
-| FEAT-016 | [Sub-agents 子代理](docs/feature-016-sub-agents.md)           | 任务分解、编排、Agent 注册中心      |
-| FEAT-017 | [Hooks 钩子系统](docs/feature-017-hooks-system.md)            | 生命周期钩子、事件拦截、中间件      |
-| FEAT-018 | [Memory 记忆系统](docs/feature-018-memory-system.md)          | 三层记忆、上下文窗口、持久化        |
-| FEAT-019 | [Skills 插件开发指南](docs/feature-019-skills-development.md) | 插件开发教程、完整示例              |
+| 编号     | 文档                                                                | 说明                                  |
+| -------- | ------------------------------------------------------------------- | ------------------------------------- |
+| FEAT-002 | [交互界面作为工具](docs/feature-002-ui-as-tool.md)                  | UI 操作接口、AI 自主操作界面          |
+| FEAT-003 | [高度自定义提示词系统](docs/feature-003-prompt-system.md)           | 模板引擎、版本管理、变量系统          |
+| FEAT-004 | [文件引用功能](docs/feature-004-file-reference.md)                  | 代码文件引用、上下文关联              |
+| FEAT-005 | [项目定位与设计原则](docs/feature-005-product-positioning.md)       | 产品定位、差异化方向                  |
+| FEAT-006 | [Plugin 插件系统架构](docs/feature-006-plugin-spec.md)              | Kernel-Plugin 双层架构、接口规范      |
+| FEAT-007 | [Kernel 工具调用服务](docs/feature-007-tool-system.md)              | 工具分类、注册、执行、权限控制        |
+| FEAT-008 | [上下文管理](docs/feature-008-context-management.md)                | 对话上下文、消息管理、状态传播        |
+| FEAT-009 | [工作流引擎](docs/feature-009-workflow-engine.md)                   | DAG 工作流、串行/并行/条件/循环执行   |
+| FEAT-010 | [配置管理系统](docs/feature-010-config-system.md)                   | 多级配置、继承覆盖、热更新            |
+| FEAT-011 | [安全管理系统](docs/feature-011-security-system.md)                 | RBAC 权限模型、审计日志               |
+| FEAT-012 | [Storage 存储系统](docs/feature-012-storage-system.md)              | 多后端存储、事务、数据迁移            |
+| FEAT-014 | [核心对话插件](docs/feature-014-core-conversation-plugin.md)        | CoreConversationPlugin 完整规格       |
+| FEAT-015 | [Agent SDK](docs/feature-015-agent-sdk.md)                          | Agent 创建、任务执行、调度、上下文    |
+| FEAT-016 | [Sub-agents 子代理](docs/feature-016-sub-agents.md)                 | 任务分解、编排、Agent 注册中心        |
+| FEAT-017 | [Hooks 钩子系统](docs/feature-017-hooks-system.md)                  | 生命周期钩子、事件拦截、中间件        |
+| FEAT-018 | [Memory 记忆系统](docs/feature-018-memory-system.md)                | 三层记忆、上下文窗口、持久化          |
+| FEAT-019 | [Skills 插件开发指南](docs/feature-019-skills-development.md)       | 插件开发教程、完整示例                |
+| FEAT-020 | [Agent Runners](docs/feature-020-agent-runners.md)                  | 本机/远程/隔离执行层抽象              |
+| FEAT-021 | [TUI/WebUI 标准功能接口](docs/feature-021-ui-frontend-interface.md) | 前后端统一契约、全量 stub、一致性审计 |
 
 ### 技术设计文档
 
