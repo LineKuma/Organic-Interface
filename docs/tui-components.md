@@ -10,7 +10,7 @@
 
 ## 概述
 
-Organic-Interface 提供完整的终端 UI（TUI）组件库，包含终端管理、屏幕控制、渲染组件、交互组件和输入处理。所有组件位于 `@organic/ui` 包中。
+Organic-Interface 提供完整的终端 UI（TUI）组件库，包含终端管理、屏幕控制、渲染组件、交互组件、输入处理以及一套 **交互式会话层（agent CLI 风格）**：输入框、历史浏览、斜杠命令与格式化输出。所有组件位于 `@organic/ui` 包中。
 
 ---
 
@@ -35,6 +35,13 @@ Organic-Interface 提供完整的终端 UI（TUI）组件库，包含终端管�
 │   ├── CLI.ts         # CLI 主程序
 │   ├── Command.ts     # 命令定义
 │   └── CommandParser.ts # 命令解析器
+├── tui/              # 交互式会话层（agent CLI 风格）
+│   ├── ChatSession.ts # 会话编排：输入框 + 历史 + 斜杠命令
+│   ├── InputBox.ts    # 行编辑器（光标/补全/历史导航）
+│   ├── History.ts     # 命令历史（去重/边界/持久化）
+│   ├── SlashCommand.ts# 斜杠命令注册、解析与执行
+│   ├── render.ts      # 格式化输出（消息框/代码块/富文本/菜单/状态栏）
+│   └── types.ts       # TUI 共享类型
 └── core/             # 核心系统
     ├── Sandbox.ts     # 安全沙箱
     ├── UIAgent.ts     # UI Agent
@@ -387,6 +394,134 @@ const output = box.renderKeyValue(
 ### `box.print(config)`
 
 直接输出到终端。
+
+---
+
+## 交互式会话层（InputBox / History / SlashCommand / ChatSession）
+
+面向主流 agent CLI 工具（如 Claude Code、Cursor CLI、gh copilot）交互体验的会话层。它们全部是无 I/O 的纯状态机，通过 `KeyEvent` 驱动、返回事件，便于单测与未来 WebUI 复用。
+
+### 导入
+
+```typescript
+import {
+  ChatSession,
+  createChatSession,
+  InputBox,
+  History,
+  SlashCommandRegistry,
+  slashCommand,
+  renderMessage,
+  renderRichText,
+  renderStatusLine,
+} from '@organic/ui';
+```
+
+### ChatSession — 会话编排
+
+协调输入框、历史与斜杠命令，输出格式化消息。
+
+```typescript
+const session = createChatSession({
+  name: 'organic',
+  onUserMessage: async content => {
+    // 业务处理（调用 Agent / 工具链）...
+    return '处理完成';
+  },
+  // output: line => process.stdout.write(line + '\n'),
+});
+
+// 无 I/O 入口：适合测试与 headless 调用
+session.feedKey({ name: 'h', char: 'h' });
+await session.consume('/help');
+
+// 有 I/O 入口：TTY raw 模式（↑/↓ 历史、Tab 补全、Ctrl-C 退出），
+// 非 TTY 回退为逐行读取
+// await session.start();
+```
+
+`consume(line)` 处理一行输入：`/...` 走斜杠命令，其余作为用户消息回调 `onUserMessage`。返回 `'continue' | 'exit'`。
+
+### InputBox — 行编辑器
+
+含光标移动、`Home`/`End`、`Ctrl-A/E/U/K/W` 绑定、`↑/↓` 历史、`Tab` 补全。以 `handleKey()` 喂入按键，返回 `InputBoxEvent`。
+
+```typescript
+const box = new InputBox({
+  prompt: 'organic> ',
+  history: new History(),
+  complete: buffer => (buffer.startsWith('/') ? ['/help', '/history'] : []),
+});
+
+box.setValue('rm -rf /tmp/x', 13);
+box.handleKey({ name: 'w', ctrl: true }); // 删除前一个词 → 'rm -rf /tmp/'
+box.handleKey({ name: 'a', ctrl: true }); // 移动到行首
+box.handleKey({ name: 'tab' });           // 补全 / 触发 complete 菜单
+box.handleKey({ name: 'return' });        // { type: 'submit', value }
+```
+
+事件类型：`change`（内容/光标变化）、`submit`（回车提交）、`complete`（多候选菜单）、`history`（历史导航）、`none`（无操作或忽略）。
+
+### History — 命令历史
+
+带大小上限、去重、导航游标与可选持久化。
+
+```typescript
+const history = new History({ max: 1000, filePath: '~/.config/organic/history' });
+history.push('list projects');
+history.previous(''); // 上一条；未记录 draft 时自动暂存当前输入
+history.next();       // 下一条 / 恢复 draft
+```
+
+### SlashCommand — 斜杠命令
+
+集中注册、解析（`/name args...`）、执行；支持别名、隐藏、补全与列表。
+
+```typescript
+const slash = new SlashCommandRegistry();
+
+slash.register(
+  slashCommand(
+    'exit',
+    '退出会话',
+    (ctx) => ({ exit: true, output: '再见！' }),
+    { aliases: ['quit', 'q'] }
+  )
+);
+
+slash.isSlash('/exit');          // true
+slash.parse('/model fast big');  // { kind:'command', command:'model', args:'fast big', ... }
+slash.complete('/ex');           // ['/exit']
+slash.list();                    // SlashCommandDefinition[]
+await slash.run('/model fast big');
+```
+
+`slashCommand(name, description, handler, options?)` 返回标准定义。`ChatSession` 内置 `baseSlashCommands()`：`/help` `/clear` `/exit` `/history`，业务命令通过 `session.registerSlash(...)` 追加。
+
+### render — 格式化输出
+
+纯字符串渲染函数，使用主题着色：
+
+| 函数               | 作用                                 |
+| ------------------ | ------------------------------------ |
+| `renderMessage`    | 完整消息框（角色徽标 + 富文本内容）  |
+| `renderRichText`   | 轻量 Markdown：代码块/标题/列表/行内 |
+| `renderCodeBlock`  | 带语言头的边框代码块                 |
+| `renderCommandMenu`| 斜杠命令帮助/补全菜单                |
+| `renderCompletionMenu`| Tab 补全候选菜单                  |
+| `renderStatusLine` | 三段式状态栏（左中右/居中/右对齐）   |
+| `roleBadge`        | 角色徽标（`[You]`/`[AI]`/`[Tool]`）  |
+
+```typescript
+const out = renderRichText('Use `npm i`, then **restart**:\n```ts\nlet x = 1\n```', theme);
+const status = renderStatusLine(
+  { left: 'organic v0.1.0', middle: "type '/help'", right: '3 msgs' },
+  theme,
+  80
+);
+```
+
+单测覆盖：`packages/ui/src/tui/__tests__/`（InputBox / History / SlashCommand / render）。
 
 ---
 
