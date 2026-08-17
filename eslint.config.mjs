@@ -3,7 +3,10 @@ import parser from '@typescript-eslint/parser';
 import configPrettier from 'eslint-config-prettier';
 
 const baseRules = {
-  '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
+  '@typescript-eslint/no-unused-vars': [
+    'error',
+    { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+  ],
   '@typescript-eslint/no-explicit-any': 'error',
   '@typescript-eslint/explicit-function-return-type': 'off',
   '@typescript-eslint/explicit-module-boundary-types': 'off',
@@ -51,8 +54,8 @@ const baseRules = {
   'no-useless-escape': 'error',
   'no-useless-return': 'error',
   'no-with': 'error',
-  'yoda': 'error',
-  'eqeqeq': ['error', 'always'],
+  yoda: 'error',
+  eqeqeq: ['error', 'always'],
   'no-caller': 'error',
   'no-console': ['warn', { allow: ['warn', 'error'] }],
   'no-debugger': 'error',
@@ -122,10 +125,7 @@ export default [
     ignores: ['**/*.test.ts', '**/*.test.tsx', '**/__tests__/**'],
     languageOptions: {
       parserOptions: {
-        project: [
-          './packages/*/tsconfig.json',
-          './packages/plugins/*/tsconfig.json',
-        ],
+        project: ['./packages/*/tsconfig.json', './packages/plugins/*/tsconfig.json'],
         tsconfigRootDir: import.meta.dirname,
       },
     },

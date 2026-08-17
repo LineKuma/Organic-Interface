@@ -104,7 +104,7 @@ export function countMacros(text: string): number {
  */
 export function getMacroTypes(text: string): MacroType[] {
   const types = new Set(parseMacros(text).map(m => m.type));
-  return Array.from(types) as MacroType[];
+  return Array.from(types);
 }
 
 /**

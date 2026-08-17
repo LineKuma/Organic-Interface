@@ -754,10 +754,10 @@ export class StorageService {
 
     if (exclude && exclude.length > 0) {
       const excludeKeys = exclude
-        .filter((field) => field.startsWith('data.'))
-        .map((field) => field.substring(5));
+        .filter(field => field.startsWith('data.'))
+        .map(field => field.substring(5));
       const filteredData = Object.fromEntries(
-        Object.entries(entity.data).filter(([key]) => !excludeKeys.includes(key)),
+        Object.entries(entity.data).filter(([key]) => !excludeKeys.includes(key))
       );
       result.data = filteredData as Record<string, unknown>;
     }

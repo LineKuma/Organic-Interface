@@ -318,7 +318,7 @@ export class ContextWindowManager extends EventEmitter {
       return null;
     }
 
-    const {maxTokens} = window.config;
+    const { maxTokens } = window.config;
     if (!maxTokens) {
       return window;
     }

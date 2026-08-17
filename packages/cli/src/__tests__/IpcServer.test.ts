@@ -182,7 +182,7 @@ function sendRequest(socketPath: string, request: IpcRequest): Promise<IpcRespon
     });
 
     client.connect(socketPath, () => {
-      client.write(JSON.stringify(request) + '\n');
+      client.write(`${JSON.stringify(request)}\n`);
     });
   });
 }

@@ -386,7 +386,7 @@ export class ContextManager extends EventEmitter {
       return [];
     }
 
-    let {messages} = context;
+    let { messages } = context;
 
     // Filter by types
     if (options?.types && options.types.length > 0) {

@@ -483,11 +483,7 @@ export class SearchFilterSelect {
   /**
    * Paginate options (utility method)
    */
-  paginate(
-    options: SearchFilterOption[],
-    page: number,
-    pageSize = 10
-  ): SearchFilterOption[] {
+  paginate(options: SearchFilterOption[], page: number, pageSize = 10): SearchFilterOption[] {
     const start = page * pageSize;
     const end = start + pageSize;
     return options.slice(start, end);

@@ -11,6 +11,7 @@
 
 import { createLogger, type Logger } from '@organic/utils';
 import chalk from 'chalk';
+import { createInterface } from 'node:readline';
 
 import type {
   ProviderId,
@@ -51,7 +52,7 @@ function header(title: string): void {
 
 /** Print a labeled value */
 function field(label: string, value: string): void {
-  console.log(`  ${chalk.dim(label + ':')} ${value}`);
+  console.log(`  ${chalk.dim(`${label}:`)} ${value}`);
 }
 
 // ── Main CLI Class ───────────────────────────────────────────────
@@ -72,7 +73,7 @@ export class ModelConfigCLI {
   private store: ModelConfigStore;
   private service: ModelConfigService;
   private logger: Logger;
-  private running: boolean = false;
+  private running = false;
 
   constructor(store?: ModelConfigStore, logger?: Logger) {
     this.logger = logger ?? createLogger({ prefix: 'ModelConfigCLI' });
@@ -1301,13 +1302,13 @@ export class ModelConfigCLI {
 
   // ── Input Helpers ──────────────────────────────────────────────
 
-  private async promptInput(message: string, defaultValue: string = ''): Promise<string> {
+  private async promptInput(message: string, defaultValue = ''): Promise<string> {
     const prompt = defaultValue
       ? `${chalk.cyan('?')} ${message} ${chalk.dim(`[${defaultValue}]`)}: `
       : `${chalk.cyan('?')} ${message}: `;
 
     return new Promise(resolve => {
-      const readline = require('node:readline').createInterface({
+      const readline = createInterface({
         input: process.stdin,
         output: process.stdout,
       });

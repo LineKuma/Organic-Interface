@@ -179,7 +179,7 @@ export class SearchTool implements Tool {
   validate(input: unknown): ToolValidationError[] {
     const errors: ToolValidationError[] = [];
     const data = input as Partial<SearchToolInput>;
-    const {operation} = data;
+    const { operation } = data;
 
     if (!operation) {
       errors.push({

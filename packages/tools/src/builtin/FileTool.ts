@@ -138,7 +138,7 @@ export class FileTool implements Tool {
       });
     }
 
-    const {operation} = data;
+    const { operation } = data;
 
     // Validate operation-specific requirements
     if (

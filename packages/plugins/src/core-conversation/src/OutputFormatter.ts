@@ -141,7 +141,7 @@ export class OutputFormatter {
     const startTime = Date.now();
 
     let text = '';
-    const {message} = error;
+    const { message } = error;
 
     if (this.options.enableColors) {
       text = `${this.options.theme.error}[ERROR]${RESET} ${message}`;
@@ -332,7 +332,7 @@ export class OutputFormatter {
    * @returns Formatted output
    */
   formatMessage(message: ResponseMessage, startTime: number): FormattedOutput {
-    let {text} = message.content;
+    let { text } = message.content;
 
     // Apply formatting based on content format
     if (message.content.format === ContentFormat.MARKDOWN) {
@@ -483,7 +483,7 @@ export class OutputFormatter {
    * @returns Formatted output
    */
   formatConfirmation(message: ResponseMessage, startTime: number): FormattedOutput {
-    let {text} = message.content;
+    let { text } = message.content;
 
     if (this.options.enableColors) {
       text = `${this.options.theme.warning}${text}${RESET}`;

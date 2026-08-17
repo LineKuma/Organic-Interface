@@ -86,11 +86,7 @@ export class FileParser {
   /**
    * Extract symbols from source code content
    */
-  extractSymbols(
-    content: string,
-    language: SupportedLanguage,
-    filePath = ''
-  ): FileSymbol[] {
+  extractSymbols(content: string, language: SupportedLanguage, filePath = ''): FileSymbol[] {
     const symbols: FileSymbol[] = [];
 
     switch (language) {

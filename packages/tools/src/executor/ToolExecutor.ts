@@ -232,7 +232,7 @@ export class ToolExecutor extends EventEmitter {
     options: ToolExecutionOptions
   ): Promise<ToolResult> {
     const definition = tool.getDefinition();
-    const {executionId} = context;
+    const { executionId } = context;
 
     this.activeExecutions.set(executionId, { tool, input, context, options });
 

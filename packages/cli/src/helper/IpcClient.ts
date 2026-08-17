@@ -29,14 +29,13 @@ export async function sendIpcRequest(
   return new Promise(resolve => {
     const client = new net.Socket();
     let data = '';
-    let timeout: NodeJS.Timeout;
 
     const cleanup = () => {
       clearTimeout(timeout);
       client.destroy();
     };
 
-    timeout = setTimeout(() => {
+    const timeout = setTimeout(() => {
       cleanup();
       resolve({
         id: request.id,
@@ -90,7 +89,7 @@ export async function sendIpcRequest(
     });
 
     client.connect(socketPath, () => {
-      const payload = JSON.stringify(request) + '\n';
+      const payload = `${JSON.stringify(request)}\n`;
       client.write(payload);
     });
   });

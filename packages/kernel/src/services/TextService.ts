@@ -286,7 +286,7 @@ export class TextService {
    * Print text followed by newline
    */
   println(text = ''): void {
-    process.stdout.write(`${text  }\n`);
+    process.stdout.write(`${text}\n`);
   }
 
   // ==================== Formatting Output ====================
@@ -307,21 +307,21 @@ export class TextService {
 
     // Build top border
     if (borders) {
-      const topBorder = `┌${  calculatedWidths.map(w => '─'.repeat(w)).join('┬')  }┐`;
+      const topBorder = `┌${calculatedWidths.map(w => '─'.repeat(w)).join('┬')}┐`;
       lines.push(topBorder);
     }
 
     // Build header row
     const headerCells = headers.map((h, i) => this.alignText(h, calculatedWidths[i], align));
     if (borders) {
-      lines.push(`│${  headerCells.join('│')  }│`);
+      lines.push(`│${headerCells.join('│')}│`);
     } else {
       lines.push(headerCells.join('  '));
     }
 
     // Build header separator
     if (borders) {
-      const headerSep = `├${  calculatedWidths.map(w => '─'.repeat(w)).join('┼')  }┤`;
+      const headerSep = `├${calculatedWidths.map(w => '─'.repeat(w)).join('┼')}┤`;
       lines.push(headerSep);
     }
 
@@ -329,7 +329,7 @@ export class TextService {
     for (const row of rows) {
       const cells = row.map((cell, i) => this.alignText(cell, calculatedWidths[i], align));
       if (borders) {
-        lines.push(`│${  cells.join('│')  }│`);
+        lines.push(`│${cells.join('│')}│`);
       } else {
         lines.push(cells.join('  '));
       }
@@ -337,7 +337,7 @@ export class TextService {
 
     // Build bottom border
     if (borders) {
-      const bottomBorder = `└${  calculatedWidths.map(w => '─'.repeat(w)).join('┴')  }┘`;
+      const bottomBorder = `└${calculatedWidths.map(w => '─'.repeat(w)).join('┴')}┘`;
       lines.push(bottomBorder);
     }
 
@@ -466,7 +466,7 @@ export class TextService {
 
       writeln(chunk = ''): void {
         if (!isActive) return;
-        process.stdout.write(`${prefix + chunk  }\n`);
+        process.stdout.write(`${prefix + chunk}\n`);
       },
 
       flush(): void {
@@ -479,7 +479,7 @@ export class TextService {
       end(): void {
         isActive = false;
         if (buffer && endWithNewline) {
-          process.stdout.write(`${buffer  }\n`);
+          process.stdout.write(`${buffer}\n`);
           buffer = '';
         }
       },
@@ -520,7 +520,7 @@ export class TextService {
     const { enableColor, styled, success, error: errorStyle, warning, info } = this;
 
     const clearLine = (): void => {
-      process.stdout.write(`\r${  ' '.repeat(80)  }\r`);
+      process.stdout.write(`\r${' '.repeat(80)}\r`);
     };
 
     const render = (): void => {
@@ -556,13 +556,13 @@ export class TextService {
       success(message?: string): void {
         this.stop();
         const msg = message ?? currentMessage ?? 'Done';
-        process.stdout.write(`${success(`✓ ${msg}`)  }\n`);
+        process.stdout.write(`${success(`✓ ${msg}`)}\n`);
       },
 
       error(message?: string): void {
         this.stop();
         const msg = message ?? currentMessage ?? 'Failed';
-        process.stdout.write(`${errorStyle(`✗ ${msg}`)  }\n`);
+        process.stdout.write(`${errorStyle(`✗ ${msg}`)}\n`);
       },
 
       stopWithMessage(message: string, type: 'success' | 'error' | 'warning' | 'info'): void {
@@ -575,7 +575,7 @@ export class TextService {
               : type === 'warning'
                 ? warning(`⚠ ${message}`)
                 : info(`ℹ ${message}`);
-        process.stdout.write(`${styledMsg  }\n`);
+        process.stdout.write(`${styledMsg}\n`);
       },
     };
   }

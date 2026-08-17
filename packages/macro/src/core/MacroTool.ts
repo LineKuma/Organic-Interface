@@ -163,11 +163,7 @@ export class MacroTool implements Tool {
       });
     }
 
-    if (
-      params.text &&
-      typeof params.text === 'string' &&
-      !this.resolver.hasMacros(params.text as string)
-    ) {
+    if (params.text && typeof params.text === 'string' && !this.resolver.hasMacros(params.text)) {
       errors.push({
         path: 'text',
         message: 'Text contains no macro expressions to resolve',

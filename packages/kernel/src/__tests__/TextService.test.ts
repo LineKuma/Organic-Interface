@@ -433,7 +433,7 @@ describe('TextService', () => {
       stream.end();
       stream.write('should not appear');
       // end() clears buffer (empty) then newline, so only newline was written
-      const {calls} = stdoutWriteSpy.mock;
+      const { calls } = stdoutWriteSpy.mock;
       // There should be no calls with 'should not appear'
       const hasWrite = calls.some((call: unknown[]) => {
         const arg = call[0] as string;

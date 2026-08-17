@@ -455,39 +455,39 @@ export class CLI {
 
     rl.on('line', (line: string) => {
       void (async () => {
-      const trimmed = line.trim();
+        const trimmed = line.trim();
 
-      if (!trimmed) {
+        if (!trimmed) {
+          rl.prompt();
+          return;
+        }
+
+        // Handle exit
+        if (trimmed === 'exit' || trimmed === 'quit' || trimmed === 'q') {
+          console.log(colors.muted('Goodbye!'));
+          rl.close();
+          return;
+        }
+
+        // Handle clear
+        if (trimmed === 'clear' || trimmed === 'cls') {
+          this.screen?.clear();
+          rl.prompt();
+          return;
+        }
+
+        // Run the command
+        const args = trimmed.split(/\s+/);
+        const result = await this.run(args);
+
+        if (result.error) {
+          console.log(colors.error(`  ${this.theme.errorPrefix} ${result.error}`));
+        } else if (result.message) {
+          console.log(result.message);
+        }
+
+        console.log('');
         rl.prompt();
-        return;
-      }
-
-      // Handle exit
-      if (trimmed === 'exit' || trimmed === 'quit' || trimmed === 'q') {
-        console.log(colors.muted('Goodbye!'));
-        rl.close();
-        return;
-      }
-
-      // Handle clear
-      if (trimmed === 'clear' || trimmed === 'cls') {
-        this.screen?.clear();
-        rl.prompt();
-        return;
-      }
-
-      // Run the command
-      const args = trimmed.split(/\s+/);
-      const result = await this.run(args);
-
-      if (result.error) {
-        console.log(colors.error(`  ${this.theme.errorPrefix} ${result.error}`));
-      } else if (result.message) {
-        console.log(result.message);
-      }
-
-      console.log('');
-      rl.prompt();
       })();
     });
 

@@ -216,7 +216,7 @@ export class InfoService {
       };
     }
 
-    const {platform} = process;
+    const { platform } = process;
     const isCI = this.detectCI();
 
     this.cachedPlatformInfo = {

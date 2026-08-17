@@ -134,14 +134,10 @@ export class SessionPersistenceStorage {
       if (existing) {
         await this.storage.update(session.id, entity.data);
       } else {
-        const result = await this.storage.create(
-          SESSION_ENTITY_TYPE,
-          entity.data,
-          {
-            id: session.id,
-            metadata: entity.metadata,
-          }
-        );
+        const result = await this.storage.create(SESSION_ENTITY_TYPE, entity.data, {
+          id: session.id,
+          metadata: entity.metadata,
+        });
 
         // If create failed due to duplicate, update instead
         if (!result.success && result.error?.includes('already exists')) {
@@ -326,7 +322,7 @@ export class SessionPersistenceStorage {
     metadata: { tags?: string[]; expires_at?: number };
   }): SessionPersistence | null {
     try {
-      const {data} = entity;
+      const { data } = entity;
       return {
         id: entity.id,
         title: (data.title as string) || `Session ${entity.id.substring(0, 8)}`,

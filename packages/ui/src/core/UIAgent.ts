@@ -354,7 +354,7 @@ export class UIAgent extends EventEmitter {
     }
 
     const operation = request.type;
-    const {input} = request;
+    const { input } = request;
 
     this.emit('operation:request', {
       agentId: this.config.agentId,

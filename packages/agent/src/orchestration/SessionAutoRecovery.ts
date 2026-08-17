@@ -312,7 +312,7 @@ export class SessionAutoRecovery {
     data: Record<string, unknown>;
   }): RecoveryState | null {
     try {
-      const metadata = (session.data) ?? {};
+      const metadata = session.data ?? {};
       return {
         sessionId: (metadata.sessionId as string) ?? session.id,
         lastCheckpoint: (metadata.lastCheckpoint as number) ?? 0,

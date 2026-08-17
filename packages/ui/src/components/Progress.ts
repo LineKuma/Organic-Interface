@@ -173,7 +173,7 @@ export class Progress {
 
     // Clear previous line and write new
     if (this.lastUpdate) {
-      process.stdout.write(`\r${  ' '.repeat(this.lastUpdate.length)  }\r`);
+      process.stdout.write(`\r${' '.repeat(this.lastUpdate.length)}\r`);
     }
     process.stdout.write(output);
     this.lastUpdate = output;
@@ -329,7 +329,7 @@ export class Progress {
    */
   private createInitialState(): ProgressState {
     const current = this.config.current ?? 0;
-    const {total} = this.config;
+    const { total } = this.config;
     return {
       current,
       total,

@@ -342,30 +342,32 @@ export class IpcServer {
   private handleConnection(socket: net.Socket): void {
     let data = '';
 
-    socket.on('data', async (chunk: Buffer) => {
+    socket.on('data', (chunk: Buffer) => {
       data += chunk.toString();
 
       // Process complete JSON messages (newline-delimited)
       const lines = data.split('\n');
       data = lines.pop() ?? ''; // Keep incomplete line
 
-      for (const line of lines) {
-        if (!line.trim()) continue;
+      void (async () => {
+        for (const line of lines) {
+          if (!line.trim()) continue;
 
-        try {
-          const request = JSON.parse(line) as IpcRequest;
-          await this.processRequest(request, socket);
-        } catch (err) {
-          const message = err instanceof Error ? err.message : 'Unknown error';
-          this.logger.error(`Failed to parse request: ${message}`);
-          this.sendResponse(socket, {
-            id: 'unknown',
-            success: false,
-            error: `Invalid request: ${message}`,
-            errorCode: 'PARSE_ERROR',
-          });
+          try {
+            const request = JSON.parse(line) as IpcRequest;
+            await this.processRequest(request, socket);
+          } catch (err) {
+            const message = err instanceof Error ? err.message : 'Unknown error';
+            this.logger.error(`Failed to parse request: ${message}`);
+            this.sendResponse(socket, {
+              id: 'unknown',
+              success: false,
+              error: `Invalid request: ${message}`,
+              errorCode: 'PARSE_ERROR',
+            });
+          }
         }
-      }
+      })();
     });
 
     socket.on('error', err => {
@@ -376,8 +378,9 @@ export class IpcServer {
   /** Process a single IPC request */
   private async processRequest(request: IpcRequest, socket: net.Socket): Promise<void> {
     this.logger.debug(
-      `Processing: ${request.method} (${request.id})` +
-        (request.executor ? ` executor=${request.executor.conversationId ?? 'anon'}` : '')
+      `Processing: ${request.method} (${request.id})${
+        request.executor ? ` executor=${request.executor.conversationId ?? 'anon'}` : ''
+      }`
     );
 
     const handler = this.handlers.get(request.method);
@@ -409,7 +412,7 @@ export class IpcServer {
   /** Send a response over the socket */
   private sendResponse(socket: net.Socket, response: IpcResponse): void {
     try {
-      const payload = JSON.stringify(response) + '\n';
+      const payload = `${JSON.stringify(response)}\n`;
       socket.write(payload);
     } catch (err) {
       this.logger.debug(`Failed to send response: ${err}`);

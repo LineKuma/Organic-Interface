@@ -207,7 +207,7 @@ export class Terminal {
    * Detect all terminal features
    */
   private detectFeatures(): TerminalFeatures {
-    const {isTTY} = process.stdout;
+    const { isTTY } = process.stdout;
     const termType = process.env.TERM || '';
     const termProgram = process.env.TERM_PROGRAM || '';
 

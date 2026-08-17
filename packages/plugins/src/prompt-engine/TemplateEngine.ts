@@ -382,7 +382,7 @@ export class TemplateEngine {
       const len = parseInt(length, 10);
       if (isNaN(len) || len <= 0) return str;
       if (str.length <= len) return str;
-      return `${str.substring(0, len)  }...`;
+      return `${str.substring(0, len)}...`;
     });
     this.filters.set('default', (value: unknown, defaultVal: string) => {
       return value === undefined || value === null || value === '' ? defaultVal : String(value);

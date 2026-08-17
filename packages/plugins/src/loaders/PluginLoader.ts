@@ -231,7 +231,7 @@ export class PluginLoader implements PluginLoaderInterface {
    */
   async reload(pluginId: string): Promise<PluginLoadResult> {
     await this.unload(pluginId);
-    const entry = this.cache.get(`${pluginId  }_config`);
+    const entry = this.cache.get(`${pluginId}_config`);
     return this.load(pluginId, entry?.config);
   }
 

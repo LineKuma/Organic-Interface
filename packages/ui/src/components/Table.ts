@@ -372,7 +372,7 @@ export class Table<T extends Record<string, unknown> = Record<string, unknown>> 
     if (str.length <= maxLength) {
       return str;
     }
-    return `${str.slice(0, maxLength - 1)  }..`;
+    return `${str.slice(0, maxLength - 1)}..`;
   }
 
   /**
