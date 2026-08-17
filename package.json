@@ -1,0 +1,39 @@
+{
+  "name": "organic-interface",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Organic Interface - Plugin-based Agent Framework",
+  "type": "module",
+  "scripts": {
+    "build": "turbo run build",
+    "dev": "turbo run dev",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint . && prettier --check .",
+    "lint:fix": "eslint --fix . && prettier --write .",
+    "typecheck": "turbo run typecheck",
+    "docs": "typedoc",
+    "clean": "turbo run clean && rm -rf node_modules"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "@vitest/coverage-v8": "^4.1.9",
+    "eslint": "^9.39.4",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.2.0",
+    "turbo": "^2.9.16",
+    "typedoc": "^0.28.19",
+    "typescript": "^5.4.0",
+    "vite": "^8.0.0",
+    "vitest": "^4.1.9"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@10.28.1"
+}

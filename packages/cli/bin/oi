@@ -1,0 +1,24 @@
+#!/usr/bin/env node
+/**
+ * OI CLI Entry Point
+ *
+ * This is the entry point for the `oi` command.
+ * The AI tool invokes it as:
+ *   oi --socket /tmp/oi-ipc-host.sock --ctx conv_123 <command...>
+ *
+ * The helper is a pure proxy: it forwards all commands to the
+ * host via IPC. The host determines executor identity and
+ * performs permission checks for hard isolation.
+ */
+
+// Dynamic import to allow the main module to handle errors
+async function main() {
+  const { OiHelper } = await import('../src/helper/OiHelper.js');
+  const helper = new OiHelper();
+  await helper.run(process.argv.slice(2));
+}
+
+main().catch(error => {
+  console.error('OI CLI Error:', error.message);
+  process.exit(1);
+});

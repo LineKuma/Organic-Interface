@@ -90,28 +90,28 @@
 
 ## 操作接口清单
 
-| 接口名称 | 参数 | 返回值 | 说明 |
-|----------|------|--------|------|
-| click | selector, options | Result | 点击指定元素 |
-| input | selector, value, options | Result | 向输入框填值 |
-| select | selector, value | Result | 选择下拉选项 |
-| scroll | direction, distance | Result | 滚动页面 |
-| hover | selector | Result | 鼠标悬停 |
-| getText | selector | string | 获取文本内容 |
-| getAttribute | selector, attr | string | 获取元素属性 |
-| waitFor | selector, timeout | bool | 等待元素出现 |
+| 接口名称     | 参数                     | 返回值 | 说明         |
+| ------------ | ------------------------ | ------ | ------------ |
+| click        | selector, options        | Result | 点击指定元素 |
+| input        | selector, value, options | Result | 向输入框填值 |
+| select       | selector, value          | Result | 选择下拉选项 |
+| scroll       | direction, distance      | Result | 滚动页面     |
+| hover        | selector                 | Result | 鼠标悬停     |
+| getText      | selector                 | string | 获取文本内容 |
+| getAttribute | selector, attr           | string | 获取元素属性 |
+| waitFor      | selector, timeout        | bool   | 等待元素出现 |
 
 ---
 
 ## 验收条件
 
-| 序号 | 验收项 | 验收标准 |
-|------|--------|----------|
-| 1 | 接口覆盖率 | AI可成功调用至少80%的界面操作接口 |
-| 2 | 结果反馈 | 操作执行结果准确反馈给调用Agent |
-| 3 | 回放功能 | 支持操作序列的回放和调试 |
-| 4 | 隔离运行 | AI操作与人类操作互不干扰 |
-| 5 | 安全机制 | 敏感操作需二次确认机制 |
+| 序号 | 验收项     | 验收标准                          |
+| ---- | ---------- | --------------------------------- |
+| 1    | 接口覆盖率 | AI可成功调用至少80%的界面操作接口 |
+| 2    | 结果反馈   | 操作执行结果准确反馈给调用Agent   |
+| 3    | 回放功能   | 支持操作序列的回放和调试          |
+| 4    | 隔离运行   | AI操作与人类操作互不干扰          |
+| 5    | 安全机制   | 敏感操作需二次确认机制            |
 
 ---
 
@@ -126,12 +126,12 @@
 
 ### 权限分级
 
-| 等级 | 权限范围 | 适用场景 |
-|------|----------|----------|
-| L1 | 只读操作 | 页面浏览 |
-| L2 | 常规操作 | 表单填写、按钮点击 |
-| L3 | 数据修改 | 文件上传、数据提交 |
-| L4 | 高危操作 | 删除、支付等 |
+| 等级 | 权限范围 | 适用场景           |
+| ---- | -------- | ------------------ |
+| L1   | 只读操作 | 页面浏览           |
+| L2   | 常规操作 | 表单填写、按钮点击 |
+| L3   | 数据修改 | 文件上传、数据提交 |
+| L4   | 高危操作 | 删除、支付等       |
 
 ---
 
@@ -158,13 +158,13 @@ interface OperationLog {
 
 ## 配置项
 
-| 配置项 | 默认值 | 说明 |
-|--------|--------|------|
-| sandbox_enabled | true | 启用沙箱机制 |
-| default_permission_level | L2 | 默认权限等级 |
-| operation_timeout | 30000 | 操作超时时间(ms) |
-| confirm_sensitive_ops | true | 敏感操作需确认 |
-| max_retry_count | 3 | 最大重试次数 |
+| 配置项                   | 默认值 | 说明             |
+| ------------------------ | ------ | ---------------- |
+| sandbox_enabled          | true   | 启用沙箱机制     |
+| default_permission_level | L2     | 默认权限等级     |
+| operation_timeout        | 30000  | 操作超时时间(ms) |
+| confirm_sensitive_ops    | true   | 敏感操作需确认   |
+| max_retry_count          | 3      | 最大重试次数     |
 
 ---
 

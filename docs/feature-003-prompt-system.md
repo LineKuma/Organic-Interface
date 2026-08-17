@@ -32,11 +32,11 @@
 
 三大核心模块：
 
-| 模块 | 职责 | 核心能力 |
-|------|------|----------|
-| 模板引擎 | 模板解析和渲染 | 支持插值、条件块、循环 |
-| 版本管理 | 版本存储和追踪 | Git风格的数据存储 |
-| 变量解析器 | 运行时上下文替换 | 支持默认值和类型校验 |
+| 模块       | 职责             | 核心能力               |
+| ---------- | ---------------- | ---------------------- |
+| 模板引擎   | 模板解析和渲染   | 支持插值、条件块、循环 |
+| 版本管理   | 版本存储和追踪   | Git风格的数据存储      |
+| 变量解析器 | 运行时上下文替换 | 支持默认值和类型校验   |
 
 ### 模板语法
 
@@ -44,9 +44,11 @@
 # 基础语法示例
 
 ## 变量插值
+
 Hello {{name}}, welcome to {{project}}!
 
 ## 条件判断
+
 {{#if is_admin}}
 您拥有管理员权限。
 {{else}}
@@ -54,11 +56,14 @@ Hello {{name}}, welcome to {{project}}!
 {{/if}}
 
 ## 循环遍历
+
 {{#each items}}
+
 - {{this.name}}: {{this.value}}
-{{/each}}
+  {{/each}}
 
 ## 默认值
+
 User: {{user_name: "Anonymous"}}
 ```
 
@@ -101,24 +106,24 @@ User: {{user_name: "Anonymous"}}
 
 ## 模板类型分类
 
-| 类型 | 用途 | 示例 |
-|------|------|------|
-| system_prompt | 系统级提示词 | AI角色定义 |
-| user_prompt | 用户提示词 | 代码审查标准 |
-| response_template | 响应模板 | 回复格式规范 |
-| workflow_prompt | 工作流提示词 | 多步骤任务引导 |
+| 类型              | 用途         | 示例           |
+| ----------------- | ------------ | -------------- |
+| system_prompt     | 系统级提示词 | AI角色定义     |
+| user_prompt       | 用户提示词   | 代码审查标准   |
+| response_template | 响应模板     | 回复格式规范   |
+| workflow_prompt   | 工作流提示词 | 多步骤任务引导 |
 
 ---
 
 ## 验收条件
 
-| 序号 | 验收项 | 验收标准 |
-|------|--------|----------|
-| 1 | CRUD操作 | 支持创建、编辑、删除提示词模板 |
-| 2 | 版本历史 | 提供版本历史查看和对比功能 |
-| 3 | 版本回滚 | 支持一键回滚到指定版本 |
-| 4 | 变量解析 | 模板变量解析正确率不低于99% |
-| 5 | 导入导出 | 支持模板导入导出功能 |
+| 序号 | 验收项   | 验收标准                       |
+| ---- | -------- | ------------------------------ |
+| 1    | CRUD操作 | 支持创建、编辑、删除提示词模板 |
+| 2    | 版本历史 | 提供版本历史查看和对比功能     |
+| 3    | 版本回滚 | 支持一键回滚到指定版本         |
+| 4    | 变量解析 | 模板变量解析正确率不低于99%    |
+| 5    | 导入导出 | 支持模板导入导出功能           |
 
 ---
 
@@ -126,16 +131,16 @@ User: {{user_name: "Anonymous"}}
 
 ### 模板API
 
-| 接口 | 方法 | 说明 |
-|------|------|------|
-| /api/templates | GET | 获取模板列表 |
-| /api/templates | POST | 创建新模板 |
-| /api/templates/:id | GET | 获取模板详情 |
-| /api/templates/:id | PUT | 更新模板 |
-| /api/templates/:id | DELETE | 删除模板 |
-| /api/templates/:id/versions | GET | 获取版本历史 |
-| /api/templates/:id/rollback | POST | 回滚到指定版本 |
-| /api/templates/:id/render | POST | 渲染预览 |
+| 接口                        | 方法   | 说明           |
+| --------------------------- | ------ | -------------- |
+| /api/templates              | GET    | 获取模板列表   |
+| /api/templates              | POST   | 创建新模板     |
+| /api/templates/:id          | GET    | 获取模板详情   |
+| /api/templates/:id          | PUT    | 更新模板       |
+| /api/templates/:id          | DELETE | 删除模板       |
+| /api/templates/:id/versions | GET    | 获取版本历史   |
+| /api/templates/:id/rollback | POST   | 回滚到指定版本 |
+| /api/templates/:id/render   | POST   | 渲染预览       |
 
 ### 请求示例
 
@@ -206,12 +211,12 @@ interface Variable {
 
 ## 配置项
 
-| 配置项 | 默认值 | 说明 |
-|--------|--------|------|
-| max_templates | 1000 | 最大模板数量 |
-| max_version_history | 50 | 最大版本历史数 |
-| auto_save_interval | 30000 | 自动保存间隔(ms) |
-| enable_version_control | true | 启用版本控制 |
+| 配置项                 | 默认值 | 说明             |
+| ---------------------- | ------ | ---------------- |
+| max_templates          | 1000   | 最大模板数量     |
+| max_version_history    | 50     | 最大版本历史数   |
+| auto_save_interval     | 30000  | 自动保存间隔(ms) |
+| enable_version_control | true   | 启用版本控制     |
 
 ---
 

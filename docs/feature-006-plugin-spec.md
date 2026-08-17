@@ -69,11 +69,11 @@ interface KernelInfoService {
   // 获取系统配置
   get_config(key: string): ConfigValue;
   get_all_configs(): Record<string, ConfigValue>;
-  
+
   // 获取运行时信息
   get_runtime_info(): RuntimeInfo;
   get_project_context(): ProjectContext;
-  
+
   // 文件系统抽象
   read_file(path: string): FileContent;
   write_file(path: string, content: string): WriteResult;
@@ -87,11 +87,11 @@ interface KernelInfoService {
 interface KernelToolService {
   // 工具调用
   call_tool(tool_name: string, args: ToolArgs): ToolResult;
-  
+
   // 工具注册
   register_tool(tool: ToolDefinition): void;
   unregister_tool(tool_name: string): void;
-  
+
   // 工具查询
   list_tools(): ToolDefinition[];
   get_tool(tool_name: string): ToolDefinition | null;
@@ -105,11 +105,11 @@ interface KernelPluginService {
   // Plugin生命周期
   load_plugin(plugin_id: string): Promise<PluginInstance>;
   unload_plugin(plugin_id: string): Promise<void>;
-  
+
   // Plugin通信
   send_message(target: string, message: PluginMessage): void;
   broadcast_message(message: PluginMessage): void;
-  
+
   // 状态查询
   list_plugins(): PluginInfo[];
   get_plugin_status(plugin_id: string): PluginStatus;
@@ -129,11 +129,11 @@ interface PluginInterface {
   // 初始化方法
   // 系统加载Plugin时调用，用于准备运行环境和依赖
   initialize(context: PluginContext): Promise<InitializeResult>;
-  
+
   // 执行方法
   // 接收任务输入，执行具体业务逻辑，返回执行结果
   execute(input: PluginInput): Promise<PluginOutput>;
-  
+
   // 关闭方法
   // 系统卸载Plugin时调用，用于清理资源和保存状态
   shutdown(): Promise<void>;
@@ -194,21 +194,21 @@ interface PluginOutput {
 ```typescript
 interface PluginMetadata {
   // 基本信息
-  name: string;           // Plugin名称，唯一标识
-  version: string;        // 版本号，遵循semver规范
-  description: string;    // 功能描述
-  
+  name: string; // Plugin名称，唯一标识
+  version: string; // 版本号，遵循semver规范
+  description: string; // 功能描述
+
   // 兼容性信息
-  api_version: string;    // 兼容的Kernel API版本
-  min_kernel_version: string;  // 最低Kernel版本要求
-  
+  api_version: string; // 兼容的Kernel API版本
+  min_kernel_version: string; // 最低Kernel版本要求
+
   // 依赖信息
   dependencies: PluginDependency[];
-  
+
   // 配置信息
   default_config: Record<string, any>;
   config_schema: ConfigSchema;
-  
+
   // 生命周期钩子
   hooks?: PluginHooks;
 }
@@ -218,9 +218,9 @@ interface PluginMetadata {
 
 ```typescript
 interface PluginDependency {
-  plugin_name: string;    // 依赖的Plugin名称
-  version_range: string;  // 版本范围，遵循semver规范
-  optional: boolean;      // 是否可选依赖
+  plugin_name: string; // 依赖的Plugin名称
+  version_range: string; // 版本范围，遵循semver规范
+  optional: boolean; // 是否可选依赖
 }
 ```
 
@@ -279,16 +279,16 @@ interface PluginHooks {
 
 ```typescript
 enum PluginLifecycleState {
-  DISCOVERED = "discovered",
-  RESOLVED = "resolved",
-  LOADING = "loading",
-  INITIALIZED = "initialized",
-  ACTIVE = "active",
-  RUNNING = "running",
-  SHUTTING_DOWN = "shutting_down",
-  SHUTDOWN = "shutdown",
-  ERROR = "error",
-  UNLOADED = "unloaded"
+  DISCOVERED = 'discovered',
+  RESOLVED = 'resolved',
+  LOADING = 'loading',
+  INITIALIZED = 'initialized',
+  ACTIVE = 'active',
+  RUNNING = 'running',
+  SHUTTING_DOWN = 'shutting_down',
+  SHUTDOWN = 'shutdown',
+  ERROR = 'error',
+  UNLOADED = 'unloaded',
 }
 ```
 
@@ -325,6 +325,7 @@ interface PluginMessage {
 ### 配置加载优先级
 
 Plugin配置按以下优先级加载（从低到高）：
+
 1. Plugin默认配置（default_config）
 2. 系统级Plugin配置
 3. 项目级Plugin配置
@@ -334,7 +335,7 @@ Plugin配置按以下优先级加载（从低到高）：
 
 ```typescript
 interface ConfigSchema {
-  type: "object";
+  type: 'object';
   properties: {
     [key: string]: {
       type: string;
@@ -496,9 +497,7 @@ class PluginLoader {
     const module = await import(info.packagePath);
 
     // 调用静态load方法或直接使用默认导出
-    const plugin = module.load
-      ? await module.load(info.packagePath)
-      : new module.default();
+    const plugin = module.load ? await module.load(info.packagePath) : new module.default();
 
     // 缓存实例
     this.cache.set(pluginId, plugin);
@@ -610,6 +609,7 @@ interface InstallStatus {
 ### 安装流程
 
 **步骤1：来源解析**。解析安装来源，支持以下格式：
+
 - 本地路径：`/path/to/plugin` 或 `./local-plugin`
 - NPM包：`npm:plugin-name@1.0.0`
 - Git仓库：`git:https://github.com/user/plugin.git`
@@ -669,16 +669,16 @@ interface InstallStatus {
 
 ## 验收条件
 
-| 序号 | 验收项 | 验收标准 |
-|------|--------|----------|
-| 1 | Kernel职责定义 | Kernel明确定义为系统核心引擎，承担信息提供、工具调用、生命周期管理职责 |
-| 2 | Plugin核心接口 | Plugin必须实现initialize()、execute()、shutdown()三个核心方法 |
-| 3 | Plugin元数据结构 | Plugin元数据包含名称、版本、API版本、依赖等完整信息 |
-| 4 | 生命周期流程 | Plugin具有完整的生命周期流程，包含发现、加载、初始化、运行、卸载各阶段 |
-| 5 | 版本兼容性 | 支持semver规范的版本范围定义和兼容性检测 |
-| 6 | 配置管理 | 支持多级配置覆盖机制 |
-| 7 | 通信机制 | 支持点对点和发布订阅两种通信模式 |
-| 8 | 错误处理 | Plugin错误不影响Kernel和其他Plugin运行 |
+| 序号 | 验收项           | 验收标准                                                               |
+| ---- | ---------------- | ---------------------------------------------------------------------- |
+| 1    | Kernel职责定义   | Kernel明确定义为系统核心引擎，承担信息提供、工具调用、生命周期管理职责 |
+| 2    | Plugin核心接口   | Plugin必须实现initialize()、execute()、shutdown()三个核心方法          |
+| 3    | Plugin元数据结构 | Plugin元数据包含名称、版本、API版本、依赖等完整信息                    |
+| 4    | 生命周期流程     | Plugin具有完整的生命周期流程，包含发现、加载、初始化、运行、卸载各阶段 |
+| 5    | 版本兼容性       | 支持semver规范的版本范围定义和兼容性检测                               |
+| 6    | 配置管理         | 支持多级配置覆盖机制                                                   |
+| 7    | 通信机制         | 支持点对点和发布订阅两种通信模式                                       |
+| 8    | 错误处理         | Plugin错误不影响Kernel和其他Plugin运行                                 |
 
 ---
 
@@ -687,6 +687,7 @@ interface InstallStatus {
 ### 与Agent架构的协同
 
 Plugin系统与Agent架构紧密协作：
+
 - Agent可以作为Plugin的实现载体
 - Plugin可调用Agent进行任务处理
 - Plugin支持嵌套调用其他Plugin
@@ -694,6 +695,7 @@ Plugin系统与Agent架构紧密协作：
 ### 与配置系统的对齐
 
 Plugin配置遵循配置系统设计原则：
+
 - 支持三级配置覆盖
 - 支持运行时热更新
 - 支持配置版本管理
@@ -702,13 +704,13 @@ Plugin配置遵循配置系统设计原则：
 
 ## 术语定义
 
-| 术语 | 定义 |
-|------|------|
-| Kernel | 系统核心引擎，提供基础服务和运行环境 |
-| Plugin | 功能扩展单元，实现具体业务逻辑 |
-| Lifecycle | Plugin从发现到卸载的完整生命周期 |
-| API Version | Kernel暴露给Plugin的接口版本号 |
-| Dependency | Plugin之间的依赖关系定义 |
+| 术语        | 定义                                 |
+| ----------- | ------------------------------------ |
+| Kernel      | 系统核心引擎，提供基础服务和运行环境 |
+| Plugin      | 功能扩展单元，实现具体业务逻辑       |
+| Lifecycle   | Plugin从发现到卸载的完整生命周期     |
+| API Version | Kernel暴露给Plugin的接口版本号       |
+| Dependency  | Plugin之间的依赖关系定义             |
 
 ---
 
