@@ -3,13 +3,14 @@
  */
 
 import { createLogger, type Logger } from '@organic/utils';
-import * as readline from 'node:readline';
 import { type Command, type CommandResult, createCommand, addSubcommand } from './Command.js';
 import type { CommandParser } from './CommandParser.js';
 import { defaultParser } from './CommandParser.js';
 import { Terminal, type FeatureConfig } from '../terminal/Terminal.js';
 import { createAutoTheme, type Theme } from '../terminal/Theme.js';
 import { Screen } from '../terminal/Screen.js';
+import { History } from '../tui/History.js';
+import { ChatSession } from '../tui/ChatSession.js';
 
 /**
  * CLI configuration
@@ -419,88 +420,43 @@ export class CLI {
   }
 
   /**
-   * Start interactive REPL session
+   * Start interactive chat session
    *
-   * Uses the Terminal detection system for feature-aware rendering.
-   * Supports alternate screen buffer, cursor control, and clean exit handling.
+   * Uses the modern agent-CLI TUI layer (`ChatSession`): an input box with
+   * Up/Down history, Tab completion, `/slash` commands and formatted output.
+   * Plain text lines are executed as CLI commands.
    */
   async startInteractive(): Promise<void> {
     this.screen = new Screen(this.terminal);
     const { colors } = this.theme;
 
-    // Enter alternate screen for a clean TUI experience (if supported)
+    const session = new ChatSession({
+      name: this.config.name,
+      description: this.config.description,
+      version: this.config.version,
+      history: new History({ max: 1000, filePath: this.config.historyPath }),
+      onUserMessage: async content => {
+        const result = await this.run(content.split(/\s+/));
+        if (result.error) {
+          return ` ${colors.error(this.theme.errorPrefix)} ${result.error}`;
+        }
+        if (result.message) return result.message;
+        return 'Done.';
+      },
+      output: line => console.log(line),
+    });
+
+    // Hand the terminal screen over to the session for clean state.
     if (this.terminal.features.alternateScreen) {
       this.screen.enterAltScreen();
     }
-    this.screen.hideCursor();
-    this.screen.setupCleanup();
 
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-      terminal: true,
-      prompt: colors.primary(`${this.config.name}> `),
-      historySize: 1000,
-    });
-
-    // Display welcome banner
-    console.log('');
-    console.log(colors.title(`  ${this.config.name}`));
-    console.log(colors.muted(`  ${this.config.description}`));
-    console.log(colors.muted(`  Version ${this.config.version}`));
-    console.log(colors.muted('  Type "help" for available commands, "exit" to quit'));
-    console.log('');
-
-    rl.prompt();
-
-    rl.on('line', (line: string) => {
-      void (async () => {
-        const trimmed = line.trim();
-
-        if (!trimmed) {
-          rl.prompt();
-          return;
-        }
-
-        // Handle exit
-        if (trimmed === 'exit' || trimmed === 'quit' || trimmed === 'q') {
-          console.log(colors.muted('Goodbye!'));
-          rl.close();
-          return;
-        }
-
-        // Handle clear
-        if (trimmed === 'clear' || trimmed === 'cls') {
-          this.screen?.clear();
-          rl.prompt();
-          return;
-        }
-
-        // Run the command
-        const args = trimmed.split(/\s+/);
-        const result = await this.run(args);
-
-        if (result.error) {
-          console.log(colors.error(`  ${this.theme.errorPrefix} ${result.error}`));
-        } else if (result.message) {
-          console.log(result.message);
-        }
-
-        console.log('');
-        rl.prompt();
-      })();
-    });
-
-    rl.on('close', () => {
-      this.screen?.restore();
-      console.log('');
-      process.exit(0);
-    });
-
-    // Wait for the readline to close
-    return new Promise(resolve => {
-      rl.on('close', resolve);
-    });
+    try {
+      await session.start();
+    } finally {
+      this.screen.showCursor();
+      this.screen.exitAltScreen();
+    }
   }
 
   /**

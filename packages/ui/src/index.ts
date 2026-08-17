@@ -188,6 +188,12 @@ export {
 // Terminal UI - box drawing
 export { Box, defaultBox, createBox, type BoxConfig, type BoxStyle } from './terminal/Box.js';
 
+// Standard frontend interface (TUI / WebUI contract)
+export * from './frontend/index.js';
+
+// Interactive TUI layer (input box / history / slash commands / formatting)
+export * from './tui/index.js';
+
 /**
  * Module version
  */
