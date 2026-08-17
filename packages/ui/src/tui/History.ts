@@ -115,7 +115,7 @@ export class History {
       return this.entries[this.cursor];
     }
     // Reached the newest entry; fall back to the captured draft.
-    const {draft} = this;
+    const { draft } = this;
     this.cursor = -1;
     this.draft = '';
     return draft;
@@ -184,7 +184,11 @@ export class History {
     try {
       const dir = dirname(this.filePath);
       if (dir) mkdirSync(dir, { recursive: true });
-      writeFileSync(this.filePath, this.entries.join('\n') + (this.entries.length ? '\n' : ''), 'utf8');
+      writeFileSync(
+        this.filePath,
+        this.entries.join('\n') + (this.entries.length ? '\n' : ''),
+        'utf8'
+      );
     } catch {
       // Persistence is best-effort; never crash the interactive session.
     }

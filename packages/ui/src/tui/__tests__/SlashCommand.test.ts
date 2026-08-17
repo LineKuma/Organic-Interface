@@ -15,7 +15,12 @@ describe('SlashCommandRegistry', () => {
   it('parses a command line into name + args', () => {
     const r = new SlashCommandRegistry();
     const line = r.parse('/model fast big');
-    expect(line).toEqual({ kind: 'command', command: 'model', args: 'fast big', raw: '/model fast big' });
+    expect(line).toEqual({
+      kind: 'command',
+      command: 'model',
+      args: 'fast big',
+      raw: '/model fast big',
+    });
   });
 
   it('parses plain text', () => {
@@ -25,9 +30,7 @@ describe('SlashCommandRegistry', () => {
 
   it('registers, resolves aliases and looks up definitions', () => {
     const r = new SlashCommandRegistry();
-    r.register(
-      slashCommand('exit', 'Quit', () => ({ exit: true }), { aliases: ['quit', 'q'] })
-    );
+    r.register(slashCommand('exit', 'Quit', () => ({ exit: true }), { aliases: ['quit', 'q'] }));
     expect(r.get('exit')).toBeDefined();
     expect(r.get('quit')?.name).toBe('exit');
     expect(r.get('q')?.name).toBe('exit');
@@ -54,7 +57,7 @@ describe('SlashCommandRegistry', () => {
     let seen: SlashCommandContext | null = null;
     const r = new SlashCommandRegistry();
     r.register(
-      slashCommand('echo', 'Echo args', (ctx) => {
+      slashCommand('echo', 'Echo args', ctx => {
         seen = ctx;
         return { output: ctx.args || 'none' };
       })

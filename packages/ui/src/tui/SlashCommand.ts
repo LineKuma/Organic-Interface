@@ -176,7 +176,9 @@ export class SlashCommandRegistry {
     if (parsed.kind !== 'command') return null;
     const def = this.get(parsed.command);
     if (!def) {
-      throw new Error(`Unknown slash command '${parsed.raw.split(/\s+/)[0]}'. Type /help for a list.`);
+      throw new Error(
+        `Unknown slash command '${parsed.raw.split(/\s+/)[0]}'. Type /help for a list.`
+      );
     }
     return def.handler({ args: parsed.args, raw: parsed.raw });
   }

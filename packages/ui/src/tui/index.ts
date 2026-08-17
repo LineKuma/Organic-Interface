@@ -19,11 +19,7 @@ export {
   type SlashCommandResult,
   type SlashLine,
 } from './SlashCommand.js';
-export {
-  InputBox,
-  type CompletionProvider,
-  type InputBoxOptions,
-} from './InputBox.js';
+export { InputBox, type CompletionProvider, type InputBoxOptions } from './InputBox.js';
 export {
   ChatSession,
   createChatSession,

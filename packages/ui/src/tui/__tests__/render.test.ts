@@ -61,7 +61,10 @@ describe('render (formatted output)', () => {
   });
 
   it('renders a command menu and a completion menu', () => {
-    const defs = [slashCommand('help', 'Show help', () => ({})), slashCommand('exit', 'Quit', () => ({}))];
+    const defs = [
+      slashCommand('help', 'Show help', () => ({})),
+      slashCommand('exit', 'Quit', () => ({})),
+    ];
     const menu = renderCommandMenu(defs, theme);
     expect(menu).toContain('/help');
     expect(menu).toContain('Show help');

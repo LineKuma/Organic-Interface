@@ -456,8 +456,8 @@ const box = new InputBox({
 box.setValue('rm -rf /tmp/x', 13);
 box.handleKey({ name: 'w', ctrl: true }); // 删除前一个词 → 'rm -rf /tmp/'
 box.handleKey({ name: 'a', ctrl: true }); // 移动到行首
-box.handleKey({ name: 'tab' });           // 补全 / 触发 complete 菜单
-box.handleKey({ name: 'return' });        // { type: 'submit', value }
+box.handleKey({ name: 'tab' }); // 补全 / 触发 complete 菜单
+box.handleKey({ name: 'return' }); // { type: 'submit', value }
 ```
 
 事件类型：`change`（内容/光标变化）、`submit`（回车提交）、`complete`（多候选菜单）、`history`（历史导航）、`none`（无操作或忽略）。
@@ -470,7 +470,7 @@ box.handleKey({ name: 'return' });        // { type: 'submit', value }
 const history = new History({ max: 1000, filePath: '~/.config/organic/history' });
 history.push('list projects');
 history.previous(''); // 上一条；未记录 draft 时自动暂存当前输入
-history.next();       // 下一条 / 恢复 draft
+history.next(); // 下一条 / 恢复 draft
 ```
 
 ### SlashCommand — 斜杠命令
@@ -481,18 +481,15 @@ history.next();       // 下一条 / 恢复 draft
 const slash = new SlashCommandRegistry();
 
 slash.register(
-  slashCommand(
-    'exit',
-    '退出会话',
-    (ctx) => ({ exit: true, output: '再见！' }),
-    { aliases: ['quit', 'q'] }
-  )
+  slashCommand('exit', '退出会话', ctx => ({ exit: true, output: '再见！' }), {
+    aliases: ['quit', 'q'],
+  })
 );
 
-slash.isSlash('/exit');          // true
-slash.parse('/model fast big');  // { kind:'command', command:'model', args:'fast big', ... }
-slash.complete('/ex');           // ['/exit']
-slash.list();                    // SlashCommandDefinition[]
+slash.isSlash('/exit'); // true
+slash.parse('/model fast big'); // { kind:'command', command:'model', args:'fast big', ... }
+slash.complete('/ex'); // ['/exit']
+slash.list(); // SlashCommandDefinition[]
 await slash.run('/model fast big');
 ```
 
@@ -502,24 +499,24 @@ await slash.run('/model fast big');
 
 纯字符串渲染函数，使用主题着色：
 
-| 函数               | 作用                                 |
-| ------------------ | ------------------------------------ |
-| `renderMessage`    | 完整消息框（角色徽标 + 富文本内容）  |
-| `renderRichText`   | 轻量 Markdown：代码块/标题/列表/行内 |
-| `renderCodeBlock`  | 带语言头的边框代码块                 |
-| `renderCommandMenu`| 斜杠命令帮助/补全菜单                |
-| `renderCompletionMenu`| Tab 补全候选菜单                  |
-| `renderStatusLine` | 三段式状态栏（左中右/居中/右对齐）   |
-| `roleBadge`        | 角色徽标（`[You]`/`[AI]`/`[Tool]`）  |
+| 函数                   | 作用                                 |
+| ---------------------- | ------------------------------------ |
+| `renderMessage`        | 完整消息框（角色徽标 + 富文本内容）  |
+| `renderRichText`       | 轻量 Markdown：代码块/标题/列表/行内 |
+| `renderCodeBlock`      | 带语言头的边框代码块                 |
+| `renderCommandMenu`    | 斜杠命令帮助/补全菜单                |
+| `renderCompletionMenu` | Tab 补全候选菜单                     |
+| `renderStatusLine`     | 三段式状态栏（左中右/居中/右对齐）   |
+| `roleBadge`            | 角色徽标（`[You]`/`[AI]`/`[Tool]`）  |
 
-```typescript
+````typescript
 const out = renderRichText('Use `npm i`, then **restart**:\n```ts\nlet x = 1\n```', theme);
 const status = renderStatusLine(
   { left: 'organic v0.1.0', middle: "type '/help'", right: '3 msgs' },
   theme,
   80
 );
-```
+````
 
 单测覆盖：`packages/ui/src/tui/__tests__/`（InputBox / History / SlashCommand / render）。
 

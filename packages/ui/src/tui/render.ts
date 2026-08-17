@@ -38,7 +38,9 @@ export function renderCodeBlock(
 
   const out: string[] = [];
   if (language) {
-    out.push(`${theme.colors.subtitle(`┌─ ${language} ${'─'.repeat(Math.max(0, width - language.length + 1))}┐`)}`);
+    out.push(
+      `${theme.colors.subtitle(`┌─ ${language} ${'─'.repeat(Math.max(0, width - language.length + 1))}┐`)}`
+    );
   } else {
     out.push(border);
   }
@@ -98,7 +100,9 @@ export function renderRichText(text: string, theme: Theme = defaultTheme): strin
     if (heading) {
       const level = heading[1].length;
       const title = theme.colors.title(heading[2]);
-      out.push(level === 1 ? title : `${' '.repeat((level - 1) * 2)}${theme.colors.subtitle(heading[2])}`);
+      out.push(
+        level === 1 ? title : `${' '.repeat((level - 1) * 2)}${theme.colors.subtitle(heading[2])}`
+      );
       continue;
     }
     if (/^\s*(---+|\*\*\*)\s*$/.test(line) && out.length > 0) {
@@ -106,19 +110,26 @@ export function renderRichText(text: string, theme: Theme = defaultTheme): strin
       continue;
     }
     if (/^\s*[-*+]\s+/.test(line)) {
-      out.push(`${theme.colors.accent('•')} ${renderInline(line.replace(/^\s*[-*+]\s+/, ''), theme)}`);
+      out.push(
+        `${theme.colors.accent('•')} ${renderInline(line.replace(/^\s*[-*+]\s+/, ''), theme)}`
+      );
       continue;
     }
     const numbered = /^\s*(\d+)\.\s+/.exec(line);
     if (numbered) {
-      out.push(`${theme.colors.accent(`${numbered[1]}.`)} ${renderInline(line.slice(numbered[0].length), theme)}`);
+      out.push(
+        `${theme.colors.accent(`${numbered[1]}.`)} ${renderInline(line.slice(numbered[0].length), theme)}`
+      );
       continue;
     }
     out.push(renderInline(line, theme));
   }
   flushFence();
 
-  return out.join('\n').replace(/\n{3,}/g, '\n\n').replace(/^\n/, '');
+  return out
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/^\n/, '');
 }
 
 /** Render inline `code` and **bold** markers on a single line. */
@@ -191,7 +202,11 @@ export function renderCompletionMenu(
  * Render a one-line status bar from three segments. `middle` is center-aligned
  * when there is spare width; `right` is right-aligned.
  */
-export function renderStatusLine(status: StatusLine, theme: Theme = defaultTheme, width = 80): string {
+export function renderStatusLine(
+  status: StatusLine,
+  theme: Theme = defaultTheme,
+  width = 80
+): string {
   const left = theme.colors.border(status.left);
   const right = theme.colors.muted(status.right);
   const middle = theme.colors.info(status.middle);

@@ -107,7 +107,11 @@ export class ChatSession {
   }
 
   /** Append a message to the buffer and return it. */
-  addMessage(role: ChatRole, content: string, extra: Pick<ChatMessage, 'error' | 'data'> = {}): ChatMessage {
+  addMessage(
+    role: ChatRole,
+    content: string,
+    extra: Pick<ChatMessage, 'error' | 'data'> = {}
+  ): ChatMessage {
     const message: ChatMessage = {
       id: `msg_${++this.idCounter}`,
       role,
@@ -237,7 +241,7 @@ export class ChatSession {
     this.output(`Type '/help' for commands. Use ↑/↓ for history, Tab to complete.`);
     this.output('');
 
-    const {isTTY} = Terminal.get().features;
+    const { isTTY } = Terminal.get().features;
 
     if (!isTTY) {
       const rl = readline.createInterface({ input: process.stdin, terminal: false });
@@ -253,7 +257,7 @@ export class ChatSession {
 
   /** Raw-mode keypress loop (only reached when stdin is a TTY). */
   private async startKeypressLoop(): Promise<void> {
-    const {stdin} = process;
+    const { stdin } = process;
 
     // Configure raw mode for fine-grained keypress events.
     stdin.setRawMode(true);
@@ -263,7 +267,7 @@ export class ChatSession {
 
     const draw = (): void => {
       const line = this.inputBox.prefix + this.inputBox.value;
-      process.stdout.write(`\x1b[2K\r${  line}`);
+      process.stdout.write(`\x1b[2K\r${line}`);
       // Reposition the caret over the current edit point.
       const within = this.inputBox.value.slice(0, this.inputBox.cursor);
       process.stdout.write(`\x1b[${within.length + this.inputBox.prefix.length}G`);

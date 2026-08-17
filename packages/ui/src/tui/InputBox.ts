@@ -107,7 +107,7 @@ export class InputBox {
       return { type: 'change', value: this._value, cursor: this._cursor };
     }
 
-    const {name} = key;
+    const { name } = key;
     const ctrl = key.ctrl === true;
 
     switch (name) {
@@ -121,16 +121,14 @@ export class InputBox {
           // Ctrl-W / Ctrl-H: delete back to previous word boundary.
           this.deleteWordBefore();
         } else if (this._cursor > 0) {
-          this._value =
-            this._value.slice(0, this._cursor - 1) + this._value.slice(this._cursor);
+          this._value = this._value.slice(0, this._cursor - 1) + this._value.slice(this._cursor);
           this._cursor -= 1;
         }
         return { type: 'change', value: this._value, cursor: this._cursor };
 
       case 'delete':
         if (this._cursor < this._value.length) {
-          this._value =
-            this._value.slice(0, this._cursor) + this._value.slice(this._cursor + 1);
+          this._value = this._value.slice(0, this._cursor) + this._value.slice(this._cursor + 1);
         }
         return { type: 'change', value: this._value, cursor: this._cursor };
 
